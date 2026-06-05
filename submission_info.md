@@ -64,25 +64,6 @@ Users will see stronger warnings before running Experimental apps.
 
 Experimental does **not** mean anything is allowed. Experimental apps must still follow the rules in this document.
 
-### Local apps
-
-Developers can test apps locally by copying them directly to their device.
-
-Local apps are not submitted, reviewed, signed, hashed, or approved by Brewser. They are intended for development and testing.
-
-Example local app path:
-
-```text
-/switch/brewser/local-apps/my-test-app/
-  manifest.json
-  index.html
-  app.js
-  style.css
-  assets/
-```
-
-Local apps may show warnings in Brewser because they are not reviewed.
-
 ---
 
 ## Recommended app structure
@@ -275,6 +256,7 @@ Supported permissions may include:
 | `webgl` | App wants to use WebGL |
 | `wasm` | App wants to use WebAssembly |
 | `gamepad` | App wants to use controller/gamepad input |
+| `sensors` | App wants to use console sensors |
 
 Users will be asked to opt in before an app starts when special permissions are required.
 
