@@ -1,0 +1,31 @@
+{
+  "catalog_version": 1,
+  "generated_at": "2026-06-05T12:00:00Z",
+  "apps": [
+    {
+      "id": "com.example.notes",
+      "name": "Notes",
+      "channel": "community",
+      "version": "1.0.0",
+      "entry": "index.html",
+      "permissions": {
+        "storage": true,
+        "network": false
+      },
+      "files": [
+        {
+          "path": "manifest.json",
+          "sha256": "..."
+        },
+        {
+          "path": "index.html",
+          "sha256": "..."
+        },
+        {
+          "path": "app.js",
+          "sha256": "..."
+        }
+      ]
+    }
+  ]
+}
