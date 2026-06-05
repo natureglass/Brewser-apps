@@ -1,0 +1,87 @@
+name: Submit a Brewser app
+description: Submit an app for review and possible inclusion in Brewser.
+title: "[App Submission]: "
+labels: ["app-submission"]
+body:
+  - type: input
+    id: app_name
+    attributes:
+      label: App name
+      description: The display name of your app.
+      placeholder: Example Notes
+    validations:
+      required: true
+
+  - type: input
+    id: app_id
+    attributes:
+      label: App ID
+      description: Reverse-domain style ID.
+      placeholder: com.example.notes
+    validations:
+      required: true
+
+  - type: input
+    id: source_repo
+    attributes:
+      label: Source repository
+      description: Link to the public source repo for the app.
+      placeholder: https://github.com/example/brewser-notes
+    validations:
+      required: true
+
+  - type: dropdown
+    id: requested_channel
+    attributes:
+      label: Requested channel
+      options:
+        - Community
+        - Experimental
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: App description
+      description: Short description shown to users.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: permissions
+    attributes:
+      label: Requested permissions
+      options:
+        - label: Storage
+        - label: Network
+        - label: WebGL
+        - label: WASM
+        - label: Gamepad/controller input
+
+  - type: textarea
+    id: network_domains
+    attributes:
+      label: Network domains
+      description: List every domain your app connects to.
+
+  - type: input
+    id: license
+    attributes:
+      label: License
+      placeholder: MIT, GPL-3.0, Apache-2.0, etc.
+    validations:
+      required: true
+
+  - type: textarea
+    id: assets
+    attributes:
+      label: Assets and copyright confirmation
+      description: Confirm that you own or have permission to use included assets.
+    validations:
+      required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Extra notes for review
