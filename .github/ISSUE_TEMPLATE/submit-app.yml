@@ -2,6 +2,7 @@ name: Submit a Brewser app
 description: Submit an app for review and possible inclusion in Brewser.
 title: "[App Submission]: "
 labels: ["app-submission"]
+
 body:
   - type: input
     id: app_name
@@ -41,7 +42,7 @@ body:
       required: true
 
   - type: textarea
-    id: description
+    id: app_description
     attributes:
       label: App description
       description: Short description shown to users.
