@@ -36,7 +36,7 @@ Yes.
 
 Developers can submit their app or app repository for review.
 
-For now, app submissions are handled through GitHub issues. Please do **not** directly open pull requests that modify the official app catalog unless specifically asked.
+For now, app submissions are handled through [GitHub issues](https://github.com/natureglass/Brewser-apps/issues). Please do **not** directly open pull requests that modify the official app catalog unless specifically asked.
 
 To submit an app, read the full submission guide here:
 
