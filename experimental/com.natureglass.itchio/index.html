@@ -1,0 +1,1075 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>itch.io</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 100%; height: 100%;
+    background: #222129;
+    color: #fff;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    overflow: hidden;
+  }
+
+  /* ============================== layout ============================== */
+  .layout {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex;
+  }
+
+  /* ============================== sidebar ==============================
+     Sized at 400px so the remaining 880px stage holds a 4×3 grid where each
+     card's thumbnail keeps itch.io's native ~5:4 cover-image aspect without
+     stretching. Card geometry: 200×200 (thumb 160×200 + body 40); 3 rows ×
+     200 + 28 gaps + 22 header + 24 padding = 674 < 720, plenty of slack. */
+  .sidebar {
+    width: 400px;
+    height: 100%;
+    background: #1a1820;
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 24px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .brand-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 6px 4px 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    margin-bottom: 10px;
+  }
+  .brand-logo { width: 56px; height: 56px; border-radius: 10px; }
+  .brand-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: #fa5c5c;
+    letter-spacing: 0.02em;
+  }
+  .sidebar-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.45);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin: 6px 4px 2px;
+  }
+  .feed-pill {
+    padding: 14px 18px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 16px;
+    font-weight: 600;
+    width: 100%;
+    user-select: none;
+    outline: none;
+  }
+  .feed-pill:active { background: rgba(255, 255, 255, 0.12); }
+  .feed-pill.selected { background: #fa5c5c; color: #fff; }
+
+  /* ============================== stage ============================== */
+  .stage {
+    flex: 1;
+    height: 100%;
+    position: relative;
+    background: #222129;
+  }
+  .stage-scroll {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    /* overflow:hidden NOT auto — the layout math (3 rows × 200 + 28 gaps +
+       24 padding = 652 ≤ 720) ensures no overflow under normal conditions;
+       clip rather than scroll if engine subpixel drift pushes a row over. */
+    overflow: hidden;
+    padding: 12px 16px 12px;
+  }
+  .stage-status {
+    padding: 40px 16px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 14px;
+    width: 100%;
+  }
+  .stage-status-error { color: rgba(255, 180, 180, 0.85); }
+  .retry-btn {
+    display: inline-block;
+    margin-top: 14px;
+    padding: 8px 18px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 16px;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .retry-btn:active { background: rgba(255, 255, 255, 0.18); }
+
+  /* ============================== grid ============================== */
+  /* 4 cards per row × 3 rows = MAX_GAMES (12). Cards are <a> elements so the
+     shell's tap → navigate pipeline picks them up via kind:'navigate'
+     ([[project-swb-apps-page]] trap: the href MUST be absolute since the
+     WebView has no base-URL resolver, but feed-derived hrefs already are). */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    width: 100%;
+  }
+  .game-card {
+    display: block;
+    overflow: hidden;
+    background: #2a2832;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    text-decoration: none;
+    color: inherit;
+    user-select: none;
+    outline: none;
+    /* Default = "loading" — dimmer until extraction completes. The card
+       brightens to full opacity when it becomes tappable (applyCardEmbed
+       adds .ready). No badge text change needed — opacity carries the state. */
+    opacity: 0.45;
+  }
+  .game-card.ready { opacity: 1; }
+  .game-card.failed { opacity: 0.25; }
+  .game-card:active { background: #34323e; }
+
+  /* Thumb sized to ~5:4 against the computed card width (stage 880 - 32 pad
+     - 42 gap = 806, ÷4 = ~201px card width; 201 × 4/5 = 160 thumb height).
+     Combined with ~40px card-body, total card ≈ 200px. 3 rows × 200 + 28
+     gaps + 22 header + 24 stage padding = 674 ≤ 720, ~46px slack against
+     scrollbar drift. Thumbnails fetched from img.itch.zone are 630×500
+     (5:4), so this shows them at native ratio without horizontal stretching. */
+  .thumb-wrap {
+    width: 100%;
+    height: 160px;
+    background: linear-gradient(135deg, #3a2540, #2a3848);
+    overflow: hidden;
+    position: relative;
+  }
+  .thumb-img { width: 100%; height: 160px; display: block; }
+  .thumb-badge {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    padding: 3px 8px;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.55);
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .thumb-badge.free { background: rgba(95, 200, 95, 0.55); color: #fff; }
+  .thumb-badge.ready { background: rgba(250, 92, 92, 0.85); color: #fff; }
+
+  .card-body {
+    padding: 6px 10px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.2;
+    width: 100%;
+  }
+  .card-author {
+    font-size: 11px;
+    color: rgba(250, 92, 92, 0.9);
+    font-weight: 600;
+    width: 100%;
+  }
+
+  @media (max-width: 680px) {
+    .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  /* ============================== focus card overlay ============================
+     Shown after a tap on a not-yet-ready card. The grid is hidden behind it
+     and the selected game is presented as a single large centred card
+     (visual parallel to the grid cards but bigger). When extraction completes
+     the entire card becomes the tap target — no tiny "Play" pill to hunt for.
+     Engine constraint reminder: the only way to launch is via an <a href>
+     tap, so the focus card IS an <a> whose href gets set when the embed URL
+     resolves. */
+  .launch-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(34, 33, 41, 0.96);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    padding: 20px;
+  }
+  .launch-focus {
+    display: block;
+    width: 380px;
+    background: #2a2832;
+    border: 2px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    user-select: none;
+    outline: none;
+    /* Default = loading look (dimmer). When extraction completes the
+       overlay JS swaps in .ready (full brightness, red border). NO
+       box-shadow — engine renders soft shadows with banding gaps around
+       border-radius corners which read as "broken border" on real HW. */
+    opacity: 0.6;
+  }
+  .launch-focus.ready {
+    opacity: 1;
+    border: 2px solid #fa5c5c;
+    background: #34323e;
+  }
+  .launch-focus.failed {
+    opacity: 0.4;
+    border-color: rgba(255, 100, 100, 0.4);
+  }
+  .launch-focus:active { background: #3a3845; }
+  .focus-thumb-wrap {
+    width: 100%;
+    height: 304px;
+    background: linear-gradient(135deg, #3a2540, #2a3848);
+    overflow: hidden;
+    position: relative;
+  }
+  .focus-thumb { width: 100%; height: 304px; display: block; }
+  /* Focus badge intentionally hidden — the focus-action text below the
+     thumb is the only state indicator the user needs ("Resolving game URL…"
+     vs "▶ Tap to play"). */
+  .focus-badge { display: none; }
+  .focus-body {
+    padding: 14px 18px 16px;
+  }
+  .focus-title {
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #fff;
+    margin-bottom: 6px;
+  }
+  .focus-author {
+    font-size: 13px;
+    color: rgba(250, 92, 92, 0.9);
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  .focus-action {
+    font-size: 15px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.55);
+  }
+  .focus-action.ready { color: #fa5c5c; font-size: 18px; }
+  .focus-action.failed { color: rgba(255, 160, 160, 0.85); }
+  .launch-cancel {
+    /* Real button — width set explicitly + white-space:nowrap so the
+       "← Back to grid" text never wraps to multiple lines (seen on real
+       HW with inline-block + flex column container before this fix). */
+    display: block;
+    width: 220px;
+    padding: 14px 24px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 24px;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    white-space: nowrap;
+    user-select: none;
+    margin-top: 6px;
+  }
+  .launch-cancel:active { background: rgba(255, 255, 255, 0.22); }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div id="layout" class="layout">
+
+  <aside id="sidebar" class="sidebar">
+    <div class="brand-row">
+      <img class="brand-logo" src="assets/itchio_logo.png" alt="itch.io" />
+      <div class="brand-title">itch.io</div>
+    </div>
+    <div class="sidebar-label">Browse</div>
+    <div id="feed-pills"></div>
+  </aside>
+
+  <main id="stage" class="stage">
+    <div id="stage-scroll" class="stage-scroll">
+      <div id="stage-status" class="stage-status">Loading games…</div>
+      <div id="grid" class="grid"></div>
+    </div>
+
+    <!-- Focus card overlay. Shown when the user taps a not-yet-ready card.
+         The entire `<a id="launch-focus">` is the tap target — its href stays
+         unset until extraction completes, then gets the embed URL so a tap
+         anywhere on the card shell-navigates to launch the game. Cancel is
+         a <div>, NOT an <a>: an anchor (even href="#") would be picked up as
+         a navigate intent by findTapIntent (live-overlay.ts) and the shell
+         would try to nav to "#". -->
+    <div id="launch-overlay" class="launch-overlay hidden">
+      <a id="launch-focus" class="launch-focus">
+        <div class="focus-thumb-wrap">
+          <img id="focus-thumb" class="focus-thumb" />
+          <div id="focus-badge" class="focus-badge">Loading…</div>
+        </div>
+        <div class="focus-body">
+          <div id="focus-title" class="focus-title"></div>
+          <div id="focus-author" class="focus-author"></div>
+          <div id="focus-action" class="focus-action">Resolving game URL…</div>
+        </div>
+      </a>
+      <div id="launch-cancel" class="launch-cancel">← Back to grid</div>
+    </div>
+  </main>
+
+</div>
+
+<script>
+  // =========================================================================
+  // brewser itch.io app — grid + per-card extraction.
+  //
+  // State machine (in the user's words):
+  //   State A — grid (this page).
+  //   State B — playing a game (shell-level navigation to the extracted embed
+  //             URL; this page is destroyed; hardware Back returns here).
+  //
+  // Catalog source: the HTML listing page (NOT the RSS .xml feed) because
+  // only the HTML carries the `<span class="web_flag">Play in browser</span>`
+  // flag — the authoritative "is this game playable in a browser RIGHT NOW"
+  // signal. We filter at parse time so cards in the grid only correspond to
+  // games whose embed will plausibly resolve.
+  //
+  // Engine constraints we work within:
+  //   * <iframe> drops <script> ([html-to-live.ts:374]) so we cannot host the
+  //     game inside our own document. Tapping a card has to shell-nav.
+  //   * No programmatic navigation from page script (no location.href setter).
+  //     The only path to shell-nav is an <a href> tap; cards stay href-less
+  //     until extraction succeeds so taps on pending/failed cards don't try
+  //     to navigate anywhere ([[reference-swb-external-page-gif-crash]]).
+  //   * Recursive setTimeout chains persist past page-nav and starve audrv
+  //     ([[feedback-swb-page-script-timer-cleanup]]). All queues check a
+  //     cancellation flag set by a beforeunload listener; the listener must
+  //     be registered with BARE `addEventListener`, NOT `window.addEventListener`
+  //     (LiveWindow proxy intercepts the latter).
+  //   * 36 parallel TCP connects exhaust the Switch socket pool and trigger
+  //     nx.js's `Socket#opened` unhandled-rejection trap. Both the thumbnail
+  //     loader AND the extraction loader stagger their fetches.
+  // =========================================================================
+
+  // ---------- config ----------
+  const APP_VERSION = 'grid-2026-06-03';
+  const CONFIG_URL = 'brewser://apps/itchio/assets/config.json';
+  const LOG_PATH = 'sdmc:/switch/brewser/logs/itchio-app.log';
+  const DESKTOP_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) ' +
+    'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
+
+  // We fetch the HTML listing page (not the RSS .xml feed) because only the
+  // HTML carries the `<span class="web_flag">Play in browser</span>` flag,
+  // which is the live "is this game actually playable in a browser right now"
+  // signal. The RSS `platform-web` feed leaks games whose web embed has been
+  // removed (FNF / Sort the Court / Anxiety etc. showed `extract-noembed` in
+  // the previous build). Filtering at listing-parse time replaces those with
+  // games that will actually launch.
+  const FEEDS = {
+    newest: {
+      label: 'Newest',
+      url: 'https://itch.io/games/platform-web/newest',
+    },
+    top: {
+      label: 'Top Rated',
+      url: 'https://itch.io/games/platform-web/top-rated',
+    },
+  };
+  const DEFAULT_FEED = 'newest';
+  const DEFAULT_TEST_GAME_URL =
+    'https://html-classic.itch.zone/html/17770195/web/index.html?v=1780340301';
+
+  const THUMB_STAGGER_MS = 250;
+  // 400ms = fast enough that all 9 cards populate within ~4s (was ~10s at
+  // 900ms) but still spaced enough to keep the TCP pool happy.
+  // [[feedback-nxjs-socket-opened-unhandled-rejection]] is the floor —
+  // tightening below ~200ms would risk re-tripping it.
+  const EXTRACT_STAGGER_MS = 400;
+  // Cap the grid at 12 cards (4×3 layout fits on one screen without scrolling
+  // and keeps the extraction queue's total time bounded — 12 cards × ~1s
+  // fetch + EXTRACT_STAGGER_MS gap ≈ 17s to fully populate at 400ms stagger).
+  const MAX_GAMES = 12;
+
+  // ---------- state ----------
+  let appConfig = { feed: DEFAULT_FEED, testGameUrl: DEFAULT_TEST_GAME_URL };
+  let currentFeed = DEFAULT_FEED;
+  let items = [];          // current feed's parsed entries
+  let cardEls = [];        // per-item DOM refs (.card / .thumbImg / .badge / .extractState)
+  let pendingTapItemIdx = -1; // card the user tapped that's waiting on extraction
+  let _pageStartMs = Date.now();
+  let _pageDestroyed = false; // beforeunload guard, kills both stagger loops
+
+  // ---------- el refs ----------
+  const feedPillsEl = document.getElementById('feed-pills');
+  const stageStatusEl = document.getElementById('stage-status');
+  const gridEl = document.getElementById('grid');
+  const launchOverlayEl = document.getElementById('launch-overlay');
+  const launchFocusEl = document.getElementById('launch-focus');
+  const focusThumbEl = document.getElementById('focus-thumb');
+  const focusBadgeEl = document.getElementById('focus-badge');
+  const focusTitleEl = document.getElementById('focus-title');
+  const focusAuthorEl = document.getElementById('focus-author');
+  const focusActionEl = document.getElementById('focus-action');
+  const launchCancelEl = document.getElementById('launch-cancel');
+
+  // ---------- log ----------
+  // Convention: every line begins `+<ms-since-page-load>ms <stage> :: <detail>`
+  // so a single grep across the log gives a clean ordered trace of one boot.
+  function log(stage, detail) {
+    const ms = Date.now() - _pageStartMs;
+    const line = '+' + ms + 'ms ' + stage + ' :: ' + (detail == null ? '' : detail);
+    console.debug('[itchio]', line);
+    try {
+      const sw = globalThis.Switch;
+      if (sw && typeof sw.appendFileSync === 'function') {
+        sw.appendFileSync(LOG_PATH, line + '\n');
+      }
+    } catch (_e) { /* best effort */ }
+  }
+
+  // ---------- config load ----------
+  async function loadConfig() {
+    const cfg = { feed: DEFAULT_FEED, testGameUrl: DEFAULT_TEST_GAME_URL };
+    try {
+      log('config', 'GET ' + CONFIG_URL);
+      const resp = await fetch(CONFIG_URL);
+      log('config', 'status=' + resp.status);
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const json = await resp.json();
+      if (json && typeof json.feed === 'string' && FEEDS[json.feed]) {
+        cfg.feed = json.feed;
+      }
+      if (json && typeof json.testGameUrl === 'string' && json.testGameUrl) {
+        cfg.testGameUrl = json.testGameUrl;
+      }
+    } catch (err) {
+      log('config-error', (err && err.message) ? err.message : String(err));
+    }
+    log('config-resolved', 'feed=' + cfg.feed + ' testGameUrl=' + cfg.testGameUrl);
+    return cfg;
+  }
+
+  // ---------- staggered thumbnail loader ----------
+  // 36 parallel <img src=...> sets exhaust the Switch TCP pool and trigger
+  // nx.js's `Socket#opened` unhandled-rejection trap (canvas flips to
+  // "Press + to exit"). Per-tick stagger keeps the active connection count
+  // low; a stale-token gate cancels the queue on feed switch / page-nav.
+  let _thumbQueue = [];
+  let _thumbPumping = false;
+  let _thumbToken = 0;
+  function enqueueThumb(imgEl, src, token) {
+    _thumbQueue.push({ imgEl: imgEl, src: src, token: token });
+    if (!_thumbPumping) pumpThumbQueue();
+  }
+  function pumpThumbQueue() {
+    if (_pageDestroyed) { _thumbPumping = false; _thumbQueue = []; return; }
+    _thumbPumping = true;
+    while (_thumbQueue.length > 0 && _thumbQueue[0].token !== _thumbToken) {
+      _thumbQueue.shift();
+    }
+    const next = _thumbQueue.shift();
+    if (!next) { _thumbPumping = false; return; }
+    try {
+      next.imgEl.setAttribute('src', next.src);
+    } catch (e) {
+      log('thumb-error', (e && e.message) ? e.message : String(e));
+    }
+    setTimeout(pumpThumbQueue, THUMB_STAGGER_MS);
+  }
+  function invalidateThumbQueue() { _thumbToken = (_thumbToken + 1) >>> 0; }
+
+  function isUnsafeThumbnailUrl(url) {
+    // GIF decoder fails on a non-trivial fraction of itch.io's animated thumbs
+    // and the error path leaks; skip them (placeholder gradient shows instead).
+    if (!url || typeof url !== 'string') return true;
+    if (/\.gif(\?|$)/i.test(url)) return true;
+    return false;
+  }
+
+  // ---------- entity decode ----------
+  function decodeEntities(s) {
+    if (!s) return '';
+    return String(s)
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&apos;/g, '\'')
+      .replace(/&#(\d+);/g, function (_, d) { return String.fromCharCode(parseInt(d, 10)); })
+      .replace(/&#x([0-9a-fA-F]+);/g, function (_, h) { return String.fromCharCode(parseInt(h, 16)); })
+      .replace(/&amp;/g, '&');
+  }
+
+  // ---------- HTML listing parse ----------
+  //
+  // itch.io's listing pages have one `<div class="game_cell ...">` per game.
+  // Inside each cell there is (when the game is web-playable RIGHT NOW)
+  // a `<span class="web_flag">Play in browser</span>` tag. We split the page
+  // into cells, drop any cell missing that flag, and regex-extract the rest.
+  //
+  // Field locations within a cell (defensive — itch.io ships various wrappers):
+  //   * Title + project page URL: <a class="game_link" href="...">Title</a>
+  //   * Thumbnail: <div class="game_thumb" data-background_image="..."> OR <img src="...">
+  //   * Author:   <div class="game_author"> by <a href="...">Author</a> </div>
+  //               (also derivable from link subdomain `https://<author>.itch.io/...`)
+  //   * Price:    .price_value text, OR .web_flag is the only "price" if Free
+  //
+  // We log `feed-parse-raw` (total cells scanned) + `feed-parse-filtered` (those
+  // with web_flag) so we can spot the day itch.io changes their markup.
+  function parseHtmlListing(html) {
+    const out = [];
+    if (!html) return out;
+    // Split on the game_cell div start. Chunk 0 is everything before the
+    // first cell — discard. Each subsequent chunk is one game cell + the
+    // surrounding HTML up to the next cell.
+    const chunks = html.split(/<div\s+[^>]*class="[^"]*\bgame_cell\b[^"]*"[^>]*>/i);
+    let totalCells = 0;
+    let firstUnflaggedSample = null;
+    for (let i = 1; i < chunks.length; i++) {
+      totalCells++;
+      const block = chunks[i];
+      // FILTER: only games that say "Play in browser" right now. The Newest
+      // listing page (2026-06-03 log: cells=36 items=0) doesn't put this on
+      // a `class="web_flag"` span — it uses a different element class. Match
+      // on the literal text-as-element-content (`>Play in browser<`) which is
+      // structurally stable: itch.io always renders the label as the visible
+      // text of some inline element, never as an attribute value, so this
+      // catches all listing variants without false positives.
+      if (!/>\s*Play in browser\s*</i.test(block)) {
+        if (!firstUnflaggedSample) firstUnflaggedSample = block.slice(0, 600);
+        continue;
+      }
+      // Title + link. game_link covers both the thumb-anchor and the title-
+      // anchor; the title-anchor's text is the title we want.
+      const linkM = block.match(
+        /<a[^>]*class="[^"]*\bgame_link\b[^"]*"[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/i
+      );
+      if (!linkM) continue;
+      const link = linkM[1];
+      // The first game_link is usually the thumb (often contains an <img>);
+      // the title is in a second game_link with text content. If the first
+      // match has no useful text, look for a subsequent one.
+      let title = stripTags(linkM[2]).trim();
+      if (!title || /^\s*$/.test(title)) {
+        const allLinks = block.match(
+          /<a[^>]*class="[^"]*\bgame_link\b[^"]*"[^>]*>([\s\S]*?)<\/a>/gi
+        ) || [];
+        for (const a of allLinks) {
+          const inner = a.replace(/^<a[^>]*>/i, '').replace(/<\/a>$/i, '');
+          const txt = stripTags(inner).trim();
+          if (txt) { title = txt; break; }
+        }
+      }
+      title = decodeEntities(title);
+      if (!title) continue;
+      // Thumbnail: prefer data-background_image (often higher-res), fall back
+      // to the first <img src> inside the cell.
+      let imageurl = '';
+      const bgM = block.match(/data-background_image="([^"]+)"/i);
+      if (bgM) imageurl = bgM[1];
+      if (!imageurl) {
+        const imgM = block.match(/<img[^>]*src="([^"]+)"/i);
+        if (imgM) imageurl = imgM[1];
+      }
+      // Author: prefer the .game_author block; otherwise derive from link subdomain.
+      let author = '';
+      const authBlockM = block.match(
+        /class="[^"]*\bgame_author\b[^"]*"[^>]*>([\s\S]*?)<\/(?:div|span|a)>/i
+      );
+      if (authBlockM) {
+        const inner = stripTags(authBlockM[1]).trim();
+        if (inner) author = decodeEntities(inner);
+      }
+      if (!author) {
+        const authUrlM = link.match(/^https?:\/\/([^.]+)\.itch\.io\//i);
+        if (authUrlM) author = authUrlM[1];
+      }
+      // Price: free unless we find a price_value with a dollar amount.
+      let price = '';
+      const priceM = block.match(/class="[^"]*\bprice_value\b[^"]*"[^>]*>([^<]+)</i);
+      if (priceM) price = decodeEntities(priceM[1].trim());
+      // Description: itch.io listing rarely has a per-cell description, but
+      // some pages render game_text. Best-effort + bounded.
+      let description = '';
+      const descM = block.match(/class="[^"]*\bgame_text\b[^"]*"[^>]*>([\s\S]*?)</i);
+      if (descM) description = decodeEntities(stripTags(descM[1]).trim());
+      out.push({
+        title: title,
+        link: link,
+        imageurl: imageurl,
+        price: price,
+        description: description,
+        author: author,
+        // Per-card extraction state, set by the background queue:
+        //   'pending'  — not yet attempted
+        //   'fetching' — fetch in flight
+        //   'ready'    — embedUrl extracted; card href has been swapped
+        //   'failed'   — extraction failed; no href set, card shows N/A
+        extractState: 'pending',
+        embedUrl: null,
+      });
+      if (out.length >= MAX_GAMES) break;
+    }
+    log('feed-parse-raw', 'cells=' + totalCells + ' cap=' + MAX_GAMES);
+    if (out.length === 0 && firstUnflaggedSample) {
+      // Dump the first unmatched cell's prefix so we can iterate the filter
+      // if itch.io changes the markup again. Strip newlines so the line stays
+      // grep-friendly.
+      log('feed-parse-sample',
+          firstUnflaggedSample.replace(/[\r\n]+/g, ' ').slice(0, 400));
+    }
+    return out;
+  }
+
+  function stripTags(s) {
+    if (!s) return '';
+    return String(s).replace(/<[^>]+>/g, '');
+  }
+
+  // ---------- fetch feed ----------
+  async function fetchFeed(feedKey) {
+    const def = FEEDS[feedKey];
+    if (!def) throw new Error('Unknown feed: ' + feedKey);
+    log('feed-fetch', 'GET ' + def.url);
+    const resp = await fetch(def.url, { headers: { 'user-agent': DESKTOP_UA } });
+    log('feed-fetch', 'status=' + resp.status);
+    if (!resp.ok) throw new Error('Feed HTTP ' + resp.status);
+    const html = await resp.text();
+    log('feed-fetch', 'bytes=' + html.length);
+    const parsed = parseHtmlListing(html);
+    log('feed-parse', 'items=' + parsed.length);
+    return parsed;
+  }
+
+  // ---------- per-card embed-URL extraction ----------
+  // itch.io project pages embed playable HTML5 games via a placeholder div
+  // shaped like:
+  //   <div id="game_drop" data-iframe="&lt;iframe src=&#39;...&#39; …&gt;">
+  // The data-iframe attribute is an HTML-entity-encoded <iframe …> snippet
+  // whose src is the actual host (typically html-classic.itch.zone) the game
+  // serves from. We regex this out without needing a DOM parser. If the
+  // pattern isn't present (paid game gates, unusual embed types, dead link)
+  // we leave the card pointing at the project page URL so the user at least
+  // lands somewhere actionable.
+  function extractEmbedFromProjectHtml(html) {
+    if (!html) return null;
+    const m = html.match(/data-iframe\s*=\s*"([^"]+)"/i)
+          || html.match(/data-iframe\s*=\s*'([^']+)'/i);
+    if (!m) return null;
+    const decoded = decodeEntities(m[1]);
+    const srcM = decoded.match(/src\s*=\s*(?:"([^"]+)"|'([^']+)')/i);
+    if (!srcM) return null;
+    return srcM[1] || srcM[2];
+  }
+
+  let _extractQueue = [];
+  let _extractPumping = false;
+  let _extractToken = 0;
+  function startExtractionQueue() {
+    invalidateExtractQueue();
+    _extractToken = (_extractToken + 1) >>> 0;
+    const token = _extractToken;
+    for (let i = 0; i < items.length; i++) {
+      _extractQueue.push({ idx: i, token: token });
+    }
+    log('extract-queue', 'enqueued=' + items.length);
+    if (!_extractPumping) pumpExtractQueue();
+  }
+  function invalidateExtractQueue() { _extractToken = (_extractToken + 1) >>> 0; }
+  function priorityExtract(idx) {
+    // Move this card to the head of the queue (user tapped it; we want its
+    // embed URL ASAP). The queue self-drains at EXTRACT_STAGGER_MS so a
+    // priority-moved card still has to wait for the current in-flight fetch,
+    // but typically resolves within ~1 s on real hardware.
+    _extractQueue = _extractQueue.filter(function (e) { return e.idx !== idx; });
+    _extractQueue.unshift({ idx: idx, token: _extractToken });
+    if (!_extractPumping) pumpExtractQueue();
+  }
+  async function pumpExtractQueue() {
+    if (_pageDestroyed) { _extractPumping = false; _extractQueue = []; return; }
+    _extractPumping = true;
+    while (_extractQueue.length > 0 && _extractQueue[0].token !== _extractToken) {
+      _extractQueue.shift();
+    }
+    const next = _extractQueue.shift();
+    if (!next) { _extractPumping = false; return; }
+    const item = items[next.idx];
+    if (!item || !item.link) {
+      setTimeout(pumpExtractQueue, 0);
+      return;
+    }
+    if (item.extractState === 'ready' || item.extractState === 'fetching') {
+      setTimeout(pumpExtractQueue, 0);
+      return;
+    }
+    item.extractState = 'fetching';
+    log('extract-start', 'idx=' + next.idx + ' ' + item.link);
+    try {
+      const resp = await fetch(item.link, { headers: { 'user-agent': DESKTOP_UA } });
+      log('extract-status', 'idx=' + next.idx + ' status=' + resp.status);
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const html = await resp.text();
+      const embed = extractEmbedFromProjectHtml(html);
+      if (!embed) {
+        item.extractState = 'failed';
+        log('extract-noembed', 'idx=' + next.idx + ' (data-iframe not found)');
+      } else {
+        item.embedUrl = embed;
+        item.extractState = 'ready';
+        log('extract-ok', 'idx=' + next.idx + ' embed=' + embed);
+        applyCardEmbed(next.idx);
+      }
+    } catch (err) {
+      item.extractState = 'failed';
+      log('extract-error', 'idx=' + next.idx + ' ' +
+          ((err && err.message) ? err.message : String(err)));
+    }
+    if (item.extractState === 'failed') {
+      applyCardFailed(next.idx);
+    }
+    setTimeout(pumpExtractQueue, EXTRACT_STAGGER_MS);
+  }
+
+  function applyCardEmbed(idx) {
+    const ref = cardEls[idx];
+    const item = items[idx];
+    if (!ref || !item || !item.embedUrl) return;
+    // encodeURI: several itch.io embed URLs ship with raw spaces in the path
+    // (e.g. `CNC  WEB/index.html`, `IronSea/index.html`, `MJ Cards_WebGL/...`)
+    // which the runtime fetch layer doesn't auto-encode. encodeURI preserves
+    // reserved chars (`?`, `=`, `&`, `/`, `:`) while encoding spaces / unicode
+    // and other unsafe bytes.
+    const safeUrl = encodeURI(item.embedUrl);
+    item.embedUrlEncoded = safeUrl;
+    // Swap href → embed URL: next tap shell-navigates straight to the game.
+    ref.card.setAttribute('href', safeUrl);
+    // Brighten the card to "ready" opacity. Price badge stays as-is — no
+    // READY chip (user feedback: opacity is enough indication).
+    ref.card.className = 'game-card ready';
+    log('card-ready', 'idx=' + idx + ' href=' + safeUrl);
+    if (pendingTapItemIdx === idx) {
+      // The user is staring at the focus card waiting — flip the WHOLE focus
+      // card into the tap-to-launch state so any tap on its (large) surface
+      // shell-navigates.
+      launchFocusEl.setAttribute('href', safeUrl);
+      launchFocusEl.className = 'launch-focus ready';
+      focusActionEl.textContent = '▶ Tap to play';
+      focusActionEl.className = 'focus-action ready';
+      log('pending-resolved', 'idx=' + idx);
+    }
+  }
+
+  function applyCardFailed(idx) {
+    const ref = cardEls[idx];
+    const item = items[idx];
+    if (!ref || !item) return;
+    // Failed cards stay extra-dim. Price badge unchanged — no N/A chip.
+    ref.card.className = 'game-card failed';
+    if (pendingTapItemIdx === idx) {
+      // The user was waiting on this card — surface a clear unavailable state
+      // rather than leaving them looking at "Resolving…" forever.
+      launchFocusEl.removeAttribute('href');
+      launchFocusEl.className = 'launch-focus failed';
+      focusActionEl.textContent = "Couldn't extract a playable URL.";
+      focusActionEl.className = 'focus-action failed';
+      log('pending-failed', 'idx=' + idx);
+    }
+  }
+
+  // ---------- sidebar render ----------
+  function renderSidebar() {
+    feedPillsEl.innerHTML = '';
+    for (const key of Object.keys(FEEDS)) {
+      const pill = document.createElement('div');
+      pill.className = 'feed-pill' + (key === currentFeed ? ' selected' : '');
+      pill.textContent = FEEDS[key].label;
+      pill.addEventListener('click', function () {
+        if (currentFeed === key) return;
+        log('feed-switch', 'to=' + key);
+        currentFeed = key;
+        renderSidebar();
+        loadFeed(key);
+      });
+      feedPillsEl.appendChild(pill);
+    }
+  }
+
+  // ---------- grid render ----------
+  function setStageStatus(state, msg) {
+    if (state === 'hidden') {
+      stageStatusEl.classList.add('hidden');
+      return;
+    }
+    stageStatusEl.classList.remove('hidden');
+    stageStatusEl.innerHTML = '';
+    if (state === 'loading') {
+      stageStatusEl.className = 'stage-status';
+      stageStatusEl.textContent = msg || 'Loading games…';
+      return;
+    }
+    stageStatusEl.className = 'stage-status stage-status-error';
+    const text = document.createElement('div');
+    text.textContent = msg || 'Couldn\'t load games';
+    stageStatusEl.appendChild(text);
+    const btn = document.createElement('div');
+    btn.className = 'retry-btn';
+    btn.textContent = 'Retry';
+    btn.addEventListener('click', function () { loadFeed(currentFeed); });
+    stageStatusEl.appendChild(btn);
+  }
+
+  function buildCard(item, idx) {
+    // Card starts WITHOUT href. We deliberately do NOT fall back to the
+    // itch.io project page URL — the engine's GIF decoder crashes on a
+    // non-trivial fraction of project pages (see Serenitrove crash 2026-06-03:
+    // alfredncy.itch.io/serenitrove). Without href, findTapIntent
+    // (live-overlay.ts) returns no navigate intent → no shell-nav → no crash.
+    // The card's click handler runs regardless (controller-shortcuts.ts:819
+    // dispatches `click` before walking for nav intent), so the launch
+    // overlay still appears + priority-extraction still fires.
+    const card = document.createElement('a');
+    card.className = 'game-card';
+
+    const thumbWrap = document.createElement('div');
+    thumbWrap.className = 'thumb-wrap';
+    let thumbImg = null;
+    if (item.imageurl && !isUnsafeThumbnailUrl(item.imageurl)) {
+      thumbImg = document.createElement('img');
+      thumbImg.className = 'thumb-img';
+      thumbWrap.appendChild(thumbImg);
+      enqueueThumb(thumbImg, item.imageurl, _thumbToken);
+    }
+    const badge = document.createElement('div');
+    const isFree = !item.price || /^\$?0\.?0*$/.test(item.price.trim());
+    badge.className = 'thumb-badge' + (isFree ? ' free' : '');
+    badge.textContent = isFree ? 'Free' : item.price;
+    thumbWrap.appendChild(badge);
+    card.appendChild(thumbWrap);
+
+    const body = document.createElement('div');
+    body.className = 'card-body';
+
+    const title = document.createElement('div');
+    title.className = 'card-title';
+    title.textContent = item.title;
+    body.appendChild(title);
+
+    if (item.author) {
+      const author = document.createElement('div');
+      author.className = 'card-author';
+      author.textContent = 'by ' + item.author;
+      body.appendChild(author);
+    }
+
+    // Description intentionally omitted from the card body — the vertical
+     // budget per row at 720p is ~208px, and a 5:4 thumb consumes 164 of
+     // those. The remaining 44px fits title + author only.
+    card.appendChild(body);
+
+    // We listen for click on the card so we can log + open the launch overlay
+    // when the user taps before extraction has finished. The shell-nav
+    // happens in parallel via the <a href>; if href is the project page,
+    // the shell will navigate there (good fallback). If href has already been
+    // swapped to the embed URL, the shell launches the game directly.
+    card.addEventListener('click', function () {
+      onCardTap(idx);
+    });
+
+    return { card: card, thumbImg: thumbImg, badge: badge };
+  }
+
+  function renderGrid(list) {
+    gridEl.innerHTML = '';
+    cardEls = [];
+    if (!list || list.length === 0) {
+      setStageStatus('error', 'No games returned by the feed.');
+      return;
+    }
+    setStageStatus('hidden');
+    // Batch the appendChilds: 36 in one tick can put the live-DOM cache
+    // builder in a state where it never finishes painting until a tap arrives
+    // ([[feedback-swb-idle-paint-needs-touch]] adjacent). 4-per-tick keeps
+    // the build advancing between batches.
+    const BATCH = 4;
+    const TICK = 30;
+    let nextIdx = 0;
+    function pumpBatch() {
+      if (_pageDestroyed) return;
+      const stopAt = Math.min(nextIdx + BATCH, list.length);
+      for (; nextIdx < stopAt; nextIdx++) {
+        const ref = buildCard(list[nextIdx], nextIdx);
+        cardEls.push(ref);
+        gridEl.appendChild(ref.card);
+      }
+      if (nextIdx < list.length) {
+        setTimeout(pumpBatch, TICK);
+      } else {
+        log('grid-render', 'cards=' + list.length);
+        // Start the per-card embed-URL extraction queue once the grid is
+        // fully rendered. The queue staggers fetches at EXTRACT_STAGGER_MS
+        // so we don't pile 36 project-page requests on the TCP pool.
+        startExtractionQueue();
+      }
+    }
+    pumpBatch();
+  }
+
+  // ---------- card tap / launch overlay ----------
+  function onCardTap(idx) {
+    const item = items[idx];
+    if (!item) return;
+    log('card-tap', 'idx=' + idx + ' title="' + item.title + '" extractState=' +
+        item.extractState);
+    if (item.extractState === 'ready') {
+      // Card href is the embed URL; the shell tap intent for it has already
+      // been queued by controller-shortcuts on this same touchend. Just log.
+      log('launch', 'idx=' + idx + ' embed=' + item.embedUrl);
+      return;
+    }
+    // 'pending' / 'fetching' / 'failed' — no href on the card, no shell-nav
+    // fires from this tap. Show the overlay; for failed cards it surfaces an
+    // unavailable state, for pending it shows progress + priority-extracts.
+    pendingTapItemIdx = idx;
+    if (item.extractState === 'failed') {
+      log('overlay-failed', 'idx=' + idx);
+      showLaunchOverlayFailed(item);
+      return;
+    }
+    log('overlay-pending', 'idx=' + idx);
+    priorityExtract(idx);
+    showLaunchOverlayPending(item);
+  }
+
+  function populateFocusCard(item) {
+    // Mirror the grid card's content but bigger. Thumb URL passes through
+    // the same GIF guard so a malformed GIF doesn't crash the focus card.
+    focusTitleEl.textContent = item.title;
+    focusAuthorEl.textContent = item.author ? 'by ' + item.author : '';
+    if (item.imageurl && !isUnsafeThumbnailUrl(item.imageurl)) {
+      focusThumbEl.setAttribute('src', item.imageurl);
+    } else {
+      focusThumbEl.removeAttribute('src');
+    }
+  }
+
+  function showLaunchOverlayPending(item) {
+    populateFocusCard(item);
+    launchFocusEl.removeAttribute('href');
+    launchFocusEl.className = 'launch-focus';
+    focusActionEl.textContent = 'Resolving game URL…';
+    focusActionEl.className = 'focus-action';
+    launchOverlayEl.classList.remove('hidden');
+  }
+
+  function showLaunchOverlayFailed(item) {
+    populateFocusCard(item);
+    launchFocusEl.removeAttribute('href');
+    launchFocusEl.className = 'launch-focus failed';
+    focusActionEl.textContent = "Couldn't extract a playable URL.";
+    focusActionEl.className = 'focus-action failed';
+    launchOverlayEl.classList.remove('hidden');
+  }
+
+  function hideLaunchOverlay() {
+    launchOverlayEl.classList.add('hidden');
+    pendingTapItemIdx = -1;
+  }
+
+  launchCancelEl.addEventListener('click', function () {
+    log('overlay-cancel', 'idx=' + pendingTapItemIdx);
+    hideLaunchOverlay();
+  });
+
+  launchFocusEl.addEventListener('click', function () {
+    // When extraction has completed, launchFocusEl has its href set to the
+    // embed URL → the shell tap-intent walker finds it and shell-nav fires
+    // on this same touchend. We just trace it.
+    log('focus-tap', 'idx=' + pendingTapItemIdx);
+  });
+
+  // ---------- feed load orchestrator ----------
+  async function loadFeed(feedKey) {
+    invalidateThumbQueue();
+    invalidateExtractQueue();
+    hideLaunchOverlay();
+    setStageStatus('loading', 'Loading ' + FEEDS[feedKey].label + '…');
+    gridEl.innerHTML = '';
+    items = [];
+    cardEls = [];
+    try {
+      const parsed = await fetchFeed(feedKey);
+      items = parsed;
+      renderGrid(parsed);
+    } catch (err) {
+      const msg = (err && err.message) ? err.message : String(err);
+      log('feed-error', msg);
+      let display = 'Couldn\'t load ' + FEEDS[feedKey].label + ' feed';
+      if (/HTTP/.test(msg)) display += ' (' + msg + ')';
+      setStageStatus('error', display);
+    }
+  }
+
+  // ---------- teardown ----------
+  // Recursive setTimeout chains persist past page navigation
+  // ([[feedback-swb-page-script-timer-cleanup]]). Set a destroyed flag so
+  // both pump loops exit cleanly on their next tick.
+  //
+  // CRITICAL: use BARE `addEventListener` (resolves to host `globalThis`),
+  // NOT `window.addEventListener` — the LiveWindow proxy intercepts
+  // `addEventListener` and routes it to a per-page listener map
+  // (live-dom.ts:1907) that the runtime's beforeunload dispatch
+  // (web-view.ts:233 → `globalThis.dispatchEvent`) never reaches. Caught
+  // 2026-06-03 after the first ship of this app leaked the extract pump
+  // into a second session, matching the demo-breakout regression pattern.
+  addEventListener('beforeunload', function () {
+    _pageDestroyed = true;
+    invalidateThumbQueue();
+    invalidateExtractQueue();
+    _thumbQueue = [];
+    _extractQueue = [];
+    log('teardown', 'beforeunload fired');
+  });
+
+  // ---------- boot ----------
+  async function boot() {
+    _pageStartMs = Date.now();
+    log('boot', 'version=' + APP_VERSION);
+
+    appConfig = await loadConfig();
+    currentFeed = appConfig.feed;
+    renderSidebar();
+    await loadFeed(currentFeed);
+    log('boot-complete', 'feed=' + currentFeed + ' items=' + items.length);
+  }
+
+  boot().catch(function (err) {
+    log('boot-error', (err && err.message) ? err.message : String(err));
+  });
+</script>
+
+</body>
+</html>

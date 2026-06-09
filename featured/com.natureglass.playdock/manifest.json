@@ -1,0 +1,16 @@
+{
+  "id": "com.natureglass.playdock",
+  "name": "Unity Play",
+  "version": "1.0.0",
+  "description": "Play Unity games directly on your console.",
+  "logo": "assets/unityplay_logo.png",
+  "entry": "index.html",
+  "category": "app",
+  "features": ["webgl", "canvas", "controller"],
+  "permissions": ["network", "storage"],
+  "compatibility": ["switch"],
+  "allowed_origins": [],
+  "developer": "Alex Daskalakis",
+  "source": "https://github.com/natureglass/Brewser-apps",
+  "license": "MIT"
+}

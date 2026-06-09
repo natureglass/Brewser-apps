@@ -1,0 +1,16 @@
+{
+  "id": "com.natureglass.pvzge",
+  "name": "PvZ GE",
+  "version": "1.0.0",
+  "description": "Plants vs. Zombies — Garden Edition (browser game).",
+  "logo": "assets/pvzge_logo.png",
+  "entry": "index.html",
+  "category": "game",
+  "features": ["canvas", "webgl", "audio", "controller"],
+  "permissions": ["storage"],
+  "compatibility": ["switch"],
+  "allowed_origins": [],
+  "developer": "Alex Daskalakis",
+  "source": "https://github.com/natureglass/Brewser-apps",
+  "license": "GPL-3.0"
+}

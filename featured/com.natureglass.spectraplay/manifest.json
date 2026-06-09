@@ -1,0 +1,16 @@
+{
+  "id": "com.natureglass.spectraplay",
+  "name": "SpectraPlay",
+  "version": "1.0.0",
+  "description": "Enjoy music directly on your console with this media player.",
+  "logo": "assets/audioplayer_logo.png",
+  "entry": "index.html",
+  "category": "app",
+  "features": ["audio", "canvas", "controller"],
+  "permissions": ["storage", "filesystem"],
+  "compatibility": ["switch"],
+  "allowed_origins": [],
+  "developer": "Alex Daskalakis",
+  "source": "https://github.com/natureglass/Brewser-apps",
+  "license": "MIT"
+}

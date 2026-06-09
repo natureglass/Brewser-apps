@@ -1,0 +1,16 @@
+{
+  "id": "com.brewser.itchio",
+  "name": "itch.io Games",
+  "version": "1.0.0",
+  "description": "Browse newest browser-playable games from itch.io.",
+  "logo": "assets/itchio_logo.png",
+  "entry": "index.html",
+  "category": "app",
+  "features": ["controller"],
+  "permissions": ["network", "storage"],
+  "compatibility": ["switch"],
+  "allowed_origins": ["https://itch.io"],
+  "developer": "Alex Daskalakis",
+  "source": "https://github.com/natureglass/Brewser-apps",
+  "license": "MIT"
+}

@@ -1,0 +1,16 @@
+{
+  "id": "com.natureglass.lumaclips",
+  "name": "TikTok",
+  "version": "1.0.0",
+  "description": "Scroll through TikTok videos directly on your console.",
+  "logo": "assets/tiktok_logo.png",
+  "entry": "index.html",
+  "category": "app",
+  "features": ["video", "controller"],
+  "permissions": ["network", "storage"],
+  "compatibility": ["switch"],
+  "allowed_origins": [],
+  "developer": "Alex Daskalakis",
+  "source": "https://github.com/natureglass/Brewser-apps",
+  "license": "MIT"
+}

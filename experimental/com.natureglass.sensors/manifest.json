@@ -1,0 +1,16 @@
+{
+  "id": "com.brewser.sensors",
+  "name": "Sensors",
+  "version": "1.0.0",
+  "description": "An application to test the various sensors on your device.",
+  "logo": "assets/sensors_logo.png",
+  "entry": "index.html",
+  "category": "app",
+  "features": ["sensors", "vibration", "battery", "canvas", "webgl", "controller"],
+  "permissions": ["network", "system"],
+  "compatibility": ["switch"],
+  "allowed_origins": [],
+  "developer": "Alex Daskalakis",
+  "source": "https://github.com/natureglass/Brewser-apps",
+  "license": "MIT"
+}

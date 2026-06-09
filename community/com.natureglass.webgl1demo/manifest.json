@@ -1,0 +1,16 @@
+{
+  "id": "com.natureglass.webgl1demo",
+  "name": "Moonlight - Procedural WebGL Demo",
+  "version": "1.0.0",
+  "description": "Experimenting with WebGL on the Nintendo Switch.",
+  "logo": "assets/logo.png",
+  "entry": "index.html",
+  "category": "other",
+  "features": ["webgl", "controller"],
+  "permissions": [],
+  "compatibility": ["switch","web"],
+  "allowed_origins": [],
+  "developer": "Alex Daskalakis",
+  "source": "https://github.com/natureglass/Brewser-apps",
+  "license": "MIT"
+}

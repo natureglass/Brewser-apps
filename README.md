@@ -2,7 +2,7 @@
 
 Official app catalog repository for **Brewser**.
 
-Brewser is a homebrew app hub/runtime for Nintendo Switch that lets users discover and run web-powered apps built with familiar technologies such as **HTML**, **CSS**, **JavaScript**, **WebGL**, and **WASM**.
+**Brewser** is a homebrew app hub/runtime for Nintendo Switch that lets users discover and run web-powered apps built with familiar technologies such as **HTML**, **CSS**, **JavaScript**, **WebGL**, and **WASM**.
 
 This repository contains the public app catalog and app files used by **Brewser**.
 

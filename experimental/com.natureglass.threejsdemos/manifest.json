@@ -1,0 +1,16 @@
+{
+  "id": "com.brewser.threejsdemos",
+  "name": "ThreeJS Demos",
+  "version": "1.0.0",
+  "description": "A collection of demos showcasing the capabilities of ThreeJS on the Nintendo Switch.",
+  "logo": "assets/threejsdemos_logo.png",
+  "entry": "index.html",
+  "category": "app",
+  "features": ["webgl", "webgl2", "canvas", "controller"],
+  "permissions": ["storage"],
+  "compatibility": ["switch","web"],
+  "allowed_origins": [],
+  "developer": "Alex Daskalakis",
+  "source": "https://github.com/natureglass/Brewser-apps",
+  "license": "MIT"
+}
