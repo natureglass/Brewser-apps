@@ -1,48 +1,33 @@
-// WebGL2 Sunset Sea Cube demo — port of D:/Workspace/nxjs-WebGL2_Sunset_Demo.html
-// to brewser's inline-canvas WebGL pipeline. Adaptations from the
-// host version:
-//   - Canvas is the demo-template inline canvas (640x360 / 1280x720 fullscreen)
-//     read from the live element each script run, not window.innerWidth/Height.
-//   - Adaptive resolution dropped (canvas dims are owned by the shell; the
-//     shell rerun is the only resize event).
-//   - PointerEvents / wheel replaced with the swb touch + gamepad pattern
-//     used by nxjs-webgl-demo: drag = orbit, left-stick Y = look-pitch via
-//     gamepad.
-//   - Logo URL replaced with sdmc:/ path per [[nxjs-image-bypasses-global-fetch]].
-//     Drawn into a 1024x1024 power-of-two OffscreenCanvas and uploaded via
-//     getImageData + texImage2D(buffer-source) (nx.js's texImage2D does
-//     accept Image directly per [[nxjs-image-to-texture-pipeline]] but the
-//     POT canvas path is what the sibling demos use, so we match).
-//   - LINEAR_MIPMAP_LINEAR + generateMipmap replaced with LINEAR filtering
-//     (matches nxjs-webgl-demo's adjustments).
-//   - console.* silenced ([[console-error-switches-render-mode]]).
-//   - Shaders carry `#pragma raw_passthrough` immediately after `#version
-//     300 es` so the bridge runs the user GLSL on native GLES instead of
-//     swapping in its own hardcoded program ([[bridge-raw-shader-passthrough]],
-//     [[nxjs-no-custom-fragment-shader]]).
-
-globalThis.__sunsetError = null;
-globalThis.__sunsetIsWebGL2 = false;
-globalThis.__sunsetProgramLinked = false;
-globalThis.__sunsetLogoReady = false;
-globalThis.__sunsetFps = 0;
-globalThis.__sunsetFrameCount = 0;
-globalThis.__sunsetGlErrAfter = -1;
-globalThis.__sunsetTouchStart = 0;
-globalThis.__sunsetTouchMove = 0;
-globalThis.__sunsetTouchEnd = 0;
-globalThis.__sunsetLastTouch = '';
-
+// console.* on the engine can flip nxjs into text-render mode mid-frame.
 try {
 	console.warn = () => {};
 	console.log = () => {};
 	console.error = () => {};
 	console.info = () => {};
+} catch (_) {}
 
-	const canvas = document.getElementById('sunset-canvas');
-	if (!canvas) throw new Error('#sunset-canvas missing in HTML');
-	const W = canvas.width || 640;
-	const H = canvas.height || 360;
+const canvas = document.getElementById('sunset-canvas');
+
+// Enter fullscreen automatically on launch (mirrors pvzge's pattern).
+// Engine implements canvas.requestFullscreen() via the swb shell. AWAIT
+// the mode flip BEFORE reading parent BCR so canvas.width/height get the
+// fullscreen pixel dims from the start.
+const fullscreenP = (canvas && typeof canvas.requestFullscreen === 'function')
+	? canvas.requestFullscreen().catch(() => {})
+	: Promise.resolve();
+
+fullscreenP.then(() => {
+	const parent = canvas.parentElement;
+	const bcr = parent.getBoundingClientRect();
+	canvas.width = bcr.width || canvas.width || 1280;
+	canvas.height = bcr.height || canvas.height || 720;
+	initDemo();
+}).catch(() => {});
+
+function initDemo() {
+try {
+	const W = canvas.width;
+	const H = canvas.height;
 
 	const gl = canvas.getContext('webgl2', {
 		antialias: false,
@@ -52,7 +37,6 @@ try {
 		preserveDrawingBuffer: false,
 	});
 	if (!gl) throw new Error('WebGL 2 not available');
-	globalThis.__sunsetIsWebGL2 = true;
 	if (typeof gl.enableGpuBridgePrototype === 'function') {
 		gl.enableGpuBridgePrototype(true);
 	}
@@ -84,7 +68,6 @@ try {
 	gl.deleteShader(vs);
 	gl.deleteShader(fs);
 	gl.useProgram(program);
-	globalThis.__sunsetProgramLinked = true;
 
 	// gl_VertexID drives a const-array fullscreen triangle in the vertex
 	// shader — no attribute data needed. A VAO is still required by GLSL ES
@@ -134,12 +117,24 @@ try {
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 	gl.uniform1i(U.logo, 0);
 
+	let logoReady = false;
 	// Allocate the persistent native texture handle BEFORE the async PNG
 	// arrives (see [[bridge-fbo-support]] / nxjs-webgl-demo notes — without
 	// the NULL-data allocation the later upload only populates nx.js's
 	// CPU-side cache and `gl.bindTexture` doesn't forward to native).
+	//
+	// DIAGNOSTIC PROBES (TEMP) — verify the path resolution + track load.
+	try {
+		console.debug('[logo-probe webgl2demo] location.href=' +
+			((typeof globalThis !== 'undefined' && globalThis.location)
+				? String(globalThis.location.href) : '<no location>'));
+	} catch (_) {}
 	const logoImage = new Image();
 	logoImage.onload = () => {
+		try {
+			console.debug('[logo-probe webgl2demo] onload w=' + logoImage.naturalWidth +
+				' h=' + logoImage.naturalHeight + ' src=' + logoImage.src);
+		} catch (_) {}
 		try {
 			const off = new OffscreenCanvas(TEX_SIZE, TEX_SIZE);
 			const tctx = off.getContext('2d');
@@ -169,15 +164,21 @@ try {
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-			globalThis.__sunsetLogoReady = true;
+			logoReady = true;
 		} catch (e) {
-			globalThis.__sunsetError = 'logo upload: ' + String((e && e.message) || e).slice(0, 80);
+			try { console.debug('[logo-probe webgl2demo] upload threw: ' + String(e && e.message || e)); } catch (_) {}
 		}
 	};
-	logoImage.onerror = () => {
-		globalThis.__sunsetError = 'logo image load failed';
+	logoImage.onerror = (ev) => {
+		try {
+			console.debug('[logo-probe webgl2demo] onerror src=' + logoImage.src +
+				' err=' + String((ev && ev.error && (ev.error.message || ev.error)) || ev));
+		} catch (_) {}
 	};
-	logoImage.src = 'sdmc:/switch/brewser/dev/nxjs-webgl2-demo/assets/logo.png';
+	logoImage.src = 'assets/logo.png';
+	try {
+		console.debug('[logo-probe webgl2demo] after assign logoImage.src=' + logoImage.src);
+	} catch (_) {}
 
 	// ----- Camera + input state -----
 	let yaw = 0.0;
@@ -206,40 +207,30 @@ try {
 	function endDrag() { dragActive = false; activeTouchId = null; }
 
 	function onTouchStart(e) {
-		globalThis.__sunsetTouchStart = (globalThis.__sunsetTouchStart | 0) + 1;
 		const ct = e && e.changedTouches;
-		if (ct && ct.length > 0) {
+		if (ct && ct.length > 0 && activeTouchId === null) {
 			const t = ct[0];
-			globalThis.__sunsetLastTouch = 'start ' + Math.round(t.clientX) + ',' + Math.round(t.clientY);
-			if (activeTouchId === null) {
-				activeTouchId = t.identifier;
-				startDrag(t.clientX, t.clientY);
-			}
-		} else {
-			globalThis.__sunsetLastTouch = 'start (no changedTouches)';
+			activeTouchId = t.identifier;
+			startDrag(t.clientX, t.clientY);
 		}
 	}
 	function onTouchMove(e) {
-		globalThis.__sunsetTouchMove = (globalThis.__sunsetTouchMove | 0) + 1;
 		if (activeTouchId === null) return;
 		const ct = e && e.changedTouches;
 		if (!ct) return;
 		for (let i = 0; i < ct.length; i++) {
 			if (ct[i].identifier === activeTouchId) {
-				globalThis.__sunsetLastTouch = 'move ' + Math.round(ct[i].clientX) + ',' + Math.round(ct[i].clientY);
 				moveDrag(ct[i].clientX, ct[i].clientY);
 				return;
 			}
 		}
 	}
 	function onTouchEnd(e) {
-		globalThis.__sunsetTouchEnd = (globalThis.__sunsetTouchEnd | 0) + 1;
 		if (activeTouchId === null) return;
 		const ct = e && e.changedTouches;
 		if (!ct) return;
 		for (let i = 0; i < ct.length; i++) {
 			if (ct[i].identifier === activeTouchId) {
-				globalThis.__sunsetLastTouch = 'end';
 				endDrag();
 				return;
 			}
@@ -407,7 +398,7 @@ try {
 		gl.uniform1f(U.time, tSec);
 		gl.uniform2f(U.look, yaw, pitch);
 		gl.uniform1f(U.fov, fov);
-		gl.uniform1i(U.logoReady, globalThis.__sunsetLogoReady ? 1 : 0);
+		gl.uniform1i(U.logoReady, logoReady ? 1 : 0);
 		gl.uniform3fv(U.cubeCenter, cubeCenterArr);
 		gl.uniformMatrix3fv(U.cubeR, false, cubeRArr);
 		gl.uniformMatrix3fv(U.cubeInvR, false, cubeInvRArr);
@@ -416,12 +407,10 @@ try {
 		// only this frame ([[bridge-stale-glerror]]).
 		gl.getError();
 		gl.drawArrays(gl.TRIANGLES, 0, 3);
-		globalThis.__sunsetGlErrAfter = gl.getError();
-		globalThis.__sunsetFrameCount = (globalThis.__sunsetFrameCount | 0) + 1;
+		gl.getError();
 
 		fpsAccumFrames++;
 		if (now - fpsAccumStart >= 3000) {
-			globalThis.__sunsetFps = Math.round((fpsAccumFrames * 1000) / (now - fpsAccumStart));
 			fpsAccumStart = now;
 			fpsAccumFrames = 0;
 		}
@@ -429,8 +418,5 @@ try {
 	}
 	requestAnimationFrame(frame);
 
-} catch (e) {
-	if (!globalThis.__sunsetError) {
-		globalThis.__sunsetError = String((e && e.message) || e).slice(0, 200);
-	}
+} catch (_) {}
 }

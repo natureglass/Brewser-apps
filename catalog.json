@@ -7507,7 +7507,7 @@
       "name": "Speed Test",
       "version": "1.0.0",
       "description": "Test your internet speed directly on your console.",
-      "logo": "assets/itchio_logo.png",
+      "logo": "assets/speedtest_logo.png",
       "entry": "index.html",
       "category": "app",
       "features": [

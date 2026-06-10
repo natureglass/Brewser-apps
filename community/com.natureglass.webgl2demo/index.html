@@ -1,49 +1,17 @@
 <!doctype html>
 <html lang="en">
 <head>
+<meta charset="utf-8">
 <title>WebGL2 Sunset Sea &mdash; Procedural ShaderToy Cube</title>
 <style>
-  body { background-color: #0b1220; color: #e0e8f4; font-size: 16px; }
-  h1 { color: #ffd35e; text-align: center; }
-  p.lead { color: #9bb1d6; font-size: 15px; text-align: center; }
-  a { color: #7eda9f; }
-  .stage { text-align: center; margin: 16px 0; }
-  .stage button { background-color: #1d2c43; color: #e0e8f4;
-                  border: 1px solid #3a4d6e; border-radius: 6px;
-                  padding: 8px 16px; font-size: 15px; }
-  .status { margin: 16px 0; }
-  .note { background-color: #14202d; padding: 10px 14px; margin-top: 12px;
-          border-left: 3px solid #7aa2ff; color: #c2dafc; }
-  .footer { margin-top: 24px; }
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%;
+               background: #000 !important; overflow: hidden; }
+  #sunset-canvas { display: block; width: 100%; height: 100%;
+                   background: #000; }
 </style>
 </head>
 <body>
-<h1>WebGL2 Sunset Sea &mdash; Procedural ShaderToy Cube</h1>
-<p class="lead">Raw WebGL 2 (GLSL ES 3.00) rendered through the nx.js
-bridge via <code>#pragma raw_passthrough</code> &mdash; no Three.js.
-A single fullscreen triangle drives a procedural sunset sky (sun, halo,
-clouds, stars) over an FBM-displaced sea with sun glitter, a chrome
-cube wearing the nx.js logo that floats on the waves, and a soft
-shadow + reflection streak that the cube projects onto the water.
-Touch the screen and drag to look around.</p>
-
-<div class="stage">
-  <canvas id="sunset-canvas" width="640" height="360"></canvas>
-  <br>
-  <button data-action="fullscreen-canvas">Toggle Fullscreen</button>
-</div>
-
-<script>
-  const pre = document.getElementById('sunset-canvas').getContext('2d');
-  if (pre) {
-    pre.fillStyle = '#02060d';
-    pre.fillRect(0, 0, 640, 360);
-    pre.fillStyle = '#fff';
-    pre.font = '20px system-ui';
-    pre.textBaseline = 'top';
-    pre.fillText('PRE-WEBGL marker - shaders compiling...', 12, 12);
-  }
-</script>
+<canvas id="sunset-canvas" width="1280" height="720" data-fullscreen-live></canvas>
 
 <!-- GLSL ES 3.00 shaders. `#pragma raw_passthrough` is required immediately
      after `#version` so the nx.js bridge promotes the linked program to
@@ -441,66 +409,5 @@ void main() {
 </script>
 
 <script src="assets/main.js"></script>
-
-<div class="status">
-  <canvas id="sunset-status" width="900" height="220"></canvas>
-</div>
-
-<script>
-  const st = document.getElementById('sunset-status').getContext('2d');
-  function row(y, label, value, ok) {
-    st.fillStyle = '#9bb1d6';
-    st.fillText(label, 14, y);
-    st.fillStyle = ok ? '#7eda9f' : '#ff8a6c';
-    st.fillText(value, 340, y);
-  }
-  function renderStatus() {
-    st.fillStyle = '#14202d';
-    st.fillRect(0, 0, 900, 220);
-    st.font = '14px system-ui';
-    st.textBaseline = 'top';
-    const gErr = globalThis.__sunsetError;
-    row(14, 'demo error:', gErr ? String(gErr).slice(0, 80) : '(none)', !gErr);
-    const isWebGL2 = !!globalThis.__sunsetIsWebGL2;
-    row(36, 'WebGL 2 context acquired:', isWebGL2 ? 'yes' : 'no', isWebGL2);
-    const progOk = !!globalThis.__sunsetProgramLinked;
-    row(58, 'shader program linked:', progOk ? 'yes' : 'no', progOk);
-    const texOk = !!globalThis.__sunsetLogoReady;
-    row(80, 'logo texture loaded:', texOk ? 'yes' : '(loading...)', texOk);
-    const fps = +globalThis.__sunsetFps || 0;
-    row(102, 'FPS (3s window):', fps > 0 ? String(fps) : '(sampling...)', fps >= 5);
-    row(124, 'frames rendered:', String(globalThis.__sunsetFrameCount | 0), true);
-    row(146, 'gl.getError after render:',
-        '0x' + ((globalThis.__sunsetGlErrAfter | 0) >>> 0).toString(16),
-        globalThis.__sunsetGlErrAfter === 0);
-    const tStart = globalThis.__sunsetTouchStart | 0;
-    const tMove = globalThis.__sunsetTouchMove | 0;
-    const tEnd = globalThis.__sunsetTouchEnd | 0;
-    row(168, 'touch events (start/move/end):',
-        tStart + ' / ' + tMove + ' / ' + tEnd,
-        (tStart + tMove + tEnd) > 0);
-    st.fillStyle = '#9bb1d6';
-    st.fillText('last touch:', 14, 190);
-    st.fillStyle = '#ffd35e';
-    st.fillText(String(globalThis.__sunsetLastTouch || '(none)'), 110, 190);
-  }
-  renderStatus();
-  setInterval(renderStatus, 1000);
-</script>
-
-<p class="note">A single triangle covers the screen with
-<code>gl_VertexID</code> + a const array (no vertex buffer); the
-fragment shader does the rest: procedural sky with sun + halo, FBM
-clouds, FBM-displaced sea raymarched in 5 steps, ray-box intersection
-for the cube, soft cube-on-sea shadow, and a reflection streak that
-samples the logo texture. CPU computes the cube's float-pose once per
-frame (yaw + wave roll + wave pitch) and hands it to the shader as
-<code>uCubeCenter</code>, <code>uCubeR</code>, <code>uCubeInvR</code>.
-Drag the screen with one finger to orbit the camera. Adaptive
-resolution from the host version is stripped &mdash; the inline
-canvas is fixed at 640&times;360 (1280&times;720 in fullscreen
-mode).</p>
-
-<p class="footer"><a href="brewser://apps/ThreeJSDemos/index.html">back to ThreeJS Demos</a></p>
 </body>
 </html>

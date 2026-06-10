@@ -28,26 +28,37 @@
 //     filtering to avoid driver quirks; texture is power-of-two so
 //     mipmaps would have worked but aren't needed for this scene.
 
-globalThis.__nxDemoError = null;
-globalThis.__nxDemoTextureReady = false;
-globalThis.__nxDemoFps = 0;
-globalThis.__nxDemoFrameCount = 0;
-globalThis.__nxDemoSetupErr = '(none)';
-globalThis.__nxDemoTouchStart = 0;
-globalThis.__nxDemoTouchMove = 0;
-globalThis.__nxDemoTouchEnd = 0;
-globalThis.__nxDemoLastTouch = '';
-
+// Silence console early — per [[console-error-switches-render-mode]],
+// console.* on the engine can flip nxjs into text-render mode mid-frame.
 try {
 	console.warn = () => {};
 	console.log = () => {};
 	console.error = () => {};
 	console.info = () => {};
+} catch (_) {}
 
-	const canvas = document.getElementById('nx-canvas');
-	if (!canvas) throw new Error('#nx-canvas missing in HTML');
-	let W = canvas.width || 640;
-	let H = canvas.height || 360;
+const canvas = document.getElementById('nx-canvas');
+
+// Enter fullscreen automatically on launch (mirrors pvzge's pattern).
+// Engine implements canvas.requestFullscreen() via the swb shell. AWAIT
+// the mode flip BEFORE reading parent BCR so canvas.width/height get the
+// fullscreen pixel dims from the start.
+const fullscreenP = (canvas && typeof canvas.requestFullscreen === 'function')
+	? canvas.requestFullscreen().catch(() => {})
+	: Promise.resolve();
+
+fullscreenP.then(() => {
+	const parent = canvas.parentElement;
+	const bcr = parent.getBoundingClientRect();
+	canvas.width = bcr.width || canvas.width || 1280;
+	canvas.height = bcr.height || canvas.height || 720;
+	initDemo();
+}).catch(() => {});
+
+function initDemo() {
+try {
+	let W = canvas.width;
+	let H = canvas.height;
 
 	const gl = canvas.getContext('webgl', {
 		antialias: false,
@@ -736,15 +747,22 @@ try {
 	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, TEX_SIZE, TEX_SIZE, 0,
 	              gl.RGBA, gl.UNSIGNED_BYTE, null);
 
-	// Load the nx.js logo PNG. Per [[nxjs-image-bypasses-global-fetch]],
-	// Image.src bypasses the brewser:// loader chain — must use sdmc:/
-	// path directly. Drawn into a 1024×1024 power-of-two canvas, then
-	// uploaded as a Uint8ClampedArray via getImageData (nx.js's
-	// texImage2D doesn't accept canvas elements directly). The
-	// subsequent texImage2D(data) call mirrors the data to the
-	// persistent native handle allocated above.
+	// Load the nx.js logo PNG. Per [[reference-nxjs-image-audio-page-url-base]]
+	// (2026-06-10 engine fix), `Image.src` resolves relative paths against
+	// the current `brewser://` page URL and uses the swb fetch wrapper.
+	//
+	// DIAGNOSTIC PROBES (TEMP) — verify the path resolution + track load.
+	try {
+		console.debug('[logo-probe webgl1demo] location.href=' +
+			((typeof globalThis !== 'undefined' && globalThis.location)
+				? String(globalThis.location.href) : '<no location>'));
+	} catch (_) {}
 	const logoImg = new Image();
 	logoImg.onload = () => {
+		try {
+			console.debug('[logo-probe webgl1demo] onload w=' + logoImg.naturalWidth +
+				' h=' + logoImg.naturalHeight + ' src=' + logoImg.src);
+		} catch (_) {}
 		try {
 			const off = new OffscreenCanvas(TEX_SIZE, TEX_SIZE);
 			const tctx = off.getContext('2d');
@@ -763,15 +781,20 @@ try {
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-			globalThis.__nxDemoTextureReady = true;
 		} catch (e) {
-			globalThis.__nxDemoError = 'texture upload: ' + String(e.message || e).slice(0, 80);
+			try { console.debug('[logo-probe webgl1demo] upload threw: ' + String(e && e.message || e)); } catch (_) {}
 		}
 	};
-	logoImg.onerror = () => {
-		globalThis.__nxDemoError = 'logo image load failed';
+	logoImg.onerror = (ev) => {
+		try {
+			console.debug('[logo-probe webgl1demo] onerror src=' + logoImg.src +
+				' err=' + String((ev && ev.error && (ev.error.message || ev.error)) || ev));
+		} catch (_) {}
 	};
-	logoImg.src = 'sdmc:/switch/brewser/dev/nxjs-webgl-demo/assets/logo.png';
+	logoImg.src = 'assets/logo.png';
+	try {
+		console.debug('[logo-probe webgl1demo] after assign logoImg.src=' + logoImg.src);
+	} catch (_) {}
 
 	// Wave height function for the cube floating math (CPU mirror of the
 	// GLSL waveField).
@@ -859,40 +882,30 @@ try {
 	}
 
 	function onTouchStart(e) {
-		globalThis.__nxDemoTouchStart = (globalThis.__nxDemoTouchStart | 0) + 1;
 		const ct = e && e.changedTouches;
-		if (ct && ct.length > 0) {
+		if (ct && ct.length > 0 && activeTouchId === null) {
 			const t = ct[0];
-			globalThis.__nxDemoLastTouch = 'start ' + Math.round(t.clientX) + ',' + Math.round(t.clientY);
-			if (activeTouchId === null) {
-				activeTouchId = t.identifier;
-				startDrag(t.clientX, t.clientY);
-			}
-		} else {
-			globalThis.__nxDemoLastTouch = 'start (no changedTouches)';
+			activeTouchId = t.identifier;
+			startDrag(t.clientX, t.clientY);
 		}
 	}
 	function onTouchMove(e) {
-		globalThis.__nxDemoTouchMove = (globalThis.__nxDemoTouchMove | 0) + 1;
 		if (activeTouchId === null) return;
 		const ct = e && e.changedTouches;
 		if (!ct) return;
 		for (let i = 0; i < ct.length; i++) {
 			if (ct[i].identifier === activeTouchId) {
-				globalThis.__nxDemoLastTouch = 'move ' + Math.round(ct[i].clientX) + ',' + Math.round(ct[i].clientY);
 				moveDrag(ct[i].clientX, ct[i].clientY);
 				return;
 			}
 		}
 	}
 	function onTouchEnd(e) {
-		globalThis.__nxDemoTouchEnd = (globalThis.__nxDemoTouchEnd | 0) + 1;
 		if (activeTouchId === null) return;
 		const ct = e && e.changedTouches;
 		if (!ct) return;
 		for (let i = 0; i < ct.length; i++) {
 			if (ct[i].identifier === activeTouchId) {
-				globalThis.__nxDemoLastTouch = 'end';
 				endDrag();
 				return;
 			}
@@ -948,9 +961,6 @@ try {
 	let fpsAccumFrames = 0;
 
 	while (gl.getError() !== gl.NO_ERROR) {}
-	const setupErr = gl.getError();
-	globalThis.__nxDemoSetupErr = setupErr === gl.NO_ERROR
-		? '(none)' : '0x' + setupErr.toString(16);
 
 	// Projection matrix is constant (fov, aspect, near, far never
 	// change during the demo). Compute once at boot instead of every
@@ -1049,11 +1059,9 @@ try {
 		attribByLoc(A.cube.aUv, 2, 32, 24);
 		gl.drawArrays(gl.TRIANGLES, 0, cubeVerts.length / 8);
 
-		globalThis.__nxDemoFrameCount = (globalThis.__nxDemoFrameCount | 0) + 1;
 		fpsAccumFrames++;
 		const now = Date.now();
 		if (now - fpsAccumStart >= 3000) {
-			globalThis.__nxDemoFps = Math.round((fpsAccumFrames * 1000) / (now - fpsAccumStart));
 			fpsAccumStart = now;
 			fpsAccumFrames = 0;
 		}
@@ -1061,6 +1069,5 @@ try {
 
 	requestAnimationFrame(draw);
 
-} catch (e) {
-	globalThis.__nxDemoError = String(e && e.message ? e.message : e);
+} catch (_) {}
 }
