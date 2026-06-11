@@ -253,7 +253,9 @@ try {
 	attachAll('touchend', onTouchEnd);
 	attachAll('touchcancel', onTouchEnd);
 
-	// Gamepad right-stick = orbit, mirroring nxjs-webgl-demo.
+	// Gamepad right-stick = orbit, mirroring nxjs-webgl-demo. Exit-to-
+	// launcher is driven by the engine via manifest.json's `buttonMapping`
+	// (B → exit), so no page-side button polling is needed here.
 	function pollGamepad(dt) {
 		const pads = (typeof navigator !== 'undefined' && navigator.getGamepads)
 			? navigator.getGamepads() : null;

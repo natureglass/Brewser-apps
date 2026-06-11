@@ -826,8 +826,10 @@ try {
 	};
 
 	// Switch gamepad polling. Right stick orbits the camera (yaw + pitch),
-	// left-stick Y zooms in / out. Mouse + wheel kept as a fallback for
-	// desktop browsers.
+	// left-stick Y zooms in / out. Exit-to-launcher is driven by the
+	// engine — manifest.json's `"buttonMapping": { "exit": "B" }` binds B
+	// to the app-exit action, no page-side polling needed. Mouse + wheel
+	// kept as a fallback for desktop browsers.
 	function pollGamepad(dt) {
 		const pads = (typeof navigator !== 'undefined' && navigator.getGamepads)
 			? navigator.getGamepads() : null;

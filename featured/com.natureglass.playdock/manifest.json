@@ -3,7 +3,7 @@
   "name": "Unity Play",
   "version": "1.0.0",
   "description": "Play Unity games directly on your console.",
-  "logo": "assets/unityplay_logo.png",
+  "logo": "assets/unity_logo.png",
   "entry": "index.html",
   "category": "app",
   "features": ["webgl", "canvas", "controller"],
@@ -12,5 +12,8 @@
   "allowed_origins": [],
   "developer": "Alex Daskalakis",
   "source": "https://github.com/natureglass/Brewser-apps",
-  "license": "MIT"
+  "license": "MIT",
+  "buttonMapping": {
+    "exit": "B"
+ }
 }

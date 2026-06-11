@@ -12,5 +12,8 @@
   "allowed_origins": ["https://itch.io"],
   "developer": "Alex Daskalakis",
   "source": "https://github.com/natureglass/Brewser-apps",
-  "license": "MIT"
+  "license": "MIT",
+  "buttonMapping": {
+    "exit": "B"
+ }
 }
