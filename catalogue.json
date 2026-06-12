@@ -5,7 +5,7 @@
     {
       "id": "com.natureglass.lumaclips",
       "name": "TikTok",
-      "version": "1.0.0",
+      "version": "1.0.2",
       "description": "Scroll through TikTok videos directly on your console.",
       "logo": "assets/tiktok_logo.png",
       "entry": "index.html",
@@ -33,7 +33,7 @@
     {
       "id": "com.natureglass.playdock",
       "name": "Unity Play",
-      "version": "1.0.0",
+      "version": "1.0.3",
       "description": "Play Unity games directly on your console.",
       "logo": "assets/unity_logo.png",
       "entry": "index.html",
@@ -62,7 +62,7 @@
     {
       "id": "com.natureglass.pvzge",
       "name": "PvZ GE",
-      "version": "1.0.0",
+      "version": "1.3.0",
       "description": "Plants vs. Zombies — Garden Edition (browser game).",
       "logo": "assets/pvzge_logo.png",
       "entry": "index.html",
