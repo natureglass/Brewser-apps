@@ -96,6 +96,7 @@ def build_tier(tier: str, written_artifacts: set[Path]) -> list[dict]:
         files, size_bytes = scan_files(app_dir)
         artifact_path = write_artifact(manifest_id, tier, files, size_bytes)
         written_artifacts.add(artifact_path.resolve())
+        entry["sizeBytes"] = size_bytes
         entries.append(entry)
 
     entries.sort(key=lambda e: e.get("id", ""))
