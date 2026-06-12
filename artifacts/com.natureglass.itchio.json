@@ -1,0 +1,10 @@
+{
+  "id": "com.natureglass.itchio",
+  "tier": "experimental",
+  "files": [
+    "assets/config.json",
+    "assets/itchio_logo.png",
+    "index.html",
+    "manifest.json"
+  ]
+}

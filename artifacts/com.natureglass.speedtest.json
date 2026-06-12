@@ -1,0 +1,9 @@
+{
+  "id": "com.natureglass.speedtest",
+  "tier": "experimental",
+  "files": [
+    "assets/speedtest_logo.png",
+    "index.html",
+    "manifest.json"
+  ]
+}

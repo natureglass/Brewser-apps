@@ -1,0 +1,20 @@
+{
+  "id": "com.natureglass.spectraplay",
+  "tier": "featured",
+  "files": [
+    "assets/audioplayer_logo.png",
+    "assets/left-chevron.png",
+    "assets/next-button.png",
+    "assets/off-volume.png",
+    "assets/on-volume.png",
+    "assets/pause-button.png",
+    "assets/play-button.png",
+    "assets/prev-button.png",
+    "assets/repeat-button.png",
+    "assets/right-chevron.png",
+    "assets/shuffle-button.png",
+    "config.json",
+    "index.html",
+    "manifest.json"
+  ]
+}

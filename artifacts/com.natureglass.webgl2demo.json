@@ -1,0 +1,10 @@
+{
+  "id": "com.natureglass.webgl2demo",
+  "tier": "community",
+  "files": [
+    "assets/logo.png",
+    "assets/main.js",
+    "index.html",
+    "manifest.json"
+  ]
+}

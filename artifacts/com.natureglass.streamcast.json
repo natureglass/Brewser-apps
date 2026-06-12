@@ -1,0 +1,10 @@
+{
+  "id": "com.natureglass.streamcast",
+  "tier": "featured",
+  "files": [
+    "assets/config.json",
+    "assets/twitch_logo.png",
+    "index.html",
+    "manifest.json"
+  ]
+}

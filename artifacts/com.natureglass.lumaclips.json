@@ -1,0 +1,11 @@
+{
+  "id": "com.natureglass.lumaclips",
+  "tier": "featured",
+  "files": [
+    "assets/feed.json",
+    "assets/suggestions.json",
+    "assets/tiktok_logo.png",
+    "index.html",
+    "manifest.json"
+  ]
+}

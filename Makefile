@@ -1,13 +1,15 @@
 # Brewser apps catalog build
 #
-#   make            # scan tiers and rewrite catalog.json
+#   make            # scan apps/<tier>/ and rewrite catalog.json + artifacts/
 #   make catalog    # same
-#   make check      # rebuild into a temp file and diff against catalog.json
+#   make check      # rebuild and diff against the previous catalog.json
 #   make help
 
 PYTHON ?= python
 SCRIPT := scripts/build_catalog.py
 CATALOG := catalog.json
+APPS_DIR := apps
+ARTIFACTS_DIR := artifacts
 TIERS   := featured experimental community
 
 .PHONY: all catalog check help
@@ -25,7 +27,7 @@ check:
 
 help:
 	@echo "Targets:"
-	@echo "  make catalog   Scan $(TIERS) and rewrite $(CATALOG)"
+	@echo "  make catalog   Scan $(APPS_DIR)/{$(TIERS)} and rewrite $(CATALOG) + $(ARTIFACTS_DIR)/<id>.json"
 	@echo "  make check     Rebuild and diff against the previous $(CATALOG)"
 	@echo ""
 	@echo "Overrides:"

@@ -1,0 +1,9 @@
+{
+  "id": "com.natureglass.playdock",
+  "tier": "featured",
+  "files": [
+    "assets/unity_logo.png",
+    "index.html",
+    "manifest.json"
+  ]
+}

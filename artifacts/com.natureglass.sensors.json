@@ -1,0 +1,21 @@
+{
+  "id": "com.natureglass.sensors",
+  "tier": "experimental",
+  "files": [
+    "assets/battery.png",
+    "assets/compass.png",
+    "assets/desktop_computer.png",
+    "assets/floppy_disk.png",
+    "assets/left-chevron.png",
+    "assets/loud_sound.png",
+    "assets/right-chevron.png",
+    "assets/satellite_antenna.png",
+    "assets/sensors_logo.png",
+    "assets/signal_strength.png",
+    "assets/sparkle.png",
+    "assets/vibration_mode.png",
+    "assets/zap.png",
+    "index.html",
+    "manifest.json"
+  ]
+}
