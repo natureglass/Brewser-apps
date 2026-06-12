@@ -1,6 +1,7 @@
 {
   "id": "com.natureglass.threejsdemos",
   "tier": "experimental",
+  "sizeBytes": 28454370,
   "files": [
     "assets/threejsdemos_logo.png",
     "geometry-cube/assets/crate.png",

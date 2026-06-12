@@ -1,6 +1,7 @@
 {
   "id": "com.natureglass.lumaclips",
   "tier": "featured",
+  "sizeBytes": 50488,
   "files": [
     "assets/feed.json",
     "assets/suggestions.json",

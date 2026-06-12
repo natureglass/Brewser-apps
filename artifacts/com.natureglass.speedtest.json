@@ -1,6 +1,7 @@
 {
   "id": "com.natureglass.speedtest",
   "tier": "experimental",
+  "sizeBytes": 30679,
   "files": [
     "assets/speedtest_logo.png",
     "index.html",

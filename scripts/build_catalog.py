@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Scan apps/{featured,experimental,community} and rebuild catalog.json + artifacts/.
+"""Scan apps/{featured,experimental,community} and rebuild catalogue.json + artifacts/.
 
 For each app folder containing a manifest.json:
-  - merge every manifest.json field into the catalog entry as-is
-  - write artifacts/<id>.json containing the file path breakdown
+  - merge every manifest.json field into the catalogue entry as-is
+  - write artifacts/<id>.json containing the file path breakdown + total size
 
 Hidden files/dirs (anything starting with '.') are skipped.
 Entries within a tier are sorted by id for stable diffs.
@@ -21,12 +21,13 @@ TIERS = ("featured", "experimental", "community")
 ROOT = Path(__file__).resolve().parent.parent
 APPS_DIR = ROOT / "apps"
 ARTIFACTS_DIR = ROOT / "artifacts"
-CATALOG_PATH = ROOT / "catalog.json"
+CATALOG_PATH = ROOT / "catalogue.json"
 CATALOG_VERSION = 1
 
 
-def scan_files(app_dir: Path) -> list[str]:
+def scan_files(app_dir: Path) -> tuple[list[str], int]:
     files: list[str] = []
+    total_bytes = 0
     for path in app_dir.rglob("*"):
         if not path.is_file():
             continue
@@ -35,8 +36,9 @@ def scan_files(app_dir: Path) -> list[str]:
         if any(p.startswith(".") for p in parts):
             continue
         files.append("/".join(parts))
+        total_bytes += path.stat().st_size
     files.sort()
-    return files
+    return files, total_bytes
 
 
 def load_manifest(manifest_path: Path) -> dict:
@@ -47,11 +49,12 @@ def load_manifest(manifest_path: Path) -> dict:
     return data
 
 
-def write_artifact(app_id: str, tier: str, files: list[str]) -> Path:
+def write_artifact(app_id: str, tier: str, files: list[str], size_bytes: int) -> Path:
     artifact_path = ARTIFACTS_DIR / f"{app_id}.json"
     payload = {
         "id": app_id,
         "tier": tier,
+        "sizeBytes": size_bytes,
         "files": files,
     }
     with artifact_path.open("w", encoding="utf-8", newline="\n") as f:
@@ -90,8 +93,8 @@ def build_tier(tier: str, written_artifacts: set[Path]) -> list[dict]:
                 file=sys.stderr,
             )
 
-        files = scan_files(app_dir)
-        artifact_path = write_artifact(manifest_id, tier, files)
+        files, size_bytes = scan_files(app_dir)
+        artifact_path = write_artifact(manifest_id, tier, files, size_bytes)
         written_artifacts.add(artifact_path.resolve())
         entries.append(entry)
 

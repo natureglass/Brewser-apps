@@ -1,6 +1,7 @@
 {
   "id": "com.natureglass.spectraplay",
   "tier": "featured",
+  "sizeBytes": 112963,
   "files": [
     "assets/audioplayer_logo.png",
     "assets/left-chevron.png",

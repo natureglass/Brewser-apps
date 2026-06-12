@@ -1,13 +1,13 @@
-# Brewser apps catalog build
+# Brewser apps catalogue build
 #
-#   make            # scan apps/<tier>/ and rewrite catalog.json + artifacts/
+#   make            # scan apps/<tier>/ and rewrite catalogue.json + artifacts/
 #   make catalog    # same
-#   make check      # rebuild and diff against the previous catalog.json
+#   make check      # rebuild and diff against the previous catalogue.json
 #   make help
 
 PYTHON ?= python
 SCRIPT := scripts/build_catalog.py
-CATALOG := catalog.json
+CATALOG := catalogue.json
 APPS_DIR := apps
 ARTIFACTS_DIR := artifacts
 TIERS   := featured experimental community

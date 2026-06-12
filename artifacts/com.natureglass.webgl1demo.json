@@ -1,6 +1,7 @@
 {
   "id": "com.natureglass.webgl1demo",
   "tier": "community",
+  "sizeBytes": 70666,
   "files": [
     "assets/logo.png",
     "assets/main.js",

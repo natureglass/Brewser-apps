@@ -1,6 +1,7 @@
 {
   "id": "com.natureglass.sensors",
   "tier": "experimental",
+  "sizeBytes": 60319,
   "files": [
     "assets/battery.png",
     "assets/compass.png",

@@ -1,6 +1,7 @@
 {
   "id": "com.natureglass.itchio",
   "tier": "experimental",
+  "sizeBytes": 47824,
   "files": [
     "assets/config.json",
     "assets/itchio_logo.png",

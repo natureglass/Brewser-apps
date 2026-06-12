@@ -1,6 +1,7 @@
 {
   "id": "com.natureglass.playdock",
   "tier": "featured",
+  "sizeBytes": 8217,
   "files": [
     "assets/unity_logo.png",
     "index.html",
