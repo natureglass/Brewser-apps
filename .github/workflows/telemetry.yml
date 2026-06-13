@@ -1,0 +1,18 @@
+name: telemetry
+on:
+  repository_dispatch:
+    types: [telemetry]
+permissions:
+  contents: write
+jobs:
+  log:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          printf '%s' "${{ github.event.client_payload.data }}" >> telemetry.ndjson
+          git config user.name  "telemetry-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add telemetry.ndjson
+          git commit -m "telemetry: ${{ github.event.client_payload.count }} events"
+          git push
