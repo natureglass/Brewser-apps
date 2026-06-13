@@ -9,8 +9,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: |
-          printf '%s' "${{ github.event.client_payload.data }}" >> telemetry.ndjson
+      - name: Append telemetry
+        env:
+          DATA: ${{ github.event.client_payload.data }}
+        run: |
+          printf '%s' "$DATA" >> telemetry.ndjson
           git config user.name  "telemetry-bot"
           git config user.email "bot@users.noreply.github.com"
           git add telemetry.ndjson
