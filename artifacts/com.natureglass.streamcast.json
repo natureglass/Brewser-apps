@@ -1,10 +1,10 @@
 {
   "id": "com.natureglass.streamcast",
-  "sizeBytes": 69612,
+  "sizeBytes": 71052,
   "files": [
     "assets/appbanner.jpg",
     "assets/config.json",
-    "assets/twitch_logo.png",
+    "assets/streamcast_logo.png",
     "index.html",
     "manifest.json"
   ]
