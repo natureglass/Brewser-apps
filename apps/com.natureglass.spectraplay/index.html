@@ -787,6 +787,39 @@
         webFolderLabel = folderName ? folderName + "/" : "(selected folder)";
       }
 
+      // Chromium, TOP-LEVEL page only: pick a folder via the File System Access
+      // API. Unlike <input webkitdirectory>, this asks to *view* the folder (no
+      // "upload N files" prompt) and reads each file lazily through its handle —
+      // nothing is uploaded. Browsers block it in cross-origin iframes (the embedded
+      // card), so the caller only reaches here when the app is its own top page.
+      async function pickFolderViaFSAccess() {
+        let handle;
+        try {
+          handle = await window.showDirectoryPicker({ id: "spectraplay-audio", mode: "read" });
+        } catch (err) {
+          // AbortError = user cancelled; SecurityError = blocked. Either way, no change.
+          if (err && err.name !== "AbortError") console.debug("[swp] showDirectoryPicker:", err);
+          return;
+        }
+        const files = [];
+        try {
+          for await (const entry of handle.values()) {
+            if (entry.kind !== "file") continue;
+            const lower = entry.name.toLowerCase();
+            if (!AUDIO_EXTENSIONS.some((ext) => lower.endsWith(ext))) continue;
+            try { files.push(await entry.getFile()); } catch (_) {}
+          }
+        } catch (err) {
+          console.debug("[swp] directory read failed:", err);
+          return;
+        }
+        audio.pause();
+        loadPlaylistFromFileList(files);
+        // FS Access files carry no webkitRelativePath, so label from the handle name.
+        webFolderLabel = handle.name ? handle.name + "/" : "(selected folder)";
+        applyNewFolderPlaylist();
+      }
+
       // Revoke object URLs from a blob-backed (web) playlist so re-picking a folder
       // doesn't leak them. No-op for Switch path-based playlists.
       function revokeBlobPlaylist() {
@@ -978,6 +1011,7 @@
       const libraryCount = $("#libraryCount");
       const folderPicker = $("#folderPicker");
       const folderCurrent = $("#folderCurrent");
+      const folderLabel = $('label[for="folderPicker"]');
 
       let currentIndex = 0;
       let isShuffle = false;
@@ -2019,6 +2053,19 @@ void main() {
 
       vizPrevBtn.addEventListener("click", () => changeVisualizerStyle(-1));
       vizNextBtn.addEventListener("click", () => changeVisualizerStyle(1));
+
+      // Prefer the File System Access API when the app is a TOP-LEVEL page on a
+      // Chromium browser: it grants "view this folder" (no scary upload prompt) and
+      // reads files on demand. In the embedded card (cross-origin iframe) browsers
+      // block it, so we let the <label> fall through to the hidden <input>
+      // (webkitdirectory on web, path-only on the Switch).
+      const canUseDirPicker = (window.self === window.top) && (typeof window.showDirectoryPicker === "function");
+      if (folderLabel && canUseDirPicker) {
+        folderLabel.addEventListener("click", (evt) => {
+          evt.preventDefault();   // don't also open the <input> upload dialog
+          pickFolderViaFSAccess();
+        });
+      }
 
       // "Choose audio folder" tile. The file picker resolves in
       // path-only mode (see `data-path-only` on #folderPicker + the
