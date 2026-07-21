@@ -43,6 +43,49 @@
     text-transform: uppercase;
     width: 100%;
   }
+  /* Collapsible sidebar: a header row with the collapse toggle + the "LIVE NOW"
+     title. Collapsed, the sidebar shrinks to a narrow strip showing only the
+     toggle (chevron flips); the stage flexes to fill the freed space. */
+  .sidebar { transition: width 0.2s ease; }
+  .sidebar.collapsed {
+    width: 44px;
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+  .sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    margin-bottom: 4px;
+  }
+  .sidebar-header .sidebar-title {
+    flex: 1;
+    margin-bottom: 0;
+    width: auto;
+  }
+  .sidebar-toggle {
+    flex: 0 0 auto;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    user-select: none;
+    outline: none;
+  }
+  .sidebar-toggle:active { background: rgba(255, 255, 255, 0.14); }
+  .sidebar-toggle svg { display: block; transition: transform 0.2s ease; }
+  .sidebar.collapsed .sidebar-toggle svg { transform: rotate(180deg); }
+  /* Collapsed: only the toggle remains visible. */
+  .sidebar.collapsed .sidebar-title,
+  .sidebar.collapsed .live-status,
+  .sidebar.collapsed .live-list,
+  .sidebar.collapsed .custom-channel-btn { display: none; }
   .live-list {
     display: flex;
     flex-direction: column;
@@ -360,7 +403,10 @@
 
   <!-- ============================== SIDEBAR (LIVE NOW ONLY) ============================== -->
   <aside id="sidebar" class="sidebar">
-    <div id="sidebar-title" class="sidebar-title hidden">Live now</div>
+    <div class="sidebar-header">
+      <div id="sidebar-toggle" class="sidebar-toggle" role="button" tabindex="0" aria-label="Collapse sidebar" title="Collapse sidebar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polyline points="15 18 9 12 15 6"></polyline></svg></div>
+      <div id="sidebar-title" class="sidebar-title hidden">Live now</div>
+    </div>
     <div id="live-status" class="live-status">Loading live streams…</div>
     <div id="live-list" class="live-list"></div>
     <!-- Pinned at the sidebar bottom, outside the scrolling live-list: return to
@@ -415,9 +461,17 @@
 
 <script>
   // ---------- config ----------
-  const CONFIG_URL = 'assets/config.json';
   const DEFAULT_CHANNEL = 'dino_xx';
   const DEFAULT_QUALITY = 'auto';
+  // Inline app config (formerly assets/config.json). Channel + quality defaults.
+  // quality: 'source' (max bandwidth, any fps), 'auto' (highest-bandwidth variant
+  // with fps<=30 -- safest on Switch), or an explicit Twitch variant like '1080p60',
+  // '720p60', '480p30', '360p30', '160p30'. A variant not in the channel's master
+  // playlist falls back to 'auto'. An empty defaultChannel keeps the built-in default.
+  const APP_CONFIG = {
+    defaultChannel: '',
+    quality: '480p30',
+  };
   const CLIENT_ID = 'kimne78kx3ncx6brgo4mv6wki5h1ko';
   const PAT_HASH = '0828119ded1c13477966434e15800ff57ddacf13ba1911c129dc2200705b0712';
   const DESKTOP_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) ' +
@@ -426,12 +480,15 @@
   const RECENTS_PATH = 'sdmc:/switch/brewser/webprofiles/default/twitch-recent.json';
   const RECENTS_MAX = 5;
   const APP_VERSION = 'slice4-async-mutate-repaint';
-  const TOP_LIVE_COUNT = 20;
-  // "Show more" pagination for the Live-now list. We refetch the top N with a
-  // growing limit (the existing streams(first:N) query -- no cursor gamble) and
-  // append only channels not already shown; liveShown dedupes across pages.
-  let liveLimit = TOP_LIVE_COUNT;
-  let liveShown = {};
+  const TOP_LIVE_COUNT = 10;   // channels shown on first load
+  const SHOW_MORE_COUNT = 5;   // extra channels revealed per "Show more"
+  // Twitch caps the anonymous streams directory at 30 per request AND gates deeper
+  // cursor pagination behind an integrity/bot challenge we can't solve here. So we
+  // fetch the max 30 in ONE (uncursored) call and reveal them client-side: 10 first,
+  // then +5 per "Show more" until all 30 are shown.
+  const TOP_LIVE_FETCH = 30;
+  let liveBuffer = [];         // the full fetched list (up to 30)
+  let liveVisible = 0;         // how many are currently displayed
   let liveLoadingMore = false;
 
   // ---------- el refs ----------
@@ -444,6 +501,8 @@
   const customChannelBtnEl = document.getElementById('custom-channel-btn');
   const recentsSectionEl = document.getElementById('recents-section');
   const recentsRowEl = document.getElementById('recents-row');
+  const sidebarEl = document.getElementById('sidebar');
+  const sidebarToggleEl = document.getElementById('sidebar-toggle');
   const sidebarTitleEl = document.getElementById('sidebar-title');
   const liveStatusEl = document.getElementById('live-status');
   const liveListEl = document.getElementById('live-list');
@@ -544,7 +603,7 @@
       '    } }' +
       '  }' +
       '}';
-    log('POST gql.twitch.tv/gql (TopStreams limit=' + limit + ')');
+    log('POST gql.twitch.tv/gql (TopStreams first=' + limit + ')');
     // 15-second abort timeout so the sidebar UX doesn't hang forever
     // if the engine fetch chain regresses or the network stalls.
     const controller = new AbortController();
@@ -574,6 +633,11 @@
     }
     const json = await resp.json();
     clearTimeout(timeoutId);
+    // Surface gql validation/errors (e.g. an unexpected schema change) in the log
+    // so a failed page is diagnosable rather than silently empty.
+    if (json && json.errors) {
+      log('  top-live gql errors: ' + JSON.stringify(json.errors).slice(0, 300));
+    }
     const edges = (json && json.data && json.data.streams &&
                    json.data.streams.edges) || [];
     const items = edges
@@ -673,25 +737,18 @@
   }
 
   // ---------- config ----------
-  async function loadConfig() {
+  // Reads the inline APP_CONFIG (was a fetch of assets/config.json). Kept as a
+  // function returning { channel, quality } so the caller (await loadConfig()) is
+  // unchanged; DEFAULT_* fill in for empty/absent values.
+  function loadConfig() {
     let channel = DEFAULT_CHANNEL;
     let quality = DEFAULT_QUALITY;
-    try {
-      log('GET ' + CONFIG_URL);
-      const resp = await fetch(CONFIG_URL);
-      log('  config status ' + resp.status);
-      if (!resp.ok) throw new Error('HTTP ' + resp.status);
-      const cfg = await resp.json();
-      if (cfg && typeof cfg.defaultChannel === 'string' && cfg.defaultChannel) {
-        channel = cfg.defaultChannel;
-      }
-      if (cfg && typeof cfg.quality === 'string' && cfg.quality) {
-        quality = cfg.quality;
-      }
-    } catch (err) {
-      log('  config load failed (' +
-          (err && err.message ? err.message : err) +
-          '); falling back to built-in defaults');
+    const cfg = APP_CONFIG;
+    if (cfg && typeof cfg.defaultChannel === 'string' && cfg.defaultChannel) {
+      channel = cfg.defaultChannel;
+    }
+    if (cfg && typeof cfg.quality === 'string' && cfg.quality) {
+      quality = cfg.quality;
     }
     log('  config: channel=' + channel + ' quality=' + quality);
     return { channel: channel, quality: quality };
@@ -901,15 +958,18 @@
     setLiveStatus('loading');
     sidebarTitleEl.classList.add('hidden');
     liveListEl.innerHTML = '';
-    liveLimit = TOP_LIVE_COUNT;
+    liveBuffer = [];
+    liveVisible = 0;
     try {
-      const list = await fetchTopLive(TOP_LIVE_COUNT);
+      const list = await fetchTopLive(TOP_LIVE_FETCH);
       if (!list || list.length === 0) {
         setLiveStatus('error', 'No live streams found right now');
         return;
       }
+      liveBuffer = list;
+      liveVisible = Math.min(TOP_LIVE_COUNT, list.length);
       setLiveStatus('hidden');
-      renderLiveChannels(list);
+      renderLiveChannels(liveBuffer.slice(0, liveVisible));
     } catch (err) {
       const msg = (err && err.message) ? err.message : String(err);
       log('  top-live fetch FAILED: ' + msg);
@@ -933,26 +993,21 @@
         item.classList.remove('selected');
       }
     }
+    // Keep the sidebar title's live count ("LIVE NOW X") in step with the list.
+    sidebarTitleEl.textContent = 'Live now ' + liveListEl.querySelectorAll('.live-item').length;
   }
 
   function renderLiveChannels(list) {
     liveListEl.innerHTML = '';
-    liveShown = {};
     if (!list || list.length === 0) {
       sidebarTitleEl.classList.add('hidden');
       return;
     }
     sidebarTitleEl.classList.remove('hidden');
-    for (const item of list) {
-      const key = item.login.toLowerCase();
-      if (liveShown[key]) continue;
-      liveShown[key] = true;
-      appendLiveItem(item);
-    }
-    // A full page back suggests there may be more -- offer "Show more".
-    renderShowMore(list.length >= liveLimit);
+    for (const item of list) appendLiveItem(item);
+    renderShowMore(liveVisible < liveBuffer.length);
     updateLiveSelection();
-    log('rendered ' + Object.keys(liveShown).length + ' live items');
+    log('rendered ' + list.length + ' live items (of ' + liveBuffer.length + ' fetched)');
   }
 
   // Build one Live-now row and insert it into the list. Shared by the initial
@@ -1015,38 +1070,19 @@
     liveListEl.appendChild(btn);
   }
 
-  // "Show more": refetch the top list with a larger limit and append only the
-  // channels not already shown (deduped by login, since the ranking can shift
-  // between calls). Stops offering more once Twitch returns a short page or no
-  // new channels appear (e.g. its first:N cap is reached).
-  async function loadMoreLive() {
+  // "Show more": reveal the next batch from the already-fetched buffer (no network
+  // call -- Twitch blocks deeper anonymous pagination behind an integrity/bot check,
+  // and caps the directory at 30 anyway). Hides once all fetched channels show.
+  function loadMoreLive() {
     if (liveLoadingMore) return;
     liveLoadingMore = true;
-    const btn = document.getElementById('live-show-more');
-    if (btn) { btn.textContent = 'Loading…'; btn.classList.add('is-loading'); }
-    liveLimit += TOP_LIVE_COUNT;
-    try {
-      const list = await fetchTopLive(liveLimit);
-      let added = 0;
-      for (const item of (list || [])) {
-        const key = item.login.toLowerCase();
-        if (liveShown[key]) continue;
-        liveShown[key] = true;
-        appendLiveItem(item);
-        added++;
-      }
-      updateLiveSelection();
-      // More only if Twitch returned a full page AND we actually grew the list.
-      renderShowMore(!!list && list.length >= liveLimit && added > 0);
-      log('show-more: +' + added + ' (total ' + Object.keys(liveShown).length + ')');
-    } catch (err) {
-      log('  show-more fetch FAILED: ' + (err && err.message ? err.message : err));
-      // Leave the button in place so the user can retry.
-      const b = document.getElementById('live-show-more');
-      if (b) { b.textContent = 'Show more'; b.classList.remove('is-loading'); }
-    } finally {
-      liveLoadingMore = false;
-    }
+    const next = liveBuffer.slice(liveVisible, liveVisible + SHOW_MORE_COUNT);
+    for (const item of next) appendLiveItem(item);
+    liveVisible += next.length;
+    updateLiveSelection();
+    renderShowMore(liveVisible < liveBuffer.length);
+    log('show-more: revealed ' + next.length + ' (visible ' + liveVisible + '/' + liveBuffer.length + ')');
+    liveLoadingMore = false;
   }
 
   // ---------- input + selection ----------
@@ -1250,6 +1286,14 @@
     customChannelBtnEl.addEventListener('click', function () {
       returnToLogin();
       try { channelInputEl.focus(); if (channelInputEl.select) channelInputEl.select(); } catch (e) {}
+    });
+    // Collapse / expand the sidebar. The toggle stays visible in the collapsed
+    // strip so it can be reopened; the chevron flips via the .collapsed class.
+    sidebarToggleEl.addEventListener('click', function () {
+      const collapsed = sidebarEl.classList.toggle('collapsed');
+      const label = collapsed ? 'Expand sidebar' : 'Collapse sidebar';
+      sidebarToggleEl.setAttribute('aria-label', label);
+      sidebarToggleEl.setAttribute('title', label);
     });
 
     // Multi-stage Back: shell dispatches synthetic 'Escape' keydown
