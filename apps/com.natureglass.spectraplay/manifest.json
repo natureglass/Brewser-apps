@@ -1,7 +1,7 @@
 {
     "id": "com.natureglass.spectraplay",
     "name": "Spectra Play",
-    "version": "1.0.4",
+    "version": "1.0.6",
     "description": "<p>Spectra Play</p>",
     "logo": "assets/appbanner.jpg",
     "entry": "index.html",
@@ -27,5 +27,15 @@
     "tags": [
         "Audio Player",
         "Visualizer"
-    ]
+    ],
+    "buttonMapping": {
+        "up": "UP",
+        "down": "DOWN",
+        "left": "LEFT",
+        "right": "RIGHT",
+        "enter": "A",
+        "space": "B",
+        "z": "A",
+        "x": "B"
+    }
 }

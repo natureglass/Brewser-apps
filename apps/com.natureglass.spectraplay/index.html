@@ -661,60 +661,66 @@
 
       const AUDIO_EXTENSIONS = [".mp3", ".m4a", ".aac", ".flac", ".wav", ".ogg", ".oga", ".opus"];
 
-      // Resolve a file under the app's `assets/` folder to an absolute
-      // sdmc:/ path. `Switch.readFileSync('./assets/X')` resolves
-      // against the native cwd (which is `sdmc:/` for hbmenu / Citron
-      // launches and brewser-shell launches alike), NOT the page URL —
-      // so the relative form silently misses when the brewser shell
-      // serves us from `sdmc:/switch/brewser/apps/<group>/<id>/`.
-      // Derive the absolute path from `document.baseURI` (the shell's
-      // `brewser://apps/<group>/<id>/index.html`) by swapping the
-      // scheme + prefix. Falls back to the relative path so standalone
-      // NRO runs (cwd === appDir) keep working.
-      function resolveAppAssetPath(rel) {
-        let base = "";
-        try { base = document.baseURI || ""; } catch (_) {}
-        const m = base.match(/^brewser:\/\/(.+\/)[^/]*$/i);
-        if (m) return "sdmc:/switch/brewser/" + m[1] + rel.replace(/^\.\/?/, "");
-        return rel.startsWith("./") ? rel : "./" + rel;
-      }
-      const CONFIG_PATH = resolveAppAssetPath("./assets/config.json");
-
-      // Read + parse config.json from the SD card (synchronous — page
-      // scripts can use Switch.readFileSync; no fetch to hang on). Parsed
-      // once and cached. Returns {} if no config / parse error, so every
-      // reader falls back to its own defaults and the player still works
-      // without a config file.
-      let cachedConfig = null;
-      function readConfig() {
-        if (cachedConfig) return cachedConfig;
-        cachedConfig = {};
-        const sw = globalThis.Switch;
-        if (!sw || typeof sw.readFileSync !== "function") return cachedConfig;
-        const candidates = [
-          CONFIG_PATH,
-          // Standalone-NRO fallback: when document.baseURI isn't a
-          // brewser:// URL, resolveAppAssetPath returns the relative
-          // form, which is identical to CONFIG_PATH here. Keep the
-          // second entry as a safety net in case the derived absolute
-          // path is wrong on some future shell layout.
-          "./assets/config.json",
-        ];
-        for (const path of candidates) {
-          try {
-            const buf = sw.readFileSync(path);
-            if (!buf) continue;
-            const cfg = JSON.parse(new TextDecoder().decode(buf));
-            if (cfg && typeof cfg === "object") { cachedConfig = cfg; break; }
-          } catch (_) { /* try next candidate */ }
+      // Inlined app settings (was assets/config.json — now deleted). These are
+      // the static defaults: the `visualizer` tunables and the initial
+      // `audioFilesPath`. `audioFilesPath` is only a default: when the user
+      // picks a folder on Switch we remember it in localStorage instead, so
+      // the choice survives a relaunch (see the folderPicker handler +
+      // loadStoredAudioPath/saveStoredAudioPath). No config file is written.
+      const APP_CONFIG = {
+        audioFilesPath: "",
+        visualizer: {
+          gain: 10.0,
+          waveGain: 1.4,
+          flipY: false,
+          bgAlpha: 0.0,
+          vividness: 0.5,
+          waveform: 256,
+          bars: 20,
+          orbit: 210,
+          radialBars: 64,
+          mirrorWave: 210,
+          spectrumLine: 120,
+          pulseRings: 90,
+          particles: 360,
+          nebula: 140
         }
-        return cachedConfig;
+      };
+
+      // ---- Persist the chosen folder across launches (Switch) ----
+      // On Switch the picked folder is a real filesystem path — a plain
+      // string — so we remember it in localStorage. No file writes, and it
+      // replaces the old assets/config.json persistence store. (Web can't
+      // reopen an arbitrary path, so it persists a FileSystemDirectoryHandle
+      // in IndexedDB instead — see idbSaveHandle below.)
+      const AUDIO_DIR_STORE_KEY = "spectraplay.audioDir";
+
+      function loadStoredAudioPath() {
+        try {
+          const v = globalThis.localStorage ? localStorage.getItem(AUDIO_DIR_STORE_KEY) : null;
+          if (typeof v === "string" && v.trim()) return v.trim();
+        } catch (_) { /* localStorage unavailable — fall back to defaults */ }
+        return "";
+      }
+
+      function saveStoredAudioPath(path) {
+        try {
+          if (!globalThis.localStorage) return false;
+          localStorage.setItem(AUDIO_DIR_STORE_KEY, path);
+          return true;
+        } catch (err) {
+          console.debug("[swp] localStorage save failed:", err);
+          return false;
+        }
       }
 
       function readAudioFilesPath() {
-        const cfg = readConfig();
-        if (cfg && typeof cfg.audioFilesPath === "string" && cfg.audioFilesPath.trim()) {
-          return cfg.audioFilesPath.trim();
+        // Prefer the folder the user last picked (localStorage on Switch),
+        // then the inlined APP_CONFIG default, then the built-in /music/.
+        const stored = loadStoredAudioPath();
+        if (stored) return stored;
+        if (typeof APP_CONFIG.audioFilesPath === "string" && APP_CONFIG.audioFilesPath.trim()) {
+          return APP_CONFIG.audioFilesPath.trim();
         }
         return "/music/";
       }
@@ -1150,11 +1156,11 @@
       const waveData = new Float32Array(WAVE_LEN);
       let haveFreq = false, haveWave = false;
 
-      // Tunables — defaults here, overridable from config.json's "visualizer"
-      // block (no rebuild needed):
-      //   "visualizer": { "gain": 30, "waveGain": 1.4, "flipY": false,
-      //                   "bgAlpha": 0, "vividness": 0.5,
-      //                   "bars": 20, "waveform": 256, ... }
+      // Tunables — defaults here, overridable via the inlined APP_CONFIG
+      // "visualizer" block (edit APP_CONFIG at the top of this script):
+      //   visualizer: { gain: 30, waveGain: 1.4, flipY: false,
+      //                 bgAlpha: 0, vividness: 0.5,
+      //                 bars: 20, waveform: 256, ... }
       let vizFreqGain = 30.0;     // native FFT magnitude -> ~0..1 spectrum
       let vizWaveGain = 1.4;      // waveform amplitude scale
       let vizFlipY = 1.0;         // vertex Y sign (set flipY:true -> -1 to invert)
@@ -1168,7 +1174,7 @@
       // toward 1 (mains go near-solid, glow layers stay proportionally dimmer).
       let vizVividness = 0.5;
       // Per-visual geometry counts. Each visual exposes ONE exact count as a
-      // key directly in config.json's "visualizer" block — it's the real number of
+      // key directly in APP_CONFIG's "visualizer" block — it's the real number of
       // samples/segments built per frame (e.g. "bars": 7 draws 7 frequency
       // bars and reads 7 spectrum samples), so lowering it cuts CPU work and
       // raises FPS; it is not a cosmetic trim. The secondary "glow"/"alt"
@@ -1224,7 +1230,9 @@
       }
 
       function loadVisualizerConfig() {
-        const v = readConfig().visualizer;
+        // Visualizer tunables are static — read from the inlined APP_CONFIG
+        // (was config.json's "visualizer" block).
+        const v = APP_CONFIG.visualizer;
         const num = (x, lo, hi, dflt) =>
           (typeof x === "number" && isFinite(x)) ? Math.max(lo, Math.min(hi, x)) : dflt;
         if (v && typeof v === "object") {
@@ -2193,9 +2201,9 @@ void main() {
       // path-only mode (see `data-path-only` on #folderPicker + the
       // runtime's webkitdirectoryPathOnly branch) with a single entry
       // whose `path` is the chosen directory — no recursive walk. We
-      // persist it to ./assets/config.json so the next launch sees it,
-      // then refresh the playlist silently (no auto-play; whatever was
-      // playing keeps playing until the user picks a new track).
+      // persist it to localStorage so the next launch sees it, then refresh
+      // the playlist silently (no auto-play; whatever was playing keeps
+      // playing until the user picks a new track).
       folderPicker.addEventListener("change", () => {
         const files = folderPicker.files;
         if (!files || files.length === 0) return;
@@ -2205,7 +2213,7 @@ void main() {
         // picked folder's audio files as object URLs. `webkitdirectory` on the
         // input makes the browser pick a FOLDER (not a single file); there's no SD
         // card to persist a path to, so the choice lasts for this session.
-        if (!sw || typeof sw.writeFileSync !== "function") {
+        if (!sw || typeof sw.readDirSync !== "function") {
           audio.pause();
           loadPlaylistFromFileList(files);
           applyNewFolderPlaylist();
@@ -2214,7 +2222,7 @@ void main() {
         }
 
         // Switch: the runtime resolves path-only mode with a single entry whose
-        // `path` is the chosen directory; persist it to config.json + re-enumerate.
+        // `path` is the chosen directory; persist it to localStorage + re-enumerate.
         let pickedPath = (files[0] && files[0].path) || "";
         if (!pickedPath) return;
         // Defensive: path-only mode resolves with the chosen folder's
@@ -2226,17 +2234,12 @@ void main() {
         } else if (!pickedPath.endsWith("/")) {
           pickedPath = pickedPath + "/";
         }
-        // Preserve any other keys the user / page has in config.json.
-        const merged = Object.assign({}, readConfig(), { audioFilesPath: pickedPath });
-        try {
-          sw.writeFileSync(CONFIG_PATH, JSON.stringify(merged, null, 2));
-        } catch (err) {
-          console.debug("[swp] write config failed:", err);
-          return;
-        }
+        // Remember the pick for next launch. Bail if it couldn't be stored so
+        // the re-enumeration below (which reads the stored path back) stays in
+        // sync with what's persisted.
+        if (!saveStoredAudioPath(pickedPath)) return;
         // Stop the old folder's track BEFORE swapping the playlist.
         audio.pause();
-        cachedConfig = null;
         loadPlaylistFromConfig();
         applyNewFolderPlaylist();
         // Clear the input's selection so picking the same folder again
