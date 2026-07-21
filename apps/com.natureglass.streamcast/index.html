@@ -128,6 +128,24 @@
   .live-item.selected .live-viewers {
     color: rgba(199, 166, 255, 0.7);
   }
+  /* "Show more" — a tappable row at the BOTTOM of the scrolling live-list
+     (inside it, so it scrolls with the channels) that loads the next page. */
+  .live-show-more {
+    width: 100%;
+    padding: 10px 12px;
+    margin-top: 2px;
+    border-radius: 8px;
+    background: #1d1729;
+    color: #c7a6ff;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    user-select: none;
+    cursor: pointer;
+    outline: none;
+  }
+  .live-show-more:active { background: #2a2138; }
+  .live-show-more.is-loading { color: rgba(255, 255, 255, 0.5); cursor: default; }
   .live-row1 {
     display: flex;
     align-items: center;
@@ -409,6 +427,12 @@
   const RECENTS_MAX = 5;
   const APP_VERSION = 'slice4-async-mutate-repaint';
   const TOP_LIVE_COUNT = 20;
+  // "Show more" pagination for the Live-now list. We refetch the top N with a
+  // growing limit (the existing streams(first:N) query -- no cursor gamble) and
+  // append only channels not already shown; liveShown dedupes across pages.
+  let liveLimit = TOP_LIVE_COUNT;
+  let liveShown = {};
+  let liveLoadingMore = false;
 
   // ---------- el refs ----------
   const layoutEl = document.getElementById('layout');
@@ -877,6 +901,7 @@
     setLiveStatus('loading');
     sidebarTitleEl.classList.add('hidden');
     liveListEl.innerHTML = '';
+    liveLimit = TOP_LIVE_COUNT;
     try {
       const list = await fetchTopLive(TOP_LIVE_COUNT);
       if (!list || list.length === 0) {
@@ -912,52 +937,116 @@
 
   function renderLiveChannels(list) {
     liveListEl.innerHTML = '';
+    liveShown = {};
     if (!list || list.length === 0) {
       sidebarTitleEl.classList.add('hidden');
       return;
     }
     sidebarTitleEl.classList.remove('hidden');
     for (const item of list) {
-      const row = document.createElement('div');
-      row.className = 'live-item';
-      row._twLogin = item.login;
-
-      const row1 = document.createElement('div');
-      row1.className = 'live-row1';
-
-      const dot = document.createElement('span');
-      dot.className = 'live-dot';
-      dot.textContent = '●';
-      row1.appendChild(dot);
-
-      const name = document.createElement('span');
-      name.className = 'live-name';
-      name.textContent = item.displayName;
-      row1.appendChild(name);
-
-      const viewers = document.createElement('span');
-      viewers.className = 'live-viewers';
-      viewers.textContent = formatCount(item.viewersCount);
-      row1.appendChild(viewers);
-
-      row.appendChild(row1);
-
-      if (item.gameDisplayName) {
-        const game = document.createElement('div');
-        game.className = 'live-game';
-        game.textContent = item.gameDisplayName;
-        row.appendChild(game);
-      }
-
-      row.addEventListener('click', function () {
-        log('live item tapped: ' + item.login + ' (' + item.viewersCount + ')');
-        setChannelInput(item.login);
-        selectChannel(item.login);
-      });
-      liveListEl.appendChild(row);
+      const key = item.login.toLowerCase();
+      if (liveShown[key]) continue;
+      liveShown[key] = true;
+      appendLiveItem(item);
     }
+    // A full page back suggests there may be more -- offer "Show more".
+    renderShowMore(list.length >= liveLimit);
     updateLiveSelection();
-    log('rendered ' + list.length + ' live items');
+    log('rendered ' + Object.keys(liveShown).length + ' live items');
+  }
+
+  // Build one Live-now row and insert it into the list. Shared by the initial
+  // render and "Show more"; new rows go ABOVE the show-more button when present
+  // so it always stays at the bottom of the list.
+  function appendLiveItem(item) {
+    const row = document.createElement('div');
+    row.className = 'live-item';
+    row._twLogin = item.login;
+
+    const row1 = document.createElement('div');
+    row1.className = 'live-row1';
+
+    const dot = document.createElement('span');
+    dot.className = 'live-dot';
+    dot.textContent = '●';
+    row1.appendChild(dot);
+
+    const name = document.createElement('span');
+    name.className = 'live-name';
+    name.textContent = item.displayName;
+    row1.appendChild(name);
+
+    const viewers = document.createElement('span');
+    viewers.className = 'live-viewers';
+    viewers.textContent = formatCount(item.viewersCount);
+    row1.appendChild(viewers);
+
+    row.appendChild(row1);
+
+    if (item.gameDisplayName) {
+      const game = document.createElement('div');
+      game.className = 'live-game';
+      game.textContent = item.gameDisplayName;
+      row.appendChild(game);
+    }
+
+    row.addEventListener('click', function () {
+      log('live item tapped: ' + item.login + ' (' + item.viewersCount + ')');
+      setChannelInput(item.login);
+      selectChannel(item.login);
+    });
+
+    const anchor = document.getElementById('live-show-more');
+    if (anchor) liveListEl.insertBefore(row, anchor);
+    else liveListEl.appendChild(row);
+  }
+
+  // Add/replace the "Show more" button at the bottom of the Live-now list.
+  // Removed + re-appended so it always sits last; omitted when there's no more.
+  function renderShowMore(hasMore) {
+    const old = document.getElementById('live-show-more');
+    if (old) old.remove();
+    if (!hasMore) return;
+    const btn = document.createElement('div');
+    btn.id = 'live-show-more';
+    btn.className = 'live-show-more';
+    btn.textContent = 'Show more';
+    btn.addEventListener('click', loadMoreLive);
+    liveListEl.appendChild(btn);
+  }
+
+  // "Show more": refetch the top list with a larger limit and append only the
+  // channels not already shown (deduped by login, since the ranking can shift
+  // between calls). Stops offering more once Twitch returns a short page or no
+  // new channels appear (e.g. its first:N cap is reached).
+  async function loadMoreLive() {
+    if (liveLoadingMore) return;
+    liveLoadingMore = true;
+    const btn = document.getElementById('live-show-more');
+    if (btn) { btn.textContent = 'Loading…'; btn.classList.add('is-loading'); }
+    liveLimit += TOP_LIVE_COUNT;
+    try {
+      const list = await fetchTopLive(liveLimit);
+      let added = 0;
+      for (const item of (list || [])) {
+        const key = item.login.toLowerCase();
+        if (liveShown[key]) continue;
+        liveShown[key] = true;
+        appendLiveItem(item);
+        added++;
+      }
+      updateLiveSelection();
+      // More only if Twitch returned a full page AND we actually grew the list.
+      renderShowMore(!!list && list.length >= liveLimit && added > 0);
+      log('show-more: +' + added + ' (total ' + Object.keys(liveShown).length + ')');
+    } catch (err) {
+      log('  show-more fetch FAILED: ' + (err && err.message ? err.message : err));
+      // Leave the button in place so the user can retry.
+      const b = document.getElementById('live-show-more');
+      if (b) { b.textContent = 'Show more'; b.classList.remove('is-loading'); }
+    } finally {
+      liveLoadingMore = false;
+    }
   }
 
   // ---------- input + selection ----------

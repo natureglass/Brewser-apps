@@ -1,7 +1,7 @@
 {
     "id": "com.natureglass.streamcast",
     "name": "Stream Cast",
-    "version": "1.0.4",
+    "version": "1.0.6",
     "description": "<p>Stream Cast</p>",
     "logo": "assets/appbanner.jpg",
     "entry": "index.html",
@@ -28,15 +28,5 @@
     "tags": [
         "Twitch",
         "Social"
-    ],
-    "buttonMapping": {
-        "up": "UP",
-        "down": "DOWN",
-        "left": "LEFT",
-        "right": "RIGHT",
-        "enter": "A",
-        "space": "B",
-        "z": "A",
-        "x": "B"
-    }
+    ]
 }
