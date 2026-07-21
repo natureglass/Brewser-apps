@@ -656,6 +656,8 @@
       // loadPlaylistFromConfig().
       let playlist = [];
       let webFolderLabel = "";   // label for a web-picked folder (blob playlist)
+      let savedDirHandle = null; // persisted FileSystemDirectoryHandle (IndexedDB)
+      let dirResumed = false;    // has the saved folder been restored this session?
 
       const AUDIO_EXTENSIONS = [".mp3", ".m4a", ".aac", ".flac", ".wav", ".ogg", ".oga", ".opus"];
 
@@ -801,6 +803,15 @@
           if (err && err.name !== "AbortError") console.debug("[swp] showDirectoryPicker:", err);
           return;
         }
+        savedDirHandle = handle;
+        dirResumed = true;
+        idbSaveHandle(handle);                  // remember it for next session
+        await restoreFolderFromHandle(handle);  // enumerate + build the playlist
+      }
+
+      // Enumerate a directory handle's audio files into the playlist. Shared by a
+      // fresh pick and a persisted-handle restore. Returns false if the read fails.
+      async function restoreFolderFromHandle(handle) {
         const files = [];
         try {
           for await (const entry of handle.values()) {
@@ -811,13 +822,76 @@
           }
         } catch (err) {
           console.debug("[swp] directory read failed:", err);
-          return;
+          return false;
         }
         audio.pause();
         loadPlaylistFromFileList(files);
         // FS Access files carry no webkitRelativePath, so label from the handle name.
         webFolderLabel = handle.name ? handle.name + "/" : "(selected folder)";
         applyNewFolderPlaylist();
+        return true;
+      }
+
+      // ---- Persist the chosen folder across sessions (File System Access only) ----
+      // A FileSystemDirectoryHandle isn't a string, so localStorage can't hold it;
+      // IndexedDB can (handles are structured-cloneable). We store the handle and,
+      // on the next visit, re-check read permission: granted -> restore silently,
+      // otherwise the next folder-tile click re-grants + resumes it.
+      const IDB_NAME = "spectraplay", IDB_STORE = "handles", IDB_KEY = "audioDir";
+      function idbOpen() {
+        return new Promise((resolve, reject) => {
+          let req;
+          try { req = indexedDB.open(IDB_NAME, 1); } catch (err) { reject(err); return; }
+          req.onupgradeneeded = () => { req.result.createObjectStore(IDB_STORE); };
+          req.onsuccess = () => resolve(req.result);
+          req.onerror = () => reject(req.error);
+        });
+      }
+      async function idbSaveHandle(handle) {
+        try {
+          const db = await idbOpen();
+          await new Promise((res, rej) => {
+            const tx = db.transaction(IDB_STORE, "readwrite");
+            tx.objectStore(IDB_STORE).put(handle, IDB_KEY);
+            tx.oncomplete = res;
+            tx.onerror = () => rej(tx.error);
+          });
+          db.close();
+        } catch (err) { console.debug("[swp] idb save failed:", err); }
+      }
+      async function idbLoadHandle() {
+        try {
+          const db = await idbOpen();
+          const handle = await new Promise((res, rej) => {
+            const tx = db.transaction(IDB_STORE, "readonly");
+            const rq = tx.objectStore(IDB_STORE).get(IDB_KEY);
+            rq.onsuccess = () => res(rq.result || null);
+            rq.onerror = () => rej(rq.error);
+          });
+          db.close();
+          return handle;
+        } catch (err) { console.debug("[swp] idb load failed:", err); return null; }
+      }
+
+      // On boot: if a folder was remembered and read permission is still granted,
+      // restore it silently. If it's in the 'prompt' state (typical on a fresh
+      // session), show the remembered name — the next folder-tile click resumes it
+      // (browsers require a user gesture to re-grant file permission).
+      async function tryRestoreSavedFolder() {
+        if (!((window.self === window.top) && typeof window.showDirectoryPicker === "function")) return;
+        if (typeof indexedDB === "undefined") return;
+        const handle = await idbLoadHandle();
+        if (!handle) return;
+        savedDirHandle = handle;
+        let perm = "prompt";
+        try { perm = await handle.queryPermission({ mode: "read" }); } catch (_) { perm = "prompt"; }
+        if (perm === "granted") {
+          dirResumed = true;
+          restoreFolderFromHandle(handle);
+        } else {
+          webFolderLabel = handle.name ? handle.name + "/" : "(remembered folder)";
+          updateFolderCurrent();
+        }
       }
 
       // Revoke object URLs from a blob-backed (web) playlist so re-picking a folder
@@ -2061,8 +2135,22 @@ void main() {
       // (webkitdirectory on web, path-only on the Switch).
       const canUseDirPicker = (window.self === window.top) && (typeof window.showDirectoryPicker === "function");
       if (folderLabel && canUseDirPicker) {
-        folderLabel.addEventListener("click", (evt) => {
+        folderLabel.addEventListener("click", async (evt) => {
           evt.preventDefault();   // don't also open the <input> upload dialog
+          // First click after a reload with a remembered folder: re-grant read
+          // permission (needs this gesture) and resume it; afterwards the tile
+          // opens a fresh picker so a different folder can be chosen.
+          if (savedDirHandle && !dirResumed) {
+            let perm = "denied";
+            try { perm = await savedDirHandle.requestPermission({ mode: "read" }); } catch (_) { perm = "denied"; }
+            if (perm === "granted") {
+              dirResumed = true;
+              idbSaveHandle(savedDirHandle);
+              await restoreFolderFromHandle(savedDirHandle);
+              return;
+            }
+            // denied/failed -> fall through to picking a new folder
+          }
           pickFolderViaFSAccess();
         });
       }
@@ -2244,6 +2332,9 @@ void main() {
           plog("[swp] library built");
           if (playlist.length > 0) loadTrack(0);
           else setStatus("No audio files found");
+          // Restore a previously-remembered folder (FS Access + top-level only).
+          // Async + after init so a granted handle re-populates the empty web state.
+          tryRestoreSavedFolder();
           audio.volume = Number(volume.value);
           setRangeFill(volume, audio.volume);
           updateMuteButton();
