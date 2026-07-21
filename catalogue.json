@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-07-21T10:53:02Z",
+  "generated": "2026-07-21T11:17:13Z",
   "apps": [
     {
       "id": "com.natureglass.fluiddynamics",
@@ -192,7 +192,7 @@
     {
       "id": "com.natureglass.streamcast",
       "name": "Stream Cast",
-      "version": "1.0.4",
+      "version": "1.0.6",
       "description": "<p>Stream Cast</p>",
       "logo": "assets/appbanner.jpg",
       "entry": "index.html",
@@ -220,17 +220,7 @@
         "Twitch",
         "Social"
       ],
-      "buttonMapping": {
-        "up": "UP",
-        "down": "DOWN",
-        "left": "LEFT",
-        "right": "RIGHT",
-        "enter": "A",
-        "space": "B",
-        "z": "A",
-        "x": "B"
-      },
-      "sizeBytes": 71052
+      "sizeBytes": 74414
     },
     {
       "id": "com.natureglass.webgl2threejsdemos",
