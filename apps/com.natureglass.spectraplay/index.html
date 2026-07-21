@@ -1139,8 +1139,10 @@
       //   - Render resolution tracks the canvas's layout box so the inline
       //     bridge->screen copy lines up 1:1; vertex Y can be flipped via a
       //     uniform (the bridge FBO orientation differs from desktop).
-      //   - The AnalyserNode is replaced by the native decoder's play-head
-      //     spectrum (audio.getFrequencyData) + waveform (audio.getWaveform).
+      //   - Audio is sampled uniformly (sampleAudioData): the nx.js decoder's
+      //     native play-head spectrum/waveform (audio.getFrequencyData/getWaveform)
+      //     when the runtime exposes it, else the Web Audio AnalyserNode — both
+      //     downsampled into the same Float32 specData/waveData the builders read.
       const SAMPLES = 1024;       // wave sample count the builders iterate
       const SPEC_BINS = 128;      // native spectrum length
       const WAVE_LEN = 256;       // native waveform length
@@ -1741,9 +1743,7 @@ void main() {
 
         // Pull native play-head spectrum + waveform (synthetic fallback when
         // not playing / no audio).
-        haveFreq = false; haveWave = false;
-        try { haveFreq = audio.getFrequencyData(specData) === true; } catch (_) {}
-        try { haveWave = audio.getWaveform(waveData) === true; } catch (_) {}
+        sampleAudioData();
         updateAudioEnergy();
 
         const bgPulse = 0.5 + 0.5 * Math.sin(now * 0.00045);
@@ -1946,6 +1946,40 @@ void main() {
           // the canvas — use console.debug. Analysis is optional; keep quiet.
           console.debug("audio graph init failed; analysis disabled:", error);
           return false;
+        }
+      }
+
+      // Unified audio sampling — NO platform branch. Fills specData/waveData from
+      // whichever source the runtime provides: the nx.js decoder's native play-head
+      // spectrum/waveform first (Switch), else the Web Audio AnalyserNode (browsers),
+      // downsampled into the same Float32 layout the visualizer builders read. Leaves
+      // haveFreq/haveWave false only when neither exists (then the viz is synthetic).
+      function sampleAudioData() {
+        haveFreq = false; haveWave = false;
+        // 1) nx.js native decoder spectrum/waveform (fills the Float32 arrays directly).
+        try { haveFreq = audio.getFrequencyData(specData) === true; } catch (_) {}
+        try { haveWave = audio.getWaveform(waveData) === true; } catch (_) {}
+        if (haveFreq && haveWave) return;
+        // 2) Web Audio AnalyserNode fallback: byte arrays -> the Float32 layout.
+        if (!(analyserReady && analyser)) return;
+        if (!haveFreq && freqData) {
+          analyser.getByteFrequencyData(freqData);
+          const step = Math.max(1, Math.floor(freqData.length / SPEC_BINS));
+          for (let i = 0; i < SPEC_BINS; i++) {
+            let sum = 0;
+            const base = i * step;
+            for (let j = 0; j < step; j++) sum += freqData[base + j] || 0;
+            specData[i] = (sum / step) / 255;      // 0..1
+          }
+          haveFreq = true;
+        }
+        if (!haveWave && timeData) {
+          analyser.getByteTimeDomainData(timeData);
+          const step = Math.max(1, Math.floor(timeData.length / WAVE_LEN));
+          for (let i = 0; i < WAVE_LEN; i++) {
+            waveData[i] = ((timeData[i * step] || 128) - 128) / 128;   // -1..1
+          }
+          haveWave = true;
         }
       }
 

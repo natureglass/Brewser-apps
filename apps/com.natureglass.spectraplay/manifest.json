@@ -1,7 +1,7 @@
 {
     "id": "com.natureglass.spectraplay",
     "name": "Spectra Play",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "description": "<p>Spectra Play</p>",
     "logo": "assets/appbanner.jpg",
     "entry": "index.html",
