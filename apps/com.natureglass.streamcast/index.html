@@ -99,6 +99,30 @@
     flex: 1;
     overflow-y: auto;
     background: #16101f;
+    /* Themed thin scrollbar (Firefox). */
+    scrollbar-width: thin;
+    scrollbar-color: #3a2566 #16101f;
+  }
+  /* Custom scrollbar (WebKit/Blink) — themed to the app's purple palette: a slim
+     track that blends into the sidebar with a purple thumb (the "selected" tint)
+     that brightens toward Twitch-purple on hover/drag. */
+  .live-list::-webkit-scrollbar {
+    width: 8px;
+  }
+  .live-list::-webkit-scrollbar-track {
+    background: #16101f;
+    border-radius: 8px;
+  }
+  .live-list::-webkit-scrollbar-thumb {
+    background: #3a2566;
+    border-radius: 8px;
+    border: 2px solid #16101f;
+  }
+  .live-list::-webkit-scrollbar-thumb:hover {
+    background: #6441a5;
+  }
+  .live-list::-webkit-scrollbar-thumb:active {
+    background: #9147ff;
   }
   /* "Custom Channel" — pinned at the sidebar bottom (outside the scrolling
      live-list, so it never scrolls away). Returns to the login screen to type
