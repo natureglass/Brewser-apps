@@ -629,7 +629,7 @@
             <span class="action-current" id="folderCurrent">/music/</span>
           </span>
         </label>
-        <input id="folderPicker" type="file" directory data-path-only style="display:none">
+        <input id="folderPicker" type="file" directory webkitdirectory data-path-only style="display:none">
       </div>
     </aside>
   </main>
@@ -655,6 +655,7 @@
       // local folder of audio files on the SD card). See
       // loadPlaylistFromConfig().
       let playlist = [];
+      let webFolderLabel = "";   // label for a web-picked folder (blob playlist)
 
       const AUDIO_EXTENSIONS = [".mp3", ".m4a", ".aac", ".flac", ".wav", ".ogg", ".oga", ".opus"];
 
@@ -752,6 +753,68 @@
         }
         tracks.sort((a, b) => (a.title < b.title ? -1 : a.title > b.title ? 1 : 0));
         playlist = tracks;
+      }
+
+      // Web-only: build a session playlist from a <input webkitdirectory> FileList.
+      // Each audio file becomes an object URL (blob:) the <audio> element can play.
+      // There's no SD card here, so nothing is persisted — the choice lasts for the
+      // session (re-pick after a reload). Titles come from the filename (no ID3).
+      function loadPlaylistFromFileList(fileList) {
+        revokeBlobPlaylist();          // free the previous folder's object URLs
+        const files = Array.prototype.slice.call(fileList || []);
+        const tracks = [];
+        let folderName = "";
+        for (const file of files) {
+          const name = file && file.name ? file.name : "";
+          const lower = name.toLowerCase();
+          if (!AUDIO_EXTENSIONS.some((ext) => lower.endsWith(ext))) continue;
+          // webkitRelativePath is "<folder>/…/<file>"; grab the top folder for the label.
+          if (!folderName && file.webkitRelativePath) {
+            const seg = file.webkitRelativePath.split("/");
+            if (seg.length > 1 && seg[0]) folderName = seg[0];
+          }
+          const dot = name.lastIndexOf(".");
+          tracks.push({
+            title: dot > 0 ? name.slice(0, dot) : name,
+            artist: "Local file",
+            url: URL.createObjectURL(file),
+            name: name,
+            _blob: true,
+          });
+        }
+        tracks.sort((a, b) => (a.title < b.title ? -1 : a.title > b.title ? 1 : 0));
+        playlist = tracks;
+        webFolderLabel = folderName ? folderName + "/" : "(selected folder)";
+      }
+
+      // Revoke object URLs from a blob-backed (web) playlist so re-picking a folder
+      // doesn't leak them. No-op for Switch path-based playlists.
+      function revokeBlobPlaylist() {
+        for (const track of playlist) {
+          if (track && track._blob && track.url) {
+            try { URL.revokeObjectURL(track.url); } catch (_) {}
+          }
+        }
+      }
+
+      // Shared "a new folder was chosen" UI refresh: rebuild the library, pre-load
+      // the first track (no auto-play), reset the transport, refresh the path line.
+      function applyNewFolderPlaylist() {
+        buildLibrary();
+        if (playlist.length > 0) {
+          loadTrack(0);
+        } else {
+          currentIndex = -1;
+          endedHandled = false;
+          seek.value = "0";
+          setRangeFill(seek, 0);
+          currentTimeEl.textContent = "0:00";
+          durationEl.textContent = "0:00";
+          setStatus("No audio files found");
+          updateLibraryActiveState();
+        }
+        markTransport(false);
+        updateFolderCurrent();
       }
 
       // ----- ID3v2 tag extraction (MP3 Title / Artist) -----
@@ -1666,7 +1729,7 @@ void main() {
           button.innerHTML = `
             <span class="num">${String(index + 1).padStart(2, "0")}</span>
             <strong>${track.title}</strong>
-            <span>${track.artist} · ${shortenUrl(track.url)}</span>
+            <span>${track.artist} · ${shortenUrl(track.name || track.url)}</span>
           `;
           button.addEventListener("click", () => selectTrack(index, true));
           libraryList.appendChild(button);
@@ -1682,7 +1745,9 @@ void main() {
       // playlist (defaults included).
       function updateFolderCurrent() {
         if (!folderCurrent) return;
-        folderCurrent.textContent = readAudioFilesPath();
+        // Web shows the picked folder's name (blob playlist); Switch shows the
+        // configured SD-card path.
+        folderCurrent.textContent = webFolderLabel || readAudioFilesPath();
       }
 
       function updateLibraryActiveState() {
@@ -1965,6 +2030,22 @@ void main() {
       folderPicker.addEventListener("change", () => {
         const files = folderPicker.files;
         if (!files || files.length === 0) return;
+        const sw = globalThis.Switch;
+
+        // Web (no Switch filesystem): build a session playlist straight from the
+        // picked folder's audio files as object URLs. `webkitdirectory` on the
+        // input makes the browser pick a FOLDER (not a single file); there's no SD
+        // card to persist a path to, so the choice lasts for this session.
+        if (!sw || typeof sw.writeFileSync !== "function") {
+          audio.pause();
+          loadPlaylistFromFileList(files);
+          applyNewFolderPlaylist();
+          try { folderPicker.value = ""; } catch (_) {}
+          return;
+        }
+
+        // Switch: the runtime resolves path-only mode with a single entry whose
+        // `path` is the chosen directory; persist it to config.json + re-enumerate.
         let pickedPath = (files[0] && files[0].path) || "";
         if (!pickedPath) return;
         // Defensive: path-only mode resolves with the chosen folder's
@@ -1976,8 +2057,6 @@ void main() {
         } else if (!pickedPath.endsWith("/")) {
           pickedPath = pickedPath + "/";
         }
-        const sw = globalThis.Switch;
-        if (!sw || typeof sw.writeFileSync !== "function") return;
         // Preserve any other keys the user / page has in config.json.
         const merged = Object.assign({}, readConfig(), { audioFilesPath: pickedPath });
         try {
@@ -1986,34 +2065,11 @@ void main() {
           console.debug("[swp] write config failed:", err);
           return;
         }
-        // Stop the old folder's track BEFORE swapping the playlist —
-        // the user just changed source, leaving it playing would be
-        // misleading.
+        // Stop the old folder's track BEFORE swapping the playlist.
         audio.pause();
         cachedConfig = null;
         loadPlaylistFromConfig();
-        buildLibrary();
-        if (playlist.length > 0) {
-          // Pre-select the first track of the new folder (load the
-          // src + highlight the row + reset seek/time displays) but
-          // DON'T auto-play; user picks when to start.
-          loadTrack(0);
-        } else {
-          currentIndex = -1;
-          endedHandled = false;
-          seek.value = "0";
-          setRangeFill(seek, 0);
-          currentTimeEl.textContent = "0:00";
-          durationEl.textContent = "0:00";
-          setStatus("No audio files found");
-          updateLibraryActiveState();
-        }
-        // Flip the transport UI LAST so the pause→play icon swap is the
-        // final mutation on #playBtn — earlier mutations (buildLibrary's
-        // innerHTML reset, loadTrack's audio.src + audio.load()) won't
-        // race the icon's display:none/block flip.
-        markTransport(false);
-        updateFolderCurrent();
+        applyNewFolderPlaylist();
         // Clear the input's selection so picking the same folder again
         // still fires `change`.
         try { folderPicker.value = ""; } catch (_) {}
