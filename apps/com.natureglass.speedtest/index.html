@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>WebGL1 Canvas Internet Speed Test</title>
+  <title>Internet Speed Test</title>
   <style>
     :root {
       color-scheme: dark;
@@ -198,6 +198,7 @@
     .config {
       display: grid;
       gap: 10px;
+      display: none;
     }
 
     .config-row {
@@ -253,8 +254,7 @@
   <main class="app">
     <section class="card hero">
       <header>
-        <h1>WebGL1 Speed Test</h1>
-        <p class="subtitle">A simple canvas-rendered gauge with live diagnostics. The UI is drawn with WebGL1; browser networking is measured with streamed downloads and POST uploads.</p>
+        <h1>Internet Speed Test</h1>
         <div class="pill"><span class="dot" id="statusDot"></span><span id="statusText">Ready</span></div>
       </header>
 
@@ -302,7 +302,6 @@
       </section>
 
       <div class="log" id="log">Diagnostics will appear here.</div>
-      <p class="note">Tip: for production, use your own nearby CORS-enabled endpoints. Download should return bytes; upload should accept POST bodies. Public endpoints can change or rate-limit.</p>
     </aside>
   </main>
 
