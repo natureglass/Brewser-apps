@@ -1,7 +1,8 @@
 {
   "id": "com.natureglass.streamcast",
-  "sizeBytes": 77208,
+  "sizeBytes": 3112240,
   "files": [
+    "assets/appbanner.gif",
     "assets/appbanner.jpg",
     "assets/streamcast_logo.png",
     "index.html",

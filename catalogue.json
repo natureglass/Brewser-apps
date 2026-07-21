@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-07-21T12:04:52Z",
+  "generated": "2026-07-21T12:14:24Z",
   "apps": [
     {
       "id": "com.natureglass.fluiddynamics",
@@ -220,7 +220,7 @@
         "Twitch",
         "Social"
       ],
-      "sizeBytes": 77208
+      "sizeBytes": 3112240
     },
     {
       "id": "com.natureglass.webgl2threejsdemos",
