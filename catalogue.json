@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-07-21T14:26:02Z",
+  "generated": "2026-07-21T14:32:49Z",
   "apps": [
     {
       "id": "com.natureglass.fluiddynamics",
@@ -164,7 +164,7 @@
         "z": "A",
         "x": "B"
       },
-      "sizeBytes": 1105200
+      "sizeBytes": 1668427
     },
     {
       "id": "com.natureglass.speedtest",
