@@ -1,6 +1,6 @@
 {
   "id": "com.natureglass.webgl2threejsdemos",
-  "sizeBytes": 43898818,
+  "sizeBytes": 39771561,
   "files": [
     "assets/appbanner.gif",
     "assets/appbanner.jpg",
@@ -79,7 +79,6 @@
     "examples/models/gltf/ferrari_ao.png",
     "examples/models/ply/binary/Lucy100k.ply",
     "examples/physics_rapier_basic.html",
-    "examples/textures/3d/head256x256x109.zip",
     "examples/textures/checker.png",
     "examples/textures/colors.png",
     "examples/textures/crate.gif",
