@@ -409,6 +409,13 @@
   // multi-stage B-button behavior: in stream → B returns to login;
   // at login → B exits the app (engine default goBack).
   let isStreamActive = false;
+
+  // Web vs Switch. The nx.js/brewser engine exposes globalThis.Switch; a desktop
+  // browser does not. On the Switch we read Twitch's HLS directly (no CORS, and
+  // libavformat plays it); a browser can't (usher sends no CORS header and desktop
+  // <video> can't play HLS), so there we fall back to Twitch's official iframe
+  // player -- no CORS proxy and no hls.js needed.
+  const IS_SWITCH = !!(typeof globalThis !== 'undefined' && globalThis.Switch);
   // Login of the currently-watching channel, or null. Used to
   // highlight the matching item in the Live-now sidebar.
   let currentChannel = null;
@@ -991,6 +998,10 @@
       log('  returnToLogin: video stop threw: ' +
           (e && e.message ? e.message : e));
     }
+    // Web embed teardown: blank + hide the Twitch iframe so it stops playing and
+    // doesn't paint over the login screen.
+    var webFrame = document.getElementById('twitch-embed');
+    if (webFrame) { webFrame.src = 'about:blank'; webFrame.classList.add('hidden'); }
     loadingViewEl.classList.add('hidden');
     loginAreaEl.classList.remove('hidden');
     clearError();
@@ -1004,6 +1015,15 @@
         .catch(function (e) {
           log('  meta fetch FAILED: ' + (e && e.message ? e.message : e));
         });
+
+      // Web/desktop: Twitch's usher HLS can't be read cross-origin and browsers
+      // can't play HLS in <video>. Hand off to Twitch's official iframe player
+      // (metadata + discovery above still work -- gql sends CORS). The Switch
+      // continues down the native token -> usher -> libavformat path below.
+      if (!IS_SWITCH) {
+        startWebEmbed(channel);
+        return;
+      }
 
       setStatus('Requesting access token…');
       const tok = await fetchAccessToken(channel);
@@ -1033,6 +1053,56 @@
       }
       showError(msg);
     }
+  }
+
+  // ---------- web (desktop browser) playback ----------
+  // Twitch's official iframe player. No CORS and no hls.js: Twitch serves the
+  // player and does its own quality/ads/DRM. Every ancestor domain must be listed
+  // in `parent=` -- the app runs at play.brewser.tech and is itself embedded in
+  // the brewser.tech [brewser_app] frame -- so we pass both (plus the live host).
+  // autoplay + fullscreen are forwarded via `allow` and are already granted to the
+  // parent embed; the click that picked the channel is the gesture, so audio
+  // isn't force-muted.
+  function startWebEmbed(channel) {
+    var parents = twitchParents();
+    var q = ['channel=' + encodeURIComponent(channel), 'autoplay=true', 'muted=false'];
+    for (var i = 0; i < parents.length; i++) {
+      q.push('parent=' + encodeURIComponent(parents[i]));
+    }
+    var src = 'https://player.twitch.tv/?' + q.join('&');
+
+    var frame = document.getElementById('twitch-embed');
+    if (!frame) {
+      frame = document.createElement('iframe');
+      frame.id = 'twitch-embed';
+      frame.className = 'player';   // same absolute-fill styling as the <video>
+      frame.setAttribute('allow', 'autoplay; fullscreen; encrypted-media; picture-in-picture');
+      frame.setAttribute('allowfullscreen', '');
+      frame.setAttribute('frameborder', '0');
+      frame.setAttribute('scrolling', 'no');
+      playerEl.parentNode.insertBefore(frame, playerEl.nextSibling);
+    }
+    frame.classList.remove('hidden');
+    frame.src = src;
+    loadingViewEl.classList.add('hidden');
+    log('web: handed channel "' + channel + '" to Twitch iframe player');
+    log('  parents=' + parents.join(','));
+  }
+
+  // Ancestor domains Twitch's `parent` check needs: the live host plus the known
+  // Brewser portal domains, so it works standalone (play.brewser.tech) and
+  // embedded in the WordPress [brewser_app] frame (brewser.tech). Deduped.
+  function twitchParents() {
+    var seen = {};
+    var out = [];
+    var add = function (h) {
+      h = (h || '').trim().toLowerCase();
+      if (h && !seen[h]) { seen[h] = true; out.push(h); }
+    };
+    add(location.hostname);
+    add('play.brewser.tech');
+    add('brewser.tech');
+    return out;
   }
 
   // ---------- boot ----------
