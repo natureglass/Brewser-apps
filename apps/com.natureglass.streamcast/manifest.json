@@ -1,7 +1,7 @@
 {
     "id": "com.natureglass.streamcast",
     "name": "Stream Cast",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "description": "<p>Stream Cast</p>",
     "logo": "assets/appbanner.jpg",
     "entry": "index.html",

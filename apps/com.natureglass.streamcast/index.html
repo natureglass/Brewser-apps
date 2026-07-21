@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Twitch</title>
+<title>StreamCast</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body {
@@ -57,6 +57,25 @@
     overflow-y: auto;
     background: #16101f;
   }
+  /* "Custom Channel" — pinned at the sidebar bottom (outside the scrolling
+     live-list, so it never scrolls away). Returns to the login screen to type
+     a channel by hand; the main way back on web, where there is no B button. */
+  .custom-channel-btn {
+    flex: 0 0 auto;
+    width: 100%;
+    padding: 12px 14px;
+    background: #9147ff;
+    color: #fff;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+    user-select: none;
+    cursor: pointer;
+    outline: none;
+  }
+  .custom-channel-btn:active { background: #6441a5; }
+  .custom-channel-btn:focus { box-shadow: 0 0 0 2px rgba(145, 71, 255, 0.5); }
 
   /* Status / error block shown in the sidebar before live-list is
      populated. Stays visible until the fetch resolves with channels;
@@ -326,6 +345,10 @@
     <div id="sidebar-title" class="sidebar-title hidden">Live now</div>
     <div id="live-status" class="live-status">Loading live streams…</div>
     <div id="live-list" class="live-list"></div>
+    <!-- Pinned at the sidebar bottom, outside the scrolling live-list: return to
+         the login screen to type a channel by hand (the main way back on web,
+         where there is no B button). -->
+    <div id="custom-channel-btn" class="custom-channel-btn">Custom Channel</div>
   </aside>
 
   <!-- ============================== STAGE (LOGIN ↔ VIDEO) ============================== -->
@@ -335,8 +358,8 @@
     <!-- Initial / post-error login screen -->
     <div id="login-area" class="login-area">
       <div class="login-inner">
-        <img class="header-logo" src="assets/twitch_logo.png" alt="Twitch" />
-        <div class="heading">Twitch</div>
+        <img class="header-logo" src="assets/streamcast_logo.png" alt="Twitch" />
+        <div class="heading">StreamCast</div>
         <div class="input-row">
           <span class="prefix">twitch.tv/</span>
           <input id="channel-input" type="text" placeholder="channel name" />
@@ -347,7 +370,7 @@
         </div>
         <div id="error-chip" class="error-chip hidden"></div>
         <div class="hint">
-          Pick a channel · Double-tap video for fullscreen · B exits
+          Pick a channel · Double-tap video for fullscreen
         </div>
       </div>
     </div>
@@ -394,6 +417,7 @@
   const loadingViewEl = document.getElementById('loading-view');
   const channelInputEl = document.getElementById('channel-input');
   const watchBtnEl = document.getElementById('watch-btn');
+  const customChannelBtnEl = document.getElementById('custom-channel-btn');
   const recentsSectionEl = document.getElementById('recents-section');
   const recentsRowEl = document.getElementById('recents-row');
   const sidebarTitleEl = document.getElementById('sidebar-title');
@@ -1130,6 +1154,13 @@
     watchBtnEl.addEventListener('click', function () {
       const val = (channelInputEl.value || '').trim();
       if (val) selectChannel(val);
+    });
+    // "Custom Channel" (sidebar bottom): return to the login screen and focus the
+    // channel field so the user can type a channel by hand. Works from any state --
+    // returnToLogin() also stops + tears down an active stream.
+    customChannelBtnEl.addEventListener('click', function () {
+      returnToLogin();
+      try { channelInputEl.focus(); if (channelInputEl.select) channelInputEl.select(); } catch (e) {}
     });
 
     // Multi-stage Back: shell dispatches synthetic 'Escape' keydown
