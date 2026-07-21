@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-07-21T13:12:12Z",
+  "generated": "2026-07-21T13:29:57Z",
   "apps": [
     {
       "id": "com.natureglass.fluiddynamics",
@@ -127,7 +127,7 @@
     {
       "id": "com.natureglass.spectraplay",
       "name": "Spectra Play",
-      "version": "1.0.1",
+      "version": "1.0.2",
       "description": "<p>Spectra Play</p>",
       "logo": "assets/appbanner.jpg",
       "entry": "index.html",
@@ -154,7 +154,7 @@
         "Audio Player",
         "Visualizer"
       ],
-      "sizeBytes": 1097040
+      "sizeBytes": 1099409
     },
     {
       "id": "com.natureglass.speedtest",
