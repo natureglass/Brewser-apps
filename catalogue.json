@@ -1,0 +1,255 @@
+{
+  "version": 1,
+  "generated": "2026-07-21T06:47:31Z",
+  "apps": [
+    {
+      "id": "com.natureglass.fluiddynamics",
+      "name": "Fluid dynamics",
+      "version": "1.0.0",
+      "description": "<p>Fluid dynamics</p>",
+      "logo": "assets/appbanner.jpg",
+      "entry": "index.html",
+      "categories": [
+        "Other"
+      ],
+      "permissions": [],
+      "compatibility": [
+        "web"
+      ],
+      "allowed_origins": [],
+      "developer": "Alex Daskalakis",
+      "license": "MIT",
+      "exitGame": "PLUS",
+      "fullscreen": true,
+      "sizeBytes": 2600070
+    },
+    {
+      "id": "com.natureglass.fractalzoom",
+      "name": "Fractal Zoom",
+      "version": "1.0.1",
+      "description": "<p>A Fracts app</p>",
+      "logo": "assets/appbanner.jpg",
+      "entry": "index.html",
+      "categories": [
+        "Demos"
+      ],
+      "permissions": [],
+      "compatibility": [
+        "switch",
+        "web"
+      ],
+      "allowed_origins": [],
+      "developer": "Alex Daskalakis",
+      "license": "MIT",
+      "exitGame": "PLUS",
+      "fullscreen": true,
+      "genre": [
+        "Experience"
+      ],
+      "tags": [
+        "Fractals"
+      ],
+      "sizeBytes": 2446389
+    },
+    {
+      "id": "com.natureglass.gravityballs",
+      "name": "Gravity Balls",
+      "version": "1.0.0",
+      "description": "<p>Gravity Balls</p>",
+      "logo": "assets/appbanner.jpg",
+      "entry": "index.html",
+      "categories": [
+        "Demos"
+      ],
+      "permissions": [],
+      "compatibility": [
+        "switch",
+        "web"
+      ],
+      "allowed_origins": [],
+      "developer": "Alex Daskalakis",
+      "license": "MIT",
+      "exitGame": "PLUS",
+      "fullscreen": true,
+      "genre": [
+        "Simulation"
+      ],
+      "sizeBytes": 501120
+    },
+    {
+      "id": "com.natureglass.midilab",
+      "name": "MIDI Lab",
+      "version": "1.0.0",
+      "description": "<p>MIDI Lab</p>",
+      "logo": "assets/appbanner.jpg",
+      "entry": "index.html",
+      "categories": [
+        "Controls",
+        "Sensors"
+      ],
+      "permissions": [],
+      "compatibility": [
+        "switch",
+        "web"
+      ],
+      "allowed_origins": [],
+      "developer": "Alex Daskalakis",
+      "license": "MIT",
+      "exitGame": "PLUS",
+      "fullscreen": true,
+      "genre": [
+        "Rhythm",
+        "Simulation"
+      ],
+      "sizeBytes": 120950
+    },
+    {
+      "id": "com.natureglass.sensorsplayground",
+      "name": "Sensors Playground",
+      "version": "1.0.0",
+      "description": "<p>Sensors Playground</p>",
+      "logo": "assets/appbanner.jpg",
+      "entry": "index.html",
+      "categories": [
+        "Measurement"
+      ],
+      "permissions": [],
+      "compatibility": [
+        "web"
+      ],
+      "allowed_origins": [],
+      "developer": "Alex Daskalakis",
+      "license": "MIT",
+      "exitGame": "PLUS",
+      "fullscreen": true,
+      "sizeBytes": 1602170
+    },
+    {
+      "id": "com.natureglass.spectraplay",
+      "name": "Spectra Play",
+      "version": "1.0.0",
+      "description": "<p>Spectra Play</p>",
+      "logo": "assets/appbanner.jpg",
+      "entry": "index.html",
+      "categories": [
+        "Apps"
+      ],
+      "permissions": [
+        "Filesystem Read"
+      ],
+      "compatibility": [
+        "switch",
+        "web"
+      ],
+      "allowed_origins": [],
+      "developer": "Alex Daskalakis",
+      "license": "MIT",
+      "exitGame": "PLUS",
+      "fullscreen": true,
+      "genre": [
+        "Rhythm",
+        "Simulation"
+      ],
+      "tags": [
+        "Audio Player",
+        "Visualizer"
+      ],
+      "sizeBytes": 1056970
+    },
+    {
+      "id": "com.natureglass.speedtest",
+      "name": "Speed Test",
+      "version": "1.0.0",
+      "description": "<p>Speed Test</p>",
+      "logo": "assets/appbanner.jpg",
+      "entry": "index.html",
+      "categories": [
+        "Apps"
+      ],
+      "permissions": [
+        "Network"
+      ],
+      "compatibility": [
+        "switch",
+        "web"
+      ],
+      "allowed_origins": [
+        "https://speed.cloudflare.com"
+      ],
+      "developer": "Alex Daskalakis",
+      "license": "MIT",
+      "exitGame": "PLUS",
+      "fullscreen": true,
+      "genre": [
+        "Simulation"
+      ],
+      "tags": [
+        "Internet",
+        "Speed"
+      ],
+      "sizeBytes": 1495603
+    },
+    {
+      "id": "com.natureglass.streamcast",
+      "name": "Stream Cast",
+      "version": "1.0.0",
+      "description": "<p>Stream Cast</p>",
+      "logo": "assets/appbanner.jpg",
+      "entry": "index.html",
+      "categories": [
+        "Apps"
+      ],
+      "permissions": [
+        "Network"
+      ],
+      "compatibility": [
+        "switch"
+      ],
+      "allowed_origins": [
+        "https://gql.twitch.tv",
+        "https://usher.ttvnw.net"
+      ],
+      "developer": "Alex Daskalakis",
+      "license": "MIT",
+      "exitGame": "PLUS",
+      "fullscreen": true,
+      "genre": [
+        "Experience"
+      ],
+      "tags": [
+        "Twitch",
+        "Social"
+      ],
+      "sizeBytes": 66093
+    },
+    {
+      "id": "com.natureglass.webgl2threejsdemos",
+      "name": "WebGL2 - ThreeJS Demos",
+      "version": "1.0.0",
+      "description": "<p>WebGL2 - ThreeJS Demos</p>",
+      "logo": "assets/appbanner.jpg",
+      "entry": "index.html",
+      "categories": [
+        "Apps",
+        "Other"
+      ],
+      "permissions": [],
+      "compatibility": [
+        "switch"
+      ],
+      "allowed_origins": [],
+      "developer": "Alex Daskalakis",
+      "license": "MIT",
+      "exitGame": "PLUS",
+      "fullscreen": true,
+      "genre": [
+        "Simulation"
+      ],
+      "tags": [
+        "ThreeJS",
+        "WebGL2"
+      ],
+      "sizeBytes": 43898818
+    }
+  ]
+}

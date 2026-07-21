@@ -1,0 +1,20 @@
+{
+    "id": "com.natureglass.fluiddynamics",
+    "name": "Fluid dynamics",
+    "version": "1.0.0",
+    "description": "<p>Fluid dynamics</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Other"
+    ],
+    "permissions": [],
+    "compatibility": [
+        "web"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true
+}

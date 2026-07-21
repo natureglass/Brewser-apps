@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+
+contact_links:
+
+  - name: Submission Guide
+    url: https://github.com/natureglass/Brewser-apps/blob/main/submission_info.md
+    about: Please read before submitting your app.
+
+# Optional:
+# Add default labels that are added to every issue if no template is chosen
+default_labels: ["question"]

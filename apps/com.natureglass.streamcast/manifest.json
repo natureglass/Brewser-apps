@@ -1,0 +1,32 @@
+{
+    "id": "com.natureglass.streamcast",
+    "name": "Stream Cast",
+    "version": "1.0.0",
+    "description": "<p>Stream Cast</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Apps"
+    ],
+    "permissions": [
+        "Network"
+    ],
+    "compatibility": [
+        "switch"
+    ],
+    "allowed_origins": [
+        "https://gql.twitch.tv",
+        "https://usher.ttvnw.net"
+    ],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "genre": [
+        "Experience"
+    ],
+    "tags": [
+        "Twitch",
+        "Social"
+    ]
+}

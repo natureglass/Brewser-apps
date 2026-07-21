@@ -1,0 +1,31 @@
+{
+    "id": "com.natureglass.spectraplay",
+    "name": "Spectra Play",
+    "version": "1.0.0",
+    "description": "<p>Spectra Play</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Apps"
+    ],
+    "permissions": [
+        "Filesystem Read"
+    ],
+    "compatibility": [
+        "switch",
+        "web"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "genre": [
+        "Rhythm",
+        "Simulation"
+    ],
+    "tags": [
+        "Audio Player",
+        "Visualizer"
+    ]
+}

@@ -1,0 +1,24 @@
+{
+    "id": "com.natureglass.gravityballs",
+    "name": "Gravity Balls",
+    "version": "1.0.0",
+    "description": "<p>Gravity Balls</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Demos"
+    ],
+    "permissions": [],
+    "compatibility": [
+        "switch",
+        "web"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "genre": [
+        "Simulation"
+    ]
+}

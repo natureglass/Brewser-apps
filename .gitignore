@@ -1,0 +1,8 @@
+# App bundle / build zips must never be committed to the apps repo — the repo
+# holds the *extracted* app files (apps/<id>/…), not the packaged .zip. The
+# WordPress submission pipeline keeps the zip; only the unpacked bundle is
+# promoted here.
+#
+# Note: this does NOT untrack zips already committed. If a real asset happens to
+# be a .zip that must stay in the repo, force-add it with:  git add -f path.zip
+*.zip

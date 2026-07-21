@@ -1,0 +1,70 @@
+name: Build catalogue
+
+# Rebuilds catalogue.json (+ artifacts/) from the flat apps/<id>/ folders.
+#
+# Fires whenever apps change — in particular when the Brewser WordPress plugin's
+# Approve action promotes an approved app into apps/<package-id>/ (a commit made
+# with a PAT, so it triggers this workflow). Each run is a full rebuild from the
+# current tree, so it is idempotent and self-healing: a missed event is fixed by
+# the next run.
+#
+# Loop-safe: the bot commit below only touches catalogue.json and artifacts/ —
+# never apps/** — so it does not re-trigger this workflow (and a GITHUB_TOKEN
+# commit wouldn't trigger workflows anyway).
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'apps/**'
+  workflow_dispatch: {}
+
+# Serialize runs so two rebuilds can't race the same fast-forward push.
+concurrency:
+  group: build-catalogue
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Rebuild + commit catalogue (race-safe)
+        run: |
+          git config user.name  "brewser-catalogue-bot"
+          git config user.email "brewser-catalogue-bot@users.noreply.github.com"
+          # catalogue.json is a pure function of apps/, so each attempt syncs to
+          # the very latest main, rebuilds, and pushes. If a concurrent writer
+          # (another run, or the plugin's promote/delete pushing straight to
+          # apps/) advanced main under us, the next iteration picks it up. This
+          # closes the cross-actor race the concurrency group can't cover, so a
+          # racing push never leaves a red failed run or a stale catalogue.
+          for i in 1 2 3 4 5; do
+            git fetch --quiet origin main
+            git reset --quiet --hard origin/main
+            python scripts/build_catalog.py
+            git add -A -- catalogue.json artifacts
+            if git diff --cached --quiet; then
+              echo "Catalogue already up to date."
+              exit 0
+            fi
+            git commit -q -m "catalogue: rebuild from apps/"
+            if git push origin HEAD:main; then
+              echo "Pushed on attempt $i."
+              exit 0
+            fi
+            echo "Push raced by another writer; retrying ($i)…"
+            sleep $((RANDOM % 4 + 1))
+          done
+          echo "::error::catalogue push failed after 5 attempts (persistent contention)."
+          exit 1

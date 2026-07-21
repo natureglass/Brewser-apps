@@ -1,0 +1,28 @@
+{
+    "id": "com.natureglass.webgl2threejsdemos",
+    "name": "WebGL2 - ThreeJS Demos",
+    "version": "1.0.0",
+    "description": "<p>WebGL2 - ThreeJS Demos</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Apps",
+        "Other"
+    ],
+    "permissions": [],
+    "compatibility": [
+        "switch"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "genre": [
+        "Simulation"
+    ],
+    "tags": [
+        "ThreeJS",
+        "WebGL2"
+    ]
+}

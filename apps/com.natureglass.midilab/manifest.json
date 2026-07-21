@@ -1,0 +1,26 @@
+{
+    "id": "com.natureglass.midilab",
+    "name": "MIDI Lab",
+    "version": "1.0.0",
+    "description": "<p>MIDI Lab</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Controls",
+        "Sensors"
+    ],
+    "permissions": [],
+    "compatibility": [
+        "switch",
+        "web"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "genre": [
+        "Rhythm",
+        "Simulation"
+    ]
+}

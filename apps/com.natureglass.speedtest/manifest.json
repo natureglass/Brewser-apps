@@ -1,0 +1,32 @@
+{
+    "id": "com.natureglass.speedtest",
+    "name": "Speed Test",
+    "version": "1.0.0",
+    "description": "<p>Speed Test</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Apps"
+    ],
+    "permissions": [
+        "Network"
+    ],
+    "compatibility": [
+        "switch",
+        "web"
+    ],
+    "allowed_origins": [
+        "https://speed.cloudflare.com"
+    ],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "genre": [
+        "Simulation"
+    ],
+    "tags": [
+        "Internet",
+        "Speed"
+    ]
+}

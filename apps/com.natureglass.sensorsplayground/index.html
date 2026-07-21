@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a0e16">
+<title>Mobile Hardware Diagnostics Suite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --neon-red:#ff3c41;
+  --neon-blue:#00c3e3;
+  --bg-0:#0a0e16;
+  --bg-1:#10151f;
+  --bg-2:#161d2b;
+  --panel:#141a26;
+  --line:rgba(255,255,255,.07);
+  --txt:#e8edf5;
+  --txt-dim:#8a93a6;
+  --good:#3ddc84;
+  --warn:#ffc83d;
+  --bad:#ff3c41;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden}
+body{
+  font-family:'Outfit',sans-serif;
+  background:
+    radial-gradient(900px 600px at 12% -5%, rgba(0,195,227,.14), transparent 60%),
+    radial-gradient(900px 600px at 88% 105%, rgba(255,60,65,.14), transparent 60%),
+    var(--bg-0);
+  color:var(--txt);
+}
+/* No scanline overlay — dropped in the Switch build for per-frame paint cost,
+ * kept out here so the two builds stay visually identical. */
+
+/* Fullscreen 3×2 dashboard grid on wide screens — mediaplayer pattern. The
+ * wrap IS the grid container; cards drop into auto-flow cells filling the
+ * viewport, no body scroll. Phones/tablets get the responsive overrides at
+ * the bottom of this stylesheet instead. */
+.wrap{
+  position:relative;z-index:1;
+  width:100vw;height:100vh;
+  padding:14px;
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  grid-template-rows:1fr 1fr;
+  gap:14px;
+}
+.card{
+  min-width:0;min-height:0;
+  background:linear-gradient(180deg,var(--bg-2),var(--panel));
+  border:1px solid var(--line);
+  border-radius:18px;padding:18px;position:relative;overflow:hidden;
+}
+.card::after{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--neon-blue),var(--neon-red))}
+.card-title{font-family:'Chakra Petch';font-size:24px;font-weight:700;letter-spacing:.5px;display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.tag{margin-left:auto;font-size:12px;font-weight:600;letter-spacing:1px;padding:4px 11px;border-radius:30px;text-transform:uppercase;white-space:nowrap}
+.tag.ok{background:rgba(61,220,132,.14);color:var(--good)}
+.tag.na{background:rgba(138,147,166,.14);color:var(--txt-dim)}
+/* Icons are native emoji now (the Switch build shipped rendered PNGs because
+ * the engine has no emoji font) — flex-center them in the same 34px chip. */
+.ic{width:34px;height:34px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;border-radius:9px;background:rgba(0,195,227,.12);color:var(--neon-blue);font-size:19px}
+
+/* generic rows */
+.row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--line);font-size:17px}
+.row:last-child{border-bottom:none}
+.row .k{color:var(--txt-dim)}
+.row .v{font-family:'Chakra Petch';font-weight:600;flex:0 1 auto;text-align:right; min-width:100px;}
+.v.good{color:var(--good)}.v.warn{color:var(--warn)}.v.blue{color:var(--neon-blue)}.v.dim{color:var(--txt-dim)}
+
+/* bars */
+.bar{height:10px;border-radius:6px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,var(--neon-blue),var(--neon-red))}
+.barlabel{display:flex;justify-content:space-between;font-size:14px;color:var(--txt-dim);margin-top:12px}
+
+/* battery */
+.battviz{display:flex;align-items:center;gap:16px;margin:6px 0;}
+.batt{width:110px;height:52px;border:3px solid var(--txt);border-radius:9px;position:relative;padding:4px}
+.batt::after{content:"";position:absolute;right:-10px;top:50%;transform:translateY(-50%);width:7px;height:22px;background:var(--txt);border-radius:0 3px 3px 0}
+.batt .fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--good),#7af0aa);width:72%}
+.batt .bolt{position:absolute;inset:0;text-align:center;padding-top:11px;font-size:20px}
+.bigpct{font-family:'Chakra Petch';font-size:42px;font-weight:700}
+
+/* gyro */
+.cube-scene{height:120px;display:flex;justify-content:center;align-items:center}
+#gyroCube{width:100%;max-width:320px;height:auto;aspect-ratio:8/3;display:block}
+.axisrow{display:flex;gap:10px;margin-top:10px}
+.axis{flex:1;text-align:center;background:rgba(255,255,255,.04);border-radius:9px;padding:9px 0;font-family:'Chakra Petch';font-size:16px}
+.axis small{display:block;color:var(--txt-dim);font-size:11px;letter-spacing:1.5px;margin-bottom:2px}
+
+/* vibration */
+.rumble-btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
+.chip{display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:30px;padding:10px 12px;font-size:14px;font-family:'Chakra Petch';cursor:pointer;color:var(--txt);outline:none;-webkit-appearance:none;appearance:none;touch-action:manipulation}
+.chip:hover{border-color:var(--neon-red);color:#fff}
+.chip.active{background:var(--neon-red);border-color:var(--neon-red);color:#fff}
+.rumble-wrap{display:flex;justify-content:center;margin-top:14px}
+/* Static HTML waveform bars, ported 1:1 from the Switch build. The finite-
+ * iteration keyframe scheme below exists because the nx.js engine can't
+ * cancel an `infinite` CSS animation ticker; standard mobile engines don't
+ * have that constraint, but the finite pattern renders identically on them,
+ * so it's kept unchanged for diffability. The one rule that still matters:
+ * every pattern's `holdMs` (JS, patterns[]) stays < the 900ms animation
+ * duration so `.rumble-bars--active` is removed before the iteration ends
+ * and the bars settle at the static scaleY(0.2) rest transform. */
+.rumble-bars{display:flex;align-items:center;width:320px;max-width:100%;height:60px;background:#151c29;border-radius:8px;padding:0 6px;gap:3px}
+.rumble-bars i{flex:1;display:block;height:100%;background:linear-gradient(180deg,#00c3e3,#ff3c41);border-radius:3px;transform:scaleY(0.2)}
+.rumble-bars--active i{background:linear-gradient(180deg,#ffc83d,#ff3c41)}
+/* 4 phase-shifted scaleY keyframes per intensity — stops 0.5% apart (~4.5ms
+ * at 900ms) read as instant snaps, holds are flat by duplicating the same
+ * scaleY at both ends of the range. Peak scaleY per pattern is
+ * 0.2 + (heavy_peak − 0.2) × F with F: light=0.35, pulse=0.55, wave=0.75,
+ * heavy=1.0. All keyframes end at scaleY(1)→settle handled by class removal. */
+@keyframes rumble-light-p0 { 0%,7%{transform:scaleY(0.20)} 7.5%,18%{transform:scaleY(0.43)} 18.5%,29%{transform:scaleY(0.17)} 29.5%,40%{transform:scaleY(0.39)} 40.5%,51%{transform:scaleY(0.20)} 51.5%,62%{transform:scaleY(0.46)} 62.5%,73%{transform:scaleY(0.17)} 73.5%,84%{transform:scaleY(0.38)} 84.5%,95%{transform:scaleY(0.19)} 95.5%,100%{transform:scaleY(0.20)} }
+@keyframes rumble-light-p1 { 0%,7%{transform:scaleY(0.20)} 7.5%,18%{transform:scaleY(0.17)} 18.5%,29%{transform:scaleY(0.41)} 29.5%,40%{transform:scaleY(0.18)} 40.5%,51%{transform:scaleY(0.45)} 51.5%,62%{transform:scaleY(0.20)} 62.5%,73%{transform:scaleY(0.36)} 73.5%,84%{transform:scaleY(0.17)} 84.5%,95%{transform:scaleY(0.32)} 95.5%,100%{transform:scaleY(0.20)} }
+@keyframes rumble-light-p2 { 0%,7%{transform:scaleY(0.20)} 7.5%,18%{transform:scaleY(0.34)} 18.5%,29%{transform:scaleY(0.46)} 29.5%,40%{transform:scaleY(0.17)} 40.5%,51%{transform:scaleY(0.38)} 51.5%,62%{transform:scaleY(0.17)} 62.5%,73%{transform:scaleY(0.29)} 73.5%,84%{transform:scaleY(0.43)} 84.5%,95%{transform:scaleY(0.18)} 95.5%,100%{transform:scaleY(0.20)} }
+@keyframes rumble-light-p3 { 0%,7%{transform:scaleY(0.20)} 7.5%,18%{transform:scaleY(0.39)} 18.5%,29%{transform:scaleY(0.18)} 29.5%,40%{transform:scaleY(0.45)} 40.5%,51%{transform:scaleY(0.17)} 51.5%,62%{transform:scaleY(0.32)} 62.5%,73%{transform:scaleY(0.46)} 73.5%,84%{transform:scaleY(0.19)} 84.5%,95%{transform:scaleY(0.36)} 95.5%,100%{transform:scaleY(0.20)} }
+@keyframes rumble-pulse-p0 { 0%,7%{transform:scaleY(0.20)} 7.5%,18%{transform:scaleY(0.56)} 18.5%,29%{transform:scaleY(0.14)} 29.5%,40%{transform:scaleY(0.50)} 40.5%,51%{transform:scaleY(0.20)} 51.5%,62%{transform:scaleY(0.61)} 62.5%,73%{transform:scaleY(0.16)} 73.5%,84%{transform:scaleY(0.48)} 84.5%,95%{transform:scaleY(0.19)} 95.5%,100%{transform:scaleY(0.20)} }
+@keyframes rumble-pulse-p1 { 0%,7%{transform:scaleY(0.20)} 7.5%,18%{transform:scaleY(0.16)} 18.5%,29%{transform:scaleY(0.53)} 29.5%,40%{transform:scaleY(0.17)} 40.5%,51%{transform:scaleY(0.59)} 51.5%,62%{transform:scaleY(0.20)} 62.5%,73%{transform:scaleY(0.45)} 73.5%,84%{transform:scaleY(0.14)} 84.5%,95%{transform:scaleY(0.39)} 95.5%,100%{transform:scaleY(0.20)} }
+@keyframes rumble-pulse-p2 { 0%,7%{transform:scaleY(0.20)} 7.5%,18%{transform:scaleY(0.42)} 18.5%,29%{transform:scaleY(0.61)} 29.5%,40%{transform:scaleY(0.16)} 40.5%,51%{transform:scaleY(0.48)} 51.5%,62%{transform:scaleY(0.14)} 62.5%,73%{transform:scaleY(0.34)} 73.5%,84%{transform:scaleY(0.56)} 84.5%,95%{transform:scaleY(0.17)} 95.5%,100%{transform:scaleY(0.20)} }
+@keyframes rumble-pulse-p3 { 0%,7%{transform:scaleY(0.20)} 7.5%,18%{transform:scaleY(0.50)} 18.5%,29%{transform:scaleY(0.17)} 29.5%,40%{transform:scaleY(0.59)} 40.5%,51%{transform:scaleY(0.14)} 51.5%,62%{transform:scaleY(0.39)} 62.5%,73%{transform:scaleY(0.61)} 73.5%,84%{transform:scaleY(0.19)} 84.5%,95%{transform:scaleY(0.45)} 95.5%,100%{transform:scaleY(0.20)} }
+@keyframes rumble-wave-p0  { 0%,7%{transform:scaleY(0.20)} 7.5%,18%{transform:scaleY(0.69)} 18.5%,29%{transform:scaleY(0.13)} 29.5%,40%{transform:scaleY(0.61)} 40.5%,51%{transform:scaleY(0.20)} 51.5%,62%{transform:scaleY(0.76)} 62.5%,73%{transform:scaleY(0.14)} 73.5%,84%{transform:scaleY(0.58)} 84.5%,95%{transform:scaleY(0.19)} 95.5%,100%{transform:scaleY(0.20)} }
+@keyframes rumble-wave-p1  { 0%,7%{transform:scaleY(0.20)} 7.5%,18%{transform:scaleY(0.14)} 18.5%,29%{transform:scaleY(0.65)} 29.5%,40%{transform:scaleY(0.16)} 40.5%,51%{transform:scaleY(0.73)} 51.5%,62%{transform:scaleY(0.20)} 62.5%,73%{transform:scaleY(0.54)} 73.5%,84%{transform:scaleY(0.13)} 84.5%,95%{transform:scaleY(0.46)} 95.5%,100%{transform:scaleY(0.20)} }
+@keyframes rumble-wave-p2  { 0%,7%{transform:scaleY(0.20)} 7.5%,18%{transform:scaleY(0.50)} 18.5%,29%{transform:scaleY(0.76)} 29.5%,40%{transform:scaleY(0.14)} 40.5%,51%{transform:scaleY(0.58)} 51.5%,62%{transform:scaleY(0.13)} 62.5%,73%{transform:scaleY(0.39)} 73.5%,84%{transform:scaleY(0.69)} 84.5%,95%{transform:scaleY(0.16)} 95.5%,100%{transform:scaleY(0.20)} }
+@keyframes rumble-wave-p3  { 0%,7%{transform:scaleY(0.20)} 7.5%,18%{transform:scaleY(0.61)} 18.5%,29%{transform:scaleY(0.16)} 29.5%,40%{transform:scaleY(0.73)} 40.5%,51%{transform:scaleY(0.13)} 51.5%,62%{transform:scaleY(0.46)} 62.5%,73%{transform:scaleY(0.76)} 73.5%,84%{transform:scaleY(0.19)} 84.5%,95%{transform:scaleY(0.54)} 95.5%,100%{transform:scaleY(0.20)} }
+@keyframes rumble-heavy-p0 { 0%,7%{transform:scaleY(0.20)} 7.5%,18%{transform:scaleY(0.85)} 18.5%,29%{transform:scaleY(0.10)} 29.5%,40%{transform:scaleY(0.75)} 40.5%,51%{transform:scaleY(0.20)} 51.5%,62%{transform:scaleY(0.95)} 62.5%,73%{transform:scaleY(0.12)} 73.5%,84%{transform:scaleY(0.70)} 84.5%,95%{transform:scaleY(0.18)} 95.5%,100%{transform:scaleY(0.20)} }
+@keyframes rumble-heavy-p1 { 0%,7%{transform:scaleY(0.20)} 7.5%,18%{transform:scaleY(0.12)} 18.5%,29%{transform:scaleY(0.80)} 29.5%,40%{transform:scaleY(0.15)} 40.5%,51%{transform:scaleY(0.90)} 51.5%,62%{transform:scaleY(0.20)} 62.5%,73%{transform:scaleY(0.65)} 73.5%,84%{transform:scaleY(0.10)} 84.5%,95%{transform:scaleY(0.55)} 95.5%,100%{transform:scaleY(0.20)} }
+@keyframes rumble-heavy-p2 { 0%,7%{transform:scaleY(0.20)} 7.5%,18%{transform:scaleY(0.60)} 18.5%,29%{transform:scaleY(0.95)} 29.5%,40%{transform:scaleY(0.12)} 40.5%,51%{transform:scaleY(0.70)} 51.5%,62%{transform:scaleY(0.10)} 62.5%,73%{transform:scaleY(0.45)} 73.5%,84%{transform:scaleY(0.85)} 84.5%,95%{transform:scaleY(0.15)} 95.5%,100%{transform:scaleY(0.20)} }
+@keyframes rumble-heavy-p3 { 0%,7%{transform:scaleY(0.20)} 7.5%,18%{transform:scaleY(0.75)} 18.5%,29%{transform:scaleY(0.15)} 29.5%,40%{transform:scaleY(0.90)} 40.5%,51%{transform:scaleY(0.10)} 51.5%,62%{transform:scaleY(0.55)} 62.5%,73%{transform:scaleY(0.95)} 73.5%,84%{transform:scaleY(0.18)} 84.5%,95%{transform:scaleY(0.65)} 95.5%,100%{transform:scaleY(0.20)} }
+.rumble-bars--light.rumble-bars--active i.b0{animation:rumble-light-p0 900ms 1 ease-in-out}
+.rumble-bars--light.rumble-bars--active i.b1{animation:rumble-light-p1 900ms 1 ease-in-out}
+.rumble-bars--light.rumble-bars--active i.b2{animation:rumble-light-p2 900ms 1 ease-in-out}
+.rumble-bars--light.rumble-bars--active i.b3{animation:rumble-light-p3 900ms 1 ease-in-out}
+.rumble-bars--pulse.rumble-bars--active i.b0{animation:rumble-pulse-p0 900ms 1 ease-in-out}
+.rumble-bars--pulse.rumble-bars--active i.b1{animation:rumble-pulse-p1 900ms 1 ease-in-out}
+.rumble-bars--pulse.rumble-bars--active i.b2{animation:rumble-pulse-p2 900ms 1 ease-in-out}
+.rumble-bars--pulse.rumble-bars--active i.b3{animation:rumble-pulse-p3 900ms 1 ease-in-out}
+.rumble-bars--wave.rumble-bars--active  i.b0{animation:rumble-wave-p0  900ms 1 ease-in-out}
+.rumble-bars--wave.rumble-bars--active  i.b1{animation:rumble-wave-p1  900ms 1 ease-in-out}
+.rumble-bars--wave.rumble-bars--active  i.b2{animation:rumble-wave-p2  900ms 1 ease-in-out}
+.rumble-bars--wave.rumble-bars--active  i.b3{animation:rumble-wave-p3  900ms 1 ease-in-out}
+.rumble-bars--heavy.rumble-bars--active i.b0{animation:rumble-heavy-p0 900ms 1 ease-in-out}
+.rumble-bars--heavy.rumble-bars--active i.b1{animation:rumble-heavy-p1 900ms 1 ease-in-out}
+.rumble-bars--heavy.rumble-bars--active i.b2{animation:rumble-heavy-p2 900ms 1 ease-in-out}
+.rumble-bars--heavy.rumble-bars--active i.b3{animation:rumble-heavy-p3 900ms 1 ease-in-out}
+.rumble-status{font-family:'Chakra Petch';font-size:14px;color:var(--txt-dim);text-align:center;margin-top:10px;letter-spacing:.5px}
+.rumble-status--active{color:var(--neon-red)}
+.rumble-status::before{content:"○ ";font-size:18px;vertical-align:-1px}
+.rumble-status--active::before{content:"● "}
+
+/* Mobile layout. The Switch build assumed a fixed 1280×720 landscape panel;
+ * phones get a scrolling column, tablets a 2-up grid. The fullscreen 3×2
+ * no-scroll grid only applies above 1100px. */
+@media (max-width:1100px){
+  html,body{height:auto;overflow-x:hidden;overflow-y:auto}
+  .wrap{
+    width:100%;height:auto;min-height:100vh;
+    grid-template-columns:1fr 1fr;
+    grid-template-rows:none;
+    grid-auto-rows:auto;
+  }
+}
+@media (max-width:700px){
+  .wrap{grid-template-columns:1fr}
+  .card-title{font-size:20px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+    <!-- BATTERY -->
+    <div class="card">
+      <h3 class="card-title"><span class="ic">🔋</span> Battery &amp; Charging <span class="tag ok" id="batTag">…</span></h3>
+      <div class="battviz">
+        <div class="batt"><div class="fill" id="batFill" style="width:0%"></div><div class="bolt">⚡</div></div>
+        <div><div class="bigpct" id="batPct">—</div><div style="color:var(--txt-dim);font-size:12px" id="batSub">event-driven</div></div>
+      </div>
+      <div class="row"><span class="k">State</span><span class="v good" id="batState">—</span></div>
+      <div class="row"><span class="k">Time to full</span><span class="v" id="batFull">—</span></div>
+      <div class="row"><span class="k">Time to empty</span><span class="v" id="batEmpty">—</span></div>
+      <div class="row"><span class="k">API</span><span class="v dim" id="batApi">—</span></div>
+    </div>
+
+    <!-- GYRO / ACCEL -->
+    <div class="card" id="gyroCard" style="cursor:pointer;touch-action:manipulation">
+      <h3 class="card-title"><span class="ic">🧭</span> Gyro &amp; Accelerometer <span class="tag ok" id="gyroTag">…</span></h3>
+      <div class="cube-scene"><canvas id="gyroCube" width="320" height="120"></canvas></div>
+      <div class="axisrow">
+        <div class="axis"><small>PITCH</small><span id="gPitch">—</span></div>
+        <div class="axis"><small>ROLL</small><span id="gRoll">—</span></div>
+        <div class="axis"><small>YAW</small><span id="gYaw">—</span></div>
+      </div>
+      <div class="row" style="margin-top:8px"><span class="k">Accel (g)</span><span class="v" id="accelText">—</span></div>
+    </div>
+
+    <!-- VIBRATION -->
+    <div class="card">
+      <h3 class="card-title"><span class="ic">📳</span> Vibration <span class="tag ok" id="rumbleTag">…</span></h3>
+      <div class="rumble-btns" id="rumbleBtns">
+        <button type="button" class="chip rumble-chip" data-r="light">Light</button>
+        <button type="button" class="chip rumble-chip" data-r="pulse">Pulse</button>
+        <button type="button" class="chip rumble-chip" data-r="wave">Ocean Wave</button>
+        <button type="button" class="chip rumble-chip" data-r="heavy">Heavy Burst</button>
+      </div>
+      <div class="rumble-wrap"><div class="rumble-bars" id="rumbleBars" aria-hidden="true">
+        <i class="b0"></i><i class="b1"></i><i class="b2"></i><i class="b3"></i><i class="b0"></i><i class="b1"></i>
+      </div></div>
+      <div class="rumble-status" id="rumbleStatus">Idle</div>
+      <div class="row"><span class="k">Intensity</span><span class="v blue" id="rumbleInt">0%</span></div>
+      <div class="row"><span class="k">Pattern</span><span class="v" id="rumblePat">—</span></div>
+    </div>
+
+    <!-- DISPLAY / ORIENTATION -->
+    <div class="card">
+      <h3 class="card-title"><span class="ic">📱</span> Display &amp; Orientation <span class="tag ok" id="modeTag">…</span></h3>
+      <div class="row"><span class="k">Orientation</span><span class="v blue" id="modeName">—</span></div>
+      <div class="row"><span class="k">Rotation angle</span><span class="v" id="modeAngle">—</span></div>
+      <div class="row"><span class="k">Display mode</span><span class="v" id="modeDisplay">—</span></div>
+      <div class="row"><span class="k">Viewport</span><span class="v" id="modeViewport">—</span></div>
+      <div class="row"><span class="k">Screen</span><span class="v" id="modeScreen">—</span></div>
+    </div>
+
+    <!-- NETWORK -->
+    <div class="card">
+      <h3 class="card-title"><span class="ic">📶</span> Network Status <span class="tag ok" id="netTag">…</span></h3>
+      <div class="row"><span class="k">Effective type</span><span class="v blue" id="netEff">—</span></div>
+      <div class="row"><span class="k">Connection type</span><span class="v" id="netType">—</span></div>
+      <div class="row"><span class="k">Downlink</span><span class="v" id="netDown">—</span></div>
+      <div class="row"><span class="k">Round-trip</span><span class="v" id="netRtt">—</span></div>
+      <div class="row"><span class="k">Save-Data</span><span class="v dim" id="netSave">—</span></div>
+    </div>
+
+    <!-- STORAGE -->
+    <div class="card">
+      <h3 class="card-title"><span class="ic">💾</span> Device Storage <span class="tag ok" id="sdTag">…</span></h3>
+      <div class="barlabel"><span>Origin quota used</span><span id="sdUsedTotal">—</span></div>
+      <div class="bar"><i id="sdBar" style="width:0%"></i></div>
+      <div class="row" style="margin-top:8px"><span class="k">Free</span><span class="v good" id="sdFree">—</span></div>
+      <div class="row"><span class="k">Quota</span><span class="v" id="sdTotal">—</span></div>
+      <div class="row"><span class="k">Used</span><span class="v" id="sdUsed">—</span></div>
+      <div class="row"><span class="k">Persisted</span><span class="v dim" id="sdPersist">—</span></div>
+    </div>
+
+</div>
+
+<script>
+/* Mobile-browser port of the Brewser Switch diagnostics demo.
+ *
+ * Every Switch.* native call is replaced with a standard web platform API:
+ *
+ *   Switch.diagnostics.sixAxis   → deviceorientation + devicemotion events
+ *   Switch.diagnostics.battery() → navigator.getBattery() (Battery Status API)
+ *   navigator.vibrate            → unchanged (already standard)
+ *   Switch.operationMode()       → screen.orientation + display-mode media query
+ *   Switch.networkInfo()         → navigator.connection (Network Information API)
+ *   Switch.FileSystem (sdmc)     → navigator.storage.estimate() (Storage API)
+ *   Switch.appendFileSync log    → console + in-memory ring buffer (window.__diagLog)
+ *
+ * Support matrix (why some cards degrade to n/a instead of erroring):
+ *   - Battery Status API: Chromium/Android yes; iOS Safari no.
+ *   - navigator.vibrate:  Android yes; iOS no (visual demo still runs).
+ *   - navigator.connection: Chromium yes; Safari/Firefox no.
+ *   - Motion/orientation: needs a secure context (https:// or localhost)
+ *     everywhere, and on iOS ≥13 a permission prompt that must come from a
+ *     user gesture — the gyro card tap is that gesture. On Android the
+ *     listeners attach on load with no prompt.
+ *
+ * The Switch build's 2s live-poll interval is gone: every one of these
+ *  surfaces has a change event on the web (BatteryManager events,
+ * screen.orientation change, resize, online/offline, connection change),
+ * so updates are event-driven and cost nothing while idle. */
+
+const T0 = Date.now();
+const LOG_MAX = 500;
+const logBuf = [];
+window.__diagLog = logBuf; // grab from remote devtools: copy(__diagLog.join('\n'))
+
+function log(msg) {
+  const line = '[+' + (Date.now() - T0) + 'ms] ' + msg;
+  logBuf.push(line);
+  if (logBuf.length > LOG_MAX) logBuf.shift();
+  try { console.log('[diag] ' + line); } catch (_) { /* logging is optional */ }
+}
+
+function setT(id, v) {
+  const el = document.getElementById(id);
+  if (el && el.textContent !== String(v)) el.textContent = v;
+}
+const _lastW = {};
+function setW(id, pct) {
+  const v = Math.max(0, Math.min(100, pct));
+  if (_lastW[id] === v) return;
+  _lastW[id] = v;
+  const el = document.getElementById(id);
+  if (el) el.style.width = v + '%';
+}
+
+/* ---- Battery (Battery Status API) ----
+ * Voltage / temperature / cell health have no web equivalent — the OS keeps
+ * them; the API exposes level, charging state and the two time estimates.
+ * iOS Safari has no navigator.getBattery at all → the card tags NO API. */
+function fmtSecs(s) {
+  if (!Number.isFinite(s) || s <= 0) return '—'; // Infinity = "unknown" per spec
+  const m = Math.round(s / 60);
+  if (m < 60) return m + ' min';
+  return (s / 3600).toFixed(1) + ' h';
+}
+async function pollBattery() {
+  try {
+    if (!navigator.getBattery) throw new Error('Battery Status API unavailable');
+    const bm = await navigator.getBattery();
+    const pct = Math.round(bm.level * 100);
+    setT('batPct', pct + '%');
+    setT('batState', bm.charging ? 'Charging' : 'Discharging');
+    setW('batFill', pct);
+    setT('batFull', bm.charging ? (bm.chargingTime === 0 ? 'Full' : fmtSecs(bm.chargingTime)) : '—');
+    setT('batEmpty', bm.charging ? '—' : fmtSecs(bm.dischargingTime));
+    setT('batApi', 'Battery Status');
+    setT('batTag', bm.charging ? 'CHARGING' : 'ON BATTERY');
+  } catch (e) {
+    setT('batPct', 'n/a'); setT('batState', 'unavailable');
+    setT('batFull', '—'); setT('batEmpty', '—');
+    setT('batApi', 'unsupported');
+    setT('batTag', 'NO API');
+    log('battery err: ' + (e && e.message || e));
+  }
+}
+/* Same manager instance is returned on every getBattery() call, so wiring
+ * its change events once replaces the Switch build's 2s polling loop. */
+async function wireBatteryEvents() {
+  if (!navigator.getBattery) return;
+  try {
+    const bm = await navigator.getBattery();
+    ['chargingchange', 'levelchange', 'chargingtimechange', 'dischargingtimechange']
+      .forEach(ev => bm.addEventListener(ev, () => pollBattery()));
+    log('battery events wired');
+  } catch (e) { log('battery events err: ' + (e && e.message || e)); }
+}
+
+/* ---- Display & orientation (was: Switch.operationMode) ----
+ * Handheld/Docked maps to Portrait/Landscape; dock/HDMI/applet rows become
+ * display-mode (browser tab vs installed PWA), viewport and physical screen. */
+function pollDisplay() {
+  try {
+    const so = screen.orientation;
+    const type = (so && so.type) ||
+      (matchMedia('(orientation: portrait)').matches ? 'portrait-primary' : 'landscape-primary');
+    const isPortrait = String(type).indexOf('portrait') === 0;
+    setT('modeName', isPortrait ? 'Portrait' : 'Landscape');
+    setT('modeAngle', ((so && so.angle) || 0) + '°');
+    const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+    setT('modeDisplay', standalone ? 'Standalone PWA' : 'Browser tab');
+    setT('modeViewport', window.innerWidth + '×' + window.innerHeight);
+    const dpr = window.devicePixelRatio || 1;
+    setT('modeScreen', screen.width + '×' + screen.height + ' @' + (Math.round(dpr * 100) / 100) + 'x');
+    setT('modeTag', isPortrait ? 'PORT' : 'LAND');
+  } catch (e) {
+    setT('modeName', 'unavailable');
+    log('display err: ' + (e && e.message || e));
+  }
+}
+
+/* ---- Network (was: Switch.networkInfo via nifm) ----
+ * The web deliberately exposes no local IP / subnet / DNS. The honest mobile
+ * equivalent is the Network Information API: effective type, downlink (note:
+ * Chrome caps the reported value at 10 Mbps for fingerprinting resistance),
+ * RTT and Save-Data. Safari/Firefox don't implement it → n/a rows, but the
+ * ONLINE/OFFLINE tag works everywhere via navigator.onLine. */
+function pollNetwork() {
+  try {
+    const online = navigator.onLine;
+    setT('netTag', online ? 'ONLINE' : 'OFFLINE');
+    const c = navigator.connection || navigator.webkitConnection || navigator.mozConnection;
+    if (c) {
+      setT('netEff', c.effectiveType ? c.effectiveType.toUpperCase() : '—');
+      setT('netType', c.type || '—'); // often undefined even on Android
+      setT('netDown', Number.isFinite(c.downlink) ? c.downlink + ' Mbps' : '—');
+      setT('netRtt', Number.isFinite(c.rtt) ? c.rtt + ' ms' : '—');
+      setT('netSave', c.saveData ? 'On' : 'Off');
+      log('network: ' + JSON.stringify({ eff: c.effectiveType, down: c.downlink, rtt: c.rtt, save: c.saveData, online }));
+    } else {
+      setT('netEff', 'n/a'); setT('netType', 'n/a'); setT('netDown', 'n/a');
+      setT('netRtt', 'n/a'); setT('netSave', 'n/a');
+      log('network: Network Information API unavailable, online=' + online);
+    }
+  } catch (e) {
+    setT('netTag', 'ERR');
+    log('network err: ' + (e && e.message || e));
+  }
+}
+
+/* ---- Storage (was: Switch.FileSystem.openSdmc) ----
+ * navigator.storage.estimate() reports the ORIGIN's quota, not the device's
+ * physical storage (there is no web API for that) — Chrome grants roughly
+ * a fraction of free disk per origin, so the numbers are still a useful
+ * free-space proxy. `persisted` = whether the browser may evict this
+ * origin's data under storage pressure. */
+function fmtBytes(n) {
+  if (!Number.isFinite(n)) return 'n/a';
+  const gb = n / (1024 ** 3);
+  if (gb >= 1) return gb.toFixed(1) + ' GB';
+  const mb = n / (1024 ** 2);
+  if (mb >= 1) return mb.toFixed(0) + ' MB';
+  return (n / 1024).toFixed(0) + ' KB';
+}
+async function pollStorage() {
+  try {
+    if (!(navigator.storage && navigator.storage.estimate)) throw new Error('Storage API unavailable');
+    const est = await navigator.storage.estimate();
+    const total = Number(est.quota || 0);
+    const used = Number(est.usage || 0);
+    const free = Math.max(0, total - used);
+    const pct = total > 0 ? (used / total) * 100 : 0;
+    setT('sdFree', fmtBytes(free));
+    setT('sdTotal', fmtBytes(total));
+    setT('sdUsed', fmtBytes(used));
+    setT('sdUsedTotal', fmtBytes(used) + ' / ' + fmtBytes(total));
+    setW('sdBar', pct);
+    setT('sdTag', pct >= 1 ? pct.toFixed(0) + '% USED' : '<1% USED');
+    if (navigator.storage.persisted) {
+      const p = await navigator.storage.persisted();
+      setT('sdPersist', p ? 'Yes' : 'No (best-effort)');
+    } else {
+      setT('sdPersist', '—');
+    }
+    log('storage: used=' + used + ' quota=' + total);
+  } catch (e) {
+    setT('sdFree', 'n/a'); setT('sdTotal', 'n/a'); setT('sdUsed', 'n/a');
+    setT('sdPersist', 'n/a'); setT('sdTag', 'NO API');
+    log('storage err: ' + (e && e.message || e));
+  }
+}
+
+/* ---- WebGL gyro cube — raw WebGL 1 cube driven by device orientation.
+ *      Ported from the Switch build minus the nx.js bridge plumbing
+ *      (enableGpuBridgePrototype / setBridgeAutoFlush / #pragma
+ *      raw_passthrough) — standard mobile GL needs none of it. Interleaved
+ *      pos+normal+uv vertices, no indices, no CULL_FACE. The backing store
+ *      is scaled by devicePixelRatio (capped at 2) so the cube is crisp on
+ *      3x phone panels while CSS keeps the 320×120 layout slot. */
+let cubeGl = null;
+let cubeVertCount = 0;
+let cubeLocs = null;
+const cubeRotation = [0.45, 0.65, 0];
+const cubeRotVec3 = new Float32Array(3);
+const CUBE_CAMERA_Z = 2.7;
+const CUBE_CSS_W = 320, CUBE_CSS_H = 120;
+function initGyroCube() {
+  if (cubeGl) return true;
+  try {
+    const canvas = document.getElementById('gyroCube');
+    if (!canvas) { log('cube: #gyroCube missing'); return false; }
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = CUBE_CSS_W * dpr;
+    canvas.height = CUBE_CSS_H * dpr;
+    const gl = canvas.getContext('webgl', {
+      alpha: false, antialias: true, depth: true, stencil: false, preserveDrawingBuffer: false,
+    });
+    if (!gl) { log('cube: getContext(webgl) returned null'); return false; }
+    const W = canvas.width, H = canvas.height;
+
+    function shader(type, src) {
+      const s = gl.createShader(type);
+      gl.shaderSource(s, src); gl.compileShader(s);
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+        throw new Error('shader compile: ' + gl.getShaderInfoLog(s));
+      }
+      return s;
+    }
+    function program(vs, fs) {
+      const p = gl.createProgram();
+      gl.attachShader(p, shader(gl.VERTEX_SHADER, vs));
+      gl.attachShader(p, shader(gl.FRAGMENT_SHADER, fs));
+      gl.linkProgram(p);
+      if (!gl.getProgramParameter(p, gl.LINK_STATUS)) {
+        throw new Error('program link: ' + gl.getProgramInfoLog(p));
+      }
+      return p;
+    }
+
+    const vsrc = `
+      precision mediump float;
+      attribute vec3 aPos;
+      attribute vec3 aNormal;
+      attribute vec2 aUv;
+      uniform mat4 uProj;
+      uniform mat4 uView;
+      uniform vec3 uRot;
+      varying vec3 vNormal;
+      varying vec3 vFaceNormal;
+      varying vec2 vUv;
+      mat3 rotX(float a){float c=cos(a),s=sin(a);return mat3(1.0,0.0,0.0, 0.0,c,s, 0.0,-s,c);}
+      mat3 rotY(float a){float c=cos(a),s=sin(a);return mat3(c,0.0,-s, 0.0,1.0,0.0, s,0.0,c);}
+      mat3 rotZ(float a){float c=cos(a),s=sin(a);return mat3(c,s,0.0, -s,c,0.0, 0.0,0.0,1.0);}
+      void main(){
+        mat3 r = rotX(uRot.x) * rotY(uRot.y) * rotZ(uRot.z);
+        vec3 p = r * aPos;
+        vNormal = normalize(r * aNormal);
+        // Original (model-space) face normal — used for letter selection so
+        // the X/Y/Z glyph stays bound to its geometric face as the cube
+        // rotates. vNormal would otherwise swap letters across faces.
+        vFaceNormal = aNormal;
+        vUv = aUv;
+        gl_Position = uProj * uView * vec4(p, 1.0);
+      }
+    `;
+    const fsrc = `
+      precision mediump float;
+      varying vec3 vNormal;
+      varying vec3 vFaceNormal;
+      varying vec2 vUv;
+      // Signed distance from p to line segment ab.
+      float seg(vec2 p, vec2 a, vec2 b){
+        vec2 pa = p - a, ba = b - a;
+        float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+        return length(pa - ba * h);
+      }
+      // Each letter = a min() of its strokes' SDFs → a single distance field
+      // for the whole glyph. smoothstep gives an anti-aliased mask.
+      float letterX(vec2 p){
+        float d = min(seg(p, vec2(0.25,0.25), vec2(0.75,0.75)),
+                      seg(p, vec2(0.25,0.75), vec2(0.75,0.25)));
+        return 1.0 - smoothstep(0.06, 0.09, d);
+      }
+      float letterY(vec2 p){
+        float d = min(min(seg(p, vec2(0.25,0.20), vec2(0.50,0.50)),
+                          seg(p, vec2(0.75,0.20), vec2(0.50,0.50))),
+                      seg(p, vec2(0.50,0.50), vec2(0.50,0.80)));
+        return 1.0 - smoothstep(0.06, 0.09, d);
+      }
+      float letterZ(vec2 p){
+        float d = min(min(seg(p, vec2(0.22,0.22), vec2(0.78,0.22)),
+                          seg(p, vec2(0.78,0.22), vec2(0.22,0.78))),
+                      seg(p, vec2(0.22,0.78), vec2(0.78,0.78)));
+        return 1.0 - smoothstep(0.06, 0.09, d);
+      }
+      void main(){
+        // Solid cyan with one fixed key light so adjacent faces are
+        // distinguishable as the cube rotates.
+        vec3 light = normalize(vec3(0.4, 0.7, 0.5));
+        float l = max(dot(normalize(vNormal), light), 0.0) * 0.65 + 0.35;
+        // --neon-blue (#00c3e3) — matches the rest of the page's cyan accents.
+        vec3 base = vec3(0.0, 0.765, 0.890);
+        vec3 color = base * l;
+        // Pick the letter from the ORIGINAL (model-space) face normal so
+        // each face's letter is glued to its geometric identity — the
+        // rotated vNormal would swap letters as faces rotate past the axes.
+        vec3 an = abs(vFaceNormal);
+        float mask;
+        if (an.x > an.y && an.x > an.z) mask = letterX(vUv);
+        else if (an.y > an.z)           mask = letterY(vUv);
+        else                            mask = letterZ(vUv);
+        // White letter, mixed over the cyan face. Boost alpha where the
+        // glyph is so the letter stays readable against any background even
+        // though the face itself is 40% transparent.
+        color = mix(color, vec3(1.0), mask);
+        float a = mix(0.6, 0.95, mask);
+        gl_FragColor = vec4(color, a);
+      }
+    `;
+    const prog = program(vsrc, fsrc);
+
+    // 6 faces × 2 triangles × 3 vertices = 36 vertices. Interleaved
+    // pos.xyz + normal.xyz + uv.xy = 32 bytes per vertex. UV convention
+    // (u=0 left, v=0 top, looking at the face from outside) so all four
+    // corners of the letter SDF land at (0,0)/(1,0)/(0,1)/(1,1)
+    // consistently per face.
+    const s = 0.5;
+    const verts = new Float32Array([
+      // +Z
+      -s,-s, s, 0,0,1, 0,1,   s,-s, s, 0,0,1, 1,1,   s, s, s, 0,0,1, 1,0,
+      -s,-s, s, 0,0,1, 0,1,   s, s, s, 0,0,1, 1,0,  -s, s, s, 0,0,1, 0,0,
+      // -Z
+       s,-s,-s, 0,0,-1, 0,1, -s,-s,-s, 0,0,-1, 1,1, -s, s,-s, 0,0,-1, 1,0,
+       s,-s,-s, 0,0,-1, 0,1, -s, s,-s, 0,0,-1, 1,0,  s, s,-s, 0,0,-1, 0,0,
+      // +X
+       s,-s, s, 1,0,0, 0,1,   s,-s,-s, 1,0,0, 1,1,   s, s,-s, 1,0,0, 1,0,
+       s,-s, s, 1,0,0, 0,1,   s, s,-s, 1,0,0, 1,0,   s, s, s, 1,0,0, 0,0,
+      // -X
+      -s,-s,-s,-1,0,0, 0,1,  -s,-s, s,-1,0,0, 1,1,  -s, s, s,-1,0,0, 1,0,
+      -s,-s,-s,-1,0,0, 0,1,  -s, s, s,-1,0,0, 1,0,  -s, s,-s,-1,0,0, 0,0,
+      // +Y
+      -s, s, s, 0,1,0, 0,1,   s, s, s, 0,1,0, 1,1,   s, s,-s, 0,1,0, 1,0,
+      -s, s, s, 0,1,0, 0,1,   s, s,-s, 0,1,0, 1,0,  -s, s,-s, 0,1,0, 0,0,
+      // -Y
+      -s,-s,-s, 0,-1,0, 0,1,  s,-s,-s, 0,-1,0, 1,1,  s,-s, s, 0,-1,0, 1,0,
+      -s,-s,-s, 0,-1,0, 0,1,  s,-s, s, 0,-1,0, 1,0, -s,-s, s, 0,-1,0, 0,0,
+    ]);
+    const vbo = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+    gl.bufferData(gl.ARRAY_BUFFER, verts, gl.STATIC_DRAW);
+
+    // Projection + view. View is a fixed translate down -Z so the camera
+    // sits in front of the origin-centered cube; rotation happens in the
+    // vertex shader.
+    const fov = 40 * Math.PI / 180;
+    const aspect = W / H, near = 0.1, far = 100;
+    const f = 1 / Math.tan(fov / 2);
+    const nf = 1 / (near - far);
+    const cubeProj = new Float32Array([
+      f / aspect, 0, 0, 0,
+      0, f, 0, 0,
+      0, 0, (far + near) * nf, -1,
+      0, 0, 2 * far * near * nf, 0,
+    ]);
+    // view[13] > 0 lifts the cube slightly on screen so it has breathing
+    // room above and the Accel row lands where it should.
+    const cubeView = new Float32Array([
+      1, 0, 0, 0,
+      0, 1, 0, 0,
+      0, 0, 1, 0,
+      0, 0.12, -CUBE_CAMERA_Z, 1,
+    ]);
+
+    cubeGl = gl;
+    cubeVertCount = verts.length / 8;
+
+    gl.viewport(0, 0, W, H);
+    gl.disable(gl.SCISSOR_TEST);
+    gl.enable(gl.DEPTH_TEST);
+    // Blend the cube fragments over the card-matching clear color so the
+    // 0.6-alpha faces look 40% transparent against the background.
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    // No CULL_FACE — every triangle draws regardless of winding.
+    // Match the card's gradient at the canvas's vertical position (mid-card,
+    // ~41% between --bg-2 #161d2b and --panel #141a26 → #151c29) so the
+    // opaque canvas blends in and the cube looks like it floats on the card.
+    gl.clearColor(0x15 / 255, 0x1c / 255, 0x29 / 255, 1);
+    // Bind the static GL state ONCE — program, buffer, attribs, the two
+    // static matrices. The per-frame path is then just clear +
+    // uniform3fv(uRot) + drawArrays. (Habit inherited from the nx.js bridge
+    // where each GL call was a JS↔C crossing; it's still the right shape on
+    // a normal browser, just less critical.)
+    gl.useProgram(prog);
+    gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+    const locs = {
+      aPos: gl.getAttribLocation(prog, 'aPos'),
+      aNormal: gl.getAttribLocation(prog, 'aNormal'),
+      aUv: gl.getAttribLocation(prog, 'aUv'),
+      uRot: gl.getUniformLocation(prog, 'uRot'),
+    };
+    if (locs.aPos >= 0) {
+      gl.enableVertexAttribArray(locs.aPos);
+      gl.vertexAttribPointer(locs.aPos, 3, gl.FLOAT, false, 32, 0);
+    }
+    if (locs.aNormal >= 0) {
+      gl.enableVertexAttribArray(locs.aNormal);
+      gl.vertexAttribPointer(locs.aNormal, 3, gl.FLOAT, false, 32, 12);
+    }
+    if (locs.aUv >= 0) {
+      gl.enableVertexAttribArray(locs.aUv);
+      gl.vertexAttribPointer(locs.aUv, 2, gl.FLOAT, false, 32, 24);
+    }
+    gl.uniformMatrix4fv(gl.getUniformLocation(prog, 'uProj'), false, cubeProj);
+    gl.uniformMatrix4fv(gl.getUniformLocation(prog, 'uView'), false, cubeView);
+    cubeLocs = locs;
+    log('cube: WebGL init OK (' + cubeVertCount + ' verts, ' + W + 'x' + H + ' @' + dpr + 'x)');
+    return true;
+  } catch (e) {
+    log('cube init err: ' + (e && e.message || e));
+    return false;
+  }
+}
+function renderGyroCube() {
+  if (!cubeGl && !initGyroCube()) return;
+  try {
+    const gl = cubeGl;
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    cubeRotVec3[0] = cubeRotation[0];
+    cubeRotVec3[1] = cubeRotation[1];
+    cubeRotVec3[2] = cubeRotation[2];
+    gl.uniform3fv(cubeLocs.uRot, cubeRotVec3);
+    gl.drawArrays(gl.TRIANGLES, 0, cubeVertCount);
+  } catch (e) { log('cube render err: ' + (e && e.message || e)); }
+}
+
+/* ---- Six-axis (device orientation + motion) — opt-in via card tap ----
+ * The Switch build pulled Switch.diagnostics.sixAxis.read() per frame; the
+ * web pushes events instead. The event handlers only stash the latest
+ * sample, and the rAF tick below stays the single consumer — same
+ * architecture, so the 10Hz text throttle and the stale-sample fallback to
+ * the idle auto-rotate carry over unchanged. */
+let cubeLoopRaf = null;
+let sixAxisActive = false;
+let sixAxisSawData = false;
+let cubeAutoStartT = Date.now();
+const D2R = Math.PI / 180;
+const SAMPLE_FRESH_MS = 500; // no orientation event for this long → idle auto-rotate
+const orient = { alpha: 0, beta: 0, gamma: 0, ts: 0 }; // degrees
+const motion = { x: 0, y: 0, z: 0, ts: 0 };            // g
+
+function onOrient(e) {
+  // alpha can be null on iOS in some states — webkitCompassHeading is the
+  // fallback (inverted sense: compass heading vs. rotation around z).
+  orient.alpha = e.alpha != null ? e.alpha
+    : (e.webkitCompassHeading != null ? 360 - e.webkitCompassHeading : 0);
+  orient.beta = e.beta || 0;   // pitch, x-axis, −180..180
+  orient.gamma = e.gamma || 0; // roll,  y-axis, −90..90
+  orient.ts = Date.now();
+}
+function onMotion(e) {
+  const a = e.accelerationIncludingGravity;
+  if (!a) return;
+  const G = 9.80665; // API reports m/s²; the card shows g like the Switch build
+  motion.x = (a.x || 0) / G;
+  motion.y = (a.y || 0) / G;
+  motion.z = (a.z || 0) / G;
+  motion.ts = Date.now();
+}
+
+// Idle auto-rotate: slow continuous yaw + a gentle pitch oscillation around
+// the same default orientation the cube initializes at (0.45, 0.65). Same
+// time-base whether we're in IDLE state or fell back because no fresh sensor
+// sample arrived, so events that come and go don't pop visually.
+function applyCubeAutoRotation() {
+  const t = (Date.now() - cubeAutoStartT) / 1000;
+  cubeRotation[0] = 0.45 + 0.25 * Math.sin(t * 0.3);
+  cubeRotation[1] = 0.65 + t * 0.4;
+  cubeRotation[2] = 0;
+}
+function startCubeLoop() {
+  if (cubeLoopRaf) return;
+  cubeAutoStartT = Date.now();
+  // Throttle the 4 sensor-text setT()s to 10Hz — 60Hz text churn is
+  // pointless layout work on any engine. The cube pose still updates per
+  // frame so motion stays smooth.
+  let lastSensorTextMs = 0;
+  let framesSinceFps = 0, lastFpsMs = Date.now();
+  const tick = () => {
+    try {
+      const nowMs = Date.now();
+      if (sixAxisActive && (nowMs - orient.ts) < SAMPLE_FRESH_MS) {
+        if (!sixAxisSawData) {
+          sixAxisSawData = true;
+          setT('gyroTag', 'LIVE');
+          log('sixAxis: first orientation sample');
+        }
+        if (nowMs - lastSensorTextMs >= 100) {
+          lastSensorTextMs = nowMs;
+          setT('gPitch', orient.beta.toFixed(1) + '°');
+          setT('gRoll', orient.gamma.toFixed(1) + '°');
+          setT('gYaw', orient.alpha.toFixed(1) + '°');
+          setT('accelText', 'X ' + motion.x.toFixed(2) + ' · Y ' + motion.y.toFixed(2) + ' · Z ' + motion.z.toFixed(2));
+        }
+        // deviceorientation angles are degrees — convert and feed the cube's
+        // rotX(pitch)·rotY(yaw)·rotZ(roll) builder. Gamma is negated so a
+        // rightward tilt reads as a rightward roll on screen; flip signs to
+        // taste if the tracking feels mirrored on a given device.
+        cubeRotation[0] = orient.beta * D2R;
+        cubeRotation[1] = orient.alpha * D2R;
+        cubeRotation[2] = -orient.gamma * D2R;
+        // Slide the auto-rotate phase forward in sync with wall-clock so a
+        // fall-back to applyCubeAutoRotation (events momentarily stalled)
+        // picks up at the right time instead of jumping back to t=0.
+        cubeAutoStartT = nowMs;
+      } else {
+        // No fresh sample — idle auto-rotate so the cube isn't dead. Covers
+        // desktops with no IMU and any transient stall between events.
+        applyCubeAutoRotation();
+      }
+    } catch (e) { log('cube tick err: ' + (e && e.message || e)); }
+    renderGyroCube();
+    framesSinceFps++;
+    const fpsNow = Date.now();
+    if (fpsNow - lastFpsMs >= 5000) {
+      log('[fps] ' + (framesSinceFps / 5).toFixed(1) + ' (sixAxis=' + sixAxisActive + ', 5s avg)');
+      framesSinceFps = 0;
+      lastFpsMs = fpsNow;
+    }
+    cubeLoopRaf = requestAnimationFrame(tick);
+  };
+  tick();
+}
+function stopCubeLoop() {
+  if (cubeLoopRaf) {
+    cancelAnimationFrame(cubeLoopRaf);
+    cubeLoopRaf = null;
+  }
+}
+async function startSixAxis(fromGesture) {
+  if (sixAxisActive) return;
+  // Motion sensors are secure-context-only on every mobile browser.
+  if (!window.isSecureContext) {
+    setT('gyroTag', 'NEEDS HTTPS');
+    setT('gPitch', '—'); setT('gRoll', '—'); setT('gYaw', '—');
+    log('sixAxis: blocked — motion sensors require https:// or localhost');
+    return;
+  }
+  if (typeof DeviceOrientationEvent === 'undefined') {
+    setT('gyroTag', 'NO SENSOR');
+    log('sixAxis: DeviceOrientationEvent not defined');
+    return;
+  }
+  // iOS 13+: requestPermission exists and rejects outside a user gesture.
+  // The load-time auto-start parks at TAP TO START; the card tap (a real
+  // gesture) retries with fromGesture=true and triggers the prompt.
+  const needsPerm = typeof DeviceOrientationEvent.requestPermission === 'function';
+  if (needsPerm) {
+    if (!fromGesture) {
+      setT('gyroTag', 'TAP TO START');
+      log('sixAxis: iOS permission model — waiting for card tap');
+      return;
+    }
+    try {
+      const r = await DeviceOrientationEvent.requestPermission();
+      if (r !== 'granted') {
+        setT('gyroTag', 'DENIED');
+        log('sixAxis: orientation permission ' + r);
+        return;
+      }
+      // Orientation grant usually covers motion too, but ask explicitly so
+      // the accel row can't silently starve on OS versions that split them.
+      if (typeof DeviceMotionEvent !== 'undefined' &&
+          typeof DeviceMotionEvent.requestPermission === 'function') {
+        try { await DeviceMotionEvent.requestPermission(); } catch (_) {}
+      }
+    } catch (e) {
+      setT('gyroTag', 'ERR');
+      log('sixAxis perm err: ' + (e && e.message || e));
+      return;
+    }
+  }
+  window.addEventListener('deviceorientation', onOrient);
+  window.addEventListener('devicemotion', onMotion);
+  sixAxisActive = true;
+  sixAxisSawData = false;
+  setT('gyroTag', 'WAITING…');
+  log('sixAxis started (listeners attached' + (needsPerm ? ', permission granted' : '') + ')');
+  // Desktops attach fine but never fire events — flag it so the tag isn't a
+  // lie. Listeners stay attached; if data shows up later the tick's
+  // first-sample path flips the tag to LIVE.
+  setTimeout(() => {
+    if (sixAxisActive && !sixAxisSawData) {
+      setT('gyroTag', 'NO DATA');
+      setT('gPitch', 'no data'); setT('gRoll', 'no data'); setT('gYaw', 'no data');
+      log('sixAxis: no orientation events within 1500ms (no IMU / desktop?)');
+    }
+  }, 1500);
+}
+function stopSixAxis() {
+  if (!sixAxisActive) return;
+  sixAxisActive = false;
+  window.removeEventListener('deviceorientation', onOrient);
+  window.removeEventListener('devicemotion', onMotion);
+  orient.ts = 0; motion.ts = 0;
+  // Reset the auto-rotate phase so the cube doesn't pop to a random angle.
+  cubeAutoStartT = Date.now();
+  setT('gyroTag', 'IDLE');
+  log('sixAxis stopped');
+}
+
+/* ---- Vibration (navigator.vibrate) — chip click fires the haptic + flips
+ *      `.rumble-bars--active` on the bar row and `.rumble-status--active` on
+ *      the status text, then a setTimeout reverts them after p.holdMs.
+ *      navigator.vibrate is Android-only; on iOS the visual half of the demo
+ *      still runs and the tag says NO API. Chrome requires a user activation
+ *      for vibrate — a chip click qualifies. */
+const rInt = document.getElementById('rumbleInt');
+const rPat = document.getElementById('rumblePat');
+const rBars = document.getElementById('rumbleBars');
+const rStatus = document.getElementById('rumbleStatus');
+let rumbleClearTimer;
+const rumbleSupported = typeof navigator.vibrate === 'function';
+setT('rumbleTag', rumbleSupported ? 'VIBRATION API' : 'NO API');
+// holdMs MUST stay below the CSS animation duration (900ms) — see the
+// comment on the @keyframes block.
+const patterns = {
+  light: { int: 25,  vib: [30],                  holdMs: 600 },
+  pulse: { int: 55,  vib: [60, 40, 60],          holdMs: 750 },
+  wave:  { int: 70,  vib: [40, 30, 80, 30, 120], holdMs: 800 },
+  heavy: { int: 100, vib: [200],                 holdMs: 750 },
+};
+// Per-pattern class on the bar row picks which @keyframes set animates the
+// bars. Removing the previous one matters — two pattern classes at once
+// would have an undefined cascade winner.
+const RUMBLE_PATTERN_CLASSES = ['rumble-bars--light', 'rumble-bars--pulse', 'rumble-bars--wave', 'rumble-bars--heavy'];
+const rumbleChips = document.querySelectorAll('.rumble-chip');
+log('rumble-chip handlers bound: ' + rumbleChips.length + ', vibrate=' + rumbleSupported);
+rumbleChips.forEach(c => c.addEventListener('click', () => {
+  const tag = c.getAttribute('data-r');
+  log('rumble-chip clicked: ' + tag);
+  const p = patterns[tag];
+  document.querySelectorAll('.rumble-chip').forEach(x => x.classList.remove('active'));
+  c.classList.add('active');
+  rBars.classList.remove(...RUMBLE_PATTERN_CLASSES);
+  rBars.classList.add('rumble-bars--' + tag);
+  rBars.classList.add('rumble-bars--active');
+  rStatus.classList.add('rumble-status--active');
+  rStatus.textContent = rumbleSupported ? 'Vibrating' : 'Visual only (no Vibration API)';
+  rInt.textContent = p.int + '%';
+  // Non-breaking space between numbers and unit keeps the pattern on one line.
+  rPat.textContent = p.vib.join('·') + '\u00a0ms';
+  try {
+    const fired = rumbleSupported ? navigator.vibrate(p.vib) : false;
+    log('vibrate ' + tag + ' fired=' + fired);
+  } catch (e) { log('vibrate err: ' + (e && e.message || e)); }
+  clearTimeout(rumbleClearTimer);
+  rumbleClearTimer = setTimeout(() => {
+    c.classList.remove('active');
+    rBars.classList.remove('rumble-bars--active');
+    rBars.classList.remove(...RUMBLE_PATTERN_CLASSES);
+    rStatus.classList.remove('rumble-status--active');
+    rStatus.textContent = 'Idle';
+    rInt.textContent = '0%';
+  }, p.holdMs);
+}));
+
+/* ---- Master refresh ---- */
+async function refreshAll(reason) {
+  const t0 = Date.now();
+  log('=== refreshAll start (' + (reason || 'manual') + ') ===');
+  const tBat = Date.now(); await pollBattery();
+  const tDisp = Date.now(); pollDisplay();
+  const tNet = Date.now(); pollNetwork();
+  const tStore = Date.now(); await pollStorage();
+  const tEnd = Date.now();
+  log('=== refreshAll done in ' + (tEnd - t0) + 'ms'
+    + ' [bat=' + (tDisp - tBat) + 'ms'
+    + ' disp=' + (tNet - tDisp) + 'ms'
+    + ' net=' + (tStore - tNet) + 'ms'
+    + ' store=' + (tEnd - tStore) + 'ms] ===');
+}
+
+/* Change-event wiring — replaces the Switch build's 2s live-poll interval. */
+window.addEventListener('resize', pollDisplay);
+if (screen.orientation && screen.orientation.addEventListener) {
+  screen.orientation.addEventListener('change', pollDisplay);
+}
+window.addEventListener('online', pollNetwork);
+window.addEventListener('offline', pollNetwork);
+const _conn = navigator.connection || navigator.webkitConnection || navigator.mozConnection;
+if (_conn && _conn.addEventListener) _conn.addEventListener('change', pollNetwork);
+
+/* Hooks: Gyro card tap toggles live six-axis sampling. On iOS this tap is
+ * also the user gesture that unlocks the permission prompt. */
+const gyroCard = document.getElementById('gyroCard');
+if (gyroCard) gyroCard.addEventListener('click', () => {
+  if (sixAxisActive) stopSixAxis(); else startSixAxis(true);
+});
+
+/* Cleanup — pagehide, not unload: unload is unreliable on mobile (bfcache,
+ * app-switch kills). */
+window.addEventListener('pagehide', () => {
+  stopSixAxis();
+  stopCubeLoop();
+});
+
+/* Initial poll on load. Six-axis auto-starts where no permission gate exists
+ * (Android/desktop); on iOS it parks at TAP TO START until the card tap. */
+log('--- page loaded viewport=' + window.innerWidth + 'x' + window.innerHeight
+  + ' dpr=' + (window.devicePixelRatio || 1)
+  + ' secure=' + window.isSecureContext + ' ---');
+
+refreshAll('load');
+wireBatteryEvents();
+startSixAxis(false);
+startCubeLoop();
+</script>
+</body>
+</html>
