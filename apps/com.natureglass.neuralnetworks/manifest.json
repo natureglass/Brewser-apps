@@ -1,0 +1,27 @@
+{
+    "id": "com.natureglass.neuralnetworks",
+    "name": "Neural Networks",
+    "version": "1.0.1",
+    "description": "<p>Neural Networks Demo</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Automation",
+        "Robotics"
+    ],
+    "permissions": [],
+    "compatibility": [
+        "web"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "genre": [
+        "Social"
+    ],
+    "features": [
+        "WebNN"
+    ]
+}
