@@ -1,0 +1,27 @@
+{
+    "id": "com.natureglass.saveleaderboardsdemo",
+    "name": "Save & Leaderboards Demo",
+    "version": "1.0.0",
+    "description": "<p>Save &amp; Leaderboards Demo</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Demos"
+    ],
+    "permissions": [],
+    "compatibility": [
+        "switch",
+        "web"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "genre": [
+        "Experience"
+    ],
+    "tags": [
+        "Save"
+    ]
+}

@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brewser Save Demo</title>
+<style>
+:root{
+	--bg:#07050e; --panel:#0e0a1d; --panel2:#141028; --border:#5b21b6;
+	--border-soft:#2e1f57; --line:rgba(139,92,246,.18); --text:#e6e1f5;
+	--muted:#9d94c4; --cyan:#22d3ee; --yellow:#f5d90a; --green:#22c55e; --red:#fca5a5;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Segoe UI",Roboto,Arial,sans-serif;font-size:15px;line-height:1.5;padding:24px}
+.wrap{max-width:760px;margin:0 auto}
+h1{color:var(--cyan);font-size:24px;margin:0 0 4px}
+.tagline{color:var(--muted);margin:0 0 20px;font-size:14px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin-bottom:16px}
+.card h2{margin:0 0 12px;font-size:15px;color:var(--yellow)}
+label{display:block;color:var(--muted);font-size:13px;margin-bottom:6px}
+textarea{width:100%;min-height:120px;background:var(--panel2);color:var(--text);border:1px solid var(--border-soft);border-radius:8px;padding:10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;resize:vertical}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+button{appearance:none;border:1px solid transparent;border-radius:8px;padding:9px 18px;font:inherit;font-weight:700;cursor:pointer}
+.btn-save{background:var(--green);color:#062812}
+.btn-load{background:var(--cyan);color:#04222a}
+.btn-ghost{background:var(--panel2);color:var(--text);border-color:var(--border-soft)}
+button:disabled{opacity:.5;cursor:not-allowed}
+.state{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.state{grid-template-columns:1fr}}
+.tier{background:var(--panel2);border:1px solid var(--border-soft);border-radius:8px;padding:12px}
+.tier h3{margin:0 0 8px;font-size:13px;color:var(--cyan);display:flex;justify-content:space-between;align-items:center}
+.tier pre{margin:0;font-size:12px;color:var(--text);white-space:pre-wrap;word-break:break-word;max-height:140px;overflow:auto}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-left:6px}
+.dot.on{background:var(--green)}.dot.off{background:var(--border-soft)}
+.log{font-family:ui-monospace,monospace;font-size:12px;color:var(--muted);background:var(--panel2);border:1px solid var(--border-soft);border-radius:8px;padding:10px;max-height:160px;overflow:auto}
+.log div{padding:1px 0}
+.log .ok{color:var(--green)}.log .err{color:var(--red)}.log .info{color:var(--cyan)}
+.auth{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.pill{font-size:12px;padding:3px 10px;border-radius:999px;border:1px solid var(--border-soft);color:var(--muted)}
+.pill.in{color:var(--green);border-color:var(--green)}
+a{color:var(--cyan)}
+</style>
+</head>
+<body>
+<div class="wrap">
+	<h1>Brewser Save Demo</h1>
+	<p class="tagline">Tests the two-tier save system: instant localStorage + background account sync. Package id: <code id="pkgid">—</code></p>
+
+	<div class="auth">
+		<span class="pill" id="authpill">Checking sign-in…</span>
+		<button class="btn-ghost" id="signinbtn" style="display:none">Sign in with Google</button>
+	</div>
+
+	<div class="card">
+		<h2>Your data</h2>
+		<label>Edit the JSON, then Save. (This is your app's save blob — any JSON works.)</label>
+		<textarea id="editor">[
+  { "id": 1, "name": "Alice", "score": 1200, "level": 5 }
+]</textarea>
+		<div class="row">
+			<button class="btn-save" id="save">Save</button>
+			<button class="btn-load" id="load">Load</button>
+			<button class="btn-ghost" id="syncnow">Sync now</button>
+			<button class="btn-ghost" id="pull">Pull from account</button>
+			<button class="btn-ghost" id="clearlocal">Clear local</button>
+		</div>
+	</div>
+
+	<div class="card">
+		<h2>Records (put / get / update / remove / list)</h2>
+		<label>Record fields as JSON (id and timestamps are added automatically):</label>
+		<textarea id="receditor" style="min-height:70px">{ "name": "Alice", "score": 1200, "level": 5 }</textarea>
+		<div class="row">
+			<button class="btn-save" id="recput">Put (add)</button>
+			<button class="btn-ghost" id="recupdate">Update selected</button>
+			<button class="btn-ghost" id="recremove">Remove selected</button>
+			<button class="btn-ghost" id="recrefresh">List</button>
+		</div>
+		<div style="margin-top:12px">
+			<label>Records (click one to select it):</label>
+			<div id="reclist" class="log" style="max-height:200px"></div>
+		</div>
+	</div>
+
+	<div class="card">
+		<h2>Leaderboard <span style="color:var(--muted);font-weight:400;font-size:12px">(separate from saves — public, ranked scores)</span></h2>
+		<label>Direction (how this app ranks). Set once; the server remembers it per app.</label>
+		<div class="row" style="margin-top:6px">
+			<label style="display:flex;align-items:center;gap:6px;margin:0;color:var(--text)">
+				<input type="radio" name="lborder" value="desc" checked> High wins (points)
+			</label>
+			<label style="display:flex;align-items:center;gap:6px;margin:0;color:var(--text)">
+				<input type="radio" name="lborder" value="asc"> Low wins (times)
+			</label>
+		</div>
+		<div class="row" style="margin-top:12px;align-items:flex-end">
+			<div style="flex:1;min-width:120px">
+				<label>Score</label>
+				<input id="lbscore" type="number" value="1200" style="width:100%;background:var(--panel2);color:var(--text);border:1px solid var(--border-soft);border-radius:8px;padding:9px">
+			</div>
+			<div style="flex:1;min-width:120px">
+				<label>Name (optional)</label>
+				<input id="lbname" type="text" placeholder="Alice" style="width:100%;background:var(--panel2);color:var(--text);border:1px solid var(--border-soft);border-radius:8px;padding:9px">
+			</div>
+		</div>
+		<div class="row">
+			<button class="btn-save" id="lbsubmit">Submit score</button>
+			<button class="btn-load" id="lblist">Top 10</button>
+			<button class="btn-ghost" id="lbaround">Around me</button>
+			<button class="btn-ghost" id="lbme">My rank</button>
+			<button class="btn-ghost" id="lbremove">Remove my entry</button>
+		</div>
+		<div style="margin-top:12px">
+			<div id="lbview" class="log" style="max-height:260px">(submit a score, then Top 10)</div>
+		</div>
+	</div>
+
+	<div class="card">
+		<h2>State</h2>
+		<div class="state">
+			<div class="tier">
+				<h3>This browser (localStorage)<span class="dot off" id="localdot"></span></h3>
+				<pre id="localview">—</pre>
+			</div>
+			<div class="tier">
+				<h3>Your account (server)<span class="dot off" id="serverdot"></span></h3>
+				<pre id="serverview">—</pre>
+			</div>
+		</div>
+	</div>
+
+	<div class="card">
+		<h2>Activity</h2>
+		<div class="log" id="log"></div>
+	</div>
+</div>
+
+<!-- The SDK. In a real app this is the only include needed. -->
+<script src="./brewser.js"></script>
+<script>
+(function () {
+	'use strict';
+
+	// Demo-only auth config. The demo talks to the same Brewser Auth endpoints
+	// as the navigator. For a real app running inside the Brewser player, the
+	// token arrives automatically (window.__brewserAuthToken or postMessage).
+	var AUTH_ORIGIN = 'https://brewser.tech';
+	var AUTH_START = AUTH_ORIGIN + '/wp-json/brewser/v1/auth/start';
+	var AUTH_STORE = 'brewser_auth';
+
+	// This demo isn't under /apps/{group}/{id}/, so set an explicit package id.
+	brewser.configure({
+		packageId: 'com.natureglass.savedemo',
+		onSync: function (status, extra) {
+			if (status === 'pushing') log('info', 'Syncing to account…');
+			else if (status === 'synced') log('ok', 'Synced to account (updatedAt ' + extra.updatedAt + ')');
+			else if (status === 'offline') log('err', 'Offline — will sync later');
+			else if (status === 'unauth') log('err', 'Not signed in — saved locally only');
+			else if (status === 'error') log('err', 'Sync error: ' + extra.error);
+			refreshServer();
+		}
+	});
+
+	document.getElementById('pkgid').textContent = 'com.natureglass.savedemo';
+
+	// --- token bridge: reuse the navigator's stored session for the demo -----
+	function storedToken() {
+		try {
+			var raw = localStorage.getItem(AUTH_STORE);
+			if (!raw) return null;
+			var s = JSON.parse(raw);
+			if (!s || !s.token || !s.user || (s.user.exp && s.user.exp * 1000 <= Date.now())) return null;
+			return s;
+		} catch (e) { return null; }
+	}
+
+	function applyToken() {
+		var s = storedToken();
+		if (s) { brewser.configure({ token: s.token }); }
+		return s;
+	}
+
+	function updateAuthUI() {
+		var s = applyToken();
+		var pill = document.getElementById('authpill');
+		var btn = document.getElementById('signinbtn');
+		if (s) {
+			pill.textContent = 'Signed in: ' + (s.user.name || s.user.email || 'you');
+			pill.className = 'pill in';
+			btn.style.display = 'none';
+		} else {
+			pill.textContent = 'Not signed in (local-only)';
+			pill.className = 'pill';
+			btn.style.display = '';
+		}
+	}
+
+	document.getElementById('signinbtn').addEventListener('click', function () {
+		var w = 500, h = 620, left = (screen.width - w) / 2, top = (screen.height - h) / 2;
+		var popup = window.open(AUTH_START + '?redirect_origin=' + encodeURIComponent(location.origin),
+			'brewser-auth', 'width=' + w + ',height=' + h + ',left=' + left + ',top=' + top);
+		function onMsg(e) {
+			if (e.origin !== AUTH_ORIGIN) return;
+			if (!e.data || e.data.type !== 'brewser-auth') return;
+			window.removeEventListener('message', onMsg);
+			if (e.data.ok && e.data.token) {
+				try { localStorage.setItem(AUTH_STORE, JSON.stringify({ token: e.data.token, user: e.data.user })); } catch (x) {}
+				log('ok', 'Signed in');
+				updateAuthUI();
+				refreshServer();
+			} else {
+				log('err', 'Sign-in failed: ' + (e.data.error || '')); 
+			}
+			try { if (popup && !popup.closed) popup.close(); } catch (x) {}
+		}
+		window.addEventListener('message', onMsg);
+	});
+
+	// --- logging + views -----------------------------------------------------
+	function log(kind, msg) {
+		var el = document.getElementById('log');
+		var line = document.createElement('div');
+		line.className = kind;
+		line.textContent = '[' + new Date().toLocaleTimeString() + '] ' + msg;
+		el.insertBefore(line, el.firstChild);
+	}
+
+	function refreshLocal() {
+		var data = brewser.load();
+		var info = brewser.info();
+		var view = document.getElementById('localview');
+		var dot = document.getElementById('localdot');
+		if (data === null) {
+			view.textContent = '(empty)';
+			dot.className = 'dot off';
+		} else {
+			view.textContent = JSON.stringify(data, null, 2) + '\n\nupdatedAt: ' + (info ? info.updatedAt : '?');
+			dot.className = 'dot on';
+		}
+	}
+
+	function refreshServer() {
+		var view = document.getElementById('serverview');
+		var dot = document.getElementById('serverdot');
+		if (!brewser.canSync()) {
+			view.textContent = '(sign in to see account copy)';
+			dot.className = 'dot off';
+			return;
+		}
+		view.textContent = 'loading…';
+		brewser.pull().then(function (res) {
+			if (res.ok && res.data !== null) {
+				view.textContent = JSON.stringify(res.data, null, 2) + '\n\nupdatedAt: ' + res.updatedAt;
+				dot.className = 'dot on';
+			} else if (res.ok) {
+				view.textContent = '(no account save yet)';
+				dot.className = 'dot off';
+			} else {
+				view.textContent = '(' + res.reason + ')';
+				dot.className = 'dot off';
+			}
+		});
+	}
+
+	// --- buttons -------------------------------------------------------------
+	document.getElementById('save').addEventListener('click', function () {
+		var raw = document.getElementById('editor').value;
+		var data;
+		try { data = JSON.parse(raw); }
+		catch (e) { log('err', 'Not valid JSON: ' + e.message); return; }
+		brewser.save(data);
+		log('ok', 'Saved locally (instant)');
+		refreshLocal();
+	});
+
+	document.getElementById('load').addEventListener('click', function () {
+		var data = brewser.load();
+		if (data === null) { log('info', 'Nothing saved in this browser'); return; }
+		document.getElementById('editor').value = JSON.stringify(data, null, 2);
+		log('ok', 'Loaded from this browser');
+	});
+
+	document.getElementById('syncnow').addEventListener('click', function () {
+		brewser.sync().then(function (res) {
+			if (res.ok) log('ok', 'Force-synced to account');
+			else log('err', 'Sync now: ' + res.reason);
+		});
+	});
+
+	document.getElementById('pull').addEventListener('click', function () {
+		brewser.pull({ adopt: true }).then(function (res) {
+			if (res.ok && res.data !== null) {
+				document.getElementById('editor').value = JSON.stringify(res.data, null, 2);
+				log('ok', 'Pulled account copy into this browser');
+				refreshLocal();
+			} else if (res.ok) {
+				log('info', 'No account save to pull');
+			} else {
+				log('err', 'Pull failed: ' + res.reason);
+			}
+		});
+	});
+
+	document.getElementById('clearlocal').addEventListener('click', function () {
+		brewser.clearLocal();
+		log('info', 'Cleared local save');
+		refreshLocal();
+		refreshRecords();
+	});
+
+	// --- records ------------------------------------------------------------
+	var selectedId = null;
+
+	function refreshRecords() {
+		var list = brewser.list({ sortBy: 'createdAt' });
+		var box = document.getElementById('reclist');
+		box.textContent = '';
+		if (!list.length) {
+			var empty = document.createElement('div');
+			empty.textContent = '(no records)';
+			box.appendChild(empty);
+			return;
+		}
+		list.forEach(function (rec) {
+			var line = document.createElement('div');
+			line.style.cursor = 'pointer';
+			line.style.padding = '3px 4px';
+			if (rec.id === selectedId) { line.style.background = 'var(--panel)'; line.style.borderRadius = '4px'; }
+			var when = new Date(rec.updatedAt).toLocaleTimeString();
+			line.textContent = (rec.id === selectedId ? '▸ ' : '  ') + rec.id + '  ' + JSON.stringify(stripMeta(rec)) + '  · ' + when;
+			line.addEventListener('click', function () {
+				selectedId = rec.id;
+				document.getElementById('receditor').value = JSON.stringify(stripMeta(rec), null, 2);
+				log('info', 'Selected record ' + rec.id);
+				refreshRecords();
+			});
+			box.appendChild(line);
+		});
+	}
+
+	// Show record fields without the SDK-managed metadata.
+	function stripMeta(rec) {
+		var out = {};
+		for (var k in rec) {
+			if (k !== 'id' && k !== 'createdAt' && k !== 'updatedAt') { out[k] = rec[k]; }
+		}
+		return out;
+	}
+
+	function parseRecEditor() {
+		try { return JSON.parse(document.getElementById('receditor').value); }
+		catch (e) { log('err', 'Record JSON invalid: ' + e.message); return undefined; }
+	}
+
+	document.getElementById('recput').addEventListener('click', function () {
+		var rec = parseRecEditor();
+		if (rec === undefined) { return; }
+		var id = brewser.put(rec);
+		selectedId = id;
+		log('ok', 'Put record ' + id);
+		refreshRecords(); refreshLocal();
+	});
+
+	document.getElementById('recupdate').addEventListener('click', function () {
+		if (!selectedId) { log('err', 'Select a record first'); return; }
+		var changes = parseRecEditor();
+		if (changes === undefined) { return; }
+		var updated = brewser.update(selectedId, changes);
+		if (updated) { log('ok', 'Updated ' + selectedId); refreshRecords(); refreshLocal(); }
+		else { log('err', 'Record not found: ' + selectedId); }
+	});
+
+	document.getElementById('recremove').addEventListener('click', function () {
+		if (!selectedId) { log('err', 'Select a record first'); return; }
+		if (brewser.remove(selectedId)) {
+			log('ok', 'Removed ' + selectedId);
+			selectedId = null;
+			refreshRecords(); refreshLocal();
+		} else { log('err', 'Record not found'); }
+	});
+
+	document.getElementById('recrefresh').addEventListener('click', refreshRecords);
+
+	// --- leaderboard --------------------------------------------------------
+	function currentOrder() {
+		var els = document.getElementsByName('lborder');
+		for (var i = 0; i < els.length; i++) { if (els[i].checked) { return els[i].value; } }
+		return 'desc';
+	}
+
+	// Declare direction whenever it changes (and once at boot).
+	function applyLbOrder() {
+		brewser.leaderboards.config({ order: currentOrder() });
+	}
+	(function () {
+		var els = document.getElementsByName('lborder');
+		for (var i = 0; i < els.length; i++) { els[i].addEventListener('change', applyLbOrder); }
+	})();
+
+	function renderBoard(res, opts) {
+		opts = opts || {};
+		var box = document.getElementById('lbview');
+		box.textContent = '';
+		if (!res.ok) {
+			var e = document.createElement('div');
+			e.className = 'err';
+			e.textContent = 'Leaderboard: ' + (res.reason || res.error || 'error');
+			box.appendChild(e);
+			return;
+		}
+		var head = document.createElement('div');
+		head.className = 'info';
+		head.textContent = (opts.title || 'Top') + ' · order=' + res.order + ' · ' + res.count + ' player' + (res.count === 1 ? '' : 's');
+		box.appendChild(head);
+
+		var rows = opts.window && res.window ? res.window : res.top;
+		if (!rows || !rows.length) {
+			var none = document.createElement('div');
+			none.textContent = '(no scores yet)';
+			box.appendChild(none);
+		} else {
+			rows.forEach(function (row) {
+				var line = document.createElement('div');
+				if (row.isMe) { line.className = 'ok'; }
+				line.textContent = '#' + row.rank + '  ' + (row.name || '(anon)') + '  —  ' + row.score + (row.isMe ? '   ← you' : '');
+				box.appendChild(line);
+			});
+		}
+		if (res.me && !opts.window) {
+			var mine = document.createElement('div');
+			mine.className = 'info';
+			mine.style.marginTop = '6px';
+			mine.textContent = 'You: rank #' + res.me.rank + ' (' + res.me.score + ')';
+			box.appendChild(mine);
+		}
+	}
+
+	document.getElementById('lbsubmit').addEventListener('click', function () {
+		applyLbOrder();
+		var score = parseFloat(document.getElementById('lbscore').value);
+		if (isNaN(score)) { log('err', 'Score must be a number'); return; }
+		var name = document.getElementById('lbname').value.trim();
+		brewser.leaderboards.submit(score, { name: name }).then(function (res) {
+			if (res.ok) {
+				log('ok', 'Score submitted — best ' + res.best + ', rank #' + res.rank +
+					(res.updated ? ' (new best)' : ' (kept previous best)') +
+					(res.onBoard === false ? ' — not on board (below cutoff)' : ''));
+				brewser.leaderboards.list(10).then(function (r) { renderBoard(r, { title: 'Top 10' }); });
+			} else if (res.reason === 'unauth') {
+				log('err', 'Sign in to submit a score');
+			} else {
+				log('err', 'Submit failed: ' + (res.error || res.reason));
+			}
+		});
+	});
+
+	document.getElementById('lblist').addEventListener('click', function () {
+		brewser.leaderboards.list(10).then(function (r) {
+			renderBoard(r, { title: 'Top 10' });
+			log(r.ok ? 'ok' : 'err', r.ok ? 'Loaded top 10' : ('List failed: ' + (r.error || r.reason)));
+		});
+	});
+
+	document.getElementById('lbaround').addEventListener('click', function () {
+		brewser.leaderboards.aroundMe(3).then(function (r) {
+			if (r.ok && r.me) { renderBoard(r, { title: 'Around you', window: true }); log('ok', 'Loaded neighborhood'); }
+			else if (r.ok) { log('info', 'You have no score yet — submit one first'); }
+			else { log('err', r.reason === 'unauth' ? 'Sign in to see your neighborhood' : ('Failed: ' + (r.error || r.reason))); }
+		});
+	});
+
+	document.getElementById('lbme').addEventListener('click', function () {
+		brewser.leaderboards.me().then(function (r) {
+			if (r.ok && r.me) { log('ok', 'Your rank: #' + r.me.rank + ' with ' + r.me.score); }
+			else if (r.ok) { log('info', 'You are not on this board yet'); }
+			else { log('err', r.reason === 'unauth' ? 'Sign in to see your rank' : ('Failed: ' + (r.error || r.reason))); }
+		});
+	});
+
+	document.getElementById('lbremove').addEventListener('click', function () {
+		brewser.leaderboards.remove().then(function (r) {
+			if (r.ok) {
+				log('ok', 'Removed your leaderboard entry');
+				brewser.leaderboards.list(10).then(function (rr) { renderBoard(rr, { title: 'Top 10' }); });
+			} else {
+				log('err', r.reason === 'unauth' ? 'Sign in first' : ('Remove failed: ' + (r.error || r.reason)));
+			}
+		});
+	});
+
+	// --- boot ----------------------------------------------------------------
+	updateAuthUI();
+	refreshLocal();
+	refreshRecords();
+	refreshServer();
+	applyLbOrder();
+	brewser.leaderboards.list(10).then(function (r) { renderBoard(r, { title: 'Top 10' }); });
+	log('info', 'Ready. Save writes locally instantly; account sync runs in the background.');
+})();
+</script>
+</body>
+</html>
