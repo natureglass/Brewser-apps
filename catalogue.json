@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-07-21T14:44:40Z",
+  "generated": "2026-07-22T09:56:40Z",
   "apps": [
     {
       "id": "com.natureglass.fluiddynamics",
@@ -169,7 +169,7 @@
     {
       "id": "com.natureglass.speedtest",
       "name": "Speed Test",
-      "version": "1.0.1",
+      "version": "1.0.3",
       "description": "<p>Speed Test</p>",
       "logo": "assets/appbanner.jpg",
       "entry": "index.html",
@@ -197,7 +197,7 @@
         "Internet",
         "Speed"
       ],
-      "sizeBytes": 1492695
+      "sizeBytes": 1497264
     },
     {
       "id": "com.natureglass.streamcast",
