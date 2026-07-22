@@ -106,7 +106,7 @@
     .controls {
       flex: 0 0 auto;
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: 1fr;
       gap: 12px;
       padding: 0 24px 24px;
     }
@@ -124,6 +124,14 @@
 
     input:focus, select:focus { border-color: rgba(101, 214, 255, .65); }
 
+    /* The open dropdown's option rows default to a near-white system
+     * background; paint them #444 so the resting (non-hovered) rows match
+     * the dark UI. */
+    select option {
+      background: #444444;
+      color: var(--text);
+    }
+
     button {
       background: linear-gradient(135deg, #65d6ff, #54e3a6);
       color: #07111c;
@@ -139,8 +147,10 @@
     .side {
       padding: 22px;
       display: grid;
+      /* metrics + config size to content; the log row takes all the space
+       * left in the column so it fills down to the bottom of the card. */
+      grid-template-rows: auto auto 1fr;
       gap: 14px;
-      align-content: start;
       min-height: 0;
       overflow: hidden;
     }
@@ -185,8 +195,10 @@
       border: 1px solid var(--border);
       border-radius: 20px;
       padding: 14px;
-      min-height: 180px;
-      max-height: 230px;
+      /* min-height:0 lets the 1fr grid row shrink this below its content
+       * so it stretches to fill the leftover space instead of capping at a
+       * fixed height; overflow keeps long diagnostics scrollable. */
+      min-height: 0;
       overflow: auto;
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       font-size: 12px;
@@ -198,7 +210,6 @@
     .config {
       display: grid;
       gap: 10px;
-      display: none;
     }
 
     .config-row {
@@ -262,11 +273,6 @@
 
       <div class="controls">
         <button id="startBtn">Start speed test</button>
-        <select id="testSize">
-          <option value="small">Small test</option>
-          <option value="normal" selected>Normal test</option>
-          <option value="large">Large test</option>
-        </select>
       </div>
     </section>
 
@@ -293,11 +299,11 @@
       <section class="config">
         <div class="config-row">
           <label for="downloadEndpoint">Download endpoint</label>
-          <input id="downloadEndpoint" value="https://speed.cloudflare.com/__down?bytes={bytes}" />
+          <input id="downloadEndpoint" value="https://speed.cloudflare.com/__down?bytes={bytes}" disabled />
         </div>
         <div class="config-row">
           <label for="uploadEndpoint">Upload endpoint</label>
-          <input id="uploadEndpoint" value="https://speed.cloudflare.com/__up" />
+          <input id="uploadEndpoint" value="https://speed.cloudflare.com/__up" disabled/>
         </div>
       </section>
 
@@ -322,7 +328,6 @@
     const upResultEl = document.getElementById('upResult');
     const pingEl = document.getElementById('ping');
     const logEl = document.getElementById('log');
-    const testSizeEl = document.getElementById('testSize');
     const downloadEndpointEl = document.getElementById('downloadEndpoint');
     const uploadEndpointEl = document.getElementById('uploadEndpoint');
 
@@ -431,40 +436,67 @@
     }
 
     async function measureUpload({ bytes, endpoint, onProgress }) {
-      const chunkSize = 256 * 1024;
-      const chunks = Math.ceil(bytes / chunkSize);
-      const parts = [];
-      const started = performance.now();
+      // Real upload progress. fetch() exposes no in-flight upload callback on
+      // this engine, so instead of one big POST we send the payload as a
+      // sequence of smaller POSTs. Each POST that resolves means that chunk
+      // was actually pushed over the network, so cumulative bytes-sent /
+      // cumulative-elapsed is a genuine throughput sample we can report per
+      // chunk — and the needle tracks the real transfer rather than jumping
+      // once at the end.
+      //
+      // ~1 MB chunks: enough updates (~16 on the large profile) for a smooth
+      // needle, while large enough that per-request round-trip overhead stays
+      // a minor fraction of each send.
+      const chunkSize = 1 * 1024 * 1024;
 
-      for (let i = 0; i < chunks; i++) {
-        const size = Math.min(chunkSize, bytes - i * chunkSize);
-        const data = new Uint8Array(size);
-        fillRandomBytes(data);
-        parts.push(data);
-        const elapsed = Math.max((performance.now() - started) / 1000, 0.001);
-        onProgress(((i + 1) * chunkSize * 8) / elapsed / 1_000_000);
-        await new Promise(requestAnimationFrame);
+      // One reusable random buffer. The body bytes are read at fetch-call
+      // time and we never mutate it, so re-sending the same buffer is safe
+      // and avoids re-running crypto.getRandomValues for every chunk.
+      const payload = new Uint8Array(chunkSize);
+      fillRandomBytes(payload);
+
+      // Chunk sizes covering `bytes` (last chunk may be short).
+      const sizes = [];
+      for (let remaining = bytes; remaining > 0; remaining -= chunkSize) {
+        sizes.push(Math.min(chunkSize, remaining));
       }
 
-      // Do not set Blob type here. A non-safelisted Content-Type such as
-      // application/octet-stream can trigger a CORS preflight, and many public
-      // upload test endpoints reject that OPTIONS request. Leaving the type
-      // empty lets the browser send a simpler POST.
-      const body = new Blob(parts);
-      const uploadStarted = performance.now();
-      const response = await fetch(endpoint + `${endpoint.includes('?') ? '&' : '?'}cacheBust=${crypto.randomUUID()}`, {
-        method: 'POST',
-        body,
-        cache: 'no-store',
-        mode: 'cors'
-      });
+      async function sendChunk(size) {
+        const view = size === chunkSize ? payload : payload.subarray(0, size);
+        // Wrap in an untyped Blob so the request carries no Content-Type and
+        // stays a simple POST with no CORS preflight (a non-safelisted
+        // Content-Type would trigger an OPTIONS many test endpoints reject).
+        const body = new Blob([view]);
+        const response = await fetch(endpoint + `${endpoint.includes('?') ? '&' : '?'}cacheBust=${crypto.randomUUID()}`, {
+          method: 'POST',
+          body,
+          cache: 'no-store',
+          mode: 'cors'
+        });
+        if (!response.ok) throw new Error(`Upload failed with HTTP ${response.status}`);
+      }
 
-      if (!response.ok) throw new Error(`Upload failed with HTTP ${response.status}`);
+      // Warm-up (discarded): the OS socket send buffer absorbs the first
+      // chunk almost instantly, so its apparent throughput is wildly
+      // inflated — that transient is what spiked the needle into the red on
+      // the down→up switch. Prime the connection with one untimed,
+      // unreported chunk, then measure the rest once the pipe is saturated.
+      if (sizes.length > 1) {
+        await sendChunk(sizes.shift());
+      }
 
-      const elapsed = (performance.now() - uploadStarted) / 1000;
-      const mbps = (bytes * 8) / elapsed / 1_000_000;
-      onProgress(mbps);
-      return mbps;
+      const started = performance.now();
+      let sent = 0;
+
+      for (const size of sizes) {
+        await sendChunk(size);
+        sent += size;
+        const elapsed = Math.max((performance.now() - started) / 1000, 0.001);
+        onProgress((sent * 8) / elapsed / 1_000_000);
+      }
+
+      const elapsed = Math.max((performance.now() - started) / 1000, 0.001);
+      return (sent * 8) / elapsed / 1_000_000;
     }
 
     async function runTest() {
@@ -480,7 +512,7 @@
       startBtn.textContent = 'Testing…';
       setStatus('Starting diagnostics', 'accent');
 
-      const size = testSizeEl.value;
+      const size = 'large';
       const downloadBytes = bytesForSize(size, 'down');
       const uploadBytes = bytesForSize(size, 'up');
       const downloadEndpoint = downloadEndpointEl.value.trim();
@@ -513,10 +545,20 @@
         log(`Downstream complete: ${fmt(down)} Mbps`);
         updateDom();
 
-        await new Promise(resolve => setTimeout(resolve, 450));
+        // Settle the gauge back down before upstream: drop the target to 0
+        // so the needle glides to the start during a 1 s pause, giving a
+        // clean baseline for the upstream ramp instead of carrying the
+        // downstream reading straight into the next phase.
+        state.speed = 0;
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
         state.phase = 'Upstream';
         setStatus('Testing upstream', 'accent');
+        // Reset the auto-scaling gauge range so the upstream needle scales
+        // against the upstream speed, not the (usually higher, spikier)
+        // downstream peak inherited from the previous phase — otherwise an
+        // upstream of similar Mbps reads as near-zero on the dial.
+        state.maxGauge = 100;
         const up = await measureUpload({
           bytes: uploadBytes,
           endpoint: uploadEndpoint,
