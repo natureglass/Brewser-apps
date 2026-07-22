@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-07-22T11:24:42Z",
+  "generated": "2026-07-22T11:29:51Z",
   "apps": [
     {
       "id": "com.natureglass.fluiddynamics",
@@ -102,6 +102,31 @@
         "Simulation"
       ],
       "sizeBytes": 120950
+    },
+    {
+      "id": "com.natureglass.savedemo",
+      "name": "Save Demo",
+      "version": "1.0.0",
+      "description": "<p>Save Demo</p>",
+      "logo": "assets/appbanner.jpg",
+      "entry": "index.html",
+      "categories": [
+        "Demos"
+      ],
+      "permissions": [],
+      "compatibility": [
+        "switch",
+        "web"
+      ],
+      "allowed_origins": [],
+      "developer": "Alex Daskalakis",
+      "license": "MIT",
+      "exitGame": "PLUS",
+      "fullscreen": true,
+      "tags": [
+        "Save"
+      ],
+      "sizeBytes": 61634
     },
     {
       "id": "com.natureglass.sensorsplayground",

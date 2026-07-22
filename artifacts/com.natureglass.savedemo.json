@@ -1,0 +1,11 @@
+{
+  "id": "com.natureglass.savedemo",
+  "sizeBytes": 61634,
+  "files": [
+    "assets/appbanner.jpg",
+    "assets/savedemo.png",
+    "brewser.js",
+    "index.html",
+    "manifest.json"
+  ]
+}
