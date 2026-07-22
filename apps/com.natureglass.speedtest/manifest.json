@@ -1,6 +1,6 @@
 {
     "id": "com.natureglass.speedtest",
-    "name": "Speed Test",
+    "name": "Speed Test 2",
     "version": "1.0.3",
     "description": "<p>Speed Test</p>",
     "logo": "assets/appbanner.jpg",
@@ -23,6 +23,7 @@
     "exitGame": "PLUS",
     "fullscreen": true,
     "genre": [
+        "Experience",
         "Simulation"
     ],
     "tags": [
