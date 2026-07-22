@@ -1,6 +1,6 @@
 {
   "id": "com.natureglass.neuralnetworks",
-  "sizeBytes": 106627,
+  "sizeBytes": 86562,
   "files": [
     "assets/appbanner.jpg",
     "assets/weights.json",

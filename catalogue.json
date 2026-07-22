@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-07-22T12:57:35Z",
+  "generated": "2026-07-22T13:02:23Z",
   "apps": [
     {
       "id": "com.natureglass.fluiddynamics",
@@ -129,7 +129,7 @@
       "features": [
         "WebNN"
       ],
-      "sizeBytes": 106627
+      "sizeBytes": 86562
     },
     {
       "id": "com.natureglass.savedemo",
