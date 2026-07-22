@@ -22,5 +22,8 @@
     "genre": [
         "Rhythm",
         "Simulation"
+    ],
+    "features": [
+        "WebUSB"
     ]
 }
