@@ -1,7 +1,7 @@
 {
     "id": "com.natureglass.savedemo",
     "name": "Save Demo",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "<p>Save Demo</p>",
     "logo": "assets/appbanner.jpg",
     "entry": "index.html",
