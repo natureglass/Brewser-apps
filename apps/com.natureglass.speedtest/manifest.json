@@ -1,7 +1,7 @@
 {
     "id": "com.natureglass.speedtest",
-    "name": "Speed Test 2",
-    "version": "1.0.3",
+    "name": "Speed Test",
+    "version": "1.0.4",
     "description": "<p>Speed Test</p>",
     "logo": "assets/appbanner.jpg",
     "entry": "index.html",
