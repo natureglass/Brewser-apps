@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-07-22T11:49:13Z",
+  "generated": "2026-07-22T11:51:27Z",
   "apps": [
     {
       "id": "com.natureglass.fluiddynamics",
@@ -218,7 +218,7 @@
     {
       "id": "com.natureglass.streamcast",
       "name": "Stream Cast",
-      "version": "1.0.11",
+      "version": "1.0.12",
       "description": "<p>Stream Cast</p>",
       "logo": "assets/appbanner.jpg",
       "entry": "index.html",
@@ -240,13 +240,14 @@
       "exitGame": "PLUS",
       "fullscreen": true,
       "genre": [
-        "Experience"
+        "Social"
       ],
       "tags": [
         "Twitch",
-        "Social"
+        "Stream",
+        "Video"
       ],
-      "sizeBytes": 2975878
+      "sizeBytes": 2969446
     },
     {
       "id": "com.natureglass.webgl2threejsdemos",
