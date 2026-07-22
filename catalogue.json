@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-07-22T09:56:40Z",
+  "generated": "2026-07-22T10:00:29Z",
   "apps": [
     {
       "id": "com.natureglass.fluiddynamics",
@@ -197,7 +197,7 @@
         "Internet",
         "Speed"
       ],
-      "sizeBytes": 1497264
+      "sizeBytes": 1211000
     },
     {
       "id": "com.natureglass.streamcast",
