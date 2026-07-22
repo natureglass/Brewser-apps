@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-07-22T10:00:29Z",
+  "generated": "2026-07-22T11:04:49Z",
   "apps": [
     {
       "id": "com.natureglass.fluiddynamics",
@@ -168,7 +168,7 @@
     },
     {
       "id": "com.natureglass.speedtest",
-      "name": "Speed Test",
+      "name": "Speed Test 2",
       "version": "1.0.3",
       "description": "<p>Speed Test</p>",
       "logo": "assets/appbanner.jpg",
@@ -191,13 +191,14 @@
       "exitGame": "PLUS",
       "fullscreen": true,
       "genre": [
+        "Experience",
         "Simulation"
       ],
       "tags": [
         "Internet",
         "Speed"
       ],
-      "sizeBytes": 1211000
+      "sizeBytes": 1211024
     },
     {
       "id": "com.natureglass.streamcast",
