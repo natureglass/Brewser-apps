@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-07-22T13:09:37Z",
+  "generated": "2026-07-22T13:12:54Z",
   "apps": [
     {
       "id": "com.natureglass.fluiddynamics",
@@ -106,7 +106,7 @@
     {
       "id": "com.natureglass.neuralnetworks",
       "name": "Neural Networks",
-      "version": "1.0.1",
+      "version": "1.0.2",
       "description": "<p>Neural Networks Demo</p>",
       "logo": "assets/appbanner.jpg",
       "entry": "index.html",
@@ -129,7 +129,7 @@
       "features": [
         "WebNN"
       ],
-      "sizeBytes": 935365
+      "sizeBytes": 935242
     },
     {
       "id": "com.natureglass.savedemo",
