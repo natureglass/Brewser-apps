@@ -1,7 +1,7 @@
 {
     "id": "com.natureglass.neuralnetworks",
     "name": "Neural Networks",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "<p>Neural Networks Demo</p>",
     "logo": "assets/appbanner.jpg",
     "entry": "index.html",

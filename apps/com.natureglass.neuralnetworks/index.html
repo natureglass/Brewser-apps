@@ -102,11 +102,10 @@
   </div>
 
   <p class="foot">
-    Pure standard Web APIs — no <code>brewser.*</code>. Uses real
+    Pure standard Web APIs. Uses real
     <code>navigator.ml</code> where present, otherwise a CPU shim that genuinely
     executes the graph (<code>conv2d → relu → maxpool → conv2d → relu → gemm → softmax</code>).
-    Weights load from <code>assets/weights.json</code> — expand the training set and
-    re-export to improve accuracy without touching this file.
+    Weights load from <code>assets/weights.json</code>.
   </p>
 
 <script type="module">
