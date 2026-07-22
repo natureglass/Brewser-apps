@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-07-22T11:52:34Z",
+  "generated": "2026-07-22T12:57:35Z",
   "apps": [
     {
       "id": "com.natureglass.fluiddynamics",
@@ -102,6 +102,34 @@
         "Simulation"
       ],
       "sizeBytes": 120950
+    },
+    {
+      "id": "com.natureglass.neuralnetworks",
+      "name": "Neural Networks",
+      "version": "1.0.1",
+      "description": "<p>Neural Networks Demo</p>",
+      "logo": "assets/appbanner.jpg",
+      "entry": "index.html",
+      "categories": [
+        "Automation",
+        "Robotics"
+      ],
+      "permissions": [],
+      "compatibility": [
+        "web"
+      ],
+      "allowed_origins": [],
+      "developer": "Alex Daskalakis",
+      "license": "MIT",
+      "exitGame": "PLUS",
+      "fullscreen": true,
+      "genre": [
+        "Social"
+      ],
+      "features": [
+        "WebNN"
+      ],
+      "sizeBytes": 106627
     },
     {
       "id": "com.natureglass.savedemo",
