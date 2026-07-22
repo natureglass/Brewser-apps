@@ -1,0 +1,11 @@
+{
+  "id": "com.natureglass.saveleaderboardsdemo",
+  "sizeBytes": 80527,
+  "files": [
+    "assets/appbanner.jpg",
+    "assets/savedemo.png",
+    "brewser.js",
+    "index.html",
+    "manifest.json"
+  ]
+}

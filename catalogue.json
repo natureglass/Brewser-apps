@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-07-22T11:04:49Z",
+  "generated": "2026-07-22T11:19:21Z",
   "apps": [
     {
       "id": "com.natureglass.fluiddynamics",
@@ -102,6 +102,34 @@
         "Simulation"
       ],
       "sizeBytes": 120950
+    },
+    {
+      "id": "com.natureglass.saveleaderboardsdemo",
+      "name": "Save & Leaderboards Demo",
+      "version": "1.0.0",
+      "description": "<p>Save &amp; Leaderboards Demo</p>",
+      "logo": "assets/appbanner.jpg",
+      "entry": "index.html",
+      "categories": [
+        "Demos"
+      ],
+      "permissions": [],
+      "compatibility": [
+        "switch",
+        "web"
+      ],
+      "allowed_origins": [],
+      "developer": "Alex Daskalakis",
+      "license": "MIT",
+      "exitGame": "PLUS",
+      "fullscreen": true,
+      "genre": [
+        "Experience"
+      ],
+      "tags": [
+        "Save"
+      ],
+      "sizeBytes": 80527
     },
     {
       "id": "com.natureglass.sensorsplayground",
