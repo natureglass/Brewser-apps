@@ -1,0 +1,13 @@
+{
+  "id": "com.natureglass.midilab",
+  "sizeBytes": 118902,
+  "files": [
+    "assets/app.js",
+    "assets/appbanner.jpg",
+    "assets/appbanner.png",
+    "assets/midi-controllers.json",
+    "assets/midi-resolver.js",
+    "index.html",
+    "manifest.json"
+  ]
+}
