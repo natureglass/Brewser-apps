@@ -1,0 +1,10 @@
+{
+  "id": "com.natureglass.test",
+  "sizeBytes": 40368,
+  "files": [
+    "app.js",
+    "assets/appbanner.jpg",
+    "index.html",
+    "manifest.json"
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-07-23T17:19:32Z",
+  "generated": "2026-07-23T18:53:02Z",
   "apps": [
     {
       "id": "com.natureglass.fluiddynamics",
@@ -308,6 +308,27 @@
         "Video"
       ],
       "sizeBytes": 2971059
+    },
+    {
+      "id": "com.natureglass.test",
+      "name": "test",
+      "version": "1.0.1",
+      "description": "<p>test</p>",
+      "logo": "assets/appbanner.jpg",
+      "entry": "index.html",
+      "categories": [
+        "Demos"
+      ],
+      "permissions": [],
+      "compatibility": [
+        "web"
+      ],
+      "allowed_origins": [],
+      "developer": "Alex Daskalakis",
+      "license": "MIT",
+      "exitGame": "PLUS",
+      "fullscreen": true,
+      "sizeBytes": 40368
     },
     {
       "id": "com.natureglass.unitydemoprobe",
