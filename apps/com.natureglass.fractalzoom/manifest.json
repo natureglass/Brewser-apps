@@ -21,6 +21,9 @@
     "genre": [
         "Experience"
     ],
+    "features": [
+        "WebGL 2"
+    ],
     "tags": [
         "Fractals"
     ]
