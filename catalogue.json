@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-07-23T13:42:03Z",
+  "generated": "2026-07-23T13:52:22Z",
   "apps": [
     {
       "id": "com.natureglass.fluiddynamics",
@@ -337,6 +337,31 @@
         "Experimental"
       ],
       "sizeBytes": 93124166
+    },
+    {
+      "id": "com.natureglass.unitydemoprobev2001v2003",
+      "name": "Unity Demo Probe v2001 - v2003",
+      "version": "1.0.0",
+      "description": "<p>Unity Demo Probe v2001 - v2003</p>",
+      "logo": "assets/appbanner.jpg",
+      "entry": "index.html",
+      "categories": [
+        "Demos"
+      ],
+      "permissions": [],
+      "compatibility": [
+        "switch",
+        "web"
+      ],
+      "allowed_origins": [],
+      "developer": "Alex Daskalakis",
+      "license": "MIT",
+      "exitGame": "PLUS",
+      "fullscreen": true,
+      "tags": [
+        "Probe"
+      ],
+      "sizeBytes": 76332075
     },
     {
       "id": "com.natureglass.webgl2threejsdemos",
