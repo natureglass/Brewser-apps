@@ -22,7 +22,8 @@
         "Simulation"
     ],
     "features": [
-        "Motion Sensors"
+        "Motion Sensors",
+        "WebGL 2"
     ],
     "tags": [
         "Physics"
