@@ -1,0 +1,24 @@
+{
+    "id": "com.natureglass.unitydemoprobe",
+    "name": "Unity Demo Probe",
+    "version": "1.0.1",
+    "description": "<p>Unity Demo Probe</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Demos"
+    ],
+    "permissions": [],
+    "compatibility": [
+        "switch",
+        "web"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "tags": [
+        "Experimental"
+    ]
+}
