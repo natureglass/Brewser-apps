@@ -24,6 +24,10 @@
         "Rhythm",
         "Simulation"
     ],
+    "features": [
+        "WebAudio",
+        "WebGL 2"
+    ],
     "tags": [
         "Audio Player",
         "Visualizer"
