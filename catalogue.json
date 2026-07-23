@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-07-23T10:27:47Z",
+  "generated": "2026-07-23T10:28:11Z",
   "apps": [
     {
       "id": "com.natureglass.fluiddynamics",
@@ -120,9 +120,10 @@
         "Simulation"
       ],
       "features": [
+        "WebAudio",
         "WebUSB"
       ],
-      "sizeBytes": 123129
+      "sizeBytes": 123149
     },
     {
       "id": "com.natureglass.neuralnetworks",
