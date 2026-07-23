@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-07-23T13:38:13Z",
+  "generated": "2026-07-23T13:42:03Z",
   "apps": [
     {
       "id": "com.natureglass.fluiddynamics",
@@ -315,9 +315,9 @@
     },
     {
       "id": "com.natureglass.unitydemoprobe",
-      "name": "Unity Demo Probe",
+      "name": "Unity Demo Probe v6000.4.0f1",
       "version": "1.0.1",
-      "description": "<p>Unity Demo Probe</p>",
+      "description": "<p>Unity Demo Probe v6000.4.0f1</p>",
       "logo": "assets/appbanner.jpg",
       "entry": "index.html",
       "categories": [
@@ -336,7 +336,7 @@
       "tags": [
         "Experimental"
       ],
-      "sizeBytes": 93124142
+      "sizeBytes": 93124166
     },
     {
       "id": "com.natureglass.webgl2threejsdemos",
