@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-07-23T10:26:48Z",
+  "generated": "2026-07-23T10:27:47Z",
   "apps": [
     {
       "id": "com.natureglass.fluiddynamics",
@@ -86,12 +86,13 @@
         "Simulation"
       ],
       "features": [
-        "Motion Sensors"
+        "Motion Sensors",
+        "WebGL 2"
       ],
       "tags": [
         "Physics"
       ],
-      "sizeBytes": 502623
+      "sizeBytes": 502642
     },
     {
       "id": "com.natureglass.midilab",
