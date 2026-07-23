@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-07-23T10:29:11Z",
+  "generated": "2026-07-23T10:29:32Z",
   "apps": [
     {
       "id": "com.natureglass.fluiddynamics",
@@ -231,11 +231,15 @@
         "Rhythm",
         "Simulation"
       ],
+      "features": [
+        "WebAudio",
+        "WebGL 2"
+      ],
       "tags": [
         "Audio Player",
         "Visualizer"
       ],
-      "sizeBytes": 1674905
+      "sizeBytes": 1674968
     },
     {
       "id": "com.natureglass.speedtest",
