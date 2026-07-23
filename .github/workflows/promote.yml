@@ -1,0 +1,91 @@
+name: Promote app from staging
+
+# Copies one app's already-deployed files from the staging repo into THIS (storage)
+# repo using real git — so it handles large binaries (e.g. Unity .wasm/.data) that
+# the Brewser WordPress plugin's blob-API promote cannot copy (GitHub's create-blob
+# endpoint rejects large files with HTTP 422 "input too large").
+#
+# The plugin fires this via repository_dispatch when its direct copy hits that limit
+# — see Brewser_Sub_Github::dispatch_promote(). client_payload:
+#   { package, staging_repo, staging_ref, dest_ref }
+#
+# Pushes with the built-in GITHUB_TOKEN (write access to this repo) and clones the
+# PUBLIC staging repo with no auth. A GITHUB_TOKEN push does NOT auto-trigger other
+# push-based workflows, so the final step explicitly re-triggers catalogue.yml if
+# this repo has one (harmless where it doesn't — extended repos have no catalogue).
+
+on:
+  repository_dispatch:
+    types: [promote_app]
+
+concurrency:
+  group: promote-${{ github.event.client_payload.package }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    env:
+      PKG: ${{ github.event.client_payload.package }}
+      STAGING_REPO: ${{ github.event.client_payload.staging_repo }}
+      STAGING_REF: ${{ github.event.client_payload.staging_ref }}
+      DEST_REF: ${{ github.event.client_payload.dest_ref }}
+    steps:
+      - name: Checkout this (storage) repo
+        uses: actions/checkout@v4
+
+      - name: Validate inputs
+        run: |
+          set -euo pipefail
+          # package id: lowercase reverse-DNS (letters, digits, dot, dash, underscore)
+          printf '%s' "$PKG"          | grep -Eq '^[a-z0-9][a-z0-9._-]*$'       || { echo "::error::invalid package id";   exit 1; }
+          printf '%s' "$STAGING_REPO" | grep -Eq '^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$' || { echo "::error::invalid staging repo"; exit 1; }
+          printf '%s' "$STAGING_REF"  | grep -Eq '^[A-Za-z0-9._/-]+$'           || { echo "::error::invalid staging ref";  exit 1; }
+          [ -n "${DEST_REF:-}" ] && { printf '%s' "$DEST_REF" | grep -Eq '^[A-Za-z0-9._/-]+$' || { echo "::error::invalid dest ref"; exit 1; }; } || true
+
+      - name: Fetch apps/$PKG from staging
+        run: |
+          set -euo pipefail
+          tmp="$(mktemp -d)"
+          # Partial + sparse clone so only this app's blobs are fetched, however
+          # large the rest of the staging catalogue is.
+          git clone --depth 1 --branch "$STAGING_REF" --filter=blob:none --sparse \
+            "https://github.com/${STAGING_REPO}.git" "$tmp"
+          git -C "$tmp" sparse-checkout set "apps/$PKG"
+          if [ ! -d "$tmp/apps/$PKG" ]; then
+            echo "::error::apps/$PKG not found in ${STAGING_REPO}@${STAGING_REF}"; exit 1
+          fi
+          # Mirror: replace this repo's copy wholesale so removed files don't linger.
+          rm -rf "apps/$PKG"
+          mkdir -p "apps/$PKG"
+          cp -a "$tmp/apps/$PKG/." "apps/$PKG/"
+          rm -rf "$tmp"
+
+      - name: Commit + push
+        run: |
+          set -euo pipefail
+          git config user.name  "brewser-promote-bot"
+          git config user.email "brewser-promote-bot@users.noreply.github.com"
+          git add -A -- "apps/$PKG"
+          if git diff --cached --quiet; then
+            echo "apps/$PKG already up to date."; exit 0
+          fi
+          git commit -q -m "promote: $PKG"
+          git push
+
+      - name: Rebuild catalogue if this repo has one
+        run: |
+          set -euo pipefail
+          ref="${DEST_REF:-main}"
+          curl -sf -X POST \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/catalogue.yml/dispatches" \
+            -d "{\"ref\":\"${ref}\"}" \
+            && echo "Triggered catalogue rebuild." \
+            || echo "No catalogue workflow here (or dispatch skipped) — nothing to rebuild."
