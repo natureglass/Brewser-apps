@@ -23,6 +23,9 @@
     "genre": [
         "Simulation"
     ],
+    "features": [
+        "WebGL 2"
+    ],
     "tags": [
         "ThreeJS",
         "WebGL2"
