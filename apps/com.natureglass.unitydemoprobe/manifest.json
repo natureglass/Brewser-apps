@@ -1,8 +1,8 @@
 {
     "id": "com.natureglass.unitydemoprobe",
-    "name": "Unity Demo Probe",
+    "name": "Unity Demo Probe v6000.4.0f1",
     "version": "1.0.1",
-    "description": "<p>Unity Demo Probe</p>",
+    "description": "<p>Unity Demo Probe v6000.4.0f1</p>",
     "logo": "assets/appbanner.jpg",
     "entry": "index.html",
     "categories": [
