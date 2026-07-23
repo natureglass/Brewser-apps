@@ -1,0 +1,76 @@
+{
+  "slug": "2021.3.45f2-webgl1",
+  "row": 1,
+  "unity_version": "2021.3.45f2",
+  "variant": "webgl1-release",
+  "render_pipeline": "birp",
+  "gl": "webgl1",
+  "symbols": "stripped",
+  "vendored_from": "https://deml.io/experiments/unity-webgl/2021.3.45f2-webgl1/",
+  "vendored_at_utc": "2026-07-06T20:42:06Z",
+  "vendor_script_version": "2.0.0",
+  "upstream_hashes": {
+    "loader": "WebGL-2021.3.45f2-webgl1.loader.js",
+    "framework": "WebGL-2021.3.45f2-webgl1.framework.js.br",
+    "code": "WebGL-2021.3.45f2-webgl1.wasm.br",
+    "data": "WebGL-2021.3.45f2-webgl1.data.br"
+  },
+  "provenance": {
+    "loader": {
+      "source_url": "https://deml.io/experiments/unity-webgl/2021.3.45f2-webgl1/Build/WebGL-2021.3.45f2-webgl1.loader.js",
+      "upstream_filename": "WebGL-2021.3.45f2-webgl1.loader.js",
+      "slot_filename": "loader.js",
+      "compressed_bytes": null,
+      "compressed_sha256": null,
+      "decoded_bytes": 18880,
+      "decoded_sha256": "64618ca59c125ee05718c98f440bff93ca7d7704699e984b5eff3256f4be461b",
+      "content_encoding": null
+    },
+    "framework": {
+      "source_url": "https://deml.io/experiments/unity-webgl/2021.3.45f2-webgl1/Build/WebGL-2021.3.45f2-webgl1.framework.js.br",
+      "upstream_filename": "WebGL-2021.3.45f2-webgl1.framework.js.br",
+      "slot_filename": "framework.js",
+      "compressed_bytes": 67003,
+      "compressed_sha256": "ac17ed8652107bd74a7883b940464cd4c3abf22ba4815679362dd676951121a1",
+      "decoded_bytes": 353823,
+      "decoded_sha256": "a74412a79345daf0d1ff812c6a2eb673a54b729312ae288259a45984ef6eb0e8",
+      "content_encoding": "br"
+    },
+    "code": {
+      "source_url": "https://deml.io/experiments/unity-webgl/2021.3.45f2-webgl1/Build/WebGL-2021.3.45f2-webgl1.wasm.br",
+      "upstream_filename": "WebGL-2021.3.45f2-webgl1.wasm.br",
+      "slot_filename": "code.wasm",
+      "compressed_bytes": 2373165,
+      "compressed_sha256": "cc9c47b3b8048f23dac503203573c2e2041acfd5375b636539f09dcacf6eec7a",
+      "decoded_bytes": 9393571,
+      "decoded_sha256": "1d082fcfcb9032b748be4d9d79c7b8e86de4451a0c9fc57e5bbb0bed2f76d680",
+      "content_encoding": "br"
+    },
+    "data": {
+      "source_url": "https://deml.io/experiments/unity-webgl/2021.3.45f2-webgl1/Build/WebGL-2021.3.45f2-webgl1.data.br",
+      "upstream_filename": "WebGL-2021.3.45f2-webgl1.data.br",
+      "slot_filename": "data.data",
+      "compressed_bytes": 458961,
+      "compressed_sha256": "21dad1d5a9c3d591512627c2f1c1a0cee0aee74fe2c47d23d73b4135115703d0",
+      "decoded_bytes": 4576636,
+      "decoded_sha256": "14ee83bbb101dcf799141a3627b027385670c7bd039836cfff484f7f250d28a3",
+      "content_encoding": "br"
+    }
+  },
+  "loaderPath": "Build/loader.js",
+  "dataUrl": "Build/data.data",
+  "frameworkUrl": "Build/framework.js",
+  "codeUrl": "Build/code.wasm",
+  "streamingAssetsUrl": "StreamingAssets",
+  "companyName": "JohannesDeml",
+  "productName": "WebLoadingTest",
+  "productVersion": "1.4.0",
+  "loader_bytes": 18880,
+  "framework_bytes": 353823,
+  "wasm_bytes": 9393571,
+  "data_bytes": 4576636,
+  "loader_compressed_bytes": null,
+  "framework_compressed_bytes": 67003,
+  "wasm_compressed_bytes": 2373165,
+  "data_compressed_bytes": 458961
+}

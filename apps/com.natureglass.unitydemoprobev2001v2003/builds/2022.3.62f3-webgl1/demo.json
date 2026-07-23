@@ -1,0 +1,76 @@
+{
+  "slug": "2022.3.62f3-webgl1",
+  "row": 2,
+  "unity_version": "2022.3.62f3",
+  "variant": "webgl1-release",
+  "render_pipeline": "birp",
+  "gl": "webgl1",
+  "symbols": "stripped",
+  "vendored_from": "https://deml.io/experiments/unity-webgl/2022.3.62f3-webgl1/",
+  "vendored_at_utc": "2026-07-06T20:42:30Z",
+  "vendor_script_version": "2.0.0",
+  "upstream_hashes": {
+    "loader": "16194915ed5322a5d4f0dc34f48bc0b7.loader.js",
+    "framework": "066b7d9a5746642b53b9f343182bcedb.framework.js.br",
+    "code": "07e5b2b44701a1c85140eab894d1501c.wasm.br",
+    "data": "6b894a4bc2e301d1296b7f6278ae0bbb.data.br"
+  },
+  "provenance": {
+    "loader": {
+      "source_url": "https://deml.io/experiments/unity-webgl/2022.3.62f3-webgl1/Build/16194915ed5322a5d4f0dc34f48bc0b7.loader.js",
+      "upstream_filename": "16194915ed5322a5d4f0dc34f48bc0b7.loader.js",
+      "slot_filename": "loader.js",
+      "compressed_bytes": null,
+      "compressed_sha256": null,
+      "decoded_bytes": 20352,
+      "decoded_sha256": "503187a2ca0200c0df83d00e05cd6e9c335d19f2bfef3f4eababba00273bdc99",
+      "content_encoding": null
+    },
+    "framework": {
+      "source_url": "https://deml.io/experiments/unity-webgl/2022.3.62f3-webgl1/Build/066b7d9a5746642b53b9f343182bcedb.framework.js.br",
+      "upstream_filename": "066b7d9a5746642b53b9f343182bcedb.framework.js.br",
+      "slot_filename": "framework.js",
+      "compressed_bytes": 65526,
+      "compressed_sha256": "5a08cff6d864b9c8ef24b70b7bbc17029b4e97addbaae839a16c487be6b2833c",
+      "decoded_bytes": 342786,
+      "decoded_sha256": "49837cc8e22ae51f6206d3b5ea8c25ae0884c47bc0d087669ee11c6d596c8599",
+      "content_encoding": "br"
+    },
+    "code": {
+      "source_url": "https://deml.io/experiments/unity-webgl/2022.3.62f3-webgl1/Build/07e5b2b44701a1c85140eab894d1501c.wasm.br",
+      "upstream_filename": "07e5b2b44701a1c85140eab894d1501c.wasm.br",
+      "slot_filename": "code.wasm",
+      "compressed_bytes": 2703507,
+      "compressed_sha256": "4f52f306ff1ab09203167a37c7fe6d3e4cb94818d5083de1de14d2d97d23c68b",
+      "decoded_bytes": 11405850,
+      "decoded_sha256": "4aedfe67d03e7b766aa3559f787355fed7aeb3434af9a93f766072e841864740",
+      "content_encoding": "br"
+    },
+    "data": {
+      "source_url": "https://deml.io/experiments/unity-webgl/2022.3.62f3-webgl1/Build/6b894a4bc2e301d1296b7f6278ae0bbb.data.br",
+      "upstream_filename": "6b894a4bc2e301d1296b7f6278ae0bbb.data.br",
+      "slot_filename": "data.data",
+      "compressed_bytes": 497232,
+      "compressed_sha256": "919de9437604f48edbf3ef0dbf2b1c0a55e3787a763802c776010f0a0c16c297",
+      "decoded_bytes": 1880710,
+      "decoded_sha256": "5369284f28a991f952b427db35b1c73de3f2bd37101bd9818d2bf8d86577cbaa",
+      "content_encoding": "br"
+    }
+  },
+  "loaderPath": "Build/loader.js",
+  "dataUrl": "Build/data.data",
+  "frameworkUrl": "Build/framework.js",
+  "codeUrl": "Build/code.wasm",
+  "streamingAssetsUrl": "StreamingAssets",
+  "companyName": "JohannesDeml",
+  "productName": "WebLoadingTest",
+  "productVersion": "1.5.0",
+  "loader_bytes": 20352,
+  "framework_bytes": 342786,
+  "wasm_bytes": 11405850,
+  "data_bytes": 1880710,
+  "loader_compressed_bytes": null,
+  "framework_compressed_bytes": 65526,
+  "wasm_compressed_bytes": 2703507,
+  "data_compressed_bytes": 497232
+}
