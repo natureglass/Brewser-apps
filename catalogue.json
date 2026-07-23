@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-07-23T10:28:49Z",
+  "generated": "2026-07-23T10:29:11Z",
   "apps": [
     {
       "id": "com.natureglass.fluiddynamics",
@@ -314,6 +314,7 @@
       "entry": "index.html",
       "categories": [
         "Apps",
+        "Demos",
         "Other"
       ],
       "permissions": [
@@ -337,7 +338,7 @@
         "ThreeJS",
         "WebGL2"
       ],
-      "sizeBytes": 39887305
+      "sizeBytes": 39887322
     }
   ]
 }
