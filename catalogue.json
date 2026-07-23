@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-07-23T10:28:11Z",
+  "generated": "2026-07-23T10:28:49Z",
   "apps": [
     {
       "id": "com.natureglass.fluiddynamics",
@@ -330,11 +330,14 @@
       "genre": [
         "Simulation"
       ],
+      "features": [
+        "WebGL 2"
+      ],
       "tags": [
         "ThreeJS",
         "WebGL2"
       ],
-      "sizeBytes": 39887262
+      "sizeBytes": 39887305
     }
   ]
 }
