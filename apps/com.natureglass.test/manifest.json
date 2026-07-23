@@ -1,0 +1,20 @@
+{
+    "id": "com.natureglass.test",
+    "name": "test",
+    "version": "1.0.1",
+    "description": "<p>test</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Demos"
+    ],
+    "permissions": [],
+    "compatibility": [
+        "web"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true
+}
