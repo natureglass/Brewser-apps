@@ -24,6 +24,7 @@
         "Simulation"
     ],
     "features": [
+        "WebAudio",
         "WebUSB"
     ]
 }
