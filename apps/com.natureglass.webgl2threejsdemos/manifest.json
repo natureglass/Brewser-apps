@@ -1,0 +1,24 @@
+{
+    "id": "com.natureglass.webgl2threejsdemos",
+    "name": "WebGL2 - ThreeJS Demos",
+    "version": "1.0.0",
+    "description": "<p><strong>WebGL2 - ThreeJS Demos</strong> is a showcase of real-time 3D graphics powered by <em>Three.js</em> and WebGL2, running natively on the Switch browser. It's a curated gallery of sixteen self-contained examples, each built to stress a different advanced rendering technique.</p>\r\n<p><strong>How it works.</strong> The home page is a simple gallery of cards — a thumbnail and a short description for each demo. Clicking one opens that example as its own standalone page; there's no streaming or plugins involved, since a full local build of the Three.js engine ships inside the app and every scene renders live on the device's GPU through WebGL2. Together the demos act as a practical proof of what the browser's graphics stack can handle, from GPU-driven simulation and physics to modern post-processing.</p>\r\n<p><strong>What's inside:</strong></p>\r\n<ul>\r\n<li><strong>Geometry &amp; instancing</strong> — a textured spinning cube and thousands of individually animated instances drawn efficiently.</li>\r\n<li><strong>Lighting &amp; materials</strong> — soft-shadowed spotlights with light \"cookies\", real-time reflective cubemaps, EXR environment maps, and hardware-decoded video mapped onto a grid of cubes.</li>\r\n<li><strong>Post-processing</strong> — a chunky retro pixelation pass and cinematic Unreal-style bloom.</li>\r\n<li><strong>Advanced GPU techniques</strong> — a GPU-computed water surface, multiple render targets, uniform buffer objects, layered 2D texture arrays (shown as MRI slices), and a procedural atmospheric sky.</li>\r\n<li><strong>Loaders &amp; physics</strong> — glTF and Collada 3D model loading, plus a rigid-body scene driven by the Rapier physics engine compiled to WebAssembly.</li>\r\n</ul>\r\n<p>A great tour of what modern WebGL2 can do on the Switch. Runs offline.</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Demos"
+    ],
+    "permissions": [],
+    "compatibility": [
+        "switch",
+        "web"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "features": [
+        "WebGL 2"
+    ]
+}
