@@ -1,0 +1,10 @@
+{
+  "id": "com.natureglass.neuralnetworks",
+  "sizeBytes": 88408,
+  "files": [
+    "assets/appbanner.jpg",
+    "assets/weights.json",
+    "index.html",
+    "manifest.json"
+  ]
+}
