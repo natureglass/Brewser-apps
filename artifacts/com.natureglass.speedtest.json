@@ -1,0 +1,10 @@
+{
+  "id": "com.natureglass.speedtest",
+  "sizeBytes": 59711,
+  "files": [
+    "assets/appbanner.jpg",
+    "assets/speedtest_logo.png",
+    "index.html",
+    "manifest.json"
+  ]
+}
