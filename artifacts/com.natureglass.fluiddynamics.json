@@ -1,8 +1,7 @@
 {
   "id": "com.natureglass.fluiddynamics",
-  "sizeBytes": 2602242,
+  "sizeBytes": 85838,
   "files": [
-    "assets/appbanner.gif",
     "assets/appbanner.jpg",
     "index.html",
     "manifest.json"

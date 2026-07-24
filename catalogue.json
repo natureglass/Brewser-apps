@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-07-24T16:58:24Z",
+  "generated": "2026-07-24T17:08:22Z",
   "apps": [
     {
       "id": "com.natureglass.fluiddynamics",
@@ -10,10 +10,12 @@
       "logo": "assets/appbanner.jpg",
       "entry": "index.html",
       "categories": [
+        "Apps",
         "Demos"
       ],
       "permissions": [],
       "compatibility": [
+        "switch",
         "web"
       ],
       "allowed_origins": [],
@@ -21,18 +23,10 @@
       "license": "MIT",
       "exitGame": "PLUS",
       "fullscreen": true,
-      "genre": [
-        "Experience",
-        "Simulation"
-      ],
-      "features": [
-        "WebGL 2"
-      ],
       "tags": [
-        "Fluids",
-        "Demoscene"
+        "Fluids"
       ],
-      "sizeBytes": 2602242
+      "sizeBytes": 85838
     },
     {
       "id": "com.natureglass.fractalzoom",
