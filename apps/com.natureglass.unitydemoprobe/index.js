@@ -26,6 +26,11 @@
   // demo.json; the picker surfaces that per row so shallow stacks on
   // release rows are recognized, not misread as harness failure.
   var MATRIX = [
+    { slug: '2021.3.45f2-webgl1',          unity: '2021.3.45f2', pipeline: 'birp', gl: 'webgl1', wasm_hint: '~9 MB',   row: 1, expected_symbols: 'stripped' },
+    { slug: '2022.3.62f3-webgl1',          unity: '2022.3.62f3', pipeline: 'birp', gl: 'webgl1', wasm_hint: '~10 MB',  row: 2, expected_symbols: 'stripped' },
+    { slug: '2022.3.62f3-webgl2-debug',    unity: '2022.3.62f3', pipeline: 'birp', gl: 'webgl2', wasm_hint: '~15 MB',  row: 3, expected_symbols: 'full' },
+    { slug: '2023.2.20f1-webgl2-debug',    unity: '2023.2.20f1', pipeline: 'birp', gl: 'webgl2', wasm_hint: '~16 MB',  row: 4, expected_symbols: 'full' },
+    { slug: '6000.0.74f1-webgl2-debug',    unity: '6000.0.74f1', pipeline: 'birp', gl: 'webgl2', wasm_hint: '~20 MB',  row: 5, expected_symbols: 'full' },
     { slug: '6000.4.0f1-webgl2-debug',     unity: '6000.4.0f1',  pipeline: 'birp', gl: 'webgl2', wasm_hint: '~23.5 MB',row: 6, expected_symbols: 'full' },
     { slug: '6000.4.0f1-urp-webgl2-debug', unity: '6000.4.0f1',  pipeline: 'urp',  gl: 'webgl2', wasm_hint: '~25 MB',  row: 7, expected_symbols: 'full' }
   ];
