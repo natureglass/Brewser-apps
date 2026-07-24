@@ -1,0 +1,28 @@
+{
+    "id": "com.natureglass.sensorsplayground",
+    "name": "Sensors Playground",
+    "version": "1.0.0",
+    "description": "<p><strong>Sensors Playground</strong> is a hardware diagnostics dashboard that surfaces the sensors and capabilities of your device. Each panel probes a real piece of hardware through a standard web API and shows a live readout, so you can see — and feel — exactly what your device exposes.</p>\r\n<p><strong>How it works.</strong> The dashboard is a grid of independent \"diagnostic cards\", each wired to a browser API and updating live from that hardware's own events rather than constant polling. The motion card is the centrepiece: it listens to the device's orientation and motion sensors and feeds the readings into a small hand-written 3D cube that tilts and turns in real time to mirror how you're holding the device, idly auto-rotating when no sensor data is coming in. Where a given browser or device lacks a sensor, that card simply reports <em>n/a</em> instead of breaking. Because motion sensors and the camera are privacy-sensitive, they require a secure connection and, on some devices, a tap to grant permission.</p>\r\n<p><strong>What you can explore:</strong></p>\r\n<ul>\r\n<li><strong>Motion &amp; orientation</strong> — live accelerometer and orientation values driving the 3D cube; tap the card to start sampling (and grant permission where prompted).</li>\r\n<li><strong>Battery</strong> — charge level, charging state and estimated time to full or empty.</li>\r\n<li><b>Network</b>— a live preview to confirm the network works.</li>\r\n<li><strong>Vibration &amp; rumble</strong> — fire <em>Light</em>, <em>Pulse</em>, <em>Ocean Wave</em> and <em>Heavy Burst</em> haptic patterns, with animated bars showing the waveform.</li>\r\n<li><strong>Display &amp; storage</strong> — screen orientation, connection type and online status, plus how much storage the app can use.</li>\r\n</ul>\r\n<p>Originally a Nintendo Switch demo, ported so each native call maps to its web equivalent — a handy tool for checking what a browser really exposes.</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Apps",
+        "Measurement",
+        "Sensors"
+    ],
+    "permissions": [
+        "Device Info"
+    ],
+    "compatibility": [
+        "switch",
+        "web"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "features": [
+        "Motion Sensors"
+    ]
+}
