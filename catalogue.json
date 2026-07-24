@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-07-23T21:30:54Z",
+  "generated": "2026-07-24T06:17:06Z",
   "apps": [
     {
       "id": "com.natureglass.fluiddynamics",
@@ -345,7 +345,8 @@
       "logo": "assets/appbanner.jpg",
       "entry": "index.html",
       "categories": [
-        "Demos"
+        "Demos",
+        "Games"
       ],
       "permissions": [],
       "compatibility": [
@@ -360,7 +361,7 @@
       "tags": [
         "Probe"
       ],
-      "sizeBytes": 76319284
+      "sizeBytes": 76319301
     },
     {
       "id": "com.natureglass.webgl2threejsdemos",
