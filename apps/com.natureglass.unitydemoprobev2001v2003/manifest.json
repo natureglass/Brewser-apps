@@ -6,8 +6,7 @@
     "logo": "assets/appbanner.jpg",
     "entry": "index.html",
     "categories": [
-        "Demos",
-        "Games"
+        "Demos"
     ],
     "permissions": [],
     "compatibility": [
