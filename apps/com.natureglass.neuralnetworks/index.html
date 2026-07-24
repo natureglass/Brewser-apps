@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebNN · Doodle Classifier</title>
+<style>
+  :root{
+    --bg:#0a0e0d; --panel:#10201d; --line:#1c3a34;
+    --phos:#39ffb0; --phos-dim:#1f8f66; --amber:#ffb347;
+    --ink:#cfe8df; --ink-dim:#6f8a82; --grid:#123028;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    background:radial-gradient(120% 90% at 50% -10%, #0f1c19 0%, var(--bg) 60%);
+    color:var(--ink);
+    font-family:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
+    -webkit-font-smoothing:antialiased;
+    display:flex;flex-direction:column;align-items:center;
+    min-height:100%;padding:28px 16px 48px;
+  }
+  .masthead{width:100%;max-width:860px;display:flex;justify-content:space-between;
+    align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:22px}
+  .wordmark{font-size:13px;letter-spacing:.42em;text-transform:uppercase;color:var(--phos)}
+  .wordmark b{color:var(--ink)}
+  .sub{font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--ink-dim)}
+  .rig{width:100%;max-width:860px;display:grid;grid-template-columns:300px 1fr;gap:22px}
+  @media(max-width:680px){.rig{grid-template-columns:1fr}}
+  .panel{background:linear-gradient(180deg,var(--panel),#0c1917);
+    border:1px solid var(--line);border-radius:10px;padding:16px;position:relative}
+  .panel::before{content:attr(data-tag);position:absolute;top:-8px;left:14px;
+    background:var(--bg);padding:0 8px;font-size:10px;letter-spacing:.24em;
+    text-transform:uppercase;color:var(--phos-dim)}
+  .padwrap{position:relative;width:100%;aspect-ratio:1/1}
+  #pad{width:100%;height:100%;display:block;border-radius:6px;
+    background:#050a09;cursor:crosshair;touch-action:none;
+    box-shadow:inset 0 0 0 1px var(--grid),inset 0 0 40px rgba(0,0,0,.6)}
+  .padhint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-size:12px;letter-spacing:.2em;color:var(--ink-dim);pointer-events:none;opacity:.7}
+  .controls{display:flex;gap:8px;margin-top:12px}
+  button{flex:1;font-family:inherit;font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--ink);background:#0c1a17;border:1px solid var(--line);border-radius:6px;
+    padding:9px 0;cursor:pointer;transition:.15s}
+  button:hover{border-color:var(--phos-dim);color:var(--phos)}
+  button:active{transform:translateY(1px)}
+  button:focus-visible{outline:2px solid var(--phos);outline-offset:2px}
+  button:disabled{opacity:.5;cursor:default;color:var(--ink-dim);border-color:var(--line)}
+  .verdict{display:flex;align-items:center;gap:18px;margin-bottom:14px}
+  .glyph{font-size:76px;line-height:1;font-weight:700;color:var(--phos);
+    text-shadow:0 0 18px rgba(57,255,176,.35);min-width:64px;text-align:center}
+  .glyph.idle{color:var(--ink-dim);text-shadow:none}
+  .conf{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-dim)}
+  .conf b{color:var(--amber);font-size:15px;letter-spacing:.05em}
+  .bars{display:grid;grid-template-columns:16px 1fr 40px;gap:6px 10px;align-items:center}
+  .bars .d{font-size:11px;color:var(--ink-dim);text-align:right}
+  .track{height:10px;background:#0a1613;border-radius:3px;overflow:hidden}
+  .fill{height:100%;width:0;background:linear-gradient(90deg,var(--phos-dim),var(--phos));
+    transition:width .18s ease}
+  .pct{font-size:10px;color:var(--ink-dim);text-align:right;font-variant-numeric:tabular-nums}
+  .strip{width:100%;max-width:860px;margin-top:22px;display:flex;gap:10px;flex-wrap:wrap;
+    font-size:10px;letter-spacing:.18em;text-transform:uppercase}
+  .chip{border:1px solid var(--line);border-radius:20px;padding:6px 12px;color:var(--ink-dim)}
+  .chip b{color:var(--phos);font-weight:400}
+  .chip.warn b{color:var(--amber)}
+  .foot{max-width:860px;margin-top:20px;font-size:11px;line-height:1.7;color:var(--ink-dim)}
+  .foot code{color:var(--phos-dim)}
+</style>
+</head>
+<body>
+  <div class="masthead">
+    <div class="wordmark"><b>web</b>nn · doodle</div>
+    <div class="sub">standard neural-net api demo</div>
+  </div>
+
+  <div class="rig">
+    <section class="panel" data-tag="input · draw 0–9">
+      <div class="padwrap">
+        <canvas id="pad" width="280" height="280"></canvas>
+        <div class="padhint" id="hint">draw a digit</div>
+      </div>
+      <div class="controls">
+        <button id="clear">Clear</button>
+        <button id="bench" title="Run inference repeatedly and report average latency">Benchmark</button>
+      </div>
+    </section>
+
+    <section class="panel" data-tag="inference · argmax">
+      <div class="verdict">
+        <div class="glyph idle" id="glyph">–</div>
+        <div class="conf" id="conf">awaiting input</div>
+      </div>
+      <div class="bars" id="bars"></div>
+    </section>
+  </div>
+
+  <div class="strip" id="strip">
+    <div class="chip">backend <b id="s-backend">…</b></div>
+    <div class="chip">device <b id="s-device">…</b></div>
+    <div class="chip">model <b id="s-model">…</b></div>
+    <div class="chip">last run <b id="s-time">–</b></div>
+  </div>
+
+  <p class="foot">
+    Pure standard Web APIs. Uses real
+    <code>navigator.ml</code> where present, otherwise a CPU shim that genuinely
+    executes the graph (<code>conv2d → relu → maxpool → conv2d → relu → gemm → softmax</code>).
+    Weights load from <code>assets/weights.json</code>.
+  </p>
+
+<script type="module">
+/* ---- WebNN-shaped CPU backend (Float32Array kernels) ---- */
+function conv2d(inp, iC, iH, iW, w, oC, kH, kW, b) {
+  const oH = iH - kH + 1, oW = iW - kW + 1;
+  const out = new Float32Array(oC * oH * oW);
+  for (let o = 0; o < oC; o++)
+    for (let y = 0; y < oH; y++)
+      for (let x = 0; x < oW; x++) {
+        let acc = b ? b[o] : 0;
+        for (let c = 0; c < iC; c++) {
+          const wBase = ((o * iC + c) * kH) * kW, iBase = c * iH * iW;
+          for (let ky = 0; ky < kH; ky++)
+            for (let kx = 0; kx < kW; kx++)
+              acc += inp[iBase + (y + ky) * iW + (x + kx)] * w[wBase + ky * kW + kx];
+        }
+        out[(o * oH + y) * oW + x] = acc;
+      }
+  return { data: out, C: oC, H: oH, W: oW };
+}
+function relu(t){const d=t.data;for(let i=0;i<d.length;i++)if(d[i]<0)d[i]=0;return t;}
+function maxpool2(t){const{C,H,W,data}=t,oH=H>>1,oW=W>>1,out=new Float32Array(C*oH*oW);
+  for(let c=0;c<C;c++)for(let y=0;y<oH;y++)for(let x=0;x<oW;x++){const b=c*H*W;
+    out[(c*oH+y)*oW+x]=Math.max(data[b+2*y*W+2*x],data[b+2*y*W+2*x+1],data[b+(2*y+1)*W+2*x],data[b+(2*y+1)*W+2*x+1]);}
+  return{data:out,C,H:oH,W:oW};}
+function gemm(vec,w,outN,inN,b){const out=new Float32Array(outN);
+  for(let o=0;o<outN;o++){let acc=b?b[o]:0;const wb=o*inN;for(let i=0;i<inN;i++)acc+=w[wb+i]*vec[i];out[o]=acc;}
+  return out;}
+function softmax(v){let m=-Infinity;for(const x of v)if(x>m)m=x;let s=0;const e=new Float32Array(v.length);
+  for(let i=0;i<v.length;i++){e[i]=Math.exp(v[i]-m);s+=e[i];}for(let i=0;i<e.length;i++)e[i]/=s;return e;}
+
+class CPUOperand{constructor(kind,desc,data,op){this.kind=kind;this.desc=desc;this.data=data;this.op=op;}}
+class CPUGraphBuilder{
+  input(name,desc){return new CPUOperand('input',{...desc,name});}
+  constant(desc,data){return new CPUOperand('const',desc,data);}
+  conv2d(x,w,o={}){return new CPUOperand('op',null,null,{type:'conv2d',x,w,bias:o.bias,oC:o.oC,kH:o.kH,kW:o.kW});}
+  relu(x){return new CPUOperand('op',null,null,{type:'relu',x});}
+  maxPool2d(x){return new CPUOperand('op',null,null,{type:'maxpool',x});}
+  reshape(x){return new CPUOperand('op',null,null,{type:'reshape',x});}
+  gemm(x,w,o={}){return new CPUOperand('op',null,null,{type:'gemm',x,w,bias:o.bias,outN:o.outN,inN:o.inN});}
+  softmax(x){return new CPUOperand('op',null,null,{type:'softmax',x});}
+  async build({output}){return new CPUGraph(output);}
+}
+class CPUGraph{
+  constructor(output){this.output=output;}
+  _eval(node,feed){
+    if(node.kind==='input')return{data:feed[node.desc.name],...shapeToCHW(node.desc.shape)};
+    if(node.kind==='const')return{data:node.data,...shapeToCHW(node.desc.shape)};
+    const o=node.op,x=o.x?this._eval(o.x,feed):null;
+    switch(o.type){
+      case 'conv2d':return conv2d(x.data,x.C,x.H,x.W,o.w.data,o.oC,o.kH,o.kW,o.bias&&o.bias.data);
+      case 'relu':return relu(x);
+      case 'maxpool':return maxpool2(x);
+      case 'reshape':return{data:x.data,C:1,H:1,W:x.data.length};
+      case 'gemm':return{data:gemm(x.data,o.w.data,o.outN,o.inN,o.bias&&o.bias.data),C:1,H:1,W:o.outN};
+      case 'softmax':return{data:softmax(x.data),C:1,H:1,W:x.data.length};
+    }
+  }
+}
+function shapeToCHW(s){
+  if(s.length===4)return{C:s[1],H:s[2],W:s[3]};
+  if(s.length===3)return{C:s[0],H:s[1],W:s[2]};
+  return{C:1,H:1,W:s[s.length-1]};
+}
+const CPUContext={deviceType:'cpu',async compute(graph,inputs,outputs){
+  const r=graph._eval(graph.output,inputs);outputs.output.set(r.data);return{outputs};}};
+
+/* ---- backend selection (tier1 native → tier3 cpu shim) ---- */
+async function selectBackend(){
+  if(typeof navigator!=='undefined'&&navigator.ml&&navigator.ml.createContext){
+    try{const ctx=await navigator.ml.createContext();
+      return{name:'native',device:ctx.deviceType||'auto',builder:new MLGraphBuilder(ctx),ctx,native:true};}
+    catch(e){/* fall through */}
+  }
+  return{name:'cpu-shim',device:'cpu',builder:new CPUGraphBuilder(),ctx:CPUContext,native:false};
+}
+
+/* ---- weights ---- */
+let WT=null;
+async function loadWeights(){
+  const res=await fetch('assets/weights.json',{cache:'no-cache'});
+  if(!res.ok) throw new Error('weights fetch '+res.status);
+  const j=await res.json();
+  WT={C1:j.C1_O,C2:j.C2_O,FLAT:j.FLAT,
+    W1:Float32Array.from(j.W1),B1:Float32Array.from(j.B1),
+    W2:Float32Array.from(j.W2),B2:Float32Array.from(j.B2),
+    W3:Float32Array.from(j.W3),B3:Float32Array.from(j.B3),
+    meta:j.meta||{}};
+  return WT;
+}
+
+async function buildGraph(backend){
+  const b=backend.builder,{C1,C2,FLAT}=WT;
+  const x=b.input('input',{dataType:'float32',shape:[1,1,28,28]});
+  const w1=b.constant({dataType:'float32',shape:[C1,1,3,3]},WT.W1);
+  const b1=b.constant({dataType:'float32',shape:[C1]},WT.B1);
+  const w2=b.constant({dataType:'float32',shape:[C2,C1,3,3]},WT.W2);
+  const b2=b.constant({dataType:'float32',shape:[C2]},WT.B2);
+  const w3=b.constant({dataType:'float32',shape:[10,FLAT]},WT.W3);
+  const b3=b.constant({dataType:'float32',shape:[10]},WT.B3);
+  if(backend.native){
+    let t=b.conv2d(x,w1,{bias:b1});t=b.relu(t);t=b.maxPool2d(t,{windowDimensions:[2,2],strides:[2,2]});
+    t=b.conv2d(t,w2,{bias:b2});t=b.relu(t);t=b.maxPool2d(t,{windowDimensions:[2,2],strides:[2,2]});
+    t=b.reshape(t,[1,FLAT]);t=b.gemm(t,w3,{c:b3,bTranspose:true});t=b.softmax(t);
+    return b.build({output:t});
+  }
+  let t=b.conv2d(x,w1,{bias:b1,oC:C1,kH:3,kW:3});t=b.relu(t);t=b.maxPool2d(t);
+  t=b.conv2d(t,w2,{bias:b2,oC:C2,kH:3,kW:3});t=b.relu(t);t=b.maxPool2d(t);
+  t=b.reshape(t);t=b.gemm(t,w3,{bias:b3,outN:10,inN:FLAT});t=b.softmax(t);
+  return b.build({output:t});
+}
+
+/* ---- canvas + UI ---- */
+const pad=document.getElementById('pad');
+const pctx=pad.getContext('2d',{willReadFrequently:true});
+const hint=document.getElementById('hint');
+let drawing=false,dirty=false,ready=false;
+
+function clearPad(){
+  pctx.fillStyle='#050a09';pctx.fillRect(0,0,pad.width,pad.height);
+  dirty=false;hint.style.opacity=.7;
+  setGlyph('–',true,'awaiting input');renderBars(new Float32Array(10),-1);
+}
+function stroke(e){
+  const r=pad.getBoundingClientRect();
+  const sx=pad.width/r.width,sy=pad.height/r.height;
+  const x=(e.clientX-r.left)*sx,y=(e.clientY-r.top)*sy;
+  pctx.lineCap='round';pctx.lineJoin='round';pctx.strokeStyle='#eafff5';pctx.lineWidth=22;
+  pctx.lineTo(x,y);pctx.stroke();pctx.beginPath();pctx.moveTo(x,y);
+}
+pad.addEventListener('pointerdown',e=>{drawing=true;dirty=true;hint.style.opacity=0;pad.setPointerCapture(e.pointerId);pctx.beginPath();stroke(e);});
+pad.addEventListener('pointermove',e=>{if(drawing)stroke(e);});
+pad.addEventListener('pointerup',()=>{drawing=false;pctx.beginPath();if(dirty)run();});
+
+/* downsample + center-of-mass normalize to match MNIST distribution */
+function readInput(){
+  const raw=pctx.getImageData(0,0,pad.width,pad.height).data;
+  // 1) grayscale full-res ink map (R channel), find bounding box of ink
+  const N=pad.width;
+  let minx=N,miny=N,maxx=0,maxy=0,any=false;
+  const gray=new Float32Array(N*N);
+  for(let y=0;y<N;y++)for(let x=0;x<N;x++){
+    const v=raw[(y*N+x)*4]/255;gray[y*N+x]=v;
+    if(v>0.15){any=true;if(x<minx)minx=x;if(x>maxx)maxx=x;if(y<miny)miny=y;if(y>maxy)maxy=y;}
+  }
+  const out=new Float32Array(28*28);
+  if(!any)return out;
+  // 2) crop to bbox, scale longest side to 20px, paste centered by center-of-mass into 28x28
+  const bw=maxx-minx+1,bh=maxy-miny+1,side=Math.max(bw,bh);
+  const scale=20/side;
+  // accumulate into a temp 28x28 via nearest sampling
+  let cx=0,cy=0,m=0;
+  const tmp=new Float32Array(28*28);
+  const offx=(28-bw*scale)/2,offy=(28-bh*scale)/2;
+  for(let ty=0;ty<28;ty++)for(let tx=0;tx<28;tx++){
+    const sxf=(tx-offx)/scale+minx,syf=(ty-offy)/scale+miny;
+    const sx=Math.round(sxf),sy=Math.round(syf);
+    if(sx>=0&&sx<N&&sy>=0&&sy<N){const v=gray[sy*N+sx];tmp[ty*28+tx]=v;cx+=tx*v;cy+=ty*v;m+=v;}
+  }
+  if(m===0)return tmp;
+  // 3) shift so center-of-mass lands at (14,14), MNIST-style
+  const shx=Math.round(14-cx/m),shy=Math.round(14-cy/m);
+  for(let y=0;y<28;y++)for(let x=0;x<28;x++){
+    const sx=x-shx,sy=y-shy;
+    if(sx>=0&&sx<28&&sy>=0&&sy<28)out[y*28+x]=tmp[sy*28+sx];
+  }
+  return out;
+}
+
+const glyph=document.getElementById('glyph');
+const conf=document.getElementById('conf');
+const barsEl=document.getElementById('bars');
+function setGlyph(txt,idle,sub){glyph.textContent=txt;glyph.classList.toggle('idle',!!idle);conf.innerHTML=sub;}
+function renderBars(probs,top){
+  barsEl.innerHTML='';
+  for(let d=0;d<10;d++){
+    const isTop=d===top;
+    const label=document.createElement('div');label.className='d';label.textContent=d;
+    const track=document.createElement('div');track.className='track';
+    const fill=document.createElement('div');fill.className='fill';
+    const pct=document.createElement('div');pct.className='pct';
+    const p=probs[d]||0;
+    fill.style.width=(p*100).toFixed(1)+'%';pct.textContent=(p*100).toFixed(0);
+    if(isTop){label.style.color='var(--amber)';fill.style.background='linear-gradient(90deg,#c88a2a,var(--amber))';pct.style.color='var(--amber)';}
+    track.append(fill);barsEl.append(label,track,pct);
+  }
+}
+
+let BACKEND,GRAPH;
+async function run(){
+  if(!ready||!GRAPH||!dirty)return;
+  const input=readInput();
+  const outputs={output:new Float32Array(10)};
+  const t0=performance.now();
+  await BACKEND.ctx.compute(GRAPH,{input},outputs);
+  const dt=performance.now()-t0;
+  const probs=outputs.output;
+  let top=0;for(let i=1;i<10;i++)if(probs[i]>probs[top])top=i;
+  setGlyph(String(top),false,`confidence <b>${(probs[top]*100).toFixed(1)}%</b>`);
+  renderBars(probs,top);
+  document.getElementById('s-time').textContent=dt.toFixed(1)+' ms';
+}
+
+async function benchmark(){
+  if(!ready||!GRAPH)return;
+  const btn=document.getElementById('bench');
+  const timeChip=document.getElementById('s-time');
+  // benchmark the current drawing, or a synthetic input if the pad is empty
+  let input=readInput();
+  let hasInk=false;for(let i=0;i<input.length;i++){if(input[i]>0.05){hasInk=true;break;}}
+  if(!hasInk){for(let i=0;i<input.length;i++)input[i]=Math.random()*0.6;}
+  const outputs={output:new Float32Array(10)};
+  const WARMUP=3, ITERS=50;
+  btn.disabled=true;btn.textContent='Running…';
+  // let the label paint before the blocking loop
+  await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+  for(let i=0;i<WARMUP;i++)await BACKEND.ctx.compute(GRAPH,{input},outputs);
+  let best=Infinity,sum=0;
+  for(let i=0;i<ITERS;i++){
+    const t0=performance.now();
+    await BACKEND.ctx.compute(GRAPH,{input},outputs);
+    const dt=performance.now()-t0;
+    sum+=dt;if(dt<best)best=dt;
+  }
+  const mean=sum/ITERS;
+  timeChip.textContent=`${mean.toFixed(2)} ms avg · ${best.toFixed(2)} min · ${ITERS}×`;
+  btn.disabled=false;btn.textContent='Benchmark';
+  // if we ran on real ink, refresh the visible verdict too
+  if(hasInk){dirty=true;run();}
+}
+
+document.getElementById('clear').addEventListener('click',clearPad);
+document.getElementById('bench').addEventListener('click',benchmark);
+
+(async()=>{
+  clearPad();
+  try{
+    BACKEND=await selectBackend();
+    await loadWeights();
+    GRAPH=await buildGraph(BACKEND);
+    ready=true;
+    document.getElementById('s-backend').textContent=BACKEND.name;
+    document.getElementById('s-device').textContent=BACKEND.device;
+    if(!BACKEND.native)document.getElementById('s-device').closest('.chip').classList.add('warn');
+    const acc=WT.meta&&WT.meta.trained_on?`cnn · ${WT.meta.trained_on} imgs`:'cnn';
+    document.getElementById('s-model').textContent=acc;
+  }catch(err){
+    setGlyph('!',true,`load failed`);
+    document.getElementById('s-model').textContent='error';
+    conf.innerHTML=`could not load weights — serve over http (not file://). ${err.message}`;
+  }
+})();
+</script>
+</body>
+</html>
