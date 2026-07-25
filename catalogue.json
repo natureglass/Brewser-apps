@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-07-25T19:03:17Z",
+  "generated": "2026-07-25T19:03:50Z",
   "apps": [
     {
       "id": "com.natureglass.fluiddynamics",
@@ -50,13 +50,10 @@
       "exitGame": "PLUS",
       "fullscreen": true,
       "publishedAt": "2026-06-18T12:00:00Z",
-      "features": [
-        "WebGL 2"
-      ],
       "tags": [
         "Fractals"
       ],
-      "sizeBytes": 66462
+      "sizeBytes": 66419
     },
     {
       "id": "com.natureglass.gravityballs",
