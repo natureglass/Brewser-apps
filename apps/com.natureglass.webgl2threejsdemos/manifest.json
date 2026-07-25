@@ -18,6 +18,7 @@
     "license": "MIT",
     "exitGame": "PLUS",
     "fullscreen": true,
+    "publishedAt": "2026-06-11T12:00:00Z",
     "features": [
         "WebGL 2"
     ]

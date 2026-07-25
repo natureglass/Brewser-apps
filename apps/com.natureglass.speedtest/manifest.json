@@ -17,5 +17,6 @@
     "developer": "Alex Daskalakis",
     "license": "MIT",
     "exitGame": "PLUS",
-    "fullscreen": true
+    "fullscreen": true,
+    "publishedAt": "2026-05-21T12:00:00Z"
 }
