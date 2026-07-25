@@ -15,8 +15,9 @@
         "required": ["downloads", "ratingAvg", "ratingCount"],
         "properties": {
           "downloads": { "type": "integer", "minimum": 0 },
-          "ratingAvg": { "type": "number", "minimum": 0, "maximum": 5 },
-          "ratingCount": { "type": "integer", "minimum": 0 }
+          "ratingAvg": { "type": "number", "minimum": 0, "maximum": 5, "description": "Display only — never a ranking input." },
+          "ratingCount": { "type": "integer", "minimum": 0, "description": "Display only — never a ranking input." },
+          "ratingScore": { "type": "number", "minimum": 0, "maximum": 5, "description": "The platform-computed Top Rated score (catalogue-v2.md; empirical-mean Bayesian prior, computed by WordPress). OMITTED when ratingCount is 0 — absent means 'no data' and sorts last; it must never be published as 0 or as the corpus mean. The runtime sorts on this and never derives it." }
         },
         "additionalProperties": true
       }
