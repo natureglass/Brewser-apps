@@ -12,11 +12,17 @@ name: Build catalogue
 # never apps/** — so it does not re-trigger this workflow (and a GITHUB_TOKEN
 # commit wouldn't trigger workflows anyway).
 
+# Trigger scope is deliberate (C4): apps/** and curation.json ONLY.
+# stats.json is committed DAILY by the WordPress stats publisher and must
+# never rebuild/republish the catalogue — operational counters are not
+# catalogue inputs. If a new catalogue input is ever added, extend `paths`
+# here in the same change that adds its producer.
 on:
   push:
     branches: [ main ]
     paths:
       - 'apps/**'
+      - 'curation.json'
   workflow_dispatch: {}
 
 # Serialize runs so two rebuilds can't race the same fast-forward push.
