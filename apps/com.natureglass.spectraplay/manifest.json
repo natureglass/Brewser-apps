@@ -21,9 +21,6 @@
     "exitGame": "PLUS",
     "fullscreen": true,
     "publishedAt": "2026-06-04T12:00:00Z",
-    "features": [
-        "WebAudio"
-    ],
     "tags": [
         "Audio Player"
     ]
