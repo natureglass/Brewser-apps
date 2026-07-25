@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-07-25T19:03:50Z",
+  "generated": "2026-07-25T19:04:07Z",
   "apps": [
     {
       "id": "com.natureglass.fluiddynamics",
@@ -326,10 +326,7 @@
       "exitGame": "PLUS",
       "fullscreen": true,
       "publishedAt": "2026-06-11T12:00:00Z",
-      "features": [
-        "WebGL 2"
-      ],
-      "sizeBytes": 40915159
+      "sizeBytes": 40915116
     }
   ]
 }
