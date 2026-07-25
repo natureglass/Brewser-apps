@@ -1,17 +1,11 @@
 {
-  "generated": "2026-07-25T13:30:00Z",
+  "generated": "2026-07-25T14:40:22Z",
   "stats": {
-    "com.natureglass.fractalzoomzoom": {
-      "downloads": 0,
-      "ratingAvg": 5.0,
-      "ratingCount": 1,
-      "ratingScore": 4.5833
-    },
     "com.natureglass.gravityballs": {
       "downloads": 0,
-      "ratingAvg": 4.0,
+      "ratingAvg": 4,
       "ratingCount": 1,
-      "ratingScore": 4.4167
+      "ratingScore": 4
     }
   }
 }
