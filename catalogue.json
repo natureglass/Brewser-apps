@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-07-25T19:02:08Z",
+  "generated": "2026-07-25T19:02:40Z",
   "apps": [
     {
       "id": "com.natureglass.fluiddynamics",
@@ -223,13 +223,10 @@
       "exitGame": "PLUS",
       "fullscreen": true,
       "publishedAt": "2026-06-04T12:00:00Z",
-      "features": [
-        "WebAudio"
-      ],
       "tags": [
         "Audio Player"
       ],
-      "sizeBytes": 156064
+      "sizeBytes": 156020
     },
     {
       "id": "com.natureglass.speedtest",
