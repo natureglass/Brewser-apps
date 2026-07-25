@@ -22,8 +22,5 @@
     "license": "MIT",
     "exitGame": "PLUS",
     "fullscreen": true,
-    "publishedAt": "2026-07-02T12:00:00Z",
-    "features": [
-        "Motion Sensors"
-    ]
+    "publishedAt": "2026-07-02T12:00:00Z"
 }
