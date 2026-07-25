@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-07-24T19:36:52Z",
+  "generated": "2026-07-25T11:16:11Z",
   "apps": [
     {
       "id": "com.natureglass.fluiddynamics",
@@ -23,10 +23,11 @@
       "license": "MIT",
       "exitGame": "PLUS",
       "fullscreen": true,
+      "publishedAt": "2026-07-09T12:00:00Z",
       "tags": [
         "Fluids"
       ],
-      "sizeBytes": 85838
+      "sizeBytes": 85881
     },
     {
       "id": "com.natureglass.fractalzoom",
@@ -48,13 +49,14 @@
       "license": "MIT",
       "exitGame": "PLUS",
       "fullscreen": true,
+      "publishedAt": "2026-06-18T12:00:00Z",
       "features": [
         "WebGL 2"
       ],
       "tags": [
         "Fractals"
       ],
-      "sizeBytes": 66419
+      "sizeBytes": 66462
     },
     {
       "id": "com.natureglass.gravityballs",
@@ -78,13 +80,14 @@
       "license": "MIT",
       "exitGame": "PLUS",
       "fullscreen": true,
+      "publishedAt": "2026-06-25T12:00:00Z",
       "genre": [
         "Simulation"
       ],
       "features": [
         "Motion Sensors"
       ],
-      "sizeBytes": 35757
+      "sizeBytes": 35800
     },
     {
       "id": "com.natureglass.midilab",
@@ -108,13 +111,14 @@
       "license": "MIT",
       "exitGame": "PLUS",
       "fullscreen": true,
+      "publishedAt": "2026-07-16T12:00:00Z",
       "genre": [
         "Experience"
       ],
       "features": [
         "WebUSB"
       ],
-      "sizeBytes": 118944
+      "sizeBytes": 118987
     },
     {
       "id": "com.natureglass.neuralnetworks",
@@ -138,10 +142,11 @@
       "license": "MIT",
       "exitGame": "PLUS",
       "fullscreen": true,
+      "publishedAt": "2026-07-22T12:57:20Z",
       "features": [
         "WebNN"
       ],
-      "sizeBytes": 88408
+      "sizeBytes": 88451
     },
     {
       "id": "com.natureglass.savedemo",
@@ -165,10 +170,11 @@
       "license": "MIT",
       "exitGame": "PLUS",
       "fullscreen": true,
+      "publishedAt": "2026-07-22T11:29:42Z",
       "tags": [
         "Save"
       ],
-      "sizeBytes": 63692
+      "sizeBytes": 63735
     },
     {
       "id": "com.natureglass.sensorsplayground",
@@ -194,10 +200,11 @@
       "license": "MIT",
       "exitGame": "PLUS",
       "fullscreen": true,
+      "publishedAt": "2026-07-02T12:00:00Z",
       "features": [
         "Motion Sensors"
       ],
-      "sizeBytes": 99719
+      "sizeBytes": 99762
     },
     {
       "id": "com.natureglass.spectraplay",
@@ -221,13 +228,14 @@
       "license": "MIT",
       "exitGame": "PLUS",
       "fullscreen": true,
+      "publishedAt": "2026-06-04T12:00:00Z",
       "features": [
         "WebAudio"
       ],
       "tags": [
         "Audio Player"
       ],
-      "sizeBytes": 156021
+      "sizeBytes": 156064
     },
     {
       "id": "com.natureglass.speedtest",
@@ -249,7 +257,8 @@
       "license": "MIT",
       "exitGame": "PLUS",
       "fullscreen": true,
-      "sizeBytes": 59729
+      "publishedAt": "2026-05-21T12:00:00Z",
+      "sizeBytes": 59772
     },
     {
       "id": "com.natureglass.streamcast",
@@ -276,10 +285,11 @@
       "license": "MIT",
       "exitGame": "PLUS",
       "fullscreen": true,
+      "publishedAt": "2026-05-28T12:00:00Z",
       "tags": [
         "Streaming"
       ],
-      "sizeBytes": 72332
+      "sizeBytes": 72375
     },
     {
       "allowed_origins": [],
@@ -304,11 +314,12 @@
       "logo": "assets/appbanner.jpg",
       "name": "Unity Demo Probe",
       "permissions": [],
+      "publishedAt": "2026-07-23T13:37:49Z",
       "tags": [
         "Unity"
       ],
       "version": "1.0.0",
-      "sizeBytes": 195195960
+      "sizeBytes": 195195997
     },
     {
       "id": "com.natureglass.webgl2threejsdemos",
@@ -330,10 +341,11 @@
       "license": "MIT",
       "exitGame": "PLUS",
       "fullscreen": true,
+      "publishedAt": "2026-06-11T12:00:00Z",
       "features": [
         "WebGL 2"
       ],
-      "sizeBytes": 40915116
+      "sizeBytes": 40915159
     }
   ]
 }
