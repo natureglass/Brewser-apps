@@ -19,9 +19,6 @@
     "exitGame": "PLUS",
     "fullscreen": true,
     "publishedAt": "2026-06-18T12:00:00Z",
-    "features": [
-        "WebGL 2"
-    ],
     "tags": [
         "Fractals"
     ]
