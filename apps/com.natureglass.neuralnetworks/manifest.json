@@ -20,8 +20,5 @@
     "license": "MIT",
     "exitGame": "PLUS",
     "fullscreen": true,
-    "publishedAt": "2026-07-22T12:57:20Z",
-    "features": [
-        "WebNN"
-    ]
+    "publishedAt": "2026-07-22T12:57:20Z"
 }
