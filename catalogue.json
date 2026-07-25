@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-07-25T14:16:47Z",
+  "generated": "2026-07-25T19:01:17Z",
   "apps": [
     {
       "id": "com.natureglass.fluiddynamics",
@@ -201,10 +201,7 @@
       "exitGame": "PLUS",
       "fullscreen": true,
       "publishedAt": "2026-07-02T12:00:00Z",
-      "features": [
-        "Motion Sensors"
-      ],
-      "sizeBytes": 99762
+      "sizeBytes": 99712
     },
     {
       "id": "com.natureglass.spectraplay",
