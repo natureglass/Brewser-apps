@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-07-25T13:04:01Z",
+  "generated": "2026-07-25T13:14:22Z",
   "apps": [
     {
       "id": "com.natureglass.fluiddynamics",
@@ -317,7 +317,7 @@
       "tags": [
         "Unity"
       ],
-      "version": "1.0.0",
+      "version": "1.0.1",
       "sizeBytes": 195195997
     },
     {
