@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://brewser.tech/schema/stats.json",
+  "title": "Brewser operational stats",
+  "description": "Contract for play.brewser.tech/stats.json (C2). Deliberately SEPARATE from catalogue.json: the catalogue is a pure function of git state; downloads/ratings change continuously and would destroy its diffability. Published by WP-Cron daily from the telemetry aggregates (swtel_downloads_map / swtel_ratings_list — the same source the plugin's Popular and Top Rated sorts read). Keyed by app id — consumers join by id; stats ids with no catalogue entry are ignored and reported (an app may have been delisted between publications). A missing, stale, or unparseable stats.json is NOT a sync failure: stats-driven sorts report themselves unavailable with a reason. NOT part of the golden test and not covered by the catalogue version field. Base-repo CI must NOT rebuild the catalogue on stats.json commits (trigger on apps/** and curation.json only).",
+  "type": "object",
+  "required": ["generated", "stats"],
+  "properties": {
+    "generated": { "type": "string", "format": "date-time" },
+    "stats": {
+      "type": "object",
+      "propertyNames": { "pattern": "^com\\.[a-z0-9]{3,32}\\.[a-z0-9]{2,48}$" },
+      "additionalProperties": {
+        "type": "object",
+        "required": ["downloads", "ratingAvg", "ratingCount"],
+        "properties": {
+          "downloads": { "type": "integer", "minimum": 0 },
+          "ratingAvg": { "type": "number", "minimum": 0, "maximum": 5 },
+          "ratingCount": { "type": "integer", "minimum": 0 }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}
