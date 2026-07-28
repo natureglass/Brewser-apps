@@ -143,9 +143,11 @@ score = (v·R + m·C) / (v + m)                                              rou
 
 This replaces WP's raw-average order, where one 5★ rating outranked fifty ratings averaging 4.8.
 
-## `summary` — derivation (deterministic)
+## `summary` — source + derivation (deterministic)
 
-Produced by the **fragment producer** from the manifest's HTML `description` (precedent: staging's `index.json` truncates to ≤500). The algorithm is pinned because the golden test is byte-exact:
+**Preferred source (2026-07-27): the human "Short description."** The WP submit form's one-line "Short description" (`post_excerpt`, ≤100 chars) is now emitted into the manifest as `summary` by `Brewser_Sub_Manifest::build()` (only when non-empty), so it flows straight through to the catalogue entry. The runtime shows it under the browse card; the full HTML `description` — **retained in the catalogue** (v1) alongside `summary` — is what the app detail modal renders. When an entry carries no `summary` (a manifest that predates the field, or a blank Short description), the runtime **falls back** to deriving one from the HTML `description` via the algorithm below, so cards never go blank. The fixtures + live v1 capture still exercise the derived path (they have no `summary` yet), which is why the golden test is unaffected.
+
+Derivation (the fallback) is produced from the manifest's HTML `description` (precedent: staging's `index.json` truncates to ≤500). The algorithm is pinned because the golden test is byte-exact:
 
 1. Strip HTML tags (`<[^>]*>` → empty).
 2. Decode HTML entities (`&amp;` → `&`, …). Order matters: stripping first means author-written literal `&lt;tag&gt;` text survives as text.
