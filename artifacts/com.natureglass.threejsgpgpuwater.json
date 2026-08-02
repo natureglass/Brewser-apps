@@ -1,0 +1,20 @@
+{
+  "id": "com.natureglass.threejsgpgpuwater",
+  "sizeBytes": 3890406,
+  "files": [
+    "assets/appbanner.jpg",
+    "build/three.core.js",
+    "build/three.module.js",
+    "index.html",
+    "jsm/controls/OrbitControls.js",
+    "jsm/libs/lil-gui.module.min.js",
+    "jsm/libs/stats.module.js",
+    "jsm/loaders/HDRLoader.js",
+    "jsm/math/SimplexNoise.js",
+    "jsm/misc/GPUComputationRenderer.js",
+    "jsm/postprocessing/Pass.js",
+    "main.css",
+    "manifest.json",
+    "textures/equirectangular/blouberg_sunrise_2_1k.hdr"
+  ]
+}

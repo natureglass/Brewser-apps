@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-07-31T18:53:10Z",
+  "generated": "2026-08-02T18:14:57Z",
   "apps": [
     {
       "id": "com.natureglass.aether",
@@ -302,6 +302,33 @@
         "Streaming"
       ],
       "sizeBytes": 72375
+    },
+    {
+      "id": "com.natureglass.threejsgpgpuwater",
+      "name": "ThreeJS GPGPU Water",
+      "version": "1.0.0",
+      "description": "<p>ThreeJS GPGPU Water</p>",
+      "logo": "assets/appbanner.jpg",
+      "entry": "index.html",
+      "categories": [
+        "Demos"
+      ],
+      "permissions": [],
+      "compatibility": [
+        "switch",
+        "web"
+      ],
+      "allowed_origins": [],
+      "developer": "Alex Daskalakis",
+      "license": "MIT",
+      "exitGame": "PLUS",
+      "fullscreen": true,
+      "publishedAt": "2026-08-02T18:12:22Z",
+      "summary": "ThreeJS GPGPU Water",
+      "tags": [
+        "ThreeJS"
+      ],
+      "sizeBytes": 3890406
     },
     {
       "allowed_origins": [],
