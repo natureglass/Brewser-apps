@@ -1,0 +1,17 @@
+{
+  "id": "com.natureglass.threejsdynamiccubemapreflection",
+  "sizeBytes": 3777095,
+  "files": [
+    "assets/appbanner.jpg",
+    "build/three.core.js",
+    "build/three.module.js",
+    "index.html",
+    "jsm/controls/OrbitControls.js",
+    "jsm/libs/lil-gui.module.min.js",
+    "jsm/libs/stats.module.js",
+    "jsm/loaders/HDRLoader.js",
+    "main.css",
+    "manifest.json",
+    "textures/equirectangular/quarry_01_1k.hdr"
+  ]
+}
