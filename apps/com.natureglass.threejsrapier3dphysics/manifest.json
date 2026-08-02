@@ -1,0 +1,26 @@
+{
+    "id": "com.natureglass.threejsrapier3dphysics",
+    "name": "ThreeJS Rapier3d Physics",
+    "version": "1.0.0",
+    "description": "<p>ThreeJS Rapier3d Physics</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Demos"
+    ],
+    "permissions": [],
+    "compatibility": [
+        "switch",
+        "web"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "publishedAt": "2026-08-02T18:19:24Z",
+    "summary": "ThreeJS Rapier3d Physics",
+    "tags": [
+        "ThreeJS"
+    ]
+}
