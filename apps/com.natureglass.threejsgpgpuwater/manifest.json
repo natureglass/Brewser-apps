@@ -1,0 +1,26 @@
+{
+    "id": "com.natureglass.threejsgpgpuwater",
+    "name": "ThreeJS GPGPU Water",
+    "version": "1.0.0",
+    "description": "<p>ThreeJS GPGPU Water</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Demos"
+    ],
+    "permissions": [],
+    "compatibility": [
+        "switch",
+        "web"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "publishedAt": "2026-08-02T18:12:22Z",
+    "summary": "ThreeJS GPGPU Water",
+    "tags": [
+        "ThreeJS"
+    ]
+}
