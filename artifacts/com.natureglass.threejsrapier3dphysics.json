@@ -1,0 +1,19 @@
+{
+  "id": "com.natureglass.threejsrapier3dphysics",
+  "sizeBytes": 4685017,
+  "files": [
+    "assets/appbanner.jpg",
+    "build/three.core.js",
+    "build/three.module.js",
+    "index.html",
+    "jsm/controls/OrbitControls.js",
+    "jsm/geometries/RoundedBoxGeometry.js",
+    "jsm/helpers/RapierHelper.js",
+    "jsm/libs/stats.module.js",
+    "jsm/physics/RapierPhysics.js",
+    "jsm/physics/rapier/rapier.es.js",
+    "main.css",
+    "manifest.json",
+    "textures/grid.png"
+  ]
+}
