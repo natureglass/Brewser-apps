@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-03T09:33:56Z",
+  "generated": "2026-08-03T09:34:24Z",
   "apps": [
     {
       "id": "com.natureglass.aether",
@@ -271,6 +271,33 @@
       "fullscreen": true,
       "publishedAt": "2026-05-21T12:00:00Z",
       "sizeBytes": 59772
+    },
+    {
+      "id": "com.natureglass.starterkitracing",
+      "name": "Starter Kit Racing",
+      "version": "1.0.0",
+      "description": "<p>Starter Kit Racing</p>",
+      "logo": "assets/appbanner.jpg",
+      "entry": "index.html",
+      "categories": [
+        "Demos"
+      ],
+      "permissions": [],
+      "compatibility": [
+        "switch",
+        "web"
+      ],
+      "allowed_origins": [],
+      "developer": "Alex Daskalakis",
+      "license": "MIT",
+      "exitGame": "PLUS",
+      "fullscreen": true,
+      "publishedAt": "2026-08-03T09:16:20Z",
+      "summary": "Starter Kit Racing",
+      "features": [
+        "Gamepad"
+      ],
+      "sizeBytes": 1291226
     },
     {
       "id": "com.natureglass.streamcast",
