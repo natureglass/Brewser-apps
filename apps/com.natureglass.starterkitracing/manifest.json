@@ -1,0 +1,26 @@
+{
+    "id": "com.natureglass.starterkitracing",
+    "name": "Starter Kit Racing",
+    "version": "1.0.0",
+    "description": "<p>Starter Kit Racing</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Demos"
+    ],
+    "permissions": [],
+    "compatibility": [
+        "switch",
+        "web"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "publishedAt": "2026-08-03T09:16:20Z",
+    "summary": "Starter Kit Racing",
+    "features": [
+        "Gamepad"
+    ]
+}
