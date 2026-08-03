@@ -1,0 +1,23 @@
+{
+    "id": "com.natureglass.fluiddynamics",
+    "name": "Fluid dynamics",
+    "version": "1.0.0",
+    "description": "<p><strong>Fluid dynamics</strong> is a real-time fluid simulation you paint with your finger. Under the hood it solves the same equations that describe real smoke and water — the Navier–Stokes equations — entirely on the GPU using WebGL2, so thick, swirling dye reacts to every stroke at full frame rate.</p>\r\n<p><strong>How it works.</strong> Every frame the app runs a chain of GPU shader passes over floating-point textures. It first computes the fluid's <em>curl</em> and adds a vorticity force to keep the motion lively and turbulent, then makes the flow <em>incompressible</em> by solving for pressure over roughly twenty iterations and subtracting its gradient from the velocity field. The velocity and the coloured dye are then <em>advected</em> — carried along the flow — and both fade slightly each step so trails dissipate naturally. The simulation runs on a compact velocity grid while the dye is rendered at much higher resolution for crisp detail, with a lighting pass that shades the fluid from its own density gradients to give it depth.</p>\r\n<p><strong>How you interact:</strong></p>\r\n<ul>\r\n<li><strong>Draw</strong> — drag anywhere to inject dye and push the fluid; the <em>direction and speed</em> of your stroke become the force applied, and the colour drifts through the rainbow as you move. <em>Multi-touch is supported</em>, so several fingers stir at once.</li>\r\n<li><strong>Burst</strong> — fires several randomly aimed splats of colour and force into the field for an instant explosion of motion.</li>\r\n<li><strong>Particles</strong> — toggles a layer of ~16,000 GPU particles that ride the velocity field, brightening where the flow moves fastest, then wrap and respawn to keep coverage even.</li>\r\n<li><strong>Full screen</strong> — expands the canvas edge-to-edge.</li>\r\n</ul>\r\n<p>Everything runs locally with no network access, and the app automatically probes the device for the best supported float texture formats so it degrades gracefully across GPUs.</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Apps"
+    ],
+    "permissions": [],
+    "compatibility": [
+        "switch",
+        "web"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "publishedAt": "2026-08-03T21:36:28Z",
+    "summary": "Paint glowing fluid on a WebGL2 canvas with burst and particle effects."
+}
