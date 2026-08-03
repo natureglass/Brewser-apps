@@ -1,0 +1,23 @@
+{
+    "id": "com.natureglass.threejsequirectenvreflection",
+    "name": "ThreeJS Equirect Env Reflection",
+    "version": "1.0.0",
+    "description": "<p>ThreeJS Equirect Env Reflection</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Demos"
+    ],
+    "permissions": [],
+    "compatibility": [
+        "switch",
+        "web"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "publishedAt": "2026-08-03T09:01:06Z",
+    "summary": "ThreeJS Equirect Env Reflection"
+}
