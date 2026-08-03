@@ -1,0 +1,22 @@
+{
+  "id": "com.natureglass.threejsloadergltf",
+  "sizeBytes": 4919446,
+  "files": [
+    "assets/appbanner.jpg",
+    "build/three.core.js",
+    "build/three.module.js",
+    "index.html",
+    "jsm/libs/stats.module.js",
+    "jsm/loaders/ColladaLoader.js",
+    "jsm/loaders/TGALoader.js",
+    "jsm/loaders/collada/ColladaComposer.js",
+    "jsm/loaders/collada/ColladaParser.js",
+    "main.css",
+    "manifest.json",
+    "models/collada/elf/Body_tex_003.jpg",
+    "models/collada/elf/Face_tex_002_toObj.jpg",
+    "models/collada/elf/Hair_tex_001.jpg",
+    "models/collada/elf/ce.jpg",
+    "models/collada/elf/elf.dae"
+  ]
+}
