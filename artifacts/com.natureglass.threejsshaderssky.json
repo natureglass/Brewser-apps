@@ -1,0 +1,15 @@
+{
+  "id": "com.natureglass.threejsshaderssky",
+  "sizeBytes": 2293372,
+  "files": [
+    "assets/appbanner.jpg",
+    "build/three.core.js",
+    "build/three.module.js",
+    "index.html",
+    "jsm/controls/OrbitControls.js",
+    "jsm/libs/lil-gui.module.min.js",
+    "jsm/objects/Sky.js",
+    "main.css",
+    "manifest.json"
+  ]
+}

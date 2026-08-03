@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-03T09:35:25Z",
+  "generated": "2026-08-03T09:55:50Z",
   "apps": [
     {
       "id": "com.natureglass.aether",
@@ -530,6 +530,30 @@
       "publishedAt": "2026-08-03T09:27:35Z",
       "summary": "ThreeJS Selective Unreal Bloom",
       "sizeBytes": 8306376
+    },
+    {
+      "id": "com.natureglass.threejsshaderssky",
+      "name": "ThreeJS Shaders Sky",
+      "version": "1.0.0",
+      "description": "<p>ThreeJS Shaders Sky</p>",
+      "logo": "assets/appbanner.jpg",
+      "entry": "index.html",
+      "categories": [
+        "Demos"
+      ],
+      "permissions": [],
+      "compatibility": [
+        "switch",
+        "web"
+      ],
+      "allowed_origins": [],
+      "developer": "Alex Daskalakis",
+      "license": "MIT",
+      "exitGame": "PLUS",
+      "fullscreen": true,
+      "publishedAt": "2026-08-03T09:37:17Z",
+      "summary": "ThreeJS Shaders Sky",
+      "sizeBytes": 2293372
     },
     {
       "allowed_origins": [],
