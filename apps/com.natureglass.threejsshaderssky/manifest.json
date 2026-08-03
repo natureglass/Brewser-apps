@@ -1,0 +1,23 @@
+{
+    "id": "com.natureglass.threejsshaderssky",
+    "name": "ThreeJS Shaders Sky",
+    "version": "1.0.0",
+    "description": "<p>ThreeJS Shaders Sky</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Demos"
+    ],
+    "permissions": [],
+    "compatibility": [
+        "switch",
+        "web"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "publishedAt": "2026-08-03T09:37:17Z",
+    "summary": "ThreeJS Shaders Sky"
+}
