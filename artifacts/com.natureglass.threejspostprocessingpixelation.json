@@ -1,0 +1,23 @@
+{
+  "id": "com.natureglass.threejspostprocessingpixelation",
+  "sizeBytes": 2325251,
+  "files": [
+    "assets/appbanner.jpg",
+    "build/three.core.js",
+    "build/three.module.js",
+    "index.html",
+    "jsm/controls/OrbitControls.js",
+    "jsm/libs/lil-gui.module.min.js",
+    "jsm/postprocessing/EffectComposer.js",
+    "jsm/postprocessing/MaskPass.js",
+    "jsm/postprocessing/OutputPass.js",
+    "jsm/postprocessing/Pass.js",
+    "jsm/postprocessing/RenderPixelatedPass.js",
+    "jsm/postprocessing/ShaderPass.js",
+    "jsm/shaders/CopyShader.js",
+    "jsm/shaders/OutputShader.js",
+    "main.css",
+    "manifest.json",
+    "textures/checker.png"
+  ]
+}

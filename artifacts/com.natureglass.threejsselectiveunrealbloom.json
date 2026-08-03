@@ -1,0 +1,29 @@
+{
+  "id": "com.natureglass.threejsselectiveunrealbloom",
+  "sizeBytes": 8306376,
+  "files": [
+    "assets/appbanner.jpg",
+    "build/three.core.js",
+    "build/three.module.js",
+    "index.html",
+    "jsm/controls/OrbitControls.js",
+    "jsm/libs/lil-gui.module.min.js",
+    "jsm/libs/stats.module.js",
+    "jsm/loaders/GLTFLoader.js",
+    "jsm/postprocessing/EffectComposer.js",
+    "jsm/postprocessing/MaskPass.js",
+    "jsm/postprocessing/OutputPass.js",
+    "jsm/postprocessing/Pass.js",
+    "jsm/postprocessing/RenderPass.js",
+    "jsm/postprocessing/ShaderPass.js",
+    "jsm/postprocessing/UnrealBloomPass.js",
+    "jsm/shaders/CopyShader.js",
+    "jsm/shaders/LuminosityHighPassShader.js",
+    "jsm/shaders/OutputShader.js",
+    "jsm/utils/BufferGeometryUtils.js",
+    "jsm/utils/SkeletonUtils.js",
+    "main.css",
+    "manifest.json",
+    "models/gltf/PrimaryIonDrive.glb"
+  ]
+}
