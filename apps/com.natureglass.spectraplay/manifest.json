@@ -1,0 +1,25 @@
+{
+    "id": "com.natureglass.spectraplay",
+    "name": "Spectra Play",
+    "version": "1.0.0",
+    "description": "<p><strong>Spectra Play</strong> is a modern music player with GPU-accelerated visuals. Point it at your own audio and watch it come alive with a choice of nine real-time visualizers rendered in WebGL2.</p>\r\n<p><strong>How it works.</strong> You pick a folder of music and the app lists everything inside it — loading a whole directory at once and remembering it for next time. As a track plays through the audio engine, the app continuously analyses the sound, splitting it into a live <em>frequency spectrum</em> (how much bass, mid and treble there is right now) and a <em>waveform</em> (the raw shape of the sound). Those two streams of data feed the visualizers: ribbons, bars, orbits, particle fields and nebulae that are rebuilt every frame and coloured by a shader, so the graphics pulse and flow in perfect time with the music. Track titles and artists are read straight out of the files' own tags.</p>\r\n<p><strong>How you interact:</strong></p>\r\n<ul>\r\n<li><strong>Load a folder</strong> — choose a directory of music to build your library; click any row to play it.</li>\r\n<li><strong>Playback controls</strong> — play/pause, previous/next, a seek bar and volume, plus <em>shuffle</em> and a <em>repeat</em> mode (off, all, or one).</li>\r\n<li><strong>Switch visualizers</strong> — step through the nine animated scenes with the arrows.</li>\r\n<li><strong>Keyboard shortcuts</strong> — space to play/pause, arrows to seek, and N / P to skip tracks.</li>\r\n</ul>\r\n<p>Plays common formats including MP3, FLAC, AAC, WAV, OGG and Opus, and runs entirely on-device.</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Apps"
+    ],
+    "permissions": [
+        "storage"
+    ],
+    "compatibility": [
+        "switch",
+        "web"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "publishedAt": "2026-08-03T20:42:17Z",
+    "summary": "A WebGL2 music player with playlist and live spectrum visualizers."
+}
