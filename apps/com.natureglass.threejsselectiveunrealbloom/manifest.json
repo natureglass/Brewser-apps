@@ -1,0 +1,23 @@
+{
+    "id": "com.natureglass.threejsselectiveunrealbloom",
+    "name": "ThreeJS Selective Unreal Bloom",
+    "version": "1.0.0",
+    "description": "<p>ThreeJS Selective Unreal Bloom</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Demos"
+    ],
+    "permissions": [],
+    "compatibility": [
+        "switch",
+        "web"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "publishedAt": "2026-08-03T09:27:35Z",
+    "summary": "ThreeJS Selective Unreal Bloom"
+}
