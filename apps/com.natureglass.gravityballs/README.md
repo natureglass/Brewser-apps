@@ -1,6 +1,6 @@
 # Gravity Balls
 
-_v1.0.0_
+_v1.0.1_
 
 **Gravity Balls** is a relaxing physics sandbox where a set of colourful balls fall, bounce and jostle against each other and the walls — and gravity points wherever you tilt.
 
@@ -13,3 +13,9 @@ _v1.0.0_
 - **Full screen** — fills the display for the full effect.
 
  A lightweight, self-contained demo that runs completely offline.
+
+---
+
+- **Developer:** Alex Daskalakis
+- **License:** MIT
+- **Website:** [https://github.com/natureglass](https://github.com/natureglass)
