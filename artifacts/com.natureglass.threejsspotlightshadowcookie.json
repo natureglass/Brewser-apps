@@ -1,0 +1,19 @@
+{
+  "id": "com.natureglass.threejsspotlightshadowcookie",
+  "sizeBytes": 5175775,
+  "files": [
+    "assets/appbanner.jpg",
+    "build/three.core.js",
+    "build/three.module.js",
+    "index.html",
+    "jsm/controls/OrbitControls.js",
+    "jsm/libs/lil-gui.module.min.js",
+    "jsm/loaders/PLYLoader.js",
+    "main.css",
+    "manifest.json",
+    "models/ply/binary/Lucy100k.ply",
+    "textures/colors.png",
+    "textures/disturb.jpg",
+    "textures/uv_grid_opengl.jpg"
+  ]
+}
