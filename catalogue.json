@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-02T18:54:23Z",
+  "generated": "2026-08-03T09:11:05Z",
   "apps": [
     {
       "id": "com.natureglass.aether",
@@ -331,6 +331,30 @@
       "sizeBytes": 3777095
     },
     {
+      "id": "com.natureglass.threejsequirectenvreflection",
+      "name": "ThreeJS Equirect Env Reflection",
+      "version": "1.0.0",
+      "description": "<p>ThreeJS Equirect Env Reflection</p>",
+      "logo": "assets/appbanner.jpg",
+      "entry": "index.html",
+      "categories": [
+        "Demos"
+      ],
+      "permissions": [],
+      "compatibility": [
+        "switch",
+        "web"
+      ],
+      "allowed_origins": [],
+      "developer": "Alex Daskalakis",
+      "license": "MIT",
+      "exitGame": "PLUS",
+      "fullscreen": true,
+      "publishedAt": "2026-08-03T09:01:06Z",
+      "summary": "ThreeJS Equirect Env Reflection",
+      "sizeBytes": 4964561
+    },
+    {
       "id": "com.natureglass.threejsgpgpuwater",
       "name": "ThreeJS GPGPU Water",
       "version": "1.0.0",
@@ -356,6 +380,30 @@
         "ThreeJS"
       ],
       "sizeBytes": 3890406
+    },
+    {
+      "id": "com.natureglass.threejsloadercollada",
+      "name": "ThreeJS Loader Collada",
+      "version": "1.0.0",
+      "description": "<p>ThreeJS Loader Collada</p>",
+      "logo": "assets/appbanner.jpg",
+      "entry": "index.html",
+      "categories": [
+        "Demos"
+      ],
+      "permissions": [],
+      "compatibility": [
+        "switch",
+        "web"
+      ],
+      "allowed_origins": [],
+      "developer": "Alex Daskalakis",
+      "license": "MIT",
+      "exitGame": "PLUS",
+      "fullscreen": true,
+      "publishedAt": "2026-08-03T09:03:17Z",
+      "summary": "ThreeJS Loader Collada",
+      "sizeBytes": 4919458
     },
     {
       "id": "com.natureglass.threejsrapier3dphysics",
