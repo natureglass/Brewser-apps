@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-04T19:22:44Z",
+  "generated": "2026-08-04T19:43:26Z",
   "apps": [
     {
       "id": "com.natureglass.aether",
@@ -424,6 +424,30 @@
       "publishedAt": "2026-08-03T09:03:17Z",
       "summary": "ThreeJS Loader Collada",
       "sizeBytes": 4886421
+    },
+    {
+      "id": "com.natureglass.threejsloadergltf",
+      "name": "ThreeJS Loader GLTF",
+      "version": "1.0.0",
+      "description": "<p>ThreeJS Loader GLTF</p>",
+      "logo": "assets/appbanner.jpg",
+      "entry": "index.html",
+      "categories": [
+        "Demos"
+      ],
+      "permissions": [],
+      "compatibility": [
+        "switch",
+        "web"
+      ],
+      "allowed_origins": [],
+      "developer": "Alex Daskalakis",
+      "license": "MIT",
+      "exitGame": "PLUS",
+      "fullscreen": true,
+      "publishedAt": "2026-08-04T19:23:06Z",
+      "summary": "ThreeJS Loader GLTF",
+      "sizeBytes": 6791334
     },
     {
       "id": "com.natureglass.threejspostprocessingpixelation",
