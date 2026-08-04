@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-04T09:36:48Z",
+  "generated": "2026-08-04T18:54:29Z",
   "apps": [
     {
       "id": "com.natureglass.aether",
@@ -570,7 +570,7 @@
       "fullscreen": true,
       "publishedAt": "2026-08-03T09:50:37Z",
       "summary": "ThreeJS Spotlight Shadow Cookie",
-      "sizeBytes": 5175775
+      "sizeBytes": 5148414
     },
     {
       "allowed_origins": [],

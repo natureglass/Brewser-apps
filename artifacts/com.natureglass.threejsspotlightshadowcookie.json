@@ -1,7 +1,8 @@
 {
   "id": "com.natureglass.threejsspotlightshadowcookie",
-  "sizeBytes": 5175775,
+  "sizeBytes": 5148414,
   "files": [
+    "README.md",
     "assets/appbanner.jpg",
     "build/three.core.js",
     "build/three.module.js",
