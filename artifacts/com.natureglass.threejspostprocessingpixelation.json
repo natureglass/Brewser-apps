@@ -1,7 +1,8 @@
 {
   "id": "com.natureglass.threejspostprocessingpixelation",
-  "sizeBytes": 2325251,
+  "sizeBytes": 2294398,
   "files": [
+    "README.md",
     "assets/appbanner.jpg",
     "build/three.core.js",
     "build/three.module.js",
