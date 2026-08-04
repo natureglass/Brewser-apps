@@ -1,7 +1,8 @@
 {
   "id": "com.natureglass.threejsdynamiccubemapreflection",
-  "sizeBytes": 3777095,
+  "sizeBytes": 3747017,
   "files": [
+    "README.md",
     "assets/appbanner.jpg",
     "build/three.core.js",
     "build/three.module.js",

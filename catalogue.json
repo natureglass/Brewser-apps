@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-04T19:08:00Z",
+  "generated": "2026-08-04T19:09:36Z",
   "apps": [
     {
       "id": "com.natureglass.aether",
@@ -348,7 +348,7 @@
       "tags": [
         "ThreeJS"
       ],
-      "sizeBytes": 3777095
+      "sizeBytes": 3747017
     },
     {
       "id": "com.natureglass.threejsequirectenvreflection",
