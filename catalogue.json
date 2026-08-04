@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-04T18:58:59Z",
+  "generated": "2026-08-04T18:59:52Z",
   "apps": [
     {
       "id": "com.natureglass.aether",
@@ -423,7 +423,7 @@
       "fullscreen": true,
       "publishedAt": "2026-08-03T09:03:17Z",
       "summary": "ThreeJS Loader Collada",
-      "sizeBytes": 4919458
+      "sizeBytes": 4886421
     },
     {
       "id": "com.natureglass.threejsloadergltf",
