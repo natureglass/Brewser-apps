@@ -1,23 +1,27 @@
 {
   "id": "com.natureglass.threejsloadergltf",
-  "sizeBytes": 4886403,
+  "sizeBytes": 6769505,
   "files": [
     "README.md",
     "assets/appbanner.jpg",
     "build/three.core.js",
     "build/three.module.js",
     "index.html",
-    "jsm/libs/stats.module.js",
-    "jsm/loaders/ColladaLoader.js",
-    "jsm/loaders/TGALoader.js",
-    "jsm/loaders/collada/ColladaComposer.js",
-    "jsm/loaders/collada/ColladaParser.js",
+    "jsm/controls/OrbitControls.js",
+    "jsm/libs/lil-gui.module.min.js",
+    "jsm/loaders/GLTFLoader.js",
+    "jsm/loaders/UltraHDRLoader.js",
+    "jsm/utils/BufferGeometryUtils.js",
+    "jsm/utils/SkeletonUtils.js",
     "main.css",
     "manifest.json",
-    "models/collada/elf/Body_tex_003.jpg",
-    "models/collada/elf/Face_tex_002_toObj.jpg",
-    "models/collada/elf/Hair_tex_001.jpg",
-    "models/collada/elf/ce.jpg",
-    "models/collada/elf/elf.dae"
+    "models/gltf/DamagedHelmet/glTF/DamagedHelmet.bin",
+    "models/gltf/DamagedHelmet/glTF/DamagedHelmet.gltf",
+    "models/gltf/DamagedHelmet/glTF/Default_AO.jpg",
+    "models/gltf/DamagedHelmet/glTF/Default_albedo.jpg",
+    "models/gltf/DamagedHelmet/glTF/Default_emissive.jpg",
+    "models/gltf/DamagedHelmet/glTF/Default_metalRoughness.jpg",
+    "models/gltf/DamagedHelmet/glTF/Default_normal.jpg",
+    "textures/equirectangular/royal_esplanade_2k.hdr.jpg"
   ]
 }

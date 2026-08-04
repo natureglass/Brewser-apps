@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-04T18:59:52Z",
+  "generated": "2026-08-04T19:03:27Z",
   "apps": [
     {
       "id": "com.natureglass.aether",
@@ -428,7 +428,7 @@
     {
       "id": "com.natureglass.threejsloadergltf",
       "name": "ThreeJS Loader GLTF",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "description": "<p>ThreeJS Loader GLTF</p>",
       "logo": "assets/appbanner.jpg",
       "entry": "index.html",
@@ -447,7 +447,7 @@
       "fullscreen": true,
       "publishedAt": "2026-08-03T09:15:22Z",
       "summary": "ThreeJS Loader GLTF",
-      "sizeBytes": 4886403
+      "sizeBytes": 6769505
     },
     {
       "id": "com.natureglass.threejspostprocessingpixelation",
