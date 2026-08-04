@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-04T19:06:09Z",
+  "generated": "2026-08-04T19:08:00Z",
   "apps": [
     {
       "id": "com.natureglass.aether",
@@ -372,7 +372,7 @@
       "fullscreen": true,
       "publishedAt": "2026-08-03T09:01:06Z",
       "summary": "ThreeJS Equirect Env Reflection",
-      "sizeBytes": 4964561
+      "sizeBytes": 4932459
     },
     {
       "id": "com.natureglass.threejsgpgpuwater",
