@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-04T18:58:07Z",
+  "generated": "2026-08-04T18:58:59Z",
   "apps": [
     {
       "id": "com.natureglass.aether",
@@ -447,7 +447,7 @@
       "fullscreen": true,
       "publishedAt": "2026-08-03T09:15:22Z",
       "summary": "ThreeJS Loader GLTF",
-      "sizeBytes": 4919446
+      "sizeBytes": 4886403
     },
     {
       "id": "com.natureglass.threejspostprocessingpixelation",

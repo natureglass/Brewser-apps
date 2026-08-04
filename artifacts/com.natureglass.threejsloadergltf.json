@@ -1,7 +1,8 @@
 {
   "id": "com.natureglass.threejsloadergltf",
-  "sizeBytes": 4919446,
+  "sizeBytes": 4886403,
   "files": [
+    "README.md",
     "assets/appbanner.jpg",
     "build/three.core.js",
     "build/three.module.js",
