@@ -1,21 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>three.js webgl - collada</title>
+		<title>three.js webgl - GLTFloader</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-		<meta property="og:title" content="three.js webgl - collada">
+		<meta property="og:title" content="three.js webgl - GLTFloader">
 		<meta property="og:type" content="website">
-		<meta property="og:url" content="https://threejs.org/examples/webgl_loader_collada.html">
-		<meta property="og:image" content="https://threejs.org/examples/screenshots/webgl_loader_collada.jpg">
+		<meta property="og:url" content="https://threejs.org/examples/webgl_loader_gltf.html">
+		<meta property="og:image" content="https://threejs.org/examples/screenshots/webgl_loader_gltf.jpg">
 		<link type="text/css" rel="stylesheet" href="main.css">
 	</head>
-	<body>
 
-		<div id="container"></div>
+	<body>
 		<div id="info">
-			<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> collada loader<br/>
-			Elf Girl by <a href="https://sketchfab.com/yellow09" target="_blank" rel="noopener">halloween</a>, <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC Attribution</a>
+			<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> - GLTFLoader<br />
+			<a href="https://hdrihaven.com/hdri/?h=royal_esplanade" target="_blank" rel="noopener">Royal Esplanade</a> from <a href="https://hdrihaven.com/" target="_blank" rel="noopener">HDRI Haven</a>
 		</div>
 
 		<script type="importmap">
@@ -31,70 +30,165 @@
 
 			import * as THREE from 'three';
 
-			import Stats from 'three/addons/libs/stats.module.js';
+			import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+			import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+			import { UltraHDRLoader } from 'three/addons/loaders/UltraHDRLoader.js';
+			import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 
-			import { ColladaLoader } from 'three/addons/loaders/ColladaLoader.js';
+			// Local model list — the stock demo fetches this from GitHub
+			// (raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets) which
+			// is blocked by the app manifest's empty `allowed_origins`.
+			// Ships DamagedHelmet as the sole local sample; adding more means
+			// copying non-Draco variants from three-latest into models/gltf/.
+			const LOCAL_MODELS = [
+				{ name: 'DamagedHelmet', url: 'models/gltf/DamagedHelmet/glTF/DamagedHelmet.gltf' },
+			];
 
-			let container, stats, timer;
-			let camera, scene, renderer, elf;
+			let camera, scene, renderer, controls;
+			let currentModel, mixer;
+			let currentLoadId = 0;
+
+			const timer = new THREE.Timer();
 
 			init();
 
 			function init() {
 
-				container = document.getElementById( 'container' );
+				// Canvas + GUI go directly to body (no wrapping <div>); matches the
+				// webgl_shaders_sky pattern so lil-gui overlays above the WebGL canvas.
+				const container = document.body;
 
-				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.1, 2000 );
-				camera.position.set( 8, 10, 8 );
-				camera.lookAt( 0, 3, 0 );
+				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.25, 20 );
+				camera.position.set( - 1.8, 0.6, 2.7 );
 
 				scene = new THREE.Scene();
 
-				timer = new THREE.Timer();
-				timer.connect( document );
+				new UltraHDRLoader()
+					.setPath( 'textures/equirectangular/' )
+					.load( 'royal_esplanade_2k.hdr.jpg', function ( texture ) {
 
-				// loading manager
+						texture.mapping = THREE.EquirectangularReflectionMapping;
 
-				const loadingManager = new THREE.LoadingManager( function () {
+						scene.background = texture;
+						scene.environment = texture;
 
-					scene.add( elf );
+						render();
 
-				} );
+						// model — load from LOCAL_MODELS instead of the GitHub
+						// model-index (blocked by manifest allowed_origins=[]).
+						const gui = new GUI();
+						const modelNames = LOCAL_MODELS.map( m => m.name );
+						const params = { model: modelNames[ 0 ] };
+						gui.add( params, 'model', modelNames ).onChange( name => {
 
-				// collada
+							loadModel( LOCAL_MODELS.find( m => m.name === name ) );
 
-				const loader = new ColladaLoader( loadingManager );
-				loader.load( './models/collada/elf/elf.dae', function ( collada ) {
+						} );
+						gui.add( scene, 'backgroundBlurriness', 0, 1 );
+						loadModel( LOCAL_MODELS[ 0 ] );
 
-					elf = collada.scene;
+					} );
 
-				} );
-
-				//
-
-				const ambientLight = new THREE.AmbientLight( 0xffffff );
-				scene.add( ambientLight );
-
-				const directionalLight = new THREE.DirectionalLight( 0xffffff, 2.5 );
-				directionalLight.position.set( 1, 1, 0 ).normalize();
-				scene.add( directionalLight );
-
-				//
-
-				renderer = new THREE.WebGLRenderer();
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
-				renderer.setAnimationLoop( animate );
+				renderer.setAnimationLoop( render );
+				renderer.toneMapping = THREE.ACESFilmicToneMapping;
 				container.appendChild( renderer.domElement );
 
-				//
-
-				stats = new Stats();
-				container.appendChild( stats.dom );
-
-				//
+				controls = new OrbitControls( camera, renderer.domElement );
+				controls.enableDamping = true;
+				controls.minDistance = 2;
+				controls.maxDistance = 10;
+				controls.target.set( 0, 0, - 0.2 );
+				controls.update();
 
 				window.addEventListener( 'resize', onWindowResize );
+
+			}
+
+			function loadModel( modelInfo ) {
+
+				const url = modelInfo.url;
+
+				if ( currentModel ) {
+
+					scene.remove( currentModel );
+					currentModel = null;
+
+				}
+
+				if ( mixer ) {
+
+					mixer.stopAllAction();
+					mixer = null;
+
+				}
+
+				const loadId = ++ currentLoadId;
+
+				const loader = new GLTFLoader();
+				loader.load( url, async function ( gltf ) {
+
+					if ( loadId !== currentLoadId ) return;
+
+					currentModel = gltf.scene;
+
+					// wait until the model can be added to the scene without blocking due to shader compilation
+
+					await renderer.compileAsync( currentModel, camera, scene );
+
+					if ( loadId !== currentLoadId ) return;
+
+					scene.add( currentModel );
+
+					fitCameraToSelection( camera, controls, currentModel );
+
+					// animations
+
+					if ( gltf.animations.length > 0 ) {
+
+						mixer = new THREE.AnimationMixer( currentModel );
+
+						for ( const animation of gltf.animations ) {
+
+							mixer.clipAction( animation ).play();
+
+						}
+
+					}
+
+				} );
+
+			}
+
+			function fitCameraToSelection( camera, controls, selection, fitOffset = 1.3 ) {
+
+				const box = new THREE.Box3();
+				box.setFromObject( selection );
+
+				const size = box.getSize( new THREE.Vector3() );
+				const center = box.getCenter( new THREE.Vector3() );
+
+				const maxSize = Math.max( size.x, size.y, size.z );
+				const fitHeightDistance = maxSize / ( 2 * Math.atan( Math.PI * camera.fov / 360 ) );
+				// const fitWidthDistance = fitHeightDistance / camera.aspect;
+				// const distance = fitOffset * Math.max( fitHeightDistance, fitWidthDistance );
+				const distance = fitOffset * fitHeightDistance;
+
+				const direction = controls.target.clone().sub( camera.position ).normalize().multiplyScalar( distance );
+
+				controls.maxDistance = distance * 10;
+				controls.minDistance = distance / 10;
+				controls.target.copy( center );
+
+				camera.near = distance / 100;
+				camera.far = distance * 100;
+				camera.updateProjectionMatrix();
+
+				camera.position.copy( controls.target ).sub( direction );
+
+				controls.update();
 
 			}
 
@@ -105,31 +199,25 @@
 
 				renderer.setSize( window.innerWidth, window.innerHeight );
 
-			}
-
-			function animate() {
-
-				timer.update();
-
 				render();
-				stats.update();
 
 			}
+
+			//
 
 			function render() {
 
-				const delta = timer.getDelta();
+				timer.update();
 
-				if ( elf !== undefined ) {
+				controls.update();
 
-					elf.rotation.z += delta * 0.5;
-
-				}
+				if ( mixer ) mixer.update( timer.getDelta() );
 
 				renderer.render( scene, camera );
 
 			}
 
 		</script>
+
 	</body>
 </html>
