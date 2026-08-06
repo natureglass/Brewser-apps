@@ -1,0 +1,27 @@
+{
+    "id": "com.natureglass.gravityballs",
+    "name": "Gravity Balls",
+    "version": "1.0.0",
+    "description": "<p><strong>Gravity Balls</strong> is a relaxing physics sandbox where a set of colourful balls fall, bounce and jostle against each other and the walls — and gravity points wherever you tilt.</p>\r\n<p><strong>How it works.</strong> A proper physics engine runs behind the scenes. Each frame is broken into several small sub-steps, and within each step the app nudges every ball's velocity by gravity, then repeatedly resolves collisions — ball-against-wall and ball-against-ball — using impulses that account for each ball's mass (bigger balls are heavier), bounciness and friction. This <em>iterative</em> approach lets balls pile up and settle into stable stacks instead of jittering or sinking through one another. Drawing is just as efficient: a single instanced WebGL2 draw call renders every ball from one shared shape, and a shader turns each into a crisp, smoothly anti-aliased disc.</p>\r\n<p><strong>How you interact:</strong></p>\r\n<ul>\r\n<li><strong>Tilt to steer gravity</strong> — on a device with a motion sensor, physically tilting it pulls the balls in that direction (the display reads <em>IMU LIVE</em>).</li>\r\n<li><strong>Drag</strong> — with no motion sensor, dragging on the screen points gravity toward your finger instead.</li>\r\n<li><strong>Full screen</strong> — fills the display for the full effect.</li>\r\n</ul>\r\n<p>A lightweight, self-contained demo that runs completely offline.</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Apps",
+        "Sensors"
+    ],
+    "permissions": [],
+    "compatibility": [
+        "switch",
+        "web"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "publishedAt": "2026-08-06T10:25:34Z",
+    "summary": "A WebGL2 physics playground of bouncing balls under gravity.",
+    "tags": [
+        "Gyroscope"
+    ]
+}
