@@ -1,0 +1,27 @@
+{
+    "id": "com.natureglass.threejspostprocessingpixelation",
+    "name": "ThreeJS Postprocessing Pixelation",
+    "version": "1.0.0",
+    "description": "<p><strong>ThreeJS Postprocessing Pixelation</strong> renders a tiny 3D diorama and then crushes the whole picture down into chunky retro pixels, like a modern scene squeezed through an old console's video output.</p>\r\n<p><strong>How it works.</strong> The scene — two tilted cubes, a checkerboard floor and a glowing blue crystal that gently bobs and pulses — is drawn through an <em>effect composer</em>, a pipeline that post-processes the rendered image before it reaches the screen. A <em>pixelation pass</em> renders everything at a low internal resolution and snaps it onto a coarse grid of square pixels, then optionally traces crisp single-pixel outlines by comparing the surface <em>normals</em> and <em>depth</em> of neighbouring pixels so edges read cleanly. A pixel-aligned camera keeps the grid locked in place as you move, so the pixels stay steady instead of shimmering.</p>\r\n<p><strong>How you interact:</strong></p>\r\n<ul>\r\n<li><strong>Orbit the scene</strong> — drag to rotate and pinch or scroll to zoom the diorama.</li>\r\n<li><strong>Pixel size</strong> — a slider scales the pixels from fine (1) to blocky (16).</li>\r\n<li><strong>Edge outlines</strong> — separate normal-edge and depth-edge sliders control how strongly the retro outlines are drawn.</li>\r\n<li><strong>Pixel-aligned panning</strong> — toggle whether the camera snaps to the pixel grid.</li>\r\n<li><strong>Full screen</strong> — fills the display.</li>\r\n</ul>\r\n<p>A self-contained three.js post-processing demo, rendered live on the Switch GPU completely offline.</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Demos"
+    ],
+    "permissions": [],
+    "compatibility": [
+        "switch",
+        "web"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "publishedAt": "2026-08-06T09:46:50Z",
+    "summary": "A three.js diorama rendered through a chunky, adjustable retro pixelation pass.",
+    "tags": [
+        "WebGL2",
+        "ThreeJS"
+    ]
+}
