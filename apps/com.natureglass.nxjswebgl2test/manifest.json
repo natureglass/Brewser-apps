@@ -1,0 +1,24 @@
+{
+    "id": "com.natureglass.nxjswebgl2test",
+    "name": "nxjs WebGL2 Test",
+    "version": "1.0.0",
+    "description": "<p><strong>nxjs WebGL2 Test</strong> is a WebGL2 showpiece for the nx.js runtime — a procedural sunset sea, drawn entirely inside a single shader, with the nx.js logo on a cube drifting on the tide.</p>\r\n<p><strong>How it works.</strong> The whole scene is painted by one <em>fragment shader</em> in the ShaderToy style: a single full-screen triangle is drawn with no geometry data at all, and for every pixel the shader casts a <em>ray</em> out into an imagined world. It <em>ray-marches</em> a rippling wave surface, builds the dusk sky, sun, clouds and stars from <em>noise</em> functions, and intersects a ray against a box to place the cube. Each frame the cube's pose — its bob, spin and roll on the waves — is worked out on the processor and passed in as small <em>matrices</em>, while the marked <em>raw passthrough</em> shader runs natively on the console's graphics chip. A final cinematic <em>tonemap</em>, vignette and dither give it a filmic finish.</p>\r\n<p><strong>What you'll see:</strong></p>\r\n<ul>\r\n<li><strong>Sunset sky</strong> — a layered dusk gradient with a low sun, drifting clouds and stars coming out.</li>\r\n<li><strong>Ray-marched sea</strong> — a rippling ocean with fresnel reflections, sun glitter and sparkling glints.</li>\r\n<li><strong>Floating cube</strong> — an nx.js-logo cube bobbing and turning on the swell, casting a shadow and a reflected streak across the water.</li>\r\n<li><strong>Orbit the camera</strong> — drag the screen or push the right stick to change your view.</li>\r\n</ul>\r\n<p>Runs entirely offline.</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Demos"
+    ],
+    "permissions": [],
+    "compatibility": [
+        "web"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "publishedAt": "2026-08-06T09:22:21Z",
+    "features": [
+        "Gamepad"
+    ]
+}
