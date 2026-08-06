@@ -1,0 +1,28 @@
+{
+    "id": "com.natureglass.savedemo",
+    "name": "Save Demo",
+    "version": "1.0.0",
+    "description": "<p><strong>Save Demo</strong> is a hands-on test harness for the Brewser save system — the same building blocks any app can use to remember data across sessions and devices. Sign in with your Google/Brewser account and exercise every part of the API from one screen.</p>\r\n<p><strong>How it works.</strong> The app uses a two-tier persistence model. When you save, your data is written <em>instantly</em> to this browser's local storage, then a background sync quietly uploads it to your account a moment later, so the interface never waits on the network. When you load, the local copy always wins for speed, while <em>Pull</em> fetches the authoritative copy from the server. Signing in opens a Google sign-in popup that hands back a secure token, which the app then attaches to each request to the Brewser cloud. On top of the basic save blob it layers two higher-level tools: <em>records</em>, a simple add/update/remove/list database of individual entries, and <em>leaderboards</em>, a shared public scoreboard that keeps each player's best result.</p>\r\n<p><strong>What you can try:</strong></p>\r\n<ul>\r\n<li><strong>Save &amp; load</strong> — edit a JSON blob and Save, Load, <em>Sync now</em>, <em>Pull from account</em>, or Clear local.</li>\r\n<li><strong>Records</strong> — Put (add), Update or Remove a selected entry, and List them all.</li>\r\n<li><strong>Leaderboard</strong> — submit a score, then view the Top 10, your own rank, or the scores around you, and remove your entry.</li>\r\n<li><strong>State panels</strong> — two live views compare what's stored in this browser versus what's on the server, each with a status indicator.</li>\r\n<li><strong>Activity log</strong> — every operation is timestamped so you can watch the sync happen.</li>\r\n</ul>\r\n<p>A reference app for developers building save-enabled experiences on Brewser.</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Apps",
+        "Demos"
+    ],
+    "permissions": [],
+    "compatibility": [
+        "switch",
+        "web"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "publishedAt": "2026-08-06T10:20:30Z",
+    "summary": "A hands-on test harness for the Brewser cloud save, records and leaderboard APIs.",
+    "tags": [
+        "Leaderboards",
+        "Save Game"
+    ]
+}
