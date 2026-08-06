@@ -1,0 +1,27 @@
+{
+  "id": "com.natureglass.threejsloadergltf",
+  "sizeBytes": 6795237,
+  "files": [
+    "README.md",
+    "assets/appbanner.jpg",
+    "build/three.core.js",
+    "build/three.module.js",
+    "index.html",
+    "jsm/controls/OrbitControls.js",
+    "jsm/libs/lil-gui.module.min.js",
+    "jsm/loaders/GLTFLoader.js",
+    "jsm/loaders/UltraHDRLoader.js",
+    "jsm/utils/BufferGeometryUtils.js",
+    "jsm/utils/SkeletonUtils.js",
+    "main.css",
+    "manifest.json",
+    "models/gltf/DamagedHelmet/glTF/DamagedHelmet.bin",
+    "models/gltf/DamagedHelmet/glTF/DamagedHelmet.gltf",
+    "models/gltf/DamagedHelmet/glTF/Default_AO.jpg",
+    "models/gltf/DamagedHelmet/glTF/Default_albedo.jpg",
+    "models/gltf/DamagedHelmet/glTF/Default_emissive.jpg",
+    "models/gltf/DamagedHelmet/glTF/Default_metalRoughness.jpg",
+    "models/gltf/DamagedHelmet/glTF/Default_normal.jpg",
+    "textures/equirectangular/royal_esplanade_2k.hdr.jpg"
+  ]
+}
