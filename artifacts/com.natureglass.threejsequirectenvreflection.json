@@ -1,0 +1,20 @@
+{
+  "id": "com.natureglass.threejsequirectenvreflection",
+  "sizeBytes": 4936279,
+  "files": [
+    "README.md",
+    "assets/appbanner.jpg",
+    "build/three.core.js",
+    "build/three.module.js",
+    "index.html",
+    "jsm/controls/OrbitControls.js",
+    "jsm/libs/fflate.module.js",
+    "jsm/libs/lil-gui.module.min.js",
+    "jsm/libs/stats.module.js",
+    "jsm/loaders/EXRLoader.js",
+    "main.css",
+    "manifest.json",
+    "textures/equirectangular.png",
+    "textures/piz_compressed.exr"
+  ]
+}
