@@ -1,8 +1,9 @@
 {
   "featured": [
     "com.natureglass.aether",
+    "com.natureglass.sensorsplayground",
     "com.natureglass.threejsloadergltf"
   ],
-  "generated": "2026-08-06T10:55:34Z",
+  "generated": "2026-08-06T10:55:42Z",
   "revoked": []
 }
