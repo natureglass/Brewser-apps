@@ -1,6 +1,6 @@
 # ThreeJS Rapier3d Physics
 
-_v1.0.0_
+_v1.0.1_
 
 **ThreeJS Rapier3d Physics** is a self-running rigid-body playground: colourful boxes, spheres and rounded blocks rain down onto a grid floor, bounce, tumble and pile up under gravity.
 
