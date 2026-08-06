@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-06T09:38:59Z",
+  "generated": "2026-08-06T09:39:39Z",
   "apps": [
     {
       "id": "com.natureglass.nxjswebgl1test",
@@ -107,7 +107,12 @@
       "exitGame": "PLUS",
       "fullscreen": true,
       "publishedAt": "2026-08-06T09:23:48Z",
-      "sizeBytes": 4936279
+      "summary": "A three.js image-based-lighting demo of a torus knot reflecting an equirectangular HDR environment.",
+      "tags": [
+        "WebGL2",
+        "ThreeJS"
+      ],
+      "sizeBytes": 4936454
     },
     {
       "id": "com.natureglass.threejsgpgpuwater",
