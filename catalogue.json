@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-06T07:48:54Z",
+  "generated": "2026-08-06T07:49:12Z",
   "apps": [
     {
       "id": "com.natureglass.aether",
@@ -104,6 +104,33 @@
       "publishedAt": "2026-08-03T21:12:00Z",
       "summary": "A WebGL2 physics playground of bouncing balls under gravity.",
       "sizeBytes": 37292
+    },
+    {
+      "id": "com.natureglass.metaballssim",
+      "name": "Metaballs sim",
+      "version": "1.0.0",
+      "description": "<p>Metaballs sim</p>",
+      "logo": "assets/appbanner.jpg",
+      "entry": "index.html",
+      "categories": [
+        "Demos"
+      ],
+      "permissions": [],
+      "compatibility": [
+        "switch",
+        "web"
+      ],
+      "allowed_origins": [],
+      "developer": "Alex Daskalakis",
+      "license": "MIT",
+      "exitGame": "PLUS",
+      "fullscreen": true,
+      "publishedAt": "2026-08-06T07:36:35Z",
+      "summary": "Metaballs sim",
+      "tags": [
+        "Fluids"
+      ],
+      "sizeBytes": 27602
     },
     {
       "id": "com.natureglass.midilab",
