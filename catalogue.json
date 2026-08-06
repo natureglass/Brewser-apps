@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-06T07:48:32Z",
+  "generated": "2026-08-06T07:48:54Z",
   "apps": [
     {
       "id": "com.natureglass.aether",
@@ -160,6 +160,33 @@
       "publishedAt": "2026-07-22T12:57:20Z",
       "summary": "Draw a doodle and let an on-device WebNN model guess what it is.",
       "sizeBytes": 90615
+    },
+    {
+      "id": "com.natureglass.nxjswebgl1test",
+      "name": "nxjs WebGL1 Test",
+      "version": "1.0.0",
+      "description": "<p>nxjs WebGL1 Test</p>",
+      "logo": "assets/appbanner.jpg",
+      "entry": "index.html",
+      "categories": [
+        "Demos"
+      ],
+      "permissions": [],
+      "compatibility": [
+        "switch",
+        "web"
+      ],
+      "allowed_origins": [],
+      "developer": "Alex Daskalakis",
+      "license": "MIT",
+      "exitGame": "PLUS",
+      "fullscreen": true,
+      "publishedAt": "2026-08-06T07:44:45Z",
+      "summary": "nxjs WebGL1 Test",
+      "features": [
+        "Gamepad"
+      ],
+      "sizeBytes": 116973
     },
     {
       "id": "com.natureglass.nxjswebgl2test",
