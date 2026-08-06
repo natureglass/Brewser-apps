@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-06T08:02:44Z",
+  "generated": "2026-08-06T08:17:55Z",
   "apps": [
     {
       "id": "com.natureglass.aether",
@@ -104,6 +104,32 @@
       "publishedAt": "2026-08-03T21:12:00Z",
       "summary": "A WebGL2 physics playground of bouncing balls under gravity.",
       "sizeBytes": 37292
+    },
+    {
+      "id": "com.natureglass.homeassistantgrid",
+      "name": "Home Assistant Grid",
+      "version": "1.0.0",
+      "description": "<p>Home Assistant Grid</p>",
+      "logo": "assets/appbanner.jpg",
+      "entry": "index.html",
+      "categories": [
+        "Apps",
+        "Automation",
+        "Controls"
+      ],
+      "permissions": [],
+      "compatibility": [
+        "switch",
+        "web"
+      ],
+      "allowed_origins": [],
+      "developer": "Alex Daskalakis",
+      "license": "MIT",
+      "exitGame": "PLUS",
+      "fullscreen": true,
+      "publishedAt": "2026-08-06T08:01:35Z",
+      "summary": "Home Assistant Grid",
+      "sizeBytes": 75980
     },
     {
       "id": "com.natureglass.metaballssim",

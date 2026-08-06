@@ -1,0 +1,10 @@
+{
+  "id": "com.natureglass.homeassistantgrid",
+  "sizeBytes": 75980,
+  "files": [
+    "README.md",
+    "assets/appbanner.jpg",
+    "index.html",
+    "manifest.json"
+  ]
+}
