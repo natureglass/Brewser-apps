@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>AETHER — field director</title>
+<style>
+  :root{
+    --ae-ink:#08090d;
+    --ae-panel:#101219;
+    --ae-panel-hi:#161923;
+    --ae-line:#242939;
+    --ae-amber:#ffb238;
+    --ae-cyan:#4de2e8;
+    --ae-text:#b9c1d6;
+    --ae-dim:#5b6479;
+    --ae-mono: ui-monospace, "SF Mono", "Cascadia Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+    --ae-rail: 316px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:var(--ae-ink);color:var(--ae-text);
+    font-family:var(--ae-mono);font-size:13px;overflow:hidden;
+    -webkit-font-smoothing:antialiased;overscroll-behavior:none}
+
+  #stage{position:fixed;inset:0}
+  #gl{display:block;width:100%;height:100%}
+
+  .chrome{position:fixed;z-index:10}
+
+  #bar{top:0;left:0;right:0;display:flex;gap:10px;align-items:stretch;
+    padding:10px;background:linear-gradient(180deg,rgba(8,9,13,.94),rgba(8,9,13,.55) 70%,transparent);
+    pointer-events:none}
+  #bar > *{pointer-events:auto}
+  .mark{display:flex;flex-direction:column;justify-content:center;padding:0 14px 0 4px;
+    border-right:1px solid var(--ae-line);min-width:112px}
+  .mark b{font-size:15px;letter-spacing:.34em;color:var(--ae-amber);font-weight:700}
+  .mark span{font-size:9px;letter-spacing:.2em;color:var(--ae-dim);text-transform:uppercase;margin-top:3px}
+
+  .field{flex:1;display:flex;align-items:center;gap:9px;background:var(--ae-panel);
+    border:1px solid var(--ae-line);border-radius:2px;padding:0 12px;min-width:0}
+  .field:focus-within{border-color:var(--ae-cyan);box-shadow:0 0 0 1px rgba(77,226,232,.25)}
+  .field .caret{color:var(--ae-amber);font-size:14px;flex:none}
+  #prompt{flex:1;min-width:0;background:none;border:0;outline:0;color:var(--ae-text);
+    font-family:inherit;font-size:14px;padding:11px 0}
+  #prompt::placeholder{color:var(--ae-dim)}
+
+  button{font-family:inherit;font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+    background:var(--ae-panel);color:var(--ae-text);border:1px solid var(--ae-line);
+    border-radius:2px;padding:0 15px;cursor:pointer;transition:.13s;white-space:nowrap}
+  button:hover{border-color:var(--ae-dim);background:var(--ae-panel-hi)}
+  button:focus-visible{outline:2px solid var(--ae-cyan);outline-offset:1px}
+  button.go{border-color:var(--ae-amber);color:var(--ae-amber)}
+  button.go:hover{background:rgba(255,178,56,.11)}
+
+  #rail{top:64px;left:10px;bottom:34px;width:var(--ae-rail);
+    background:rgba(16,18,25,.9);border:1px solid var(--ae-line);border-radius:2px;
+    display:flex;flex-direction:column;transition:transform .3s cubic-bezier(.4,0,.2,1)}
+  #rail.away{transform:translateX(calc(-100% - 12px))}
+
+  /* drawer handle — nested inside the rail so it travels with it and is still
+     reachable when the rail is parked off-screen */
+  #railTab{position:absolute;right:-31px;top:50%;margin-top:-64px;
+    width:30px;height:128px;padding:0;
+    background:rgba(16,18,25,.92);border:1px solid var(--ae-line);border-left:0;
+    border-radius:0 3px 3px 0;color:var(--ae-dim);
+    display:flex;align-items:center;justify-content:center;gap:7px;
+    writing-mode:vertical-rl;text-orientation:mixed;
+    font-size:9px;letter-spacing:.24em;text-transform:uppercase}
+  #railTab:hover{color:var(--ae-amber);border-color:var(--ae-dim);background:rgba(22,25,35,.95)}
+  #railTab .arrow{writing-mode:horizontal-tb;font-size:11px;line-height:1;
+    transition:transform .3s cubic-bezier(.4,0,.2,1)}
+  #rail.away #railTab .arrow{transform:rotate(180deg)}
+  #railScroll{overflow-y:auto;overflow-x:hidden;flex:1;scrollbar-width:thin;
+    scrollbar-color:var(--ae-line) transparent}
+  #railScroll::-webkit-scrollbar{width:8px}
+  #railScroll::-webkit-scrollbar-thumb{background:var(--ae-line)}
+
+  .grp{border-bottom:1px solid var(--ae-line)}
+  .grp > summary{list-style:none;cursor:pointer;padding:9px 12px;display:flex;
+    align-items:center;gap:8px;font-size:10px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--ae-dim);user-select:none}
+  .grp > summary::-webkit-details-marker{display:none}
+  .grp > summary:hover{color:var(--ae-text);background:var(--ae-panel-hi)}
+  .grp[open] > summary{color:var(--ae-amber)}
+  .grp > summary .tick{width:5px;height:5px;border:1px solid currentColor;flex:none;
+    transform:rotate(45deg);transition:.2s}
+  .grp[open] > summary .tick{background:currentColor}
+  .grpBody{padding:3px 12px 11px}
+
+  .row{padding:5px 0}
+  .row .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:4px}
+  .row label{font-size:11px;color:var(--ae-text);letter-spacing:.02em}
+  .row .val{font-size:11px;color:var(--ae-cyan);font-variant-numeric:tabular-nums}
+  .row.moved .val{color:var(--ae-amber)}
+
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:16px;
+    background:transparent;cursor:pointer;display:block;margin:0}
+  input[type=range]:focus-visible{outline:2px solid var(--ae-cyan);outline-offset:2px}
+  input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--ae-line)}
+  input[type=range]::-moz-range-track{height:2px;background:var(--ae-line)}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:3px;height:14px;
+    background:var(--ae-text);margin-top:-6px;border-radius:0;border:0}
+  input[type=range]::-moz-range-thumb{width:3px;height:14px;background:var(--ae-text);
+    border-radius:0;border:0}
+  .row.moved input[type=range]::-webkit-slider-thumb{background:var(--ae-amber);width:5px}
+  .row.moved input[type=range]::-moz-range-thumb{background:var(--ae-amber);width:5px}
+
+  select{width:100%;font-family:inherit;font-size:11px;background:var(--ae-panel-hi);
+    color:var(--ae-text);border:1px solid var(--ae-line);border-radius:2px;padding:6px 8px;outline:0}
+  select:focus-visible{border-color:var(--ae-cyan)}
+
+  .railFoot{border-top:1px solid var(--ae-line);padding:9px;display:grid;
+    grid-template-columns:1fr 1fr;gap:6px;flex:none}
+  .railFoot button{padding:8px 4px;font-size:10px}
+  .railFoot .wide{grid-column:1/-1}
+
+  #tele{bottom:0;left:0;right:0;display:flex;gap:16px;align-items:center;
+    padding:8px 12px;font-size:10px;letter-spacing:.13em;text-transform:uppercase;
+    color:var(--ae-dim);background:linear-gradient(0deg,rgba(8,9,13,.92),transparent);
+    pointer-events:none}
+  #tele b{color:var(--ae-text);font-weight:400;font-variant-numeric:tabular-nums}
+  #tele .sep{width:1px;height:11px;background:var(--ae-line)}
+  #tele .right{margin-left:auto;pointer-events:auto;display:flex;gap:14px;align-items:center}
+  #tele kbd{border:1px solid var(--ae-line);border-radius:2px;padding:1px 5px;
+    color:var(--ae-dim);font-family:inherit;font-size:9px}
+
+  #verdict{position:fixed;z-index:11;top:64px;right:10px;width:250px;
+    background:rgba(16,18,25,.9);border:1px solid var(--ae-line);border-radius:2px;
+    padding:11px 12px;transition:opacity .3s;opacity:0;pointer-events:none}
+  #verdict.on{opacity:1}
+  #verdict h4{margin:0 0 7px;font-size:9px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--ae-dim);font-weight:400}
+  #tags{display:flex;flex-wrap:wrap;gap:4px}
+  .tag{font-size:10px;padding:2px 7px;border:1px solid var(--ae-line);border-radius:2px;
+    color:var(--ae-cyan);background:rgba(77,226,232,.06)}
+  .tag.miss{color:var(--ae-dim);border-style:dashed;background:none}
+
+  @media (max-width:760px){
+    :root{--ae-rail:calc(100vw - 20px)}
+    #verdict{display:none}
+    .mark{min-width:0;padding-right:10px}
+    .mark b{font-size:13px;letter-spacing:.24em}
+  }
+  @media (prefers-reduced-motion:reduce){
+    #rail{transition:none} #verdict{transition:none}
+  }
+</style>
+</head>
+<body>
+
+<div id="stage"><canvas id="gl"></canvas></div>
+
+<div id="bar" class="chrome">
+  <div class="mark"><b>AETHER</b><span>field director</span></div>
+  <div class="field">
+    <span class="caret">&rsaquo;</span>
+    <input id="prompt" type="text" autocomplete="off" spellcheck="false"
+           placeholder="describe a world — stormy alien ocean at dusk">
+  </div>
+  <button id="run" class="go">Render</button>
+  <button id="deal">New prompt</button>
+  <button id="dice">Surprise me</button>
+</div>
+
+<div id="rail" class="chrome away">
+  <button id="railTab" aria-label="Show or hide the console" aria-expanded="false">
+    <span class="arrow">&lsaquo;</span>Console
+  </button>
+  <div id="railScroll"></div>
+  <div class="railFoot">
+    <button id="copyBtn">Copy JSON</button>
+    <button id="pasteBtn">Load JSON</button>
+    <button id="shotBtn">Save frame</button>
+    <button id="resetBtn">Reset</button>
+    <button id="corpusBtn" class="wide">Export corpus (0)</button>
+  </div>
+</div>
+
+<div id="verdict">
+  <h4>Director read</h4>
+  <div id="tags"></div>
+</div>
+
+<div id="tele" class="chrome">
+  <span>fps <b id="fps">—</b></span><span class="sep"></span>
+  <span>buffer <b id="dims">—</b></span><span class="sep"></span>
+  <span>cost <b id="cost">—</b></span>
+  <div class="right">
+    <span><kbd>P</kbd> new prompt</span>
+    <span><kbd>space</kbd> surprise</span>
+    <span><kbd>H</kbd> console</span>
+    <span><kbd>F</kbd> fullscreen</span>
+  </div>
+</div>
+
+<script>
+"use strict";
+(function(){
+
+/* ==========================================================================
+   AETHER v2
+
+   Changes from v1, all driven by looking at real renders:
+   - base field scale was ~3x too low (one noise cell filled the screen)
+   - fBm output only occupied ~1/3 of [0,1]; added an explicit range expander
+   - added IQ-style structure terms so the domain warp is *visible* as filaments
+   - fog colour now travels through the same hue rotation as the palette
+   - kaleidoscope now folds about screen centre regardless of pan
+   - hue is no longer randomly jittered over a deliberate palette choice
+   - palette voting is weighted, not last-write-wins
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. PALETTES — IQ cosine palettes: col = a + b*cos(2pi*(c*t + d))
+   -------------------------------------------------------------------------- */
+const PALETTES = {
+  ember:   {a:[.52,.32,.18], b:[.48,.30,.16], c:[1,1,.6],    d:[.02,.14,.28]},
+  deepsea: {a:[.10,.20,.30], b:[.16,.32,.42], c:[1,1,1],     d:[.60,.72,.86]},
+  neon:    {a:[.50,.50,.50], b:[.50,.50,.50], c:[1,1,1],     d:[0,.33,.67]},
+  aurora:  {a:[.16,.30,.28], b:[.30,.50,.38], c:[1,1.1,.9],  d:[.30,.55,.75]},
+  ice:     {a:[.62,.72,.82], b:[.28,.26,.22], c:[.9,1,1.1],  d:[.55,.62,.72]},
+  vapor:   {a:[.58,.42,.62], b:[.42,.30,.38], c:[1,.9,1.1],  d:[.10,.42,.72]},
+  mono:    {a:[.52,.52,.52], b:[.46,.46,.46], c:[1,1,1],     d:[0,0,0]},
+  gold:    {a:[.48,.38,.16], b:[.46,.38,.20], c:[.9,1,.7],   d:[.10,.20,.42]},
+  toxic:   {a:[.28,.44,.20], b:[.34,.48,.22], c:[1,.95,.8],  d:[.28,.48,.10]},
+  rose:    {a:[.62,.38,.44], b:[.34,.24,.28], c:[1,1,.9],    d:[.08,.22,.44]},
+  voidp:   {a:[.14,.12,.22], b:[.24,.20,.38], c:[1.1,1,.9],  d:[.62,.52,.44]},
+  rust:    {a:[.42,.26,.18], b:[.34,.22,.14], c:[.9,1,1.1],  d:[.16,.10,.06]},
+  lagoon:  {a:[.18,.42,.44], b:[.22,.36,.34], c:[1,1,.85],   d:[.42,.58,.70]},
+  magma:   {a:[.36,.14,.10], b:[.52,.24,.12], c:[1,.9,.7],   d:[0,.10,.22]}
+};
+const PAL_KEYS = Object.keys(PALETTES);
+
+/* --------------------------------------------------------------------------
+   2. SCHEMA — the DSL a model would be trained to emit.
+   -------------------------------------------------------------------------- */
+const PATTERNS = ["smooth","bands","rings","veins","terrace","streaks","cells"];
+
+const SCHEMA = [
+ {group:"Field", open:true, rows:[
+   {k:"pattern",     t:"Pattern",     select:PATTERNS, d:"smooth"},
+   {k:"patScale",    t:"Pattern rate",min:.5,  max:6,  step:.01, d:1.6},
+   {k:"scale",       t:"Scale",       min:.8,  max:16, step:.02, d:4.6},
+   {k:"octaves",     t:"Octaves",     min:1,   max:8,  step:1,   d:5, int:true},
+   {k:"lacunarity",  t:"Lacunarity",  min:1.3, max:3.4,step:.01, d:2.0},
+   {k:"gain",        t:"Gain",        min:.25, max:.78,step:.01, d:.52},
+   {k:"ridged",      t:"Ridge",       min:0,   max:1,  step:.01, d:0},
+   {k:"sharpen",     t:"Range",       min:1,   max:5,  step:.01, d:2.7}
+ ]},
+ {group:"Warp", open:true, rows:[
+   {k:"warpIter",    t:"Iterations",  min:0,   max:3,  step:1,   d:2, int:true},
+   {k:"warpStrength",t:"Strength",    min:0,   max:3,  step:.01, d:1.1},
+   {k:"warpSpin",    t:"Spin",        min:-2,  max:2,  step:.01, d:.25},
+   {k:"structure",   t:"Filaments",   min:0,   max:1,  step:.01, d:.55}
+ ]},
+ {group:"Motion", rows:[
+   {k:"flowSpeed",   t:"Drift speed", min:0,   max:1.2,step:.005,d:.10},
+   {k:"flowAngle",   t:"Drift angle", min:0,   max:6.28,step:.01,d:1.2},
+   {k:"pulse",       t:"Pulse",       min:0,   max:1,  step:.01, d:.15},
+   {k:"spinRate",    t:"Rotation",    min:-.6, max:.6, step:.005,d:0}
+ ]},
+ {group:"Symmetry", rows:[
+   {k:"fold",        t:"Kaleidoscope",min:0,   max:12, step:1,   d:0, int:true},
+   {k:"mirror",      t:"Mirror",      min:0,   max:1,  step:1,   d:0, int:true},
+   {k:"polarWarp",   t:"Polar bend",  min:0,   max:1,  step:.01, d:0}
+ ]},
+ {group:"Camera", rows:[
+   {k:"zoom",        t:"Zoom",        min:.15, max:4,  step:.01, d:1.0},
+   {k:"panX",        t:"Pan X",       min:-3,  max:3,  step:.01, d:0},
+   {k:"panY",        t:"Pan Y",       min:-3,  max:3,  step:.01, d:0},
+   {k:"rotate",      t:"Tilt",        min:0,   max:6.28,step:.01,d:0}
+ ]},
+ {group:"Colour", open:true, rows:[
+   {k:"palette",     t:"Palette",     select:PAL_KEYS, d:"neon"},
+   {k:"hue",         t:"Hue shift",   min:-3.14,max:3.14,step:.01,d:0},
+   {k:"palFreq",     t:"Band count",  min:.2,  max:4,  step:.01, d:1.1},
+   {k:"palPhase",    t:"Band offset", min:0,   max:1,  step:.005,d:0},
+   {k:"palContrast", t:"Band depth",  min:.3,  max:2.2,step:.01, d:1.0}
+ ]},
+ {group:"Atmosphere", rows:[
+   {k:"brightness",  t:"Brightness",  min:-.4, max:.5, step:.005,d:0},
+   {k:"contrast",    t:"Contrast",    min:.5,  max:2.2,step:.01, d:1.05},
+   {k:"saturation",  t:"Saturation",  min:0,   max:1.8,step:.01, d:1.0},
+   {k:"fog",         t:"Edge fade",   min:0,   max:1,  step:.01, d:.25},
+   {k:"glow",        t:"Bloom",       min:0,   max:1.2,step:.01, d:.3}
+ ]},
+ {group:"Finish", rows:[
+   {k:"vignette",    t:"Vignette",    min:0,   max:1.4,step:.01, d:.45},
+   {k:"grain",       t:"Grain",       min:0,   max:.35,step:.005,d:.03},
+   {k:"aberration",  t:"Fringing",    min:0,   max:1,  step:.01, d:.10},
+   {k:"scanline",    t:"Scanlines",   min:0,   max:.6, step:.01, d:0},
+   {k:"posterize",   t:"Posterise",   min:0,   max:1,  step:.01, d:0}
+ ]},
+ {group:"Output", rows:[
+   {k:"resScale",    t:"Render scale",min:.25, max:1,  step:.05, d:1, raw:true},
+   {k:"seed",        t:"Seed",        min:0,   max:999,step:1,   d:137, int:true}
+ ]}
+];
+
+const ROWS = [];
+SCHEMA.forEach(g => g.rows.forEach(r => { r.group = g.group; ROWS.push(r); }));
+const ROW_BY_KEY = {};
+ROWS.forEach(r => ROW_BY_KEY[r.k] = r);
+
+function defaults(){
+  const p = {};
+  ROWS.forEach(r => p[r.k] = r.d);
+  return p;
+}
+
+/* --------------------------------------------------------------------------
+   3. TAG VOCABULARY
+   `pw` = palette authority. An explicit colour word (pw 3) beats a subject
+   (pw 2) beats a mood (pw 1). v1 used last-write-wins, which meant
+   "stormy alien ocean" silently resolved on whichever word happened to be last.
+   -------------------------------------------------------------------------- */
+const TAGS = {
+  // --- subjects -----------------------------------------------------------
+  ocean:   {palette:"deepsea", pw:2, pattern:"bands", patScale:1.3, scale:3.8, octaves:6, warpStrength:1.5, warpIter:3, structure:.7, flowSpeed:.16, flowAngle:.4, ridged:.15, glow:.25, fog:.4, sharpen:2.9},
+  sea:     {alias:"ocean"}, water:{alias:"ocean"}, wave:{alias:"ocean"}, waves:{alias:"ocean"}, tide:{alias:"ocean"},
+  nebula:  {palette:"voidp", pw:2, scale:2.6, octaves:7, warpStrength:2.1, warpIter:3, structure:.8, flowSpeed:.05, glow:.8, fog:.55, brightness:-.06, palFreq:1.5, sharpen:3.2},
+  space:   {alias:"nebula"}, cosmic:{alias:"nebula"}, galaxy:{alias:"nebula"}, star:{alias:"nebula"}, stars:{alias:"nebula"}, void:{alias:"nebula"},
+  fire:    {palette:"magma", pw:2, scale:6.2, octaves:6, ridged:.6, warpStrength:1.3, structure:.6, flowSpeed:.42, flowAngle:1.57, glow:.9, contrast:1.35, pulse:.4, sharpen:3.4},
+  flame:   {alias:"fire"}, lava:{alias:"fire"}, burning:{alias:"fire"}, inferno:{alias:"fire"},
+  ember:   {palette:"ember", pw:2, glow:.6, ridged:.4, flowSpeed:.2, scale:5.4, sharpen:3.0},
+  ice:     {palette:"ice", pw:2, pattern:"cells", patw:2, patScale:1.5, scale:8.0, octaves:4, ridged:.75, warpStrength:.5, structure:.35, flowSpeed:.02, contrast:1.3, saturation:.6, glow:.35, sharpen:3.6},
+  frost:   {alias:"ice"}, frozen:{alias:"ice"}, glacier:{alias:"ice"}, arctic:{alias:"ice"}, snow:{alias:"ice"},
+  forest:  {palette:"toxic", pw:2, pattern:"cells", patScale:2.2, scale:7.0, octaves:6, ridged:.3, warpStrength:1.0, structure:.55, flowSpeed:.06, saturation:1.1, fog:.35},
+  jungle:  {alias:"forest"}, moss:{alias:"forest"}, leaf:{alias:"forest"},
+  desert:  {palette:"gold", pw:2, pattern:"streaks", patScale:1.4, scale:3.4, octaves:4, ridged:.2, warpStrength:.7, structure:.4, flowSpeed:.04, saturation:.85, brightness:.08, fog:.3},
+  dune:    {alias:"desert"}, sand:{alias:"desert"}, dust:{alias:"desert"},
+  storm:   {palette:"voidp", pw:2, scale:4.8, octaves:7, warpStrength:2.4, warpIter:3, structure:.85, flowSpeed:.5, pulse:.5, contrast:1.45, brightness:-.08, glow:.55, sharpen:3.4},
+  stormy:  {alias:"storm"}, thunder:{alias:"storm"}, tempest:{alias:"storm"}, lightning:{alias:"storm"},
+  aurora:  {palette:"aurora", pw:2, pattern:"streaks", patScale:1.1, scale:3.1, octaves:5, warpStrength:1.8, warpIter:3, structure:.75, flowSpeed:.1, glow:.95, fog:.5, saturation:1.3, sharpen:3.1},
+  crystal: {palette:"ice", pw:2, pattern:"cells", patw:3, patScale:2.4, scale:5.6, ridged:.8, warpStrength:.4, structure:.3, glow:.55, contrast:1.4, sharpen:3.5},
+  cave:    {palette:"rust", pw:2, pattern:"cells", patScale:1.8, scale:5.2, octaves:6, ridged:.5, brightness:-.14, fog:.6, vignette:.9, saturation:.7, structure:.6},
+  smoke:   {palette:"mono", pw:2, scale:4.2, octaves:7, warpStrength:1.9, warpIter:3, structure:.7, flowSpeed:.14, saturation:.25, fog:.5},
+  fog:     {alias:"smoke"}, mist:{alias:"smoke"}, cloud:{alias:"smoke"}, clouds:{alias:"smoke"},
+  marble:  {palette:"mono", pw:2, pattern:"veins", patw:3, patScale:2.0, scale:5.2, octaves:5, warpStrength:2.6, warpIter:3, structure:.95, flowSpeed:.01, contrast:1.5, saturation:.4, sharpen:3.6},
+  lagoon:  {palette:"lagoon", pw:2, scale:4.2, octaves:5, warpStrength:1.2, structure:.6, flowSpeed:.09, saturation:1.2, glow:.4},
+  metal:   {palette:"mono", pw:2, pattern:"streaks", patScale:2.6, scale:6.6, ridged:.5, contrast:1.6, saturation:.3, glow:.45, palFreq:2.2, sharpen:3.8},
+  rust:    {palette:"rust", pw:2, scale:7.0, octaves:6, ridged:.35, saturation:.9, grain:.09},
+  blood:   {palette:"rose", pw:2, hue:-.4, scale:4.5, warpStrength:1.6, structure:.7, saturation:1.2, brightness:-.06},
+  flower:  {palette:"rose", pw:2, fold:8, pattern:"veins", patScale:1.6, scale:6.0, warpStrength:.9, structure:.5, saturation:1.25, glow:.45},
+  petal:{alias:"flower"}, floral:{alias:"flower"},
+  bloom:   {warpStrength:2.0, warpIter:3, structure:.8, glow:.8, scale:4.0, sharpen:2.6, fog:.4},
+  circuit: {palette:"toxic", pw:2, pattern:"terrace", patw:3, patScale:2.8, scale:9.0, ridged:.85, warpStrength:.25, octaves:3, posterize:.5, glow:.6, sharpen:4.2},
+  canyon:  {palette:"rust", pw:2, pattern:"terrace", patw:2, patScale:1.9, scale:4.4, octaves:7, ridged:.6, structure:.75, warpStrength:1.4, contrast:1.3, sharpen:3.3},
+  magma:   {alias:"fire"}, molten:{alias:"fire"}, volcanic:{alias:"fire"},
+  obsidian:{palette:"mono", pw:2, pattern:"cells", patScale:1.6, brightness:-.24, contrast:1.6, ridged:.6, scale:6.4, sharpen:3.8, glow:.3, saturation:.35},
+  stone:   {palette:"mono", pw:2, pattern:"cells", patScale:1.4, scale:6.0, ridged:.4, saturation:.5, contrast:1.2, grain:.07, flowSpeed:.01},
+  granite: {alias:"stone"}, slate:{alias:"stone"},
+  plasma:  {palette:"neon", pw:2, warpStrength:2.2, warpIter:3, structure:.8, flowSpeed:.3, glow:.8, palFreq:1.8, sharpen:3.2},
+  cathedral:{fold:8, polarWarp:.08, scale:5.0, ridged:.5, glow:.6, structure:.5, contrast:1.25},
+  garden:  {alias:"forest"}, lake:{alias:"ocean"}, river:{alias:"ocean"},
+  rain:    {pattern:"streaks", patScale:3.2, flowSpeed:.45, flowAngle:1.45, scale:8.0, ridged:.3, structure:.6, saturation:.85},
+  toxic:   {palette:"toxic", pw:3, saturation:1.3, glow:.5},
+
+  // --- mood ---------------------------------------------------------------
+  calm:    {flowSpeed:.03, pulse:.03, warpStrength:.7, contrast:.95, octaves:4, glow:.25, structure:.35},
+  serene:  {alias:"calm"}, peaceful:{alias:"calm"}, still:{alias:"calm"}, quiet:{alias:"calm"}, gentle:{alias:"calm"},
+  chaotic: {flowSpeed:.6, warpStrength:2.7, warpIter:3, octaves:8, pulse:.7, spinRate:.2, contrast:1.4, structure:.9, sharpen:3.6},
+  chaos:   {alias:"chaotic"}, violent:{alias:"chaotic"}, wild:{alias:"chaotic"}, frantic:{alias:"chaotic"}, turbulent:{alias:"chaotic"},
+  dreamy:  {warpStrength:2.0, warpIter:3, glow:.85, saturation:1.2, contrast:.9, fog:.45, flowSpeed:.05, aberration:.35, structure:.5, sharpen:2.2},
+  dream:   {alias:"dreamy"}, soft:{alias:"dreamy"}, hazy:{alias:"dreamy"}, ethereal:{alias:"dreamy"},
+  ominous: {palette:"voidp", pw:1, brightness:-.18, contrast:1.4, saturation:.55, vignette:1.1, fog:.6},
+  dark:    {alias:"ominous"}, sinister:{alias:"ominous"}, eerie:{alias:"ominous"}, haunted:{alias:"ominous"},
+  bright:  {brightness:.2, contrast:1.1, glow:.55, vignette:.2},
+  warm:    {hue:.45, saturation:1.15}, cold:{hue:-.6, saturation:.8},
+  ancient: {palette:"rust", pw:1, grain:.11, saturation:.7, contrast:1.2, flowSpeed:.02},
+  alien:   {palette:"toxic", pw:2, warpStrength:2.2, warpIter:3, palFreq:2.0, saturation:1.3, structure:.8, sharpen:3.3},
+  organic: {ridged:.1, warpStrength:1.9, warpIter:3, octaves:6, fold:0, lacunarity:2.1, structure:.8},
+  geometric:{pattern:"terrace", patw:2, patScale:2.4, ridged:.7, warpStrength:.3, octaves:3, posterize:.35, lacunarity:2.6, structure:.2, sharpen:4.0},
+  sharp:   {sharpen:4.3, ridged:.6, contrast:1.35, glow:.2},
+  smooth:  {sharpen:1.6, ridged:0, octaves:3, glow:.4},
+
+  // --- colour (highest palette authority) ---------------------------------
+  red:{palette:"magma", pw:3}, orange:{palette:"ember", pw:3}, amber:{palette:"gold", pw:3},
+  yellow:{palette:"gold", pw:3, hue:.3}, gold:{palette:"gold", pw:3}, green:{palette:"toxic", pw:3},
+  teal:{palette:"lagoon", pw:3}, cyan:{palette:"lagoon", pw:3, hue:.2}, blue:{palette:"deepsea", pw:3},
+  indigo:{palette:"voidp", pw:3, hue:-.3}, purple:{palette:"vapor", pw:3}, violet:{alias:"purple"},
+  magenta:{palette:"vapor", pw:3, hue:.3}, pink:{palette:"rose", pw:3},
+  white:{palette:"ice", pw:3, brightness:.15}, black:{palette:"mono", pw:3, brightness:-.22, contrast:1.5},
+  grey:{palette:"mono", pw:3}, gray:{alias:"grey"},
+  monochrome:{palette:"mono", pw:3, saturation:.06, contrast:1.4},
+  pastel:{saturation:.7, brightness:.16, contrast:.85, glow:.45},
+  neon:{palette:"neon", pw:3, saturation:1.5, glow:1.0, contrast:1.3, sharpen:3.4, palFreq:1.4},
+  rainbow:{palette:"neon", pw:3, palFreq:2.4, saturation:1.4},
+
+  // --- style --------------------------------------------------------------
+  vaporwave:{palette:"vapor", pw:2, scanline:.28, saturation:1.3, glow:.6, aberration:.4, palFreq:1.4},
+  retro:{palette:"ember", pw:1, scanline:.34, grain:.1, posterize:.45, saturation:1.1},
+  crt:{scanline:.45, aberration:.5, grain:.08, vignette:.9},
+  glitch:{aberration:.85, posterize:.5, grain:.16, warpStrength:2.4, spinRate:.1, sharpen:3.8},
+  minimal:{pattern:"terrace", patScale:1.2, octaves:2, warpStrength:.25, posterize:.55, contrast:1.3, glow:.1, grain:0, saturation:.7, structure:.15, sharpen:3.6},
+  kaleidoscope:{fold:8, polarWarp:.25, warpStrength:1.4, spinRate:.08, structure:.6},
+  mandala:{fold:12, polarWarp:.12, ridged:.5, scale:7.0, spinRate:.04, glow:.45, sharpen:3.4},
+  fractal:{octaves:8, lacunarity:2.4, warpStrength:1.9, warpIter:3, scale:3.4, ridged:.35, structure:.85, sharpen:3.3},
+  psychedelic:{palette:"neon", pw:2, palFreq:2.8, warpStrength:2.5, warpIter:3, saturation:1.5, spinRate:.14, glow:.7, structure:.85, sharpen:3.5},
+  demoscene:{palette:"neon", pw:2, pattern:"rings", patScale:1.8, glow:.9, scanline:.2, saturation:1.4, spinRate:.1, palFreq:1.8, structure:.7},
+
+  // --- time / scale -------------------------------------------------------
+  dusk:{brightness:-.1, saturation:1.1, fog:.45, palPhase:.15, glow:.5},
+  dawn:{brightness:.06, saturation:1.05, glow:.55, palPhase:.3},
+  night:{brightness:-.22, contrast:1.35, fog:.6, vignette:1.0, saturation:.8},
+  noon:{brightness:.18, contrast:1.0, fog:.15, vignette:.2},
+  sunset:{palette:"ember", pw:2, brightness:-.04, glow:.65, fog:.4},
+  deep:{zoom:1.9, fog:.55, brightness:-.12}, vast:{zoom:2.6, scale:2.4, fog:.5},
+  tiny:{zoom:.4, scale:9.5}, macro:{zoom:.3, scale:12.0, octaves:6},
+  fast:{flowSpeed:.7, pulse:.5, spinRate:.18}, slow:{flowSpeed:.02, pulse:.05, spinRate:.01},
+  static:{flowSpeed:0, pulse:0, spinRate:0},
+  midnight:{alias:"night"}, harsh:{alias:"sharp"}, hot:{saturation:1.2, glow:.6, brightness:.04},
+  pale:{saturation:.5, brightness:.18, contrast:.9, glow:.4},
+  light:{brightness:.12, glow:.7, saturation:.95},
+  vivid:{saturation:1.45, contrast:1.2, glow:.5},
+  // --- pattern words (highest pattern authority) ------------------------
+  contour:{pattern:"bands", patw:4, patScale:2.0}, topographic:{alias:"contour"},
+  banded:{alias:"contour"}, layered:{pattern:"terrace", patw:4, patScale:2.2},
+  terraced:{alias:"layered"}, stepped:{alias:"layered"},
+  cracked:{pattern:"cells", patw:4, patScale:2.0}, cellular:{alias:"cracked"},
+  shattered:{alias:"cracked"}, veined:{pattern:"veins", patw:4, patScale:2.0},
+  grain:{alias:"veined"}, striped:{pattern:"streaks", patw:4, patScale:2.4},
+  strata:{alias:"striped"}, concentric:{pattern:"rings", patw:4, patScale:2.0},
+  rippled:{alias:"concentric"}, ripple:{alias:"concentric"}
+};
+
+Object.keys(TAGS).forEach(k => {
+  let v = TAGS[k], guard = 0;
+  while(v && v.alias && guard++ < 8) v = TAGS[v.alias];
+  TAGS[k] = v || {};
+});
+
+/* --------------------------------------------------------------------------
+   3b. PROMPT BANK
+   Written against the tag vocabulary, so every line lands on at least two or
+   three known words. They also spread deliberately across the parameter space
+   — folded and unfolded, fast and still, saturated and near-monochrome — so
+   cycling the deck is a tour of what the DSL can do rather than fifty
+   variations on one look.
+   -------------------------------------------------------------------------- */
+const PROMPTS = [
+  "stormy alien ocean at dusk",
+  "frozen cathedral of crystal and light",
+  "slow magma bloom, ancient and warm",
+  "neon kaleidoscope, psychedelic and fast",
+  "sharp marble canyon, monochrome",
+  "deep nebula, slow and vast",
+  "toxic jungle at night, organic",
+  "gentle lagoon at dawn, pastel",
+  "burning desert at noon, harsh and bright",
+  "haunted cave, ancient rust and dust",
+  "arctic mandala, sharp white geometry",
+  "vaporwave sunset over a still sea",
+  "chaotic circuit, green and fast",
+  "quiet smoke in a dark room",
+  "golden dune field, slow drift",
+  "violent thunder over black water",
+  "crystal flower, cold and geometric",
+  "ember storm, warm and chaotic",
+  "minimal ice geometry, monochrome",
+  "psychedelic jungle bloom, vivid",
+  "cosmic marble, purple and vast",
+  "retro fire demo, scanlines and glow",
+  "frozen aurora, teal and quiet",
+  "blood mandala, dark and sharp",
+  "soft pastel clouds at dawn",
+  "alien circuit garden, toxic green",
+  "molten gold canyon at sunset",
+  "glitch kaleidoscope, neon and violent",
+  "ancient stone, grey and still",
+  "deep sea bloom, slow and dreamy",
+  "sharp metal fractal, cold",
+  "warm rust desert, macro detail",
+  "eerie mist over a frozen lake",
+  "demoscene plasma, fast neon",
+  "indigo nebula, dreamy and vast",
+  "wild lava flower, orange and hot",
+  "crt storm, grey scanlines",
+  "tiny crystal forest, sharp and bright",
+  "magenta smoke, slow and soft",
+  "obsidian canyon, black and sharp",
+  "serene white cloud field",
+  "toxic rain at midnight",
+  "amber marble, ancient and smooth",
+  "fractal ice cathedral, pale",
+  "neon blood mandala, fast",
+  "pale dawn over a calm lagoon",
+  "chaotic ember galaxy",
+  "geometric jungle, green and minimal",
+  "violet storm cloud, dreamy",
+  "molten circuit, gold and geometric"
+];
+
+// shuffle bag rather than plain random: you see all fifty before any repeat,
+// and the deck never hands you the same line twice in a row across a reshuffle.
+let deck = [], deckPos = 0, lastDealt = null;
+function shuffleDeck(){
+  deck = PROMPTS.slice();
+  for(let i = deck.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = deck[i]; deck[i] = deck[j]; deck[j] = t;
+  }
+  if(deck[0] === lastDealt && deck.length > 1){
+    const t = deck[0]; deck[0] = deck[1]; deck[1] = t;
+  }
+  deckPos = 0;
+}
+function dealPrompt(){
+  if(deckPos >= deck.length) shuffleDeck();
+  lastDealt = deck[deckPos++];
+  return lastDealt;
+}
+shuffleDeck();
+
+/* --------------------------------------------------------------------------
+   4. DIRECTOR — prompt -> params.
+
+   *** SWAP POINT ***  An LLM director implements the same signature:
+       direct(prompt) -> { params, matched, unmatched }
+   -------------------------------------------------------------------------- */
+
+function hashStr(s){
+  let h = 2166136261 >>> 0;
+  for(let i=0;i<s.length;i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
+  return h >>> 0;
+}
+function rngFrom(seed){
+  let s = seed >>> 0 || 1;
+  return function(){ s ^= s<<13; s>>>=0; s ^= s>>17; s ^= s<<5; s>>>=0; return s/4294967296; };
+}
+function clampRow(r, v){
+  if(r.select) return r.select.indexOf(v) >= 0 ? v : r.d;
+  v = Math.max(r.min, Math.min(r.max, v));
+  if(r.int) v = Math.round(v);
+  return v;
+}
+
+// per-key jitter as a fraction of range. Deliberate axes get little or none —
+// v1 jittered hue by +/-0.5rad and turned every chosen palette to mud.
+const JITTER = {
+  scale:.10, warpStrength:.12, gain:.10, palFreq:.12, palPhase:.5,
+  sharpen:.10, structure:.12, rotate:1.0, flowAngle:1.0
+};
+
+function direct(promptText){
+  const words = String(promptText||"").toLowerCase().split(/[^a-z]+/).filter(Boolean);
+  const rand = rngFrom(hashStr(words.join(" ") || "aether"));
+
+  const matched = [], unmatched = [];
+  words.forEach(w => {
+    let hit = null;
+    if(TAGS[w]) hit = w;
+    else {
+      const stems = [w.replace(/(ies)$/,"y"), w.replace(/s$/,""), w.replace(/ing$/,""), w.replace(/y$/,"")];
+      for(const s of stems){ if(s.length>2 && TAGS[s]){ hit = s; break; } }
+    }
+    if(hit){ if(matched.indexOf(hit) < 0) matched.push(hit); }
+    else if(w.length > 2) unmatched.push(w);
+  });
+
+  const p = defaults();
+  const acc = {}, cnt = {};
+  let bestPal = null, bestPw = -1;
+  let bestPat = null, bestPatw = -1;
+
+  matched.forEach((tag, i) => {
+    const d = TAGS[tag];
+    const w = 1 + i * 0.25;              // nouns tend to land late in a phrase
+    if(d.palette){
+      const pw = (d.pw || 1) + i * 0.01; // authority first, position only breaks ties
+      if(pw > bestPw){ bestPw = pw; bestPal = d.palette; }
+    }
+    if(d.pattern){
+      const pw = (d.patw || 1) + i * 0.01;
+      if(pw > bestPatw){ bestPatw = pw; bestPat = d.pattern; }
+    }
+    Object.keys(d).forEach(k => {
+      if(k === "palette" || k === "pattern" || k === "pw" || k === "patw" || !ROW_BY_KEY[k]) return;
+      acc[k] = (acc[k]||0) + d[k]*w;
+      cnt[k] = (cnt[k]||0) + w;
+    });
+  });
+  Object.keys(acc).forEach(k => p[k] = clampRow(ROW_BY_KEY[k], acc[k]/cnt[k]));
+  if(bestPal) p.palette = bestPal;
+  if(bestPat) p.pattern = bestPat;
+
+  const known = matched.length > 0;
+  p.seed = Math.floor(rand()*999);
+  p.rotate = rand()*6.28;
+  p.flowAngle = (acc.flowAngle === undefined) ? rand()*6.28 : p.flowAngle;
+
+  // pan must not push the kaleidoscope origin off screen — v1's biggest
+  // visible failure: you asked for symmetry and got none.
+  const panRange = p.fold > 0 ? 0.18 : (known ? 0.9 : 1.8);
+  p.panX = clampRow(ROW_BY_KEY.panX, (rand()-.5) * panRange);
+  p.panY = clampRow(ROW_BY_KEY.panY, (rand()-.5) * panRange);
+
+  const amt = known ? 1 : 2.2;
+  Object.keys(JITTER).forEach(k=>{
+    const r = ROW_BY_KEY[k]; if(!r) return;
+    if(k === "rotate" || k === "flowAngle") return;
+    const span = (r.max - r.min) * JITTER[k] * amt;
+    p[k] = clampRow(r, p[k] + (rand()-.5)*span);
+  });
+
+  if(!known){
+    p.palette  = PAL_KEYS[Math.floor(rand()*PAL_KEYS.length)];
+    p.hue      = (rand()-.5) * 1.2;
+    p.octaves  = 4 + Math.floor(rand()*5);
+    p.warpIter = 1 + Math.floor(rand()*3);
+    p.ridged   = rand() > .5 ? rand()*.8 : 0;
+    if(rand() > .68){ p.fold = 3 + Math.floor(rand()*9); p.panX = p.panY = 0; }
+  }
+  p.resScale = state.params.resScale;
+  return {params:p, matched:matched, unmatched:unmatched};
+}
+
+function randomParams(){
+  const rand = rngFrom((Math.random()*1e9)|0);
+  const p = defaults();
+  ROWS.forEach(r=>{
+    if(r.k === "resScale"){ p[r.k] = state.params.resScale; return; }
+    if(r.select){ p[r.k] = r.select[Math.floor(rand()*r.select.length)]; return; }
+    let v = r.min + rand()*(r.max-r.min);
+    if(r.k==="scale")        v = 2.5 + rand()*7.5;
+    if(r.k==="patScale")     v = 1.0 + rand()*2.6;
+    if(r.k==="octaves")      v = 4 + rand()*4;
+    if(r.k==="warpIter")     v = 1 + rand()*2.99;
+    if(r.k==="sharpen")      v = 2.2 + rand()*1.9;
+    if(r.k==="structure")    v = .3 + rand()*.7;
+    if(r.k==="flowSpeed")    v = rand()*rand()*.5;
+    if(r.k==="contrast")     v = .9 + rand()*.6;
+    if(r.k==="saturation")   v = .6 + rand()*.9;
+    if(r.k==="grain")        v = rand()*rand()*.14;
+    if(r.k==="scanline")     v = rand() > .72 ? rand()*.4 : 0;
+    if(r.k==="posterize")    v = rand() > .78 ? rand()*.5 : 0;
+    if(r.k==="fold")         v = rand() > .6 ? 3+rand()*9 : 0;
+    if(r.k==="mirror")       v = rand() > .8 ? 1 : 0;
+    if(r.k==="zoom")         v = .5 + rand()*1.6;
+    if(r.k==="vignette")     v = .2 + rand()*.8;
+    if(r.k==="glow")         v = .1 + rand()*.8;
+    if(r.k==="hue")          v = (rand()-.5)*1.4;
+    p[r.k] = clampRow(r, v);
+  });
+  if(p.fold > 0){ p.panX = 0; p.panY = 0; }
+  else { p.panX *= .35; p.panY *= .35; }
+  return p;
+}
+
+/* --------------------------------------------------------------------------
+   5. RENDERER — single fullscreen pass, GLSL ES 3.00.
+   No float targets, no extensions, no FBOs, constant-bounded loops.
+   -------------------------------------------------------------------------- */
+const VERT = `#version 300 es
+void main(){
+  vec2 p = vec2((gl_VertexID << 1) & 2, gl_VertexID & 2);
+  gl_Position = vec4(p * 2.0 - 1.0, 0.0, 1.0);
+}`;
+
+const FRAG = `#version 300 es
+precision highp float;
+out vec4 outColor;
+
+uniform vec2  uRes;
+uniform float uTime;
+uniform float uSeed;
+
+uniform float uScale, uLacunarity, uGain, uRidged, uSharpen;
+uniform int   uOctaves, uWarpIter, uFold, uPattern;
+uniform float uWarpStrength, uWarpSpin, uStructure, uPatScale;
+uniform float uFlowSpeed, uFlowAngle, uPulse, uSpinRate;
+uniform float uMirror, uPolarWarp;
+uniform float uZoom, uRotate;
+uniform vec2  uPan;
+uniform vec3  uPalA, uPalB, uPalC, uPalD;
+uniform float uHue, uPalFreq, uPalPhase, uPalContrast;
+uniform float uBrightness, uContrast, uSaturation, uFog, uGlow;
+uniform float uVignette, uGrain, uAberration, uScanline, uPosterize;
+
+float hash21(vec2 p){
+  p = fract(p * vec2(123.34, 456.21));
+  p += dot(p, p + 45.32);
+  return fract(p.x * p.y);
+}
+
+float vnoise(vec2 p){
+  vec2 i = floor(p), f = fract(p);
+  // quintic interpolant — smoother derivatives than smoothstep, less blockiness
+  vec2 u = f * f * f * (f * (f * 6.0 - 15.0) + 10.0);
+  float a = hash21(i);
+  float b = hash21(i + vec2(1.0, 0.0));
+  float c = hash21(i + vec2(0.0, 1.0));
+  float d = hash21(i + vec2(1.0, 1.0));
+  return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
+}
+
+float fbm(vec2 p){
+  float sum = 0.0, amp = 0.5, norm = 0.0;
+  for(int i = 0; i < 8; i++){
+    if(i >= uOctaves) break;
+    float n = vnoise(p);
+    n = mix(n, 1.0 - abs(n * 2.0 - 1.0), uRidged);
+    sum  += n * amp;
+    norm += amp;
+    p = p * uLacunarity + vec2(uSeed * 0.037, -uSeed * 0.021);
+    amp *= uGain;
+  }
+  // Summed octaves cluster hard around 0.5 (central limit). Without this
+  // expansion the palette only ever traverses a third of its range and every
+  // render comes out as a soft gradient.
+  float f = sum / max(norm, 1e-4);
+  return clamp((f - 0.5) * uSharpen + 0.5, 0.0, 1.0);
+}
+
+vec2 rot2(vec2 v, float a){
+  float c = cos(a), s = sin(a);
+  return vec2(c * v.x - s * v.y, s * v.x + c * v.y);
+}
+
+// Worley / cellular — the one field shape that reads as genuinely non-fBm.
+// 9 cells, constant-bounded, only evaluated when the cells pattern is active.
+float worley(vec2 p){
+  vec2 i = floor(p), f = fract(p);
+  float d = 8.0;
+  for(int y = -1; y <= 1; y++){
+    for(int x = -1; x <= 1; x++){
+      vec2 g = vec2(float(x), float(y));
+      vec2 o = vec2(hash21(i + g), hash21(i + g + vec2(31.7, 17.3)));
+      d = min(d, length(g + o - f));
+    }
+  }
+  return d;
+}
+
+// Transfer functions. fBm alone has exactly one silhouette; remapping how the
+// field drives the palette is what makes a topographic map, a wood grain and a
+// cracked cell field distinguishable from one another rather than recolours.
+float shape(float f, float rad, vec2 uv, vec2 fp){
+  if(uPattern == 1){          // bands — topographic contours
+    return 0.5 + 0.5 * sin(f * uPatScale * 6.28318530718);
+  } else if(uPattern == 2){   // rings — concentric ripple
+    return 0.5 + 0.5 * sin(rad * uPatScale * 6.0 + f * 6.0);
+  } else if(uPattern == 3){   // veins — wood / marble grain
+    return pow(abs(sin(f * uPatScale * 3.14159265)), 0.5);
+  } else if(uPattern == 4){   // terrace — stepped plateaus
+    float k = max(2.0, floor(uPatScale * 3.0));
+    return (floor(f * k) + smoothstep(0.72, 1.0, fract(f * k))) / k;
+  } else if(uPattern == 5){   // streaks — directional strata
+    return 0.5 + 0.5 * sin(uv.x * uPatScale * 4.0 + f * 8.0);
+  } else if(uPattern == 6){   // cells — cracked / crystalline
+    float d = worley(fp * (0.6 + uPatScale * 0.5));
+    return mix(f, clamp(d * 1.6, 0.0, 1.0), 0.85);
+  }
+  return f;                   // 0: smooth
+}
+
+vec3 hueRot(vec3 col, float h){
+  const vec3 k = vec3(0.57735027);
+  float ca = cos(h);
+  return col * ca + cross(k, col) * sin(h) + k * dot(k, col) * (1.0 - ca);
+}
+
+vec3 palette(float t){
+  t = t * uPalFreq + uPalPhase;
+  vec3 c = uPalA + uPalB * cos(6.28318530718 * (uPalC * t + uPalD));
+  c = (c - 0.5) * uPalContrast + 0.5;
+  return hueRot(c, uHue);
+}
+
+void main(){
+  vec2 uv = (gl_FragCoord.xy - 0.5 * uRes) / uRes.y;
+  float t = uTime;
+
+  // ---- camera -------------------------------------------------------------
+  uv = rot2(uv, uRotate + uSpinRate * t);
+  uv *= uZoom;
+  float rad0 = length(uv);
+
+  // ---- symmetry (folds about screen centre, before pan) -------------------
+  if(uFold > 0){
+    float ang = atan(uv.y, uv.x);
+    float seg = 6.28318530718 / float(uFold);
+    ang = mod(ang + seg * 0.5, seg) - seg * 0.5;
+    ang = abs(ang);
+    vec2 folded = vec2(cos(ang), sin(ang)) * rad0;
+    // angular frequency diverges as rad -> 0, which is the radial shatter at
+    // the centre of every kaleidoscope. Ease back to unfolded space there.
+    folded = mix(uv, folded, smoothstep(0.0, 0.07, rad0));
+    uv = mix(folded, vec2(rad0 * 1.4, ang * 2.2), uPolarWarp);
+  }
+  if(uMirror > 0.5) uv.x = abs(uv.x);
+  uv += uPan;
+
+  // ---- field --------------------------------------------------------------
+  vec2 p = uv * uScale;
+  p += vec2(cos(uFlowAngle), sin(uFlowAngle)) * uFlowSpeed * t;
+
+  vec2 q = vec2(0.0), r = vec2(0.0);
+  if(uWarpIter >= 1){
+    q = vec2(fbm(p), fbm(p + vec2(5.2, 1.3)));
+    q = rot2(q, uWarpSpin * t * 0.2);
+  }
+  if(uWarpIter >= 2){
+    r = vec2(fbm(p + uWarpStrength * q + vec2(1.7, 9.2)),
+             fbm(p + uWarpStrength * q + vec2(8.3, 2.8)));
+  }
+  if(uWarpIter >= 3){
+    r = vec2(fbm(p + uWarpStrength * r + vec2(3.1, 4.4)),
+             fbm(p + uWarpStrength * r + vec2(7.7, 6.6)));
+  }
+  vec2 fp = p + uWarpStrength * (uWarpIter >= 2 ? r : q);
+  float f = (uWarpIter >= 1) ? fbm(fp) : fbm(p);
+
+  f += uPulse * 0.14 * sin(t * 1.3 + rad0 * 3.0);
+
+  // The warp intermediates carry the interesting structure. Feeding them back
+  // into the palette coordinate is what turns fog into filaments — free,
+  // since q and r are already computed.
+  float fil = clamp(length(q) - 0.35, 0.0, 1.0);
+  float vein = clamp(r.x, 0.0, 1.0);
+  float tc = shape(f, rad0, uv, fp) + uStructure * (0.30 * fil - 0.18 * vein);
+
+  // ---- colour -------------------------------------------------------------
+  vec3 col;
+  if(uAberration > 0.002){
+    float ab = uAberration * 0.05;
+    col = vec3(palette(tc + ab).r, palette(tc).g, palette(tc - ab).b);
+  } else {
+    col = palette(tc);
+  }
+
+  // Where the palette coordinate moves faster than a band per pixel, the
+  // correct limit of a cosine palette is its DC term. Converging on it kills
+  // the rainbow fizz instead of letting it alias.
+  float wpx = fwidth(tc) * uPalFreq;
+  col = mix(col, hueRot(uPalA, uHue), smoothstep(0.30, 0.95, wpx));
+
+  // depth from the warp magnitude — reads as shadowed troughs
+  col *= 1.0 - uStructure * 0.40 * clamp(dot(q, q) * 1.6, 0.0, 1.0);
+
+  // bloom: 2.2 rather than 3.0 so mid-tones lift too, not just clipped whites
+  col += pow(max(col, 0.0), vec3(2.2)) * uGlow * 1.5;
+
+  // edge fade, rotated with the palette so it can't clash (v1 left this on the
+  // un-rotated base and produced warm rims on cool scenes)
+  vec3 deep = hueRot(uPalA * 0.35, uHue);
+  col = mix(col, deep, uFog * smoothstep(0.25, 1.5, rad0));
+
+  // grade
+  float luma = dot(col, vec3(0.2126, 0.7152, 0.0722));
+  col = mix(vec3(luma), col, uSaturation);
+  col = (col - 0.5) * uContrast + 0.5 + uBrightness;
+
+  if(uPosterize > 0.01){
+    float steps = mix(24.0, 3.0, uPosterize);
+    col = floor(col * steps + 0.5) / steps;
+  }
+
+  // ---- finish -------------------------------------------------------------
+  vec2 sc = gl_FragCoord.xy / uRes;
+  float vig = 1.0 - uVignette * dot(sc - 0.5, sc - 0.5) * 2.0;
+  col *= clamp(vig, 0.0, 1.0);
+
+  if(uScanline > 0.005){
+    float s = 0.5 + 0.5 * sin(gl_FragCoord.y * 3.14159);
+    col *= 1.0 - uScanline * s;
+  }
+  if(uGrain > 0.002){
+    // weight toward mid/high luma so shadows stay clean instead of dirty
+    float g = hash21(gl_FragCoord.xy + fract(t) * 137.0) - 0.5;
+    float lum2 = dot(col, vec3(0.2126, 0.7152, 0.0722));
+    col += g * uGrain * (0.25 + 0.75 * lum2);
+  }
+
+  outColor = vec4(clamp(col, 0.0, 1.0), 1.0);
+}`;
+
+/* --------------------------------------------------------------------------
+   6. GL PLUMBING
+   -------------------------------------------------------------------------- */
+const canvas = document.getElementById("gl");
+let gl = canvas.getContext("webgl2", {antialias:false, alpha:false,
+                                      preserveDrawingBuffer:true,
+                                      powerPreference:"high-performance"});
+if(!gl){
+  document.body.innerHTML =
+    '<div style="padding:40px;font-family:monospace;color:#ffb238;line-height:1.7">'+
+    'AETHER needs WebGL2.<br><span style="color:#5b6479">This context reports no '+
+    'webgl2 support, so there is nothing to render into.</span></div>';
+  return;
+}
+
+function compile(type, src){
+  const s = gl.createShader(type);
+  gl.shaderSource(s, src);
+  gl.compileShader(s);
+  if(!gl.getShaderParameter(s, gl.COMPILE_STATUS))
+    throw new Error(gl.getShaderInfoLog(s));
+  return s;
+}
+const prog = gl.createProgram();
+gl.attachShader(prog, compile(gl.VERTEX_SHADER, VERT));
+gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FRAG));
+gl.linkProgram(prog);
+if(!gl.getProgramParameter(prog, gl.LINK_STATUS))
+  throw new Error(gl.getProgramInfoLog(prog));
+gl.useProgram(prog);
+
+const vao = gl.createVertexArray();
+gl.bindVertexArray(vao);
+
+const U = {};
+function loc(n){ if(!(n in U)) U[n] = gl.getUniformLocation(prog, n); return U[n]; }
+
+/* --------------------------------------------------------------------------
+   7. STATE + MORPH
+   -------------------------------------------------------------------------- */
+const state = {
+  params: defaults(),
+  from: null, to: null, morphT: 1, morphDur: 1.15,
+  time: 0, lastFrame: 0, corpus: []
+};
+
+function beginMorph(target){
+  state.from = Object.assign({}, state.params);
+  state.to   = Object.assign({}, target);
+  state.morphT = 0;
+}
+function stepMorph(dt){
+  if(state.morphT >= 1) return;
+  state.morphT = Math.min(1, state.morphT + dt / state.morphDur);
+  const e = state.morphT < .5 ? 4*Math.pow(state.morphT,3)
+                              : 1 - Math.pow(-2*state.morphT + 2, 3)/2;
+  ROWS.forEach(r=>{
+    if(r.select){ if(state.morphT > .5) state.params[r.k] = state.to[r.k]; return; }
+    const a = state.from[r.k], b = state.to[r.k];
+    state.params[r.k] = r.int ? Math.round(a + (b-a)*e) : a + (b-a)*e;
+  });
+  syncUI(true);
+}
+
+function currentPalette(){
+  if(state.morphT >= 1) return PALETTES[state.params.palette] || PALETTES.neon;
+  const to = PALETTES[state.to.palette] || PALETTES.neon;
+  const fr = PALETTES[state.from.palette] || to;
+  const e = state.morphT;
+  const mix3 = (x,y)=>[x[0]+(y[0]-x[0])*e, x[1]+(y[1]-x[1])*e, x[2]+(y[2]-x[2])*e];
+  return {a:mix3(fr.a,to.a), b:mix3(fr.b,to.b), c:mix3(fr.c,to.c), d:mix3(fr.d,to.d)};
+}
+
+/* --------------------------------------------------------------------------
+   8. FRAME LOOP
+   -------------------------------------------------------------------------- */
+let bufW = 0, bufH = 0;
+function resize(){
+  const s = state.params.resScale;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const w = Math.max(1, Math.round(canvas.clientWidth  * dpr * s));
+  const h = Math.max(1, Math.round(canvas.clientHeight * dpr * s));
+  if(w !== bufW || h !== bufH){
+    bufW = canvas.width = w;
+    bufH = canvas.height = h;
+    gl.viewport(0,0,w,h);
+    el.dims.textContent = w + "\u00d7" + h;
+  }
+}
+
+const P = state.params;
+function upload(){
+  const pal = currentPalette();
+  gl.uniform2f(loc("uRes"), bufW, bufH);
+  gl.uniform1f(loc("uTime"), state.time);
+  gl.uniform1f(loc("uSeed"), P.seed);
+
+  gl.uniform1f(loc("uScale"), P.scale);
+  gl.uniform1i(loc("uPattern"), Math.max(0, PATTERNS.indexOf(P.pattern)));
+  gl.uniform1f(loc("uPatScale"), P.patScale);
+  gl.uniform1i(loc("uOctaves"), P.octaves|0);
+  gl.uniform1f(loc("uLacunarity"), P.lacunarity);
+  gl.uniform1f(loc("uGain"), P.gain);
+  gl.uniform1f(loc("uRidged"), P.ridged);
+  gl.uniform1f(loc("uSharpen"), P.sharpen);
+
+  gl.uniform1i(loc("uWarpIter"), P.warpIter|0);
+  gl.uniform1f(loc("uWarpStrength"), P.warpStrength);
+  gl.uniform1f(loc("uWarpSpin"), P.warpSpin);
+  gl.uniform1f(loc("uStructure"), P.structure);
+
+  gl.uniform1f(loc("uFlowSpeed"), P.flowSpeed);
+  gl.uniform1f(loc("uFlowAngle"), P.flowAngle);
+  gl.uniform1f(loc("uPulse"), P.pulse);
+  gl.uniform1f(loc("uSpinRate"), P.spinRate);
+
+  gl.uniform1i(loc("uFold"), P.fold|0);
+  gl.uniform1f(loc("uMirror"), P.mirror);
+  gl.uniform1f(loc("uPolarWarp"), P.polarWarp);
+
+  gl.uniform1f(loc("uZoom"), P.zoom);
+  gl.uniform2f(loc("uPan"), P.panX, P.panY);
+  gl.uniform1f(loc("uRotate"), P.rotate);
+
+  gl.uniform3fv(loc("uPalA"), pal.a);
+  gl.uniform3fv(loc("uPalB"), pal.b);
+  gl.uniform3fv(loc("uPalC"), pal.c);
+  gl.uniform3fv(loc("uPalD"), pal.d);
+  gl.uniform1f(loc("uHue"), P.hue);
+  gl.uniform1f(loc("uPalFreq"), P.palFreq);
+  gl.uniform1f(loc("uPalPhase"), P.palPhase);
+  gl.uniform1f(loc("uPalContrast"), P.palContrast);
+
+  gl.uniform1f(loc("uBrightness"), P.brightness);
+  gl.uniform1f(loc("uContrast"), P.contrast);
+  gl.uniform1f(loc("uSaturation"), P.saturation);
+  gl.uniform1f(loc("uFog"), P.fog);
+  gl.uniform1f(loc("uGlow"), P.glow);
+
+  gl.uniform1f(loc("uVignette"), P.vignette);
+  gl.uniform1f(loc("uGrain"), P.grain);
+  gl.uniform1f(loc("uAberration"), P.aberration);
+  gl.uniform1f(loc("uScanline"), P.scanline);
+  gl.uniform1f(loc("uPosterize"), P.posterize);
+}
+
+let fpsAcc = 0, fpsN = 0;
+function frame(now){
+  const dt = state.lastFrame ? Math.min((now - state.lastFrame)/1000, .1) : .016;
+  state.lastFrame = now;
+  state.time += dt;
+
+  stepMorph(dt);
+  resize();
+  upload();
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+  fpsAcc += dt; fpsN++;
+  if(fpsAcc >= .5){
+    el.fps.textContent = Math.round(fpsN / fpsAcc);
+    fpsAcc = 0; fpsN = 0;
+    const taps = P.octaves * (1 + (P.warpIter>=1?2:0) + (P.warpIter>=2?2:0) + (P.warpIter>=3?2:0));
+    el.cost.textContent = taps + " taps";
+  }
+  requestAnimationFrame(frame);
+}
+
+/* --------------------------------------------------------------------------
+   9. CONSOLE UI — generated from SCHEMA
+   -------------------------------------------------------------------------- */
+const el = {
+  rail: document.getElementById("rail"),
+  scroll: document.getElementById("railScroll"),
+  prompt: document.getElementById("prompt"),
+  fps: document.getElementById("fps"),
+  dims: document.getElementById("dims"),
+  cost: document.getElementById("cost"),
+  verdict: document.getElementById("verdict"),
+  tags: document.getElementById("tags"),
+  corpusBtn: document.getElementById("corpusBtn")
+};
+const inputs = {};
+
+function buildUI(){
+  SCHEMA.forEach(g=>{
+    const d = document.createElement("details");
+    d.className = "grp";
+    if(g.open) d.open = true;
+    const s = document.createElement("summary");
+    s.innerHTML = '<span class="tick"></span>' + g.group;
+    d.appendChild(s);
+    const body = document.createElement("div");
+    body.className = "grpBody";
+
+    g.rows.forEach(r=>{
+      const row = document.createElement("div");
+      row.className = "row";
+      if(r.select){
+        const top = document.createElement("div"); top.className = "top";
+        const lab = document.createElement("label");
+        lab.setAttribute("for","in_"+r.k); lab.textContent = r.t;
+        top.appendChild(lab); row.appendChild(top);
+        const sel = document.createElement("select");
+        sel.id = "in_"+r.k;
+        r.select.forEach(o=>{
+          const opt = document.createElement("option");
+          opt.value = o; opt.textContent = (o === "voidp") ? "void" : o;
+          sel.appendChild(opt);
+        });
+        sel.addEventListener("change", ()=>{
+          state.morphT = 1;
+          state.params[r.k] = sel.value;
+        });
+        row.appendChild(sel);
+        inputs[r.k] = {row:row, input:sel};
+      } else {
+        const top = document.createElement("div"); top.className = "top";
+        const lab = document.createElement("label");
+        lab.setAttribute("for","in_"+r.k); lab.textContent = r.t;
+        const val = document.createElement("span"); val.className = "val";
+        top.appendChild(lab); top.appendChild(val);
+        row.appendChild(top);
+
+        const rng = document.createElement("input");
+        rng.type = "range"; rng.id = "in_"+r.k;
+        rng.min = r.min; rng.max = r.max; rng.step = r.step;
+        rng.addEventListener("input", ()=>{
+          state.morphT = 1;
+          state.params[r.k] = parseFloat(rng.value);
+          val.textContent = fmt(r, state.params[r.k]);
+          if(r.k === "resScale") bufW = 0;
+        });
+        row.appendChild(rng);
+        inputs[r.k] = {row:row, input:rng, val:val};
+      }
+      body.appendChild(row);
+    });
+    d.appendChild(body);
+    el.scroll.appendChild(d);
+  });
+  syncUI();
+}
+
+function fmt(r, v){
+  if(r.select) return v;
+  if(r.int) return String(v|0);
+  return (Math.abs(v) < 10 ? v.toFixed(2) : v.toFixed(1));
+}
+
+function syncUI(duringMorph){
+  ROWS.forEach(r=>{
+    const io = inputs[r.k]; if(!io) return;
+    const v = state.params[r.k];
+    if(r.select){ if(io.input.value !== v) io.input.value = v; }
+    else{
+      if(document.activeElement !== io.input) io.input.value = v;
+      io.val.textContent = fmt(r, v);
+    }
+    io.row.classList.toggle("moved", !!duringMorph);
+  });
+}
+
+/* --------------------------------------------------------------------------
+   10. ACTIONS
+   -------------------------------------------------------------------------- */
+let verdictTimer = null;
+function flashVerdict(ms){
+  el.verdict.classList.add("on");
+  clearTimeout(verdictTimer);
+  verdictTimer = setTimeout(()=>el.verdict.classList.remove("on"), ms || 6000);
+}
+
+function showVerdict(res){
+  el.tags.innerHTML = "";
+  if(!res.matched.length){
+    const s = document.createElement("span");
+    s.className = "tag miss"; s.textContent = "no known words \u2014 improvising";
+    el.tags.appendChild(s);
+  }
+  res.matched.slice(0,14).forEach(t=>{
+    const s = document.createElement("span");
+    s.className = "tag"; s.textContent = t;
+    el.tags.appendChild(s);
+  });
+  res.unmatched.slice(0,6).forEach(t=>{
+    const s = document.createElement("span");
+    s.className = "tag miss"; s.textContent = t;
+    el.tags.appendChild(s);
+  });
+  flashVerdict(6000);
+}
+
+function stripped(p){
+  const o = {};
+  ROWS.forEach(r=>{
+    if(r.raw) return;
+    o[r.k] = r.select ? p[r.k] : (r.int ? p[r.k]|0 : +(+p[r.k]).toFixed(3));
+  });
+  return o;
+}
+
+function toast(msg){
+  el.tags.innerHTML = '<span class="tag">' + msg + '</span>';
+  flashVerdict(2400);
+}
+
+function runPrompt(source){
+  const text = el.prompt.value.trim();
+  if(!text){ surprise(); return; }
+  const res = direct(text);
+  beginMorph(res.params);
+  showVerdict(res);
+  state.corpus.push({prompt:text, source:source || "typed",
+                     matched:res.matched, params:stripped(res.params)});
+  el.corpusBtn.textContent = "Export corpus (" + state.corpus.length + ")";
+}
+
+function newPrompt(){
+  el.prompt.value = dealPrompt();
+  runPrompt("bank");
+}
+
+function surprise(){
+  beginMorph(randomParams());
+  el.tags.innerHTML = '<span class="tag miss">unprompted</span>';
+  flashVerdict(3000);
+}
+
+function toggleRail(){
+  const closed = el.rail.classList.toggle("away");
+  const tab = document.getElementById("railTab");
+  if(tab) tab.setAttribute("aria-expanded", closed ? "false" : "true");
+}
+document.getElementById("railTab").addEventListener("click", toggleRail);
+
+document.getElementById("run").addEventListener("click", ()=>runPrompt("typed"));
+document.getElementById("deal").addEventListener("click", newPrompt);
+document.getElementById("dice").addEventListener("click", surprise);
+el.prompt.addEventListener("keydown", e=>{ if(e.key === "Enter") runPrompt("typed"); });
+
+document.getElementById("copyBtn").addEventListener("click", ()=>{
+  const json = JSON.stringify(stripped(state.params), null, 2);
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(json).then(()=>toast("copied"), ()=>window.prompt("Copy:", json));
+  } else window.prompt("Copy:", json);
+});
+
+document.getElementById("pasteBtn").addEventListener("click", ()=>{
+  const s = window.prompt("Paste a parameter set:");
+  if(!s) return;
+  try{
+    const incoming = JSON.parse(s);
+    const p = defaults();
+    ROWS.forEach(r=>{
+      if(r.k in incoming) p[r.k] = clampRow(r, r.select ? incoming[r.k] : parseFloat(incoming[r.k]));
+    });
+    p.resScale = state.params.resScale;
+    beginMorph(p);
+    toast("loaded");
+  }catch(err){ toast("that isn't valid JSON"); }
+});
+
+document.getElementById("shotBtn").addEventListener("click", ()=>{
+  try{
+    const a = document.createElement("a");
+    a.download = "aether-" + Date.now() + ".png";
+    a.href = canvas.toDataURL("image/png");
+    a.click();
+    toast("frame saved");
+  }catch(err){ toast("frame export blocked here"); }
+});
+
+document.getElementById("resetBtn").addEventListener("click", ()=>{
+  const p = defaults(); p.resScale = state.params.resScale;
+  beginMorph(p); toast("reset");
+});
+
+el.corpusBtn.addEventListener("click", ()=>{
+  if(!state.corpus.length){ toast("render something first"); return; }
+  const nd = state.corpus.map(r=>JSON.stringify(r)).join("\n");
+  const blob = new Blob([nd], {type:"application/x-ndjson"});
+  const a = document.createElement("a");
+  a.download = "aether-corpus.ndjson";
+  a.href = URL.createObjectURL(blob);
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+  toast("exported " + state.corpus.length + " pairs");
+});
+
+window.addEventListener("keydown", e=>{
+  if(e.target === el.prompt) return;
+  const k = e.key.toLowerCase();
+  if(k === " "){ e.preventDefault(); surprise(); }
+  else if(k === "p"){ newPrompt(); }
+  else if(k === "h"){ toggleRail(); }
+  else if(k === "f"){
+    if(document.fullscreenElement) document.exitFullscreen();
+    else if(document.documentElement.requestFullscreen)
+      document.documentElement.requestFullscreen().catch(()=>{});
+  }
+  else if(k === "s"){ document.getElementById("shotBtn").click(); }
+  else if(k === "/"){ e.preventDefault(); el.prompt.focus(); el.prompt.select(); }
+});
+
+let padPrev = [];
+function pollPad(){
+  const pads = navigator.getGamepads ? navigator.getGamepads() : [];
+  for(let i=0;i<pads.length;i++){
+    const p = pads[i]; if(!p) continue;
+    const b = p.buttons.map(x=>x.pressed);
+    const was = padPrev[i] || [];
+    if(b[0] && !was[0]) surprise();
+    if(b[1] && !was[1]) newPrompt();
+    if(b[2] && !was[2]) toggleRail();
+    if(b[9] && !was[9]) el.prompt.focus();
+    padPrev[i] = b;
+  }
+  requestAnimationFrame(pollPad);
+}
+if(navigator.getGamepads) requestAnimationFrame(pollPad);
+
+window.addEventListener("resize", ()=>{ bufW = 0; });
+
+/* --------------------------------------------------------------------------
+   11. BOOT
+   -------------------------------------------------------------------------- */
+buildUI();
+el.prompt.value = dealPrompt();
+(function(){
+  const res = direct(el.prompt.value);
+  // mutate in place — P aliases state.params and upload() reads through it
+  Object.keys(res.params).forEach(k => state.params[k] = res.params[k]);
+  state.morphT = 1;
+  syncUI();
+  showVerdict(res);
+})();
+requestAnimationFrame(frame);
+
+})();
+</script>
+</body>
+</html>
