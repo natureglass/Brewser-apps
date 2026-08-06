@@ -1,0 +1,26 @@
+{
+    "id": "com.natureglass.threejsspotlightshadowcookie",
+    "name": "ThreeJS Spotlight Shadow Cookie",
+    "version": "1.0.0",
+    "description": "<p><strong>ThreeJS Spotlight Shadow Cookie</strong> lights a marble angel with a single moving spotlight that projects a patterned texture and casts a soft, shifting shadow across the floor.</p>\r\n<p><strong>How it works.</strong> A lone spotlight sweeps a slow circle above the scene, and every frame the renderer draws the view from its position into a <em>shadow map</em> so the statue blocks the light realistically. The beam also carries a projected texture — a <em>cookie</em> (or gobo) — that stencils a pattern into the light itself, while <em>penumbra</em> and <em>PCF filtering</em> feather the shadow edges into soft gradients. The centrepiece is the Stanford <em>Lucy</em> angel, a dense hundred-thousand-triangle mesh streamed from a binary PLY file, standing on a plane that catches the shadow. <em>Neutral tone mapping</em> keeps the bright highlights under control.</p>\r\n<p><strong>How you interact:</strong></p>\r\n<ul>\r\n<li><strong>Orbit the camera</strong> — drag to rotate around the statue within set zoom and tilt limits.</li>\r\n<li><strong>Swap the cookie</strong> — pick the projected texture from a swirl, colour swatches, a UV grid, or none at all.</li>\r\n<li><strong>Tune the light</strong> — sliders for colour, intensity, angle, penumbra, decay, focus and shadow strength.</li>\r\n<li><strong>Show helpers</strong> — reveal the light cone and shadow-camera outline.</li>\r\n<li><strong>Full screen</strong> — fills the display.</li>\r\n</ul>\r\n<p>A three.js WebGL2 demo rendering live on the Switch GPU, completely offline.</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Demos"
+    ],
+    "permissions": [],
+    "compatibility": [
+        "web"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "publishedAt": "2026-08-06T10:13:47Z",
+    "summary": "A Three.js spotlight demo projecting a textured cookie and soft shadows on the Switch GPU.",
+    "tags": [
+        "WebGL2",
+        "ThreeJS"
+    ]
+}
