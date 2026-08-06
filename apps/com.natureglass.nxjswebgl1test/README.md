@@ -1,6 +1,6 @@
 # nxjs WebGL1 Test
 
-_v1.0.0_
+_v1.0.1_
 
 **nxjs WebGL1 Test** is a WebGL1 showpiece for the nx.js runtime — a moonlit ocean at night, rendered in real time, with the nx.js logo riding a cube that bobs on the swell.
 
