@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-06T09:10:55Z",
+  "generated": "2026-08-06T09:11:05Z",
   "apps": [
     {
       "id": "com.natureglass.fluiddynamics",
@@ -319,30 +319,6 @@
       "sizeBytes": 4886421
     },
     {
-      "id": "com.natureglass.threejsloadergltf",
-      "name": "ThreeJS Loader GLTF",
-      "version": "1.0.0",
-      "description": "<p>ThreeJS Loader GLTF</p>",
-      "logo": "assets/appbanner.jpg",
-      "entry": "index.html",
-      "categories": [
-        "Demos"
-      ],
-      "permissions": [],
-      "compatibility": [
-        "switch",
-        "web"
-      ],
-      "allowed_origins": [],
-      "developer": "Alex Daskalakis",
-      "license": "MIT",
-      "exitGame": "PLUS",
-      "fullscreen": true,
-      "publishedAt": "2026-08-04T19:23:06Z",
-      "summary": "ThreeJS Loader GLTF",
-      "sizeBytes": 6791334
-    },
-    {
       "id": "com.natureglass.threejspostprocessingpixelation",
       "name": "ThreeJS Postprocessing Pixelation",
       "version": "1.0.0",
@@ -416,30 +392,6 @@
       "publishedAt": "2026-08-03T09:27:35Z",
       "summary": "ThreeJS Selective Unreal Bloom",
       "sizeBytes": 8280169
-    },
-    {
-      "id": "com.natureglass.threejsshaderssky",
-      "name": "ThreeJS Shaders Sky",
-      "version": "1.0.0",
-      "description": "<p>ThreeJS Shaders Sky</p>",
-      "logo": "assets/appbanner.jpg",
-      "entry": "index.html",
-      "categories": [
-        "Demos"
-      ],
-      "permissions": [],
-      "compatibility": [
-        "switch",
-        "web"
-      ],
-      "allowed_origins": [],
-      "developer": "Alex Daskalakis",
-      "license": "MIT",
-      "exitGame": "PLUS",
-      "fullscreen": true,
-      "publishedAt": "2026-08-03T09:37:17Z",
-      "summary": "ThreeJS Shaders Sky",
-      "sizeBytes": 2253925
     },
     {
       "id": "com.natureglass.threejsspotlightshadowcookie",
