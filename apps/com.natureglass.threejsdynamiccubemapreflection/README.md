@@ -1,6 +1,6 @@
 # ThreeJS Dynamic Cubemap Reflection
 
-_v1.0.0_
+_v1.0.1_
 
 **ThreeJS Dynamic Cubemap Reflection** is a shimmering showcase built around a chrome sphere that mirrors everything happening around it in real time — a tumbling cube and a twisting torus knot sweep past while the whole scene is reflected on its polished surface.
 
