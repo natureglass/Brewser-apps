@@ -1,6 +1,6 @@
 # ThreeJS Shaders Sky
 
-_v1.0.0_
+_v1.0.1_
 
 **ThreeJS Shaders Sky** is an interactive atmosphere — a procedurally generated sky where you can move the sun from dawn to dusk and watch the colours, haze and drifting clouds respond.
 
