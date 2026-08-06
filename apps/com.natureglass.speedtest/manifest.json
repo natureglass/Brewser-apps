@@ -1,0 +1,26 @@
+{
+    "id": "com.natureglass.speedtest",
+    "name": "Speed Test",
+    "version": "1.0.0",
+    "description": "<p><strong>Speed Test</strong> checks how fast your internet connection really is, measuring against Cloudflare's global network and showing the results on an animated needle gauge with live metric tiles and a diagnostics log.</p>\r\n<p><strong>How it works.</strong> Tapping start runs three phases in turn. First it measures <em>latency</em> by timing several tiny round-trips to the server and averaging them. Then it measures <em>download</em> speed by streaming a large file and recomputing the rate on every chunk that arrives — which is what drives the needle live — discarding a short warm-up so the connection has time to reach full speed. Finally it measures <em>upload</em> by sending batches of random data and timing how quickly each one completes. All of this talks directly to Cloudflare's public speed-test endpoints, and speeds are reported in megabits per second (Mbps) just like other mainstream speed tests.</p>\r\n<p><strong>It reports:</strong></p>\r\n<ul>\r\n<li><strong>Download speed</strong> — how quickly data reaches your device.</li>\r\n<li><strong>Upload speed</strong> — how quickly you can send data out.</li>\r\n<li><strong>Latency</strong> — the round-trip responsiveness of your connection.</li>\r\n</ul>\r\n<p>One tap on <strong>Start speed test</strong> (or a click on the gauge) runs the full measurement. Requires an internet connection.</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Apps"
+    ],
+    "permissions": [],
+    "compatibility": [
+        "switch",
+        "web"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "publishedAt": "2026-08-06T10:18:02Z",
+    "summary": "Measure your internet speed against Cloudflare on an animated needle gauge.",
+    "tags": [
+        "Diagnostics"
+    ]
+}
