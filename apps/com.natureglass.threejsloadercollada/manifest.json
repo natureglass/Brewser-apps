@@ -1,0 +1,27 @@
+{
+    "id": "com.natureglass.threejsloadercollada",
+    "name": "ThreeJS Loader Collada",
+    "version": "1.0.0",
+    "description": "<p><strong>ThreeJS Loader Collada</strong> loads a textured Elf Girl character from a Collada file and turns her slowly on the spot for a clean, close-up look.</p>\r\n<p><strong>How it works.</strong> The demo hands a <em>.dae</em> file to three.js's <em>ColladaLoader</em>, which parses the XML-based <em>COLLADA</em> interchange format — geometry, materials and its separate JPEG textures for body, face and hair — and assembles the finished scene. A <em>LoadingManager</em> waits until every asset has arrived before adding the model, so nothing pops in half-loaded. Two lights do the shading: a flat <em>ambient</em> fill plus a single <em>directional light</em> to pick out form. A frame <em>timer</em> then advances a steady rotation each tick, spinning the elf in place while an on-screen stats panel tracks the frame rate.</p>\r\n<p><strong>What you'll see:</strong></p>\r\n<ul>\r\n<li><strong>A rotating character</strong> — the elf turns continuously at a gentle, even pace.</li>\r\n<li><strong>Live performance stats</strong> — an overlay reports frames per second in real time.</li>\r\n<li><strong>Full screen</strong> — fills the display.</li>\r\n</ul>\r\n<p>A hands-off three.js WebGL2 showcase running entirely on the Switch GPU, offline.</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Demos"
+    ],
+    "permissions": [],
+    "compatibility": [
+        "switch",
+        "web"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "publishedAt": "2026-08-06T09:43:44Z",
+    "summary": "A Three.js demo loading and spinning a textured Collada elf on the Switch GPU.",
+    "tags": [
+        "WebGL2",
+        "ThreeJS"
+    ]
+}
