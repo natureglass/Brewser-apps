@@ -1,0 +1,26 @@
+{
+    "id": "com.natureglass.streamcast",
+    "name": "Stream Cast",
+    "version": "1.0.0",
+    "description": "<p><strong>Stream Cast</strong> brings live Twitch streaming to the Switch browser. A \"Live now\" sidebar lists popular channels while the main stage swaps between a search screen and full-screen video.</p>\r\n<p><strong>How it works.</strong> The app talks to Twitch's own web service to do everything the site does: it fetches the directory of top live channels, looks up a stream's title, viewer count and uptime, and requests a signed playback token for the channel you choose. With that token it builds the stream's live video playlist, reads the list of available quality variants, and picks one according to your preference before handing it to the video player to decode and play. On the Switch this plays the real Twitch video feed directly; on ordinary desktop browsers, where that isn't permitted, it gracefully falls back to Twitch's official embedded player instead.</p>\r\n<p><strong>How you interact:</strong></p>\r\n<ul>\r\n<li><strong>Browse live</strong> — the sidebar shows channels that are live now; tap one to watch, and reveal more with a click.</li>\r\n<li><strong>Channel lookup</strong> — type any channel name and hit Watch to jump straight to its stream.</li>\r\n<li><strong>Quality selection</strong> — choose <em>source</em>, <em>auto</em>, or a specific resolution to suit your connection.</li>\r\n<li><strong>Recents</strong> — recently watched channels are saved as quick pills for next time.</li>\r\n<li><strong>Back</strong> — the B button or Escape returns you from a stream to the search screen.</li>\r\n</ul>\r\n<p>Requires an internet connection. Built for the Switch platform.</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Apps"
+    ],
+    "permissions": [],
+    "compatibility": [
+        "switch"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "publishedAt": "2026-08-06T10:33:57Z",
+    "summary": "Watch live Twitch streams natively in the Switch browser.",
+    "tags": [
+        "Twitch",
+        "Streaming"
+    ]
+}
