@@ -1,0 +1,21 @@
+{
+    "id": "com.natureglass.threejsequirectenvreflection",
+    "name": "ThreeJS Equirect Env Reflection",
+    "version": "1.0.0",
+    "description": "<p><strong>ThreeJS Equirect Env Reflection</strong> is a glossy image-based-lighting demo in which a slowly spinning torus knot draws its colour and reflections entirely from a single wrap-around photograph of its surroundings.</p>\r\n<p><strong>How it works.</strong> The scene is lit by an <em>equirectangular environment map</em> — one panoramic image, stretched 360° like a flattened world map, that stands in for the sky and everything around the object. Before it can be used for realistic shading, three.js runs it through a <em>PMREM</em> step that pre-blurs the panorama into a stack of progressively rougher versions, letting the material look mirror-sharp when smooth and softly diffuse when rough. This is the heart of <em>image-based lighting (IBL)</em>: rather than placing individual lamps, the whole environment becomes the light source. The demo carries two such probes — a high-dynamic-range <em>EXR</em> lightprobe and an ordinary <em>PNG</em> — and <em>ACES filmic tone mapping</em> maps their brightness onto the display.</p>\r\n<p><strong>How you interact:</strong></p>\r\n<ul>\r\n<li><strong>Orbit and zoom</strong> — drag to circle the torus knot; pinch or scroll to move within a fixed near-to-far range.</li>\r\n<li><strong>Swap environments</strong> — a control panel switches the map between the EXR and PNG probes.</li>\r\n<li><strong>Shape the material</strong> — sliders set the surface roughness, metalness and exposure.</li>\r\n<li><strong>Reveal the floor</strong> — a debug toggle drops in a ground plane that mirrors the same environment.</li>\r\n</ul>\r\n<p>One of a set of three.js examples rendered live on the Switch's GPU inside the brewser browser, running entirely offline.</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Demos"
+    ],
+    "permissions": [],
+    "compatibility": [
+        "web"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "publishedAt": "2026-08-06T09:23:48Z"
+}
