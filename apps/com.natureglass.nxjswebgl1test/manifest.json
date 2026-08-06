@@ -1,0 +1,24 @@
+{
+    "id": "com.natureglass.nxjswebgl1test",
+    "name": "nxjs WebGL1 Test",
+    "version": "1.0.0",
+    "description": "<p><strong>nxjs WebGL1 Test</strong> is a WebGL1 showpiece for the nx.js runtime — a moonlit ocean at night, rendered in real time, with the nx.js logo riding a cube that bobs on the swell.</p>\r\n<p><strong>How it works.</strong> It is really a stress test of nx.js's WebGL1 path dressed up as a seascape. Four separate <em>GLSL programs</em> — sky, moon, water and cube — are marked <em>raw passthrough</em> so the engine hands them straight to the console's native graphics chip instead of emulating them. The ocean is a dense grid of roughly ninety thousand triangles whose heights are pushed around by summed <em>sine waves</em>, and the same wave maths runs on the processor so the cube can float, tilt and roll exactly with the surface beneath it. The moon is a hand-shaded billboard with <em>procedural</em> craters and glow, the stars are scattered by a hash function, and the logo is uploaded as a <em>texture</em> onto the cube's metallic faces, complete with reflections, foam and an underwater glow.</p>\r\n<p><strong>What you'll see:</strong></p>\r\n<ul>\r\n<li><strong>Moonlit sky</strong> — a graded night sky dusted with a field of stars.</li>\r\n<li><strong>Procedural moon</strong> — a softly shaded moon with maria, craters and a cool halo.</li>\r\n<li><strong>Living ocean</strong> — rolling waves with foam crests, glints and a mirrored moonpath.</li>\r\n<li><strong>Floating cube</strong> — a metallic nx.js-logo cube bobbing and turning on the water, glowing beneath the surface.</li>\r\n<li><strong>Orbit the camera</strong> — drag the screen or push the right stick to look around; the left stick zooms in and out.</li>\r\n</ul>\r\n<p>Runs entirely offline.</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Demos"
+    ],
+    "permissions": [],
+    "compatibility": [
+        "web"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "publishedAt": "2026-08-06T09:21:34Z",
+    "features": [
+        "Gamepad"
+    ]
+}
