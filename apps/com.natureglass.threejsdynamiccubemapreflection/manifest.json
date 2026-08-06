@@ -17,5 +17,10 @@
     "license": "MIT",
     "exitGame": "PLUS",
     "fullscreen": true,
-    "publishedAt": "2026-08-06T09:23:06Z"
+    "publishedAt": "2026-08-06T09:23:06Z",
+    "summary": "A real-time three.js demo of a chrome sphere reflecting the live scene via a CubeCamera.",
+    "tags": [
+        "WebGL2",
+        "ThreeJS"
+    ]
 }
