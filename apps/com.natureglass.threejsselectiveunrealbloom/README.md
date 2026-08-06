@@ -1,6 +1,6 @@
 # ThreeJS Selective Unreal Bloom
 
-_v1.0.0_
+_v1.0.1_
 
 **ThreeJS Selective Unreal Bloom** shows off an animated sci-fi engine — a detailed "Primary Ion Drive" model whose hot, glowing core blazes with a soft cinematic halo while the rest of the hull stays sharp.
 
