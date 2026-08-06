@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-06T09:38:16Z",
+  "generated": "2026-08-06T09:38:59Z",
   "apps": [
     {
       "id": "com.natureglass.nxjswebgl1test",
@@ -80,7 +80,12 @@
       "exitGame": "PLUS",
       "fullscreen": true,
       "publishedAt": "2026-08-06T09:23:06Z",
-      "sizeBytes": 3750615
+      "summary": "A real-time three.js demo of a chrome sphere reflecting the live scene via a CubeCamera.",
+      "tags": [
+        "WebGL2",
+        "ThreeJS"
+      ],
+      "sizeBytes": 3750779
     },
     {
       "id": "com.natureglass.threejsequirectenvreflection",
