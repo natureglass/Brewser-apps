@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-06T09:37:00Z",
+  "generated": "2026-08-06T09:38:16Z",
   "apps": [
     {
       "id": "com.natureglass.nxjswebgl1test",
@@ -51,10 +51,14 @@
       "exitGame": "PLUS",
       "fullscreen": true,
       "publishedAt": "2026-08-06T09:22:21Z",
+      "summary": "The very first WebGL2 shader demo on Switch: a procedural sunset sea with a floating logo cube.",
       "features": [
         "Gamepad"
       ],
-      "sizeBytes": 75127
+      "tags": [
+        "WebGL2"
+      ],
+      "sizeBytes": 75279
     },
     {
       "id": "com.natureglass.threejsdynamiccubemapreflection",
