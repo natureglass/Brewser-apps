@@ -1,0 +1,21 @@
+{
+    "id": "com.natureglass.threejsgpgpuwater",
+    "name": "ThreeJS GPGPU Water",
+    "version": "1.0.0",
+    "description": "<p><strong>ThreeJS GPGPU Water</strong> is a reflective pool you can stir with a fingertip — press and drag across the surface and ripples spread out, run to the rim and slowly settle.</p>\r\n<p><strong>How it works.</strong> The surface is a grid of heights held in a texture and simulated entirely on the graphics card — this is the <em>GPGPU</em> (general-purpose GPU) technique, where a shader is used for maths rather than for drawing. Each frame a <em>compute shader</em> looks at every cell and its four neighbours and applies a simple <em>wave equation</em>: the new height is the neighbours' average minus the previous height, damped by a <em>viscosity</em> factor so waves travel and gradually die away. Your pointer presses a dimple into the field to launch fresh ripples. That height texture then drives the water's vertices and surface normals, so a mirrored HDR sunrise sky reflects and warps across the moving surface.</p>\r\n<p><strong>How you interact:</strong></p>\r\n<ul>\r\n<li><strong>Disturb the water</strong> — press and drag on the surface to raise ripples wherever you touch.</li>\r\n<li><strong>Orbit the camera</strong> — drag off the water to rotate and zoom around the pool.</li>\r\n<li><strong>Mouse size and depth</strong> — sliders set how large and how deep each disturbance is.</li>\r\n<li><strong>Viscosity and speed</strong> — tune how quickly ripples fade and how many simulation steps run per frame.</li>\r\n<li><strong>Wireframe and shadows</strong> — toggles reveal the underlying mesh or add cast shadows.</li>\r\n<li><strong>Full screen</strong> — fills the display.</li>\r\n</ul>\r\n<p>A self-contained three.js GPU-compute demo, simulated and rendered live on the Switch GPU with no network needed.</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Demos"
+    ],
+    "permissions": [],
+    "compatibility": [
+        "web"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "publishedAt": "2026-08-06T09:24:29Z"
+}
