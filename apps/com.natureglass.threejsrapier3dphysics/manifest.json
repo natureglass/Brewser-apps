@@ -1,0 +1,22 @@
+{
+    "id": "com.natureglass.threejsrapier3dphysics",
+    "name": "ThreeJS Rapier3d Physics",
+    "version": "1.0.0",
+    "description": "<p><strong>ThreeJS Rapier3d Physics</strong> is a self-running rigid-body playground: colourful boxes, spheres and rounded blocks rain down onto a grid floor, bounce, tumble and pile up under gravity.</p>\r\n<p><strong>How it works.</strong> A full physics engine — <em>Rapier</em>, written in Rust and compiled to <em>WebAssembly</em> so it runs at near-native speed in the browser — steps the world forward every frame, pulling bodies down with gravity and resolving collisions between shapes using their mass and <em>restitution</em> (bounciness). three.js simply mirrors each body's computed position and rotation onto its matching mesh, while thin outlines drawn around every collider reveal the physics shapes the engine actually sees. A new random shape is dropped in automatically once a second, and any body that falls past the floor's edge is quietly removed so the scene never overflows.</p>\r\n<p><strong>What you'll see:</strong></p>\r\n<ul>\r\n<li><strong>Automatic spawning</strong> — a fresh box, sphere or rounded box in a random colour drops from above every second.</li>\r\n<li><strong>Bouncy collisions</strong> — bodies land with springy restitution, so they bounce and jostle before settling into a heap.</li>\r\n<li><strong>Orbit the scene</strong> — drag to rotate and scroll to zoom, with smooth damped camera motion.</li>\r\n<li><strong>Full screen</strong> — fills the display.</li>\r\n</ul>\r\n<p>A mostly hands-off three.js physics showcase, computed and rendered live on the Switch GPU entirely offline.</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Demos"
+    ],
+    "permissions": [],
+    "compatibility": [
+        "web"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "publishedAt": "2026-08-06T09:47:43Z",
+    "summary": "A self-running three.js physics scene where Rapier-driven shapes drop and bounce."
+}
