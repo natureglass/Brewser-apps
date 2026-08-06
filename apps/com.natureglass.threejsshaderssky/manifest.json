@@ -1,0 +1,26 @@
+{
+    "id": "com.natureglass.threejsshaderssky",
+    "name": "ThreeJS Shaders Sky",
+    "version": "1.0.0",
+    "description": "<p><strong>ThreeJS Shaders Sky</strong> is an interactive atmosphere — a procedurally generated sky where you can move the sun from dawn to dusk and watch the colours, haze and drifting clouds respond.</p>\r\n<p><strong>How it works.</strong> There is no sky photograph here; every pixel is computed by a shader based on the <em>Preetham analytic daylight model</em>, a physics-inspired formula for how sunlight scatters through the air. Two effects do most of the work: <em>Rayleigh scattering</em>, which spreads short blue wavelengths across the dome, and <em>Mie scattering</em>, which throws a whitish haze around the sun. Raising the <em>turbidity</em> thickens the atmosphere for a hazier, sunset feel, while the sun's <em>elevation</em> and <em>azimuth</em> decide where it sits and how the whole sky is tinted. This version layers on animated <em>fractal-noise clouds</em> that drift overhead as time advances, with their own coverage, density and height controls, and <em>ACES filmic tone mapping</em> keeps the fierce sun disc in check.</p>\r\n<p><strong>What you can adjust:</strong></p>\r\n<ul>\r\n<li><strong>Move the sun</strong> — elevation and azimuth sliders sweep it across the sky, repainting the atmosphere in real time.</li>\r\n<li><strong>Atmosphere sliders</strong> — turbidity, Rayleigh, Mie coefficient, Mie directional-G and exposure fine-tune the haze, colour and brightness.</li>\r\n<li><strong>Clouds folder</strong> — separate coverage, density and elevation controls shape the drifting cloud layer.</li>\r\n<li><strong>Sun disc toggle</strong> — show or hide the bright solar disc.</li>\r\n<li><strong>Look around</strong> — drag to rotate the view; zoom and panning are disabled.</li>\r\n</ul>\r\n<p>One of a set of three.js examples rendered live on the Switch's GPU inside the brewser browser, running entirely offline.</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Demos"
+    ],
+    "permissions": [],
+    "compatibility": [
+        "web"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "publishedAt": "2026-08-06T10:12:52Z",
+    "summary": "An interactive three.js atmospheric sky shader with a movable sun and drifting clouds.",
+    "tags": [
+        "WebGL2",
+        "ThreeJS"
+    ]
+}
