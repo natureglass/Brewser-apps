@@ -1,0 +1,22 @@
+{
+    "id": "com.natureglass.threejsloadergltf",
+    "name": "ThreeJS Loader GLTF",
+    "version": "1.0.0",
+    "description": "<p><strong>ThreeJS Loader GLTF</strong> displays the battle-scarred Damaged Helmet — a benchmark physically based model — lit and reflected by a real-world HDR sky.</p>\r\n<p><strong>How it works.</strong> The <em>GLTFLoader</em> reads a glTF 2.0 model together with its binary geometry buffer and a full <em>physically based</em> texture set — base colour, normal, metal-roughness, ambient occlusion and emissive maps — so the metal, glass and scorched paint each respond to light correctly. An <em>UltraHDR</em> equirectangular photograph of the Royal Esplanade serves as both the backdrop and the <em>image-based lighting</em>, its surroundings mirrored across the shiny surfaces. <em>ACES filmic tone mapping</em> grades the high-dynamic-range result, the camera auto-frames the model, and shaders are compiled asynchronously so it appears without a stutter.</p>\r\n<p><strong>How you interact:</strong></p>\r\n<ul>\r\n<li><strong>Orbit the model</strong> — drag to spin around the helmet with smooth damping and zoom limits.</li>\r\n<li><strong>Blur the backdrop</strong> — a slider softens the environment behind the model.</li>\r\n<li><strong>Model menu</strong> — a dropdown selects the sample on show.</li>\r\n<li><strong>Full screen</strong> — fills the display.</li>\r\n</ul>\r\n<p>A three.js WebGL2 demo rendering live on the Switch GPU, completely offline.</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Demos"
+    ],
+    "permissions": [],
+    "compatibility": [
+        "web"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "publishedAt": "2026-08-06T09:44:35Z",
+    "summary": "A Three.js demo loading a PBR glTF helmet under HDR lighting on the Switch GPU."
+}
