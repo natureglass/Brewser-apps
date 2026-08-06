@@ -8,11 +8,17 @@
     "categories": [
         "Apps"
     ],
-    "permissions": [],
+    "permissions": [
+        "network"
+    ],
     "compatibility": [
         "switch"
     ],
-    "allowed_origins": [],
+    "allowed_origins": [
+        "https://gql.twitch.tv",
+        "https://usher.ttvnw.net",
+        "https://player.twitch.tv"
+    ],
     "developer": "Alex Daskalakis",
     "license": "MIT",
     "exitGame": "PLUS",
