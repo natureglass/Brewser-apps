@@ -18,7 +18,11 @@
     "exitGame": "PLUS",
     "fullscreen": true,
     "publishedAt": "2026-08-06T09:22:21Z",
+    "summary": "The very first WebGL2 shader demo on Switch: a procedural sunset sea with a floating logo cube.",
     "features": [
         "Gamepad"
+    ],
+    "tags": [
+        "WebGL2"
     ]
 }
