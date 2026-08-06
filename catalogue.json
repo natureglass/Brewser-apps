@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-06T09:11:23Z",
+  "generated": "2026-08-06T09:11:47Z",
   "apps": [
     {
       "id": "com.natureglass.fractalzoom",
@@ -195,30 +195,6 @@
       "sizeBytes": 3747017
     },
     {
-      "id": "com.natureglass.threejsequirectenvreflection",
-      "name": "ThreeJS Equirect Env Reflection",
-      "version": "1.0.0",
-      "description": "<p>ThreeJS Equirect Env Reflection</p>",
-      "logo": "assets/appbanner.jpg",
-      "entry": "index.html",
-      "categories": [
-        "Demos"
-      ],
-      "permissions": [],
-      "compatibility": [
-        "switch",
-        "web"
-      ],
-      "allowed_origins": [],
-      "developer": "Alex Daskalakis",
-      "license": "MIT",
-      "exitGame": "PLUS",
-      "fullscreen": true,
-      "publishedAt": "2026-08-03T09:01:06Z",
-      "summary": "ThreeJS Equirect Env Reflection",
-      "sizeBytes": 4932459
-    },
-    {
       "id": "com.natureglass.threejsgpgpuwater",
       "name": "ThreeJS GPGPU Water",
       "version": "1.0.0",
@@ -268,30 +244,6 @@
       "publishedAt": "2026-08-03T09:03:17Z",
       "summary": "ThreeJS Loader Collada",
       "sizeBytes": 4886421
-    },
-    {
-      "id": "com.natureglass.threejspostprocessingpixelation",
-      "name": "ThreeJS Postprocessing Pixelation",
-      "version": "1.0.0",
-      "description": "<p>ThreeJS Postprocessing Pixelation</p>",
-      "logo": "assets/appbanner.jpg",
-      "entry": "index.html",
-      "categories": [
-        "Demos"
-      ],
-      "permissions": [],
-      "compatibility": [
-        "switch",
-        "web"
-      ],
-      "allowed_origins": [],
-      "developer": "Alex Daskalakis",
-      "license": "MIT",
-      "exitGame": "PLUS",
-      "fullscreen": true,
-      "publishedAt": "2026-08-03T09:22:35Z",
-      "summary": "ThreeJS Postprocessing Pixelation",
-      "sizeBytes": 2294398
     },
     {
       "id": "com.natureglass.threejsrapier3dphysics",
