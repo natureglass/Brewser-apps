@@ -1,6 +1,6 @@
 # ThreeJS Loader GLTF
 
-_v1.0.0_
+_v1.0.1_
 
 **ThreeJS Loader GLTF** displays the battle-scarred Damaged Helmet — a benchmark physically based model — lit and reflected by a real-world HDR sky.
 
