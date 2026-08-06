@@ -1,0 +1,27 @@
+{
+    "id": "com.natureglass.fractalzoom",
+    "name": "Fractal Zoom",
+    "version": "1.0.0",
+    "description": "<p><strong>Fractal Zoom</strong> is a GPU-powered explorer for six infinitely detailed fractals. Dive endlessly into these mathematical worlds, panning and zooming smoothly to reveal intricate structure at every scale, all rendered in real time with WebGL2.</p>\r\n<p><strong>How it works.</strong> Most of the fractals — the <em>Mandelbrot</em>, <em>Julia</em>, <em>Burning Ship</em>, <em>Phoenix</em> and <em>Koch</em> sets — are drawn by a fragment shader covering the whole screen: for every pixel it treats the point as a complex number and repeatedly applies the fractal's formula (up to around 700 times) to see how quickly the value \"escapes\". The number of steps is coloured through a smooth cosine palette, and the iteration count automatically scales up as you zoom in so detail keeps resolving no matter how deep you go. The <em>Barnsley Fern</em> works differently: thousands of points are stepped through a chaos game on the CPU and accumulated into a brightness buffer, then tone-mapped for a soft, photographic look.</p>\r\n<p><strong>How you interact:</strong></p>\r\n<ul>\r\n<li><strong>Zoom &amp; pan</strong> — drag, hold, or use the scroll wheel to zoom continuously toward wherever you point; a heads-up display shows the current fractal name and zoom factor.</li>\r\n<li><strong>Fractal</strong> — cycles through the six different fractal types.</li>\r\n<li><strong>Cycle</strong> — hold to animate the colour palette, sending waves of colour through the image.</li>\r\n<li><strong>Reset</strong> — recenters and returns to the starting view.</li>\r\n<li><strong>Full screen</strong> — maximises the canvas for the best detail.</li>\r\n</ul>\r\n<p>Rendered entirely on the GPU with dithering to hide colour banding, and it needs no internet connection.</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Demos"
+    ],
+    "permissions": [],
+    "compatibility": [
+        "switch",
+        "web"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "publishedAt": "2026-08-06T10:32:41Z",
+    "summary": "A GPU-powered WebGL2 explorer for six infinitely detailed fractals.",
+    "tags": [
+        "Fractals",
+        "Visualizer"
+    ]
+}
