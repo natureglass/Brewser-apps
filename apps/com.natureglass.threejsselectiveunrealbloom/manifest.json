@@ -1,0 +1,26 @@
+{
+    "id": "com.natureglass.threejsselectiveunrealbloom",
+    "name": "ThreeJS Selective Unreal Bloom",
+    "version": "1.0.0",
+    "description": "<p><strong>ThreeJS Selective Unreal Bloom</strong> shows off an animated sci-fi engine — a detailed \"Primary Ion Drive\" model whose hot, glowing core blazes with a soft cinematic halo while the rest of the hull stays sharp.</p>\r\n<p><strong>How it works.</strong> The model is drawn through an <em>effect composer</em> that lays an <em>Unreal-style bloom</em> pass over the rendered frame. Bloom works from a brightness <em>threshold</em>: only pixels brighter than the cut-off — here the emissive engine parts — are picked out, blurred across several progressively smaller buffers and added back as a glow, so the light appears to bleed selectively from just the brightest surfaces. <em>ACES filmic tone mapping</em> then compresses the high dynamic range into natural on-screen colour, while the model plays a looping animation throughout.</p>\r\n<p><strong>How you interact:</strong></p>\r\n<ul>\r\n<li><strong>Orbit the model</strong> — drag to rotate and zoom within a fixed distance range so the engine stays framed.</li>\r\n<li><strong>Threshold</strong> — raise or lower which brightness levels are allowed to glow, changing how selective the bloom is.</li>\r\n<li><strong>Strength and radius</strong> — sliders set how intense the glow is and how far it spreads.</li>\r\n<li><strong>Exposure</strong> — adjusts the overall tone-mapped brightness.</li>\r\n<li><strong>Full screen</strong> — fills the display.</li>\r\n</ul>\r\n<p>A self-contained three.js post-processing demo, rendered live on the Switch GPU and running fully offline.</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Demos"
+    ],
+    "permissions": [],
+    "compatibility": [
+        "web"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "publishedAt": "2026-08-06T10:11:59Z",
+    "summary": "An animated three.js ion-drive model with tunable Unreal-style bloom glowing its bright parts.",
+    "tags": [
+        "WebGL2",
+        "ThreeJS"
+    ]
+}
