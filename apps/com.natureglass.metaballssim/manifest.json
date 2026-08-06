@@ -1,0 +1,26 @@
+{
+    "id": "com.natureglass.metaballssim",
+    "name": "Metaballs sim",
+    "version": "1.0.0",
+    "description": "<p><strong>Metaballs sim</strong> is a relaxing fluid sandbox where dozens of soft water blobs fall, pool and merge into one gooey, rolling surface.</p>\r\n<p><strong>How it works.</strong> Two things run at once. Behind the scenes a lightweight particle simulation gives every blob <em>gravity</em>, plus <em>viscosity</em> and <em>cohesion</em> forces that pull neighbours together and let overlaps relax apart, so the crowd flows and settles like a thick liquid. On screen it uses the classic <em>metaball</em> trick: in a first pass each blob splats a soft circular <em>field</em> into an offscreen texture using <em>additive blending</em>, so wherever two blobs sit close their fields add up; a second full-screen pass then <em>thresholds</em> that combined field into flat colour bands — edge, fill and a bright dense core — making separate circles visually fuse into a single liquid shape. Everything is drawn with WebGL2 in just a couple of draw calls.</p>\r\n<p><strong>How you interact:</strong></p>\r\n<ul>\r\n<li><strong>Drag</strong> — swirl the pool; blobs near your finger get pulled along with it.</li>\r\n<li><strong>Tap the top</strong> — pours fresh blobs in from above that drip down and merge into the water.</li>\r\n<li><strong>Cycle</strong> — hold to roll the colour smoothly through the spectrum, release to keep whatever hue it lands on.</li>\r\n<li><strong>Size + / Size -</strong> — makes newly poured blobs bigger or smaller.</li>\r\n<li><strong>Reset</strong> — clears everything back to the neat starting grid and the default blue.</li>\r\n<li><strong>Full screen</strong> — fills the display for the full effect.</li>\r\n</ul>\r\n<p>A self-contained demo that runs completely offline.</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Demos"
+    ],
+    "permissions": [],
+    "compatibility": [
+        "switch",
+        "web"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "publishedAt": "2026-08-06T10:21:50Z",
+    "summary": "A WebGL2 metaball fluid of merging, dripping water blobs you can pour and colour.",
+    "tags": [
+        "Fluids"
+    ]
+}
