@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-06T07:49:12Z",
+  "generated": "2026-08-06T08:00:14Z",
   "apps": [
     {
       "id": "com.natureglass.aether",
@@ -240,7 +240,7 @@
       "features": [
         "Gamepad"
       ],
-      "sizeBytes": 110215
+      "sizeBytes": 71774
     },
     {
       "id": "com.natureglass.savedemo",
