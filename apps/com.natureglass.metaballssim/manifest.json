@@ -1,0 +1,26 @@
+{
+    "id": "com.natureglass.metaballssim",
+    "name": "Metaballs sim",
+    "version": "1.0.0",
+    "description": "<p>Metaballs sim</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Demos"
+    ],
+    "permissions": [],
+    "compatibility": [
+        "switch",
+        "web"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "publishedAt": "2026-08-06T07:36:35Z",
+    "summary": "Metaballs sim",
+    "tags": [
+        "Fluids"
+    ]
+}
