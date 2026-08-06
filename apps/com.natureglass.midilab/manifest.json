@@ -1,0 +1,32 @@
+{
+    "id": "com.natureglass.midilab",
+    "name": "MIDI Lab",
+    "version": "1.0.0",
+    "description": "<p><strong>MIDI Lab</strong> is a universal MIDI-controller tester, synthesizer and visual playground. Plug in a keyboard, pad grid or knob controller and the app builds an on-screen mirror of your exact device, then lights up every note, pad and dial as you play it — while turning your performance into sound and reactive graphics.</p>\r\n<p><strong>How it works.</strong> The app connects to your hardware two ways, with an automatic fallback. First it tries the browser's built-in <em>Web MIDI</em> support; if that isn't available it falls back to <em>WebUSB</em>, claiming the controller directly and decoding its raw USB-MIDI packets itself. It then matches your device's name against a bundled database of known controllers to draw the right layout of pads, keys, faders and knobs (unknown gear gets a sensible generic panel). Every incoming message flows through one pipeline: it's logged in the monitor, played through the synth, and used to drive the visuals. The synthesizer is built with Web Audio — each note stacks two oscillators through a filter and envelope, then a chain of drive, bit-crushing, reverb and delay — and your knobs and faders are mapped straight onto its parameters like filter cutoff, resonance and reverb. Meanwhile a WebGL2 feedback background bursts and glows in time with your notes.</p>\r\n<p><strong>How you interact:</strong></p>\r\n<ul>\r\n<li><strong>Enable Audio</strong> — unlocks sound (browsers require one tap first); do this before playing.</li>\r\n<li><strong>Pair MIDI / Pair USB</strong> — connect your controller through Web MIDI or, as a fallback, WebUSB.</li>\r\n<li><strong>Play</strong> — the on-screen widgets respond live; on devices with lights, tapping an on-screen pad even sends a signal back to illuminate the real hardware.</li>\r\n<li><strong>Monitor</strong> — a collapsible panel logs every incoming message as decoded, timestamped data, with a one-tap clear.</li>\r\n<li><strong>Full screen</strong> — expands the interface for performance.</li>\r\n</ul>\r\n<p>Self-contained and offline, with the layout adapting automatically to whatever controller you connect.</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Apps"
+    ],
+    "permissions": [
+        "usb"
+    ],
+    "compatibility": [
+        "switch",
+        "web"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "publishedAt": "2026-08-06T10:44:35Z",
+    "summary": "Test MIDI controllers and play a built-in synth via Web MIDI or USB.",
+    "features": [
+        "Web MIDI",
+        "Web USB"
+    ],
+    "tags": [
+        "MIDI"
+    ]
+}
