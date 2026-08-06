@@ -1,11 +1,12 @@
 {
   "featured": [
     "com.natureglass.aether",
+    "com.natureglass.fluiddynamics",
     "com.natureglass.sensorsplayground",
     "com.natureglass.spectraplay",
     "com.natureglass.streamcast",
     "com.natureglass.threejsloadergltf"
   ],
-  "generated": "2026-08-06T10:56:02Z",
+  "generated": "2026-08-06T10:56:07Z",
   "revoked": []
 }
