@@ -34,6 +34,7 @@ ROOT = Path(__file__).resolve().parent.parent
 APPS_DIR = ROOT / "apps"
 ARTIFACTS_DIR = ROOT / "artifacts"
 CATALOG_PATH = ROOT / "catalogue.json"
+CURATION_PATH = ROOT / "curation.json"
 CATALOG_VERSION = 1
 
 
@@ -110,6 +111,57 @@ def build_apps(written_artifacts: "set[Path]") -> "list[dict]":
     return entries
 
 
+def load_curation() -> "list[str]":
+    """Read the operator-curation overlay (repo-root curation.json).
+
+    Returns the lowercased list of featured package-ids. This file is produced
+    by the WordPress plugin (Brewser_Sub_Curation) from the admin "Featured"
+    checkboxes and pushed to the BASE repo root, which triggers this workflow.
+
+    TOLERANT by design: an absent curation.json is a clean no-op, and a malformed
+    one is warned + ignored rather than fail-loud — a bad editorial file must
+    never blank the live catalogue.
+    """
+    if not CURATION_PATH.is_file():
+        return []
+    try:
+        with CURATION_PATH.open("r", encoding="utf-8-sig") as f:
+            data = json.load(f)
+    except (json.JSONDecodeError, OSError) as exc:
+        print(f"warn: curation.json unreadable ({exc}); featured overlay skipped", file=sys.stderr)
+        return []
+    featured = data.get("featured") if isinstance(data, dict) else None
+    if not isinstance(featured, list):
+        print("warn: curation.json has no 'featured' array; featured overlay skipped", file=sys.stderr)
+        return []
+    ids: "list[str]" = []
+    for fid in featured:
+        if isinstance(fid, str) and fid.strip():
+            ids.append(fid.strip().lower())
+    return ids
+
+
+def apply_featured(entries: "list[dict]", featured_ids: "list[str]") -> int:
+    """Stamp featured:true onto catalogue entries whose id is in the curation set.
+
+    Matching is case-insensitive on the package-id. A featured id with no
+    matching app folder is WARNED to stderr and skipped (a stale editorial id
+    can't blank or fail the build). Returns the number of entries stamped.
+    """
+    if not featured_ids:
+        return 0
+    by_id = {str(e.get("id", "")).lower(): e for e in entries}
+    stamped = 0
+    for fid in featured_ids:
+        entry = by_id.get(fid)
+        if entry is None:
+            print(f"warn: curation featured id '{fid}' has no app folder; skipped", file=sys.stderr)
+            continue
+        entry["featured"] = True
+        stamped += 1
+    return stamped
+
+
 def prune_stale_artifacts(written: "set[Path]") -> int:
     removed = 0
     if not ARTIFACTS_DIR.is_dir():
@@ -125,10 +177,12 @@ def main() -> int:
     ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
 
     written_artifacts: "set[Path]" = set()
+    apps = build_apps(written_artifacts)
+    featured_count = apply_featured(apps, load_curation())
     catalog = {
         "version": CATALOG_VERSION,
         "generated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "apps": build_apps(written_artifacts),
+        "apps": apps,
     }
 
     with CATALOG_PATH.open("w", encoding="utf-8", newline="\n") as f:
@@ -138,8 +192,8 @@ def main() -> int:
     removed = prune_stale_artifacts(written_artifacts)
 
     print(
-        f"wrote {CATALOG_PATH.relative_to(ROOT)} (apps={len(catalog['apps'])}); "
-        f"{len(written_artifacts)} artifact(s), pruned {removed}"
+        f"wrote {CATALOG_PATH.relative_to(ROOT)} (apps={len(catalog['apps'])}, "
+        f"featured={featured_count}); {len(written_artifacts)} artifact(s), pruned {removed}"
     )
     return 0
 

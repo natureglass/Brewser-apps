@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-07T06:32:44Z",
+  "generated": "2026-08-07T07:14:24Z",
   "apps": [
     {
       "id": "com.natureglass.aether",
@@ -32,7 +32,8 @@
         "WebGL2",
         "Kaleidoscope"
       ],
-      "sizeBytes": 121545
+      "sizeBytes": 121545,
+      "featured": true
     },
     {
       "id": "com.natureglass.fluiddynamics",
@@ -60,7 +61,8 @@
         "Fluids",
         "Visualizer"
       ],
-      "sizeBytes": 86917
+      "sizeBytes": 86917,
+      "featured": true
     },
     {
       "id": "com.natureglass.fractalzoom",
@@ -206,7 +208,8 @@
         "Probability",
         "WebNN"
       ],
-      "sizeBytes": 91274
+      "sizeBytes": 91274,
+      "featured": true
     },
     {
       "id": "com.natureglass.nxjswebgl1test",
@@ -326,7 +329,8 @@
       "tags": [
         "Gyroscope"
       ],
-      "sizeBytes": 102659
+      "sizeBytes": 102659,
+      "featured": true
     },
     {
       "id": "com.natureglass.spectraplay",
@@ -353,7 +357,8 @@
         "Audio Player",
         "Visualizer"
       ],
-      "sizeBytes": 158718
+      "sizeBytes": 158718,
+      "featured": true
     },
     {
       "id": "com.natureglass.speedtest",
@@ -413,7 +418,8 @@
         "Twitch",
         "Streaming"
       ],
-      "sizeBytes": 74650
+      "sizeBytes": 74650,
+      "featured": true
     },
     {
       "id": "com.natureglass.threejsdynamiccubemapreflection",
@@ -553,7 +559,8 @@
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 6795312
+      "sizeBytes": 6795312,
+      "featured": true
     },
     {
       "id": "com.natureglass.threejspostprocessingpixelation",
