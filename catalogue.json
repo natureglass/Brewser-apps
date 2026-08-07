@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-07T07:14:24Z",
+  "generated": "2026-08-07T07:26:34Z",
   "apps": [
     {
       "id": "com.natureglass.aether",
@@ -118,7 +118,8 @@
       "tags": [
         "Gyroscope"
       ],
-      "sizeBytes": 35320
+      "sizeBytes": 35320,
+      "featured": true
     },
     {
       "id": "com.natureglass.metaballssim",
