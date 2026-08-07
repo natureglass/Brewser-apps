@@ -22,7 +22,6 @@
 <div id="ui">
   <button id="bBurst">Burst</button>
   <button id="bParticles">Particles: On</button>
-  <button id="bFull">Full screen</button>
 </div>
 <div id="hint">draw with your finger &mdash; multi-touch works</div>
 <div id="err"></div>
@@ -697,31 +696,6 @@ bParticles.addEventListener('click', () => {
   config.PARTICLES = !config.PARTICLES;
   bParticles.textContent = 'Particles: ' + (config.PARTICLES ? 'On' : 'Off');
 });
-function isEffectivelyFullscreen() {
-  return !!document.fullscreenElement
-    || matchMedia('(display-mode: fullscreen)').matches
-    || (innerWidth === screen.width && innerHeight === screen.height);
-}
-
-function canRequestFullscreen() {
-  return document.fullscreenEnabled && !isEffectivelyFullscreen();
-}
-
-const bFull = document.getElementById('bFull');
-function updateFullscreenLabel() {
-  bFull.textContent = isEffectivelyFullscreen() ? 'Exit Fullscreen' : 'Enter Fullscreen';
-}
-updateFullscreenLabel();
-bFull.addEventListener('click', async () => {
-  if (isEffectivelyFullscreen()) {
-    await document.exitFullscreen();
-  } else if (canRequestFullscreen()) {
-    await document.documentElement.requestFullscreen();
-  }
-  updateFullscreenLabel();
-});
-document.addEventListener('fullscreenchange', updateFullscreenLabel);
-window.addEventListener('resize', updateFullscreenLabel);
 
 /* ---------- main loop ---------- */
 
