@@ -46,7 +46,6 @@
   <button id="bFractal">Fractal</button>
   <button id="bCycle">Cycle</button>
   <button id="bReset">Reset</button>
-  <button id="bFull">Full screen</button>
 </div>
 <div id="hud" class="chip"><b id="fname">&mdash;</b> &nbsp;zoom &times;<span id="fzoom">1.0</span></div>
 <div id="err">WebGL2 is not available in this browser.</div>
@@ -431,31 +430,6 @@ bCycle.addEventListener('pointerdown', e => {
 bCycle.addEventListener('pointerup',     () => { cycling = false; });
 bCycle.addEventListener('pointercancel', () => { cycling = false; });
 document.getElementById('bReset').addEventListener('click', goHome);
-function isEffectivelyFullscreen() {
-  return !!document.fullscreenElement
-    || matchMedia('(display-mode: fullscreen)').matches
-    || (innerWidth === screen.width && innerHeight === screen.height);
-}
-
-function canRequestFullscreen() {
-  return document.fullscreenEnabled && !isEffectivelyFullscreen();
-}
-
-const bFull = document.getElementById('bFull');
-function updateFullscreenLabel() {
-  bFull.textContent = isEffectivelyFullscreen() ? 'Exit Fullscreen' : 'Enter Fullscreen';
-}
-updateFullscreenLabel();
-bFull.addEventListener('click', async () => {
-  if (isEffectivelyFullscreen()) {
-    await document.exitFullscreen();
-  } else if (canRequestFullscreen()) {
-    await document.documentElement.requestFullscreen();
-  }
-  updateFullscreenLabel();
-});
-document.addEventListener('fullscreenchange', updateFullscreenLabel);
-window.addEventListener('resize', updateFullscreenLabel);
 
 // ================= Resize =================
 function resize(){

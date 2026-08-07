@@ -1,6 +1,6 @@
 # Fractal Zoom
 
-_v1.0.0_
+_v1.0.1_
 
 **Fractal Zoom** is a GPU-powered explorer for six infinitely detailed fractals. Dive endlessly into these mathematical worlds, panning and zooming smoothly to reveal intricate structure at every scale, all rendered in real time with WebGL2.
 
