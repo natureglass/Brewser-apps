@@ -1,29 +1,56 @@
 {
-  "generated": "2026-08-06T20:50:16Z",
+  "generated": "2026-08-07T08:07:50Z",
   "stats": {
+    "com.natureglass.aether": {
+      "downloads": 1,
+      "ratingAvg": 0,
+      "ratingCount": 0
+    },
     "com.natureglass.fluiddynamics": {
       "downloads": 0,
       "ratingAvg": 5,
       "ratingCount": 1,
-      "ratingScore": 4.7916999999999996
+      "ratingScore": 4.8611000000000004
     },
     "com.natureglass.fractalzoom": {
-      "downloads": 0,
+      "downloads": 1,
       "ratingAvg": 4,
       "ratingCount": 1,
-      "ratingScore": 4.625
+      "ratingScore": 4.6943999999999999
     },
     "com.natureglass.gravityballs": {
       "downloads": 0,
       "ratingAvg": 5,
       "ratingCount": 1,
-      "ratingScore": 4.7916999999999996
+      "ratingScore": 4.8611000000000004
+    },
+    "com.natureglass.nxjswebgl2test": {
+      "downloads": 1,
+      "ratingAvg": 0,
+      "ratingCount": 0
+    },
+    "com.natureglass.spectraplay": {
+      "downloads": 0,
+      "ratingAvg": 5,
+      "ratingCount": 1,
+      "ratingScore": 4.8611000000000004
+    },
+    "com.natureglass.threejsloadergltf": {
+      "downloads": 0,
+      "ratingAvg": 5,
+      "ratingCount": 1,
+      "ratingScore": 4.8611000000000004
     },
     "com.natureglass.threejsselectiveunrealbloom": {
       "downloads": 0,
       "ratingAvg": 5,
       "ratingCount": 1,
-      "ratingScore": 4.7916999999999996
+      "ratingScore": 4.8611000000000004
+    },
+    "com.natureglass.threejsshaderssky": {
+      "downloads": 1,
+      "ratingAvg": 0,
+      "ratingCount": 0
     }
   }
 }
