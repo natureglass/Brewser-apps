@@ -63,7 +63,6 @@
   <button id="bReset">Reset</button>
   <button id="bSizeUp">Size +</button>
   <button id="bSizeDown">Size -</button>
-  <button id="bFull">Fullscreen</button>
 </div>
 <div id="err">WebGL2 is not available in this browser.</div>
 
@@ -547,31 +546,6 @@
   document.getElementById('bSizeDown').addEventListener('click', () => {
     spawnSizeMul = Math.max(SIZE_MIN, spawnSizeMul / SIZE_STEP);
   });
-  function isEffectivelyFullscreen() {
-    return !!document.fullscreenElement
-      || matchMedia('(display-mode: fullscreen)').matches
-      || (innerWidth === screen.width && innerHeight === screen.height);
-  }
-
-  function canRequestFullscreen() {
-    return document.fullscreenEnabled && !isEffectivelyFullscreen();
-  }
-
-  const bFull = document.getElementById('bFull');
-  function updateFullscreenLabel() {
-    bFull.textContent = isEffectivelyFullscreen() ? 'Exit Fullscreen' : 'Enter Fullscreen';
-  }
-  updateFullscreenLabel();
-  bFull.addEventListener('click', async () => {
-    if (isEffectivelyFullscreen()) {
-      await document.exitFullscreen();
-    } else if (canRequestFullscreen()) {
-      await document.documentElement.requestFullscreen();
-    }
-    updateFullscreenLabel();
-  });
-  document.addEventListener('fullscreenchange', updateFullscreenLabel);
-  window.addEventListener('resize', updateFullscreenLabel);
 
   // ---------- Main loop ----------
   let last = performance.now();
