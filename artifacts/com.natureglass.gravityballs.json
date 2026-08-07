@@ -1,10 +1,9 @@
 {
   "id": "com.natureglass.gravityballs",
-  "sizeBytes": 37394,
+  "sizeBytes": 66404,
   "files": [
     "README.md",
     "assets/appbanner.jpg",
-    "assets/gravityballslogo.png",
     "index.html",
     "manifest.json"
   ]
