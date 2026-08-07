@@ -1,0 +1,20 @@
+# Generated catalogue artifacts — never hand-merge these.
+#
+# catalogue.json and artifacts/*.json are produced deterministically by
+# scripts/build_catalog.py (the "Build catalogue" CI workflow) from
+# apps/<id>/manifest.json + curation.json. They MUST be committed (served raw
+# via GitHub Pages / raw.githubusercontent.com), so they can't be .gitignored —
+# but a hand-merge of their conflict markers is never correct.
+#
+# The "ours" merge driver auto-resolves any merge/rebase conflict in these files
+# to the current side (no conflict markers); CI then regenerates the
+# authoritative content on the next apps/ or curation.json push. If you need the
+# local copy exact after an auto-resolved merge, just run:
+#     py scripts/build_catalog.py
+#
+# REQUIRES a one-time, per-clone config — the driver command lives in
+# .git/config, which git does NOT track:
+#     git config merge.ours.driver true
+# Without it, git falls back to a normal text merge and the conflicts return.
+catalogue.json   merge=ours linguist-generated=true
+artifacts/*.json merge=ours linguist-generated=true
