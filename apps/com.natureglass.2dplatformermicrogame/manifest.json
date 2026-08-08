@@ -29,5 +29,12 @@
     "features": [
         "Gamepad",
         "Media Devices"
-    ]
+    ],
+    "buttonMapping": {
+        "left": "LEFT",
+        "right": "RIGHT",
+        "up": "UP",
+        "down": "DOWN",
+        "space": "A"
+    }
 }
