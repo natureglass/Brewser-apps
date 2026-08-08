@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-07T08:21:42Z",
+  "generated": "2026-08-08T08:41:03Z",
   "stats": {
     "com.natureglass.aether": {
       "downloads": 1,
@@ -25,6 +25,11 @@
       "ratingScore": 4.8611000000000004
     },
     "com.natureglass.nxjswebgl2test": {
+      "downloads": 1,
+      "ratingAvg": 0,
+      "ratingCount": 0
+    },
+    "com.natureglass.sensorsplayground": {
       "downloads": 1,
       "ratingAvg": 0,
       "ratingCount": 0
