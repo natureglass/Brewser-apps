@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-08T11:39:53Z",
+  "generated": "2026-08-08T12:39:21Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -34,7 +34,14 @@
         "Gamepad",
         "Media Devices"
       ],
-      "sizeBytes": 35347643
+      "buttonMapping": {
+        "left": "LEFT",
+        "right": "RIGHT",
+        "up": "UP",
+        "down": "DOWN",
+        "space": "A"
+      },
+      "sizeBytes": 35347788
     },
     {
       "id": "com.natureglass.aether",
