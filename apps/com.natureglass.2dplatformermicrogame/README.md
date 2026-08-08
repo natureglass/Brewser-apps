@@ -1,6 +1,6 @@
 # 2D Platformer Microgame
 
-_v1.0.0_
+_v1.0.1_
 
 **2D Platformer Microgame** is Unity's official learning template — a complete little side-scroller — compiled to WebGL and running natively on the Switch GPU, entirely offline.
 
