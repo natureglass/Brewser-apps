@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-09T12:51:27Z",
+  "generated": "2026-08-09T12:55:13Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -442,8 +442,8 @@
       "exitGame": "PLUS",
       "fullscreen": true,
       "publishedAt": "2026-08-09T12:49:28Z",
-      "summary": "Speed Watch",
-      "sizeBytes": 68461
+      "summary": "Free GPS speedometer with a live map and automatic speed-limit alerts",
+      "sizeBytes": 68519
     },
     {
       "id": "com.natureglass.streamcast",
