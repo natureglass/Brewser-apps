@@ -1,6 +1,6 @@
 # Neural Networks
 
-_v1.0.1_
+_v1.0.2_
 
 **Neural Networks** is a live handwriting classifier that runs a real convolutional neural network right in the browser. Draw a digit from 0 to 9 and the model instantly guesses what it is, showing its confidence and a probability bar for every possible digit — and no data ever leaves your device.
 

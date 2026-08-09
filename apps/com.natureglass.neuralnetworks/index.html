@@ -20,11 +20,11 @@
     display:flex;flex-direction:column;align-items:center;
     min-height:100vh;padding:14px 30px 16px;
   }
-  .masthead{width:100%;max-width:1220px;display:flex;justify-content:space-between;
+  .masthead{width:100%;max-width:1200px;display:flex;justify-content:space-between;
     align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:16px}
-  .wordmark{font-size:16px;letter-spacing:.42em;text-transform:uppercase;color:var(--phos)}
+  .wordmark{font-size:16px;letter-spacing:.42em;text-transform:uppercase;color:var(--phos);white-space:nowrap}
   .wordmark b{color:var(--ink)}
-  .sub{font-size:13px;letter-spacing:.28em;text-transform:uppercase;color:var(--ink-dim)}
+  .sub{font-size:13px;letter-spacing:.28em;text-transform:uppercase;color:var(--ink-dim);white-space:nowrap}
   .rig{width:100%;max-width:1220px;display:grid;grid-template-columns:420px 1fr;gap:24px;align-items:stretch}
   @media(max-width:680px){.rig{grid-template-columns:1fr}}
   .panel{background:linear-gradient(180deg,var(--panel),#0c1917);
@@ -50,9 +50,9 @@
   .glyph{font-size:104px;line-height:1;font-weight:700;color:var(--phos);
     min-width:96px;text-align:center}
   .glyph.idle{color:var(--ink-dim)}
-  .conf{font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-dim)}
+  .conf{font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-dim);white-space:nowrap}
   .conf b{color:var(--amber);font-size:20px;letter-spacing:.05em}
-  .bars{display:grid;grid-template-columns:20px 1fr 48px;gap:16px 12px;align-items:center}
+  .bars{display:grid;grid-template-columns:20px 1fr 48px;gap:16px;align-items:center}
   .bars .d{font-size:14px;color:var(--ink-dim);text-align:right}
   .track{height:18px;background:#0a1613;border-radius:3px;overflow:hidden}
   .fill{height:100%;width:0;background:linear-gradient(90deg,var(--phos-dim),var(--phos));
@@ -60,7 +60,7 @@
   .pct{font-size:12px;color:var(--ink-dim);text-align:right;font-variant-numeric:tabular-nums}
   .strip{width:100%;max-width:1220px;margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;
     font-size:12px;letter-spacing:.18em;text-transform:uppercase}
-  .chip{border:1px solid var(--line);border-radius:20px;padding:6px 12px;color:var(--ink-dim)}
+  .chip{border:1px solid var(--line);border-radius:20px;padding:6px 12px;color:var(--ink-dim);white-space:nowrap}
   .chip b{color:var(--phos);font-weight:400}
   .chip.warn b{color:var(--amber)}
   .foot{max-width:1220px;margin-top:14px;font-size:13px;line-height:1.7;color:var(--ink-dim)}
