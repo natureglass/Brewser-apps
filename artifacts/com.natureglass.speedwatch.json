@@ -1,0 +1,10 @@
+{
+  "id": "com.natureglass.speedwatch",
+  "sizeBytes": 81363,
+  "files": [
+    "README.md",
+    "assets/appbanner.jpg",
+    "index.html",
+    "manifest.json"
+  ]
+}

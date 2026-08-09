@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-08T20:52:15Z",
+  "generated": "2026-08-09T11:56:46Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -420,6 +420,33 @@
         "Diagnostics"
       ],
       "sizeBytes": 62066
+    },
+    {
+      "id": "com.natureglass.speedwatch",
+      "name": "Speed Watch",
+      "version": "1.0.0",
+      "description": "<p>Speed Watch</p>",
+      "logo": "assets/appbanner.jpg",
+      "entry": "index.html",
+      "categories": [
+        "Apps",
+        "Automation"
+      ],
+      "permissions": [],
+      "compatibility": [
+        "web"
+      ],
+      "allowed_origins": [],
+      "developer": "Alex Daskalakis",
+      "license": "MIT",
+      "exitGame": "PLUS",
+      "fullscreen": true,
+      "publishedAt": "2026-08-09T11:52:20Z",
+      "summary": "Speed Watch",
+      "tags": [
+        "GPS"
+      ],
+      "sizeBytes": 81363
     },
     {
       "id": "com.natureglass.streamcast",
