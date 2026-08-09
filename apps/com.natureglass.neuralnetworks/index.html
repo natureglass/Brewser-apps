@@ -18,52 +18,52 @@
     font-family:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
     -webkit-font-smoothing:antialiased;
     display:flex;flex-direction:column;align-items:center;
-    min-height:100%;padding:28px 16px 48px;
+    min-height:100vh;padding:14px 30px 16px;
   }
-  .masthead{width:100%;max-width:860px;display:flex;justify-content:space-between;
-    align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:22px}
-  .wordmark{font-size:13px;letter-spacing:.42em;text-transform:uppercase;color:var(--phos)}
+  .masthead{width:100%;max-width:1220px;display:flex;justify-content:space-between;
+    align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:16px}
+  .wordmark{font-size:16px;letter-spacing:.42em;text-transform:uppercase;color:var(--phos)}
   .wordmark b{color:var(--ink)}
-  .sub{font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--ink-dim)}
-  .rig{width:100%;max-width:860px;display:grid;grid-template-columns:300px 1fr;gap:22px}
+  .sub{font-size:13px;letter-spacing:.28em;text-transform:uppercase;color:var(--ink-dim)}
+  .rig{width:100%;max-width:1220px;display:grid;grid-template-columns:420px 1fr;gap:24px;align-items:stretch}
   @media(max-width:680px){.rig{grid-template-columns:1fr}}
   .panel{background:linear-gradient(180deg,var(--panel),#0c1917);
-    border:1px solid var(--line);border-radius:10px;padding:16px;position:relative}
-  .panel::before{content:attr(data-tag);position:absolute;top:-8px;left:14px;
-    background:var(--bg);padding:0 8px;font-size:10px;letter-spacing:.24em;
+    border:1px solid var(--line);border-radius:10px;padding:16px;position:relative;min-height:68vh}
+  .panel::before{content:attr(data-tag);position:absolute;top:-8px;left:18px;
+    background:var(--bg);padding:0 8px;font-size:12px;letter-spacing:.24em;
     text-transform:uppercase;color:var(--phos-dim)}
   .padwrap{position:relative;width:100%;aspect-ratio:1/1}
   #pad{width:100%;height:100%;display:block;border-radius:6px;
     background:#050a09;cursor:crosshair;touch-action:none;
-    box-shadow:inset 0 0 0 1px var(--grid),inset 0 0 40px rgba(0,0,0,.6)}
+    border:1px solid var(--grid)}
   .padhint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-    font-size:12px;letter-spacing:.2em;color:var(--ink-dim);pointer-events:none;opacity:.7}
-  .controls{display:flex;gap:8px;margin-top:12px}
-  button{flex:1;font-family:inherit;font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    font-size:14px;letter-spacing:.2em;color:var(--ink-dim);pointer-events:none;opacity:.7}
+  .controls{display:flex;gap:10px;margin-top:14px}
+  button{flex:1;font-family:inherit;font-size:13px;letter-spacing:.16em;text-transform:uppercase;
     color:var(--ink);background:#0c1a17;border:1px solid var(--line);border-radius:6px;
-    padding:9px 0;cursor:pointer;transition:.15s}
+    padding:13px 0;cursor:pointer;transition:.15s}
   button:hover{border-color:var(--phos-dim);color:var(--phos)}
   button:active{transform:translateY(1px)}
   button:focus-visible{outline:2px solid var(--phos);outline-offset:2px}
   button:disabled{opacity:.5;cursor:default;color:var(--ink-dim);border-color:var(--line)}
-  .verdict{display:flex;align-items:center;gap:18px;margin-bottom:14px}
-  .glyph{font-size:76px;line-height:1;font-weight:700;color:var(--phos);
-    text-shadow:0 0 18px rgba(57,255,176,.35);min-width:64px;text-align:center}
-  .glyph.idle{color:var(--ink-dim);text-shadow:none}
-  .conf{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-dim)}
-  .conf b{color:var(--amber);font-size:15px;letter-spacing:.05em}
-  .bars{display:grid;grid-template-columns:16px 1fr 40px;gap:6px 10px;align-items:center}
-  .bars .d{font-size:11px;color:var(--ink-dim);text-align:right}
-  .track{height:10px;background:#0a1613;border-radius:3px;overflow:hidden}
+  .verdict{display:flex;align-items:center;gap:22px;margin-bottom:20px}
+  .glyph{font-size:104px;line-height:1;font-weight:700;color:var(--phos);
+    min-width:96px;text-align:center}
+  .glyph.idle{color:var(--ink-dim)}
+  .conf{font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-dim)}
+  .conf b{color:var(--amber);font-size:20px;letter-spacing:.05em}
+  .bars{display:grid;grid-template-columns:20px 1fr 48px;gap:16px 12px;align-items:center}
+  .bars .d{font-size:14px;color:var(--ink-dim);text-align:right}
+  .track{height:18px;background:#0a1613;border-radius:3px;overflow:hidden}
   .fill{height:100%;width:0;background:linear-gradient(90deg,var(--phos-dim),var(--phos));
     transition:width .18s ease}
-  .pct{font-size:10px;color:var(--ink-dim);text-align:right;font-variant-numeric:tabular-nums}
-  .strip{width:100%;max-width:860px;margin-top:22px;display:flex;gap:10px;flex-wrap:wrap;
-    font-size:10px;letter-spacing:.18em;text-transform:uppercase}
+  .pct{font-size:12px;color:var(--ink-dim);text-align:right;font-variant-numeric:tabular-nums}
+  .strip{width:100%;max-width:1220px;margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;
+    font-size:12px;letter-spacing:.18em;text-transform:uppercase}
   .chip{border:1px solid var(--line);border-radius:20px;padding:6px 12px;color:var(--ink-dim)}
   .chip b{color:var(--phos);font-weight:400}
   .chip.warn b{color:var(--amber)}
-  .foot{max-width:860px;margin-top:20px;font-size:11px;line-height:1.7;color:var(--ink-dim)}
+  .foot{max-width:1220px;margin-top:14px;font-size:13px;line-height:1.7;color:var(--ink-dim)}
   .foot code{color:var(--phos-dim)}
 </style>
 </head>
