@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-09T11:56:46Z",
+  "generated": "2026-08-09T12:25:25Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -446,7 +446,7 @@
       "tags": [
         "GPS"
       ],
-      "sizeBytes": 81363
+      "sizeBytes": 61997
     },
     {
       "id": "com.natureglass.streamcast",
