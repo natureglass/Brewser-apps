@@ -1,0 +1,27 @@
+{
+    "id": "com.natureglass.compass",
+    "name": "Compass",
+    "version": "1.0.0",
+    "description": "<p><strong>Compass</strong> is a working magnetic compass rendered entirely in WebGL. It reads your device's orientation sensors to point at magnetic north, showing a precise heading in degrees and the cardinal direction you're facing — on a hand-drawn dial that swings smoothly like the real thing.</p>\r\n<p><strong>How it works.</strong> Every part of the dial — the graduated ring, the tick marks, the degree numbers, the cardinal letters and the needle — is built from scratch as WebGL geometry, with the text baked into a small glyph atlas so it stays crisp at any size. The app listens to your device's <em>absolute</em> orientation sensor (falling back to relative orientation, or Safari's compass heading on iOS) and corrects for however the screen itself is rotated, then eases the dial toward that heading with a damped spring so the needle settles naturally instead of snapping. When no compass hardware is feeding it — on a desktop, say — it drifts gently in a demo mode, and you can grab the dial and spin it yourself. Because orientation sensors are privacy-sensitive, some devices show an <em>Enable compass</em> button to grant permission first.</p>\r\n<p><strong>How you interact:</strong></p>\r\n<ul>\r\n<li><strong>Point</strong> — hold the device flat and turn; the dial rotates to keep north fixed while the readout shows your live heading and cardinal direction.</li>\r\n<li><strong>Enable compass</strong> — on devices that ask, tap once to grant sensor permission (the status switches from <em>DEMO</em> to <em>LIVE</em>).</li>\r\n<li><strong>Drag</strong> — with no live sensor connected, drag the dial to spin it by hand.</li>\r\n<li><strong>Day / Night</strong> — toggle the light and dark themes with the button, or the <em>N</em>, <em>D</em> and space keys; it also picks one automatically based on the time of day.</li>\r\n</ul>\r\n<p>A compact, framework-free compass that works fully offline and falls back gracefully wherever a sensor or WebGL isn't available.</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Apps",
+        "Demos"
+    ],
+    "permissions": [],
+    "compatibility": [
+        "mobile",
+        "switch",
+        "web"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "mouseDisable": true,
+    "freshProcessOnExit": false,
+    "publishedAt": "2026-08-10T12:06:24Z",
+    "summary": "A hand-drawn WebGL compass that points to magnetic north from your device's sensors."
+}
