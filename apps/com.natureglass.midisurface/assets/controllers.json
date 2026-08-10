@@ -1,0 +1,333 @@
+[
+  {
+    "model": "AKAI LPD8",
+    "velocity_min": 0,
+    "velocity_max": 127,
+    "background_color": "#111111",
+    "grid": {
+      "width": 8,
+      "height": 4
+    },
+    "types": {
+      "pad": 1,
+      "knob": 2,
+      "fader": 3
+    },
+    "effects": {
+      "volume": 1,
+      "pitch": 2,
+      "reverb": 3,
+      "chorus": 4
+    },
+    "mappings": [
+      {
+        "channel": 1,
+        "pad_backlight_color": "#FF991C",
+        "triggers": [
+          {
+            "id": 1,
+            "type": 1,
+            "note": 8,
+            "color": "#222222",
+            "sample": "rythm.mp3",
+            "switch": true,
+            "cc": true
+          },
+          {
+            "id": 2,
+            "type": 1,
+            "note": 9,
+            "color": "#222222",
+            "sample": "alarmvoice.mp3",
+            "switch": true,
+            "cc": true
+          },
+          {
+            "id": 3,
+            "type": 1,
+            "note": 10,
+            "color": "#222222",
+            "sample": "fillingin.mp3",
+            "switch": true,
+            "cc": true
+          },
+          {
+            "id": 4,
+            "type": 1,
+            "note": 11,
+            "color": "#222222",
+            "sample": "techno.mp3",
+            "switch": true,
+            "cc": true
+          },
+          {
+            "id": 5,
+            "type": 2,
+            "note": 20,
+            "color": "#222222",
+            "effect": {
+              "type": 1,
+              "pad": 1
+            }
+          },
+          {
+            "id": 6,
+            "type": 2,
+            "note": 5,
+            "color": "#222222",
+            "effect": {
+              "type": 1,
+              "pad": 2
+            }
+          },
+          {
+            "id": 7,
+            "type": 2,
+            "note": 6,
+            "color": "#222222",
+            "effect": {
+              "type": 1,
+              "pad": 3
+            }
+          },
+          {
+            "id": 8,
+            "type": 2,
+            "note": 7,
+            "color": "#222222",
+            "effect": {
+              "type": 1,
+              "pad": 4
+            }
+          },
+          {
+            "id": 9,
+            "type": 1,
+            "note": 12,
+            "color": "#222222",
+            "sample": "requiem.mp3",
+            "switch": true,
+            "cc": true
+          },
+          {
+            "id": 10,
+            "type": 1,
+            "note": 13,
+            "color": "#222222",
+            "sample": "artpop.mp3",
+            "switch": false,
+            "cc": true
+          },
+          {
+            "id": 11,
+            "type": 1,
+            "note": 14,
+            "color": "#222222",
+            "sample": "flute.mp3",
+            "switch": true,
+            "cc": true
+          },
+          {
+            "id": 12,
+            "type": 1,
+            "note": 15,
+            "color": "#222222",
+            "sample": "entertainment.mp3",
+            "switch": false,
+            "cc": true
+          },
+          {
+            "id": 13,
+            "type": 2,
+            "note": 30,
+            "color": "#222222",
+            "effect": {
+              "type": 4,
+              "pad": 9
+            }
+          },
+          {
+            "id": 14,
+            "type": 2,
+            "note": 2,
+            "color": "#222222",
+            "effect": {
+              "type": 2,
+              "pad": 10
+            }
+          },
+          {
+            "id": 15,
+            "type": 2,
+            "note": 3,
+            "color": "#222222",
+            "effect": {
+              "type": 1,
+              "pad": 11
+            }
+          },
+          {
+            "id": 16,
+            "type": 2,
+            "note": 4,
+            "color": "#222222",
+            "effect": {
+              "type": 4,
+              "pad": 12
+            }
+          }
+        ]
+      },
+      {
+        "channel": 2,
+        "pad_backlight_color": "#FFFFFF",
+        "triggers": [
+          {
+            "id": 1,
+            "type": 1,
+            "note": 104,
+            "color": "#121826",
+            "sample": "rythm.mp3",
+            "switch": true
+          },
+          {
+            "id": 2,
+            "type": 1,
+            "note": 105,
+            "color": "#171A21",
+            "sample": "alarmvoice.mp3",
+            "switch": true
+          },
+          {
+            "id": 3,
+            "type": 1,
+            "note": 106,
+            "color": "#1B2636",
+            "sample": "fillingin.mp3",
+            "switch": true
+          },
+          {
+            "id": 4,
+            "type": 1,
+            "note": 107,
+            "color": "#211D2B",
+            "sample": "techno.mp3",
+            "switch": true
+          },
+          {
+            "id": 5,
+            "type": 2,
+            "note": 20,
+            "color": "#121826",
+            "effect": {
+              "type": 1,
+              "pad": 1
+            }
+          },
+          {
+            "id": 6,
+            "type": 2,
+            "note": 5,
+            "color": "#171A21",
+            "effect": {
+              "type": 1,
+              "pad": 2
+            }
+          },
+          {
+            "id": 7,
+            "type": 2,
+            "note": 6,
+            "color": "#1B2636",
+            "effect": {
+              "type": 1,
+              "pad": 3
+            }
+          },
+          {
+            "id": 8,
+            "type": 2,
+            "note": 7,
+            "color": "#211D2B",
+            "effect": {
+              "type": 1,
+              "pad": 4
+            }
+          },
+          {
+            "id": 9,
+            "type": 1,
+            "note": 100,
+            "color": "#182A2A",
+            "sample": "requiem.mp3",
+            "switch": true
+          },
+          {
+            "id": 10,
+            "type": 1,
+            "note": 101,
+            "color": "#29231B",
+            "sample": "artpop.mp3",
+            "switch": false
+          },
+          {
+            "id": 11,
+            "type": 1,
+            "note": 102,
+            "color": "#20242B",
+            "sample": "flute.mp3",
+            "switch": true
+          },
+          {
+            "id": 12,
+            "type": 1,
+            "note": 103,
+            "color": "#16251F",
+            "sample": "entertainment.mp3",
+            "switch": false
+          },
+          {
+            "id": 13,
+            "type": 2,
+            "note": 30,
+            "color": "#182A2A",
+            "effect": {
+              "type": 4,
+              "pad": 9
+            }
+          },
+          {
+            "id": 14,
+            "type": 2,
+            "note": 2,
+            "color": "#29231B",
+            "effect": {
+              "type": 2,
+              "pad": 10
+            }
+          },
+          {
+            "id": 15,
+            "type": 2,
+            "note": 3,
+            "color": "#20242B",
+            "effect": {
+              "type": 1,
+              "pad": 11
+            }
+          },
+          {
+            "id": 16,
+            "type": 2,
+            "note": 4,
+            "color": "#16251F",
+            "effect": {
+              "type": 4,
+              "pad": 12
+            }
+          }
+        ]
+      }
+    ]
+  }
+]
