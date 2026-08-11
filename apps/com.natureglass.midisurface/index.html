@@ -59,14 +59,20 @@
     padding:7px 12px 7px 9px; cursor:pointer;
     display:flex; align-items:center; gap:7px; border-radius:3px;
   }
-  .chbtn .sw{ width:9px; height:9px; border-radius:2px; background:#333; }
+  .chbtn .sw{ width:9px; height:9px; border-radius:50%; background:#2b2e33; }  /* unlit LED */
   .chbtn.active{ border-color:var(--ink); color:var(--ink); background:#22252a; }
+  .chbtn.active .sw{ background:var(--ok); }                                    /* lit: green */
   .chbtn.pulse .sw{ animation:swpulse .5s steps(2) infinite; }
-  @keyframes swpulse{ 50%{ opacity:.25; } }
+  @keyframes swpulse{ 50%{ background:var(--ink); } }
 
-  #spacer, #spacer2{ flex:1; }
-  #btnStopAll{ color:var(--rec); border-color:#3a2427; }
-  #btnStopAll:active{ background:var(--rec); border-color:var(--rec); color:#fff; }
+  .viz{
+    flex:1; min-width:0; height:38px; align-self:center;
+    background:#0a0a0b; border:1px solid var(--line); border-radius:4px;
+  }
+  #btnStopAll{ color:var(--ok); border-color:#1e3a26; }
+  #btnStopAll:active{ background:var(--ok); border-color:var(--ok); color:#0e0f11; }
+  #btnStopAll.run{ color:var(--rec); border-color:#3a2427; }
+  #btnStopAll.run:active{ background:var(--rec); border-color:var(--rec); color:#fff; }
 
   #midiStatus{
     display:flex; align-items:center; gap:8px;
@@ -90,6 +96,9 @@
     padding:8px 14px; cursor:pointer; border-radius:3px; white-space:nowrap;
   }
   header button.tool[aria-pressed="true"]{ background:var(--ink); color:var(--panel); border-color:var(--ink); }
+  #btnSettings{ display:flex; align-items:center; padding:7px 9px; }
+  #btnSettings svg{ display:block; }
+  #midiText{ padding:0 16px 8px; font-size:11px; letter-spacing:.06em; color:var(--ink-dim); }
 
   /* ── stage ────────────────────────────────────────────────────── */
   #stage{ position:absolute; inset:var(--header-h) 0 0 0; }
@@ -198,11 +207,11 @@
 <header>
   <div id="model">—<small>MIDI SURFACE</small></div>
   <nav id="channels" aria-label="Channel"></nav>
-  <div id="spacer"></div>
-  <button class="tool" id="btnStopAll" title="Release all switch pads and stop audio">STOP ALL</button>
-  <div id="spacer2"></div>
-  <div id="midiStatus"><span id="midiDot"></span><span id="midiText">MIDI: …</span></div>
-  <button class="tool" id="btnSettings" aria-pressed="false">SETTINGS</button>
+  <canvas id="vizL" class="viz"></canvas>
+  <button class="tool" id="btnStopAll" title="Start the beat clock / stop everything">START</button>
+  <canvas id="vizR" class="viz"></canvas>
+  <div id="midiStatus"><span id="midiDot"></span></div>
+  <button class="tool" id="btnSettings" aria-pressed="false" aria-label="Settings" title="Settings"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg></button>
 </header>
 
 <div id="stage">
@@ -216,6 +225,7 @@
   <h2>Controller</h2>
   <div id="ctrlWrap"><select id="ctrlSelect" aria-label="Controller"></select></div>
   <h2>MIDI Devices</h2>
+  <div id="midiText">MIDI: …</div>
   <div id="midiInWrap"><span id="midiIn">—</span></div>
   <div id="devices">—</div>
   <div class="actions">
@@ -247,6 +257,10 @@ let chIndex  = 0;           // index into layout.mappings
 let triggers = [];          // runtime per-trigger state for current channel
 let recArm   = -1;          // trigger index armed for REC, -1 = none
 let hwInChannel = null;     // MIDI channel of the last incoming message
+let clockOn = false, clockStart = 0, bpm = 120;   // beat clock (transport)
+let vizColor = "#ff991c";                          // stereo visualizer bar color
+let anaL = null, anaR = null, tdBuf = null;        // per-side analysers
+const histL = [], histR = [];                      // scrolling peak history
 let warnT    = 0;           // toast timer (must exist before any boot-time showWarn)
 let dpr      = Math.max(1, window.devicePixelRatio || 1);
 let bgRgb        = [0.055, 0.059, 0.067];   // stage clear color (#0e0f11 chassis default)
@@ -256,7 +270,8 @@ let backlightRgb = [1, 1, 1];               // pad hit-glow color
 const valueStore = new Map();
 
 const $  = (s) => document.querySelector(s);
-const stage = $("#stage"), labelsEl = $("#labels"), rowsEl = $("#rows");
+const stage = $("#stage"), labelsEl = $("#labels"), rowsEl = $("#rows"), stopBtn = $("#btnStopAll");
+const vizLEl = $("#vizL"), vizREl = $("#vizR");
 
 /* ════════════════════════════════════════════════════════════════
    WebGL renderer (WebGL1, SDF shapes, flat + additive glow)
@@ -407,6 +422,12 @@ function ensureCtx(){
     reverbBus.buffer = makeImpulse(1.8, 2.6);
     reverbBus.connect(master);
     actx.onstatechange = updateAudioBadge;
+    const split = actx.createChannelSplitter(2);
+    anaL = actx.createAnalyser();  anaL.fftSize = 512;
+    anaR = actx.createAnalyser();  anaR.fftSize = 512;
+    master.connect(split);
+    split.connect(anaL, 0);
+    split.connect(anaR, 1);
   }
   if(actx.state === "suspended") actx.resume();
   return actx;
@@ -488,6 +509,7 @@ function applyFx(t){
 
 function padOn(i, velNorm){
   const t = triggers[i];
+  if(!clockOn) startClock();     // first pad press starts the beat (press = beat 1)
   t.held = true;
   if(t.cfg.switch) t.latched = true;
   t.glow = Math.max(0.25, velNorm);
@@ -504,10 +526,20 @@ function padOn(i, velNorm){
     src.playbackRate.value = pitchRate(t.fx.pitch);
     const vg = actx.createGain();
     vg.gain.value = 0;
-    vg.gain.setTargetAtTime(Math.max(0.2, velNorm), actx.currentTime, 0.004);
+    let when = actx.currentTime;                        // push pads: immediately
+    if(t.cfg.switch && clockOn){
+      // launch-quantize with a 50ms grace window: a press just after a beat
+      // (including the press that started the clock) catches that beat;
+      // computed post-load so slow decodes still land on-grid
+      const beatMs  = 60000 / bpm;
+      const elapsed = performance.now() - clockStart;
+      const target  = clockStart + Math.max(0, Math.ceil((elapsed - 50) / beatMs)) * beatMs;
+      when = actx.currentTime + Math.max(0, target - performance.now()) / 1000;
+    }
+    vg.gain.setTargetAtTime(Math.max(0.2, velNorm), when, 0.004);
     src.connect(vg);
     vg.connect(padChain(t).input);
-    src.start();
+    src.start(when);
     t.voice = { src, vGain: vg };
   });
 }
@@ -640,6 +672,16 @@ function frame(now){
   const decay = Math.pow(0.02, dt);           // ~fully gone in ~1s
   const recPulse = 0.35 + 0.35 * Math.sin(now / 130);
 
+  let beatPulse = 0;
+  if(clockOn){
+    const beatMs = 60000 / bpm;
+    beatPulse = Math.pow(1 - ((now - clockStart) % beatMs) / beatMs, 3);   // sharp tick, decays
+    stopBtn.style.borderColor = "rgb(" +
+      Math.round(58 + 197 * beatPulse) + "," +
+      Math.round(36 + 219 * beatPulse) + "," +
+      Math.round(39 + 216 * beatPulse) + ")";                              // base ↔ white
+  }
+
   gl.clear(gl.COLOR_BUFFER_BIT);
 
   for(let i = 0; i < triggers.length; i++){
@@ -661,14 +703,56 @@ function frame(now){
     const col = t.rgb;
     gl.uniform3f(U.u_color, col[0], col[1], col[2]);
     gl.uniform1f(U.u_value, t.value);
-    gl.uniform1f(U.u_glow, Math.max(t.glow, t.flash));
+    let g = Math.max(t.glow, t.flash);
+    if(clockOn && t.latched) g = 0.8 + 0.2 * beatPulse;   // active pads breathe with the beat
+    gl.uniform1f(U.u_glow, g);
     gl.uniform1f(U.u_rec, i === recArm ? recPulse : 0.0);
     if(kind === 0) gl.uniform3f(U.u_backlight, backlightRgb[0], backlightRgb[1], backlightRgb[2]);
     else           gl.uniform3f(U.u_backlight, 1.0, 1.0, 1.0);
 
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   }
+
+  let pL = 0, pR = 0;
+  if(anaL && actx && actx.state === "running"){
+    if(!tdBuf) tdBuf = new Uint8Array(anaL.fftSize);
+    pL = readPeak(anaL, tdBuf);
+    pR = readPeak(anaR, tdBuf);
+  }
+  drawViz(vizLEl, histL, pL);
+  drawViz(vizREl, histR, pR);
+
   requestAnimationFrame(frame);
+}
+
+function readPeak(ana, buf){
+  ana.getByteTimeDomainData(buf);
+  let m = 0;
+  for(let i = 0; i < buf.length; i++){
+    const v = Math.abs(buf[i] - 128);
+    if(v > m) m = v;
+  }
+  return m / 128;
+}
+
+function drawViz(cv, hist, peak){
+  const w = cv.clientWidth, h = cv.clientHeight;
+  if(!w || !h) return;                                   // collapsed on tiny screens
+  const W = Math.round(w * dpr), H = Math.round(h * dpr);
+  if(cv.width !== W || cv.height !== H){ cv.width = W; cv.height = H; }
+  const c2 = cv._c2 || (cv._c2 = cv.getContext("2d"));
+  const step = Math.max(2, Math.round(3 * dpr));         // bar pitch
+  const n = Math.max(1, Math.floor(W / step));
+  hist.push(peak);
+  while(hist.length > n) hist.shift();
+  c2.clearRect(0, 0, W, H);
+  c2.fillStyle = vizColor;
+  const mid = H / 2, bw = Math.max(1, Math.round(1.6 * dpr));
+  for(let i = 0; i < hist.length; i++){
+    const x = W - (hist.length - i) * step;
+    const bh = Math.max(1, hist[i] * H * 0.92);
+    c2.fillRect(x, mid - bh / 2, bw, bh);                // newest at the right edge
+  }
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -706,6 +790,8 @@ function applyLayout(json){
   typeIds   = Object.assign({ pad:1, knob:2, fader:3 }, json.types || {});
   effectIds = Object.assign({ volume:1, pitch:2, reverb:3, chorus:4 }, json.effects || {});
   bgRgb = hexToRgb(layout.background_color || "#0e0f11");
+  bpm = Number(layout.bpm) > 0 ? Number(layout.bpm) : 120;
+  vizColor = layout.visualizer_color || "#ff991c";
   gl.clearColor(bgRgb[0], bgRgb[1], bgRgb[2], 1.0);
   chIndex = Math.min(chIndex, Math.max(0, layout.mappings.length - 1));
   valueStore.clear();
@@ -727,10 +813,8 @@ function buildChannelButtons(){
     b.dataset.ch = map.channel;
     const sw = document.createElement("span");
     sw.className = "sw";
-    const c0 = (map.triggers[0] && map.triggers[0].color) || "#333";
-    sw.style.background = c0;
     b.appendChild(sw);
-    b.appendChild(document.createTextNode("CH " + map.channel));
+    b.appendChild(document.createTextNode(map.name || ("CH " + map.channel)));
     b.addEventListener("click", () => selectChannel(i));
     nav.appendChild(b);
   });
@@ -742,7 +826,24 @@ function stopEverything(){
   });
   stopAllVoices();      // stops voices, tears down chains, clears held/latched
 }
-$("#btnStopAll").addEventListener("click", stopEverything);
+function startClock(){
+  clockOn = true;
+  clockStart = performance.now();
+  updateTransportBtn();
+}
+function stopClock(){
+  clockOn = false;
+  stopBtn.style.borderColor = "";
+  updateTransportBtn();
+}
+function updateTransportBtn(){
+  stopBtn.classList.toggle("run", clockOn);
+  stopBtn.textContent = clockOn ? "STOP ALL" : "START";
+}
+stopBtn.addEventListener("click", () => {
+  if(clockOn){ stopClock(); stopEverything(); }
+  else startClock();
+});
 
 function selectChannel(i){
   stopEverything();     // release anything latched (note or CC dialect) before switching
@@ -845,7 +946,7 @@ function padMsg(t, down){
 
 function outChannelBits(){
   const ch = hwInChannel || (layout.mappings[chIndex] && layout.mappings[chIndex].channel) || 1;
-  return (ch - 1) & 0x0f;
+  return (Math.max(1, ch) - 1) & 0x0f;
 }
 
 /* ════════════════════════════════════════════════════════════════
