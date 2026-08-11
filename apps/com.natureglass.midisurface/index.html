@@ -62,6 +62,7 @@
   .chbtn .sw{ width:9px; height:9px; border-radius:50%; background:#2b2e33; }  /* unlit LED */
   .chbtn.active{ border-color:var(--ink); color:var(--ink); background:#22252a; }
   .chbtn.active .sw{ background:var(--ok); }                                    /* lit: green */
+  .chbtn .sw.on{ background:var(--ok); }                                        /* audio active */
   .chbtn.pulse .sw{ animation:swpulse .5s steps(2) infinite; }
   @keyframes swpulse{ 50%{ background:var(--ink); } }
 
@@ -111,6 +112,8 @@
     white-space:nowrap;
   }
   .lbl.rec{ color:var(--rec); animation:recblink .6s steps(2) infinite; }
+  #labels.hidemap .lbl{ display:none; }
+  #labels.hidemap .lbl.rec{ display:block; }
   @keyframes recblink{ 50%{ opacity:.2; } }
 
   #empty{
@@ -129,6 +132,7 @@
   }
   #panel.open{ transform:translateX(0); }
   #ctrlWrap{ padding:0 16px 12px; }
+  #showMapLab{ margin-top:10px; }
   #panel h2{
     font-size:10px; font-weight:700; letter-spacing:.3em; text-transform:uppercase;
     color:var(--ink-dim); padding:14px 16px 8px;
@@ -155,17 +159,17 @@
   }
   .row input{ text-align:center; }
   .row input[type="text"]{ text-align:left; }
-  .row .swlab{
+  .swlab{
     display:flex; align-items:center; gap:5px; cursor:pointer;
     font-size:10px; letter-spacing:.1em; color:var(--ink-dim);
   }
-  .row .swlab input{
+  .swlab input{
     appearance:none; -webkit-appearance:none; flex:none;
     width:13px; height:13px; padding:0; margin:0;
     border:1px solid var(--line); border-radius:2px; background:var(--panel-3);
     cursor:pointer;
   }
-  .row .swlab input:checked{
+  .swlab input:checked{
     background-color:var(--ink); border-color:var(--ink);
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='7'%3E%3Cpath d='M1 3.5L3.5 6 8 1' stroke='%230e0f11' stroke-width='1.8' fill='none'/%3E%3C/svg%3E");
     background-repeat:no-repeat; background-position:center;
@@ -223,7 +227,10 @@
 
 <aside id="panel" aria-label="Settings">
   <h2>Controller</h2>
-  <div id="ctrlWrap"><select id="ctrlSelect" aria-label="Controller"></select></div>
+  <div id="ctrlWrap">
+    <select id="ctrlSelect" aria-label="Controller"></select>
+    <label class="swlab" id="showMapLab"><input type="checkbox" id="showMapped"> SHOW MAPPINGS</label>
+  </div>
   <h2>MIDI Devices</h2>
   <div id="midiText">MIDI: …</div>
   <div id="midiInWrap"><span id="midiIn">—</span></div>
@@ -254,20 +261,20 @@ let layout      = null;     // the active controller object (mutable: settings e
 let typeIds  = { pad:1, knob:2, fader:3 };
 let effectIds = { volume:1, pitch:2, reverb:3, chorus:4 };
 let chIndex  = 0;           // index into layout.mappings
-let triggers = [];          // runtime per-trigger state for current channel
+let banks    = [];          // persistent runtime state, one list per mapping
+let triggers = [];          // view alias: banks[chIndex]
+let chBtnRefs = [];         // channel button LED refs for the beat pulse
 let recArm   = -1;          // trigger index armed for REC, -1 = none
 let hwInChannel = null;     // MIDI channel of the last incoming message
 let clockOn = false, clockStart = 0, bpm = 120;   // beat clock (transport)
 let vizColor = "#ff991c";                          // stereo visualizer bar color
+let showMapped = true;                             // note/CC labels under triggers
 let anaL = null, anaR = null, tdBuf = null;        // per-side analysers
 const histL = [], histR = [];                      // scrolling peak history
 let warnT    = 0;           // toast timer (must exist before any boot-time showWarn)
 let dpr      = Math.max(1, window.devicePixelRatio || 1);
 let bgRgb        = [0.055, 0.059, 0.067];   // stage clear color (#0e0f11 chassis default)
 let backlightRgb = [1, 1, 1];               // pad hit-glow color
-
-// persist knob/fader values across channel switches: key "chIdx:i"
-const valueStore = new Map();
 
 const $  = (s) => document.querySelector(s);
 const stage = $("#stage"), labelsEl = $("#labels"), rowsEl = $("#rows"), stopBtn = $("#btnStopAll");
@@ -507,8 +514,7 @@ function applyFx(t){
   if(t.voice) t.voice.src.playbackRate.setTargetAtTime(pitchRate(fx.pitch), now, 0.01);
 }
 
-function padOn(i, velNorm){
-  const t = triggers[i];
+function padOn(t, velNorm){
   if(!clockOn) startClock();     // first pad press starts the beat (press = beat 1)
   t.held = true;
   if(t.cfg.switch) t.latched = true;
@@ -544,8 +550,7 @@ function padOn(i, velNorm){
   });
 }
 
-function padOff(i){
-  const t = triggers[i];
+function padOff(t){
   t.held = false;
   t.latched = false;
   t.pressSeq = (t.pressSeq || 0) + 1;
@@ -568,17 +573,18 @@ function teardownChain(t){
 }
 
 function stopAllVoices(){
-  triggers.forEach((t) => {
+  banks.forEach((list) => list.forEach((t) => {
     stopVoice(t);
     teardownChain(t);
     t.held = false; t.latched = false;
-  });
+  }));
 }
 
 /* knob → pad effect routing (effect.pad references trigger id) */
-function padById(id){
-  for(let i = 0; i < triggers.length; i++)
-    if(triggers[i].cfg.id === id && triggers[i].cfg.type === typeIds.pad) return triggers[i];
+function padById(id, list){
+  list = list || triggers;
+  for(let i = 0; i < list.length; i++)
+    if(list[i].cfg.id === id && list[i].cfg.type === typeIds.pad) return list[i];
   return null;
 }
 function nextFreeId(){
@@ -592,11 +598,11 @@ function effectName(id){
   for(const k in effectIds) if(effectIds[k] === id) return k;
   return null;
 }
-function applyKnobEffect(t){
+function applyKnobEffect(t, list){
   const e = t.cfg.effect;
   if(!e) return;
   const name = effectName(e.type);
-  const pad  = padById(e.pad);
+  const pad  = padById(e.pad, list);
   if(!name || !pad) return;
   pad.fx[name] = t.value;
   applyFx(pad);
@@ -713,6 +719,17 @@ function frame(now){
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   }
 
+  for(let b = 0; b < chBtnRefs.length && b < banks.length; b++){
+    let act = false;
+    const list = banks[b];
+    for(let k = 0; k < list.length; k++){
+      if(list[k].latched || list[k].held){ act = true; break; }
+    }
+    const sw = chBtnRefs[b];
+    sw.classList.toggle("on", act);
+    sw.style.opacity = act ? String(0.5 + 0.5 * beatPulse) : "";
+  }
+
   let pL = 0, pR = 0;
   if(anaL && actx && actx.state === "running"){
     if(!tdBuf) tdBuf = new Uint8Array(anaL.fftSize);
@@ -792,9 +809,24 @@ function applyLayout(json){
   bgRgb = hexToRgb(layout.background_color || "#0e0f11");
   bpm = Number(layout.bpm) > 0 ? Number(layout.bpm) : 120;
   vizColor = layout.visualizer_color || "#ff991c";
+  showMapped = layout.show_mapped !== false;       // default: shown
+  syncShowMapped();
   gl.clearColor(bgRgb[0], bgRgb[1], bgRgb[2], 1.0);
   chIndex = Math.min(chIndex, Math.max(0, layout.mappings.length - 1));
-  valueStore.clear();
+
+  stopEverything();                      // different controller = different world
+  banks = layout.mappings.map((map) => map.triggers.map((cfg) => ({
+    cfg,
+    rgb: hexToRgb(cfg.color),
+    value: cfg.effect ? fxDefault(effectName(cfg.effect.type)) : 0.5,
+    glow: 0, flash: 0, held: false, latched: false,
+    fx: { volume: 0.5, pitch: 0.5, reverb: 0, chorus: 0 },
+    voice: null, chain: null, pressSeq: 0,
+    cx: 0, cy: 0, cell: 0, labelEl: null
+  })));
+  banks.forEach((list) => list.forEach((t) => {
+    if(t.cfg.effect) applyKnobEffect(t, list);
+  }));
 
   const m = $("#model");
   m.firstChild.textContent = layout.model || "MIDI Surface";
@@ -804,9 +836,20 @@ function applyLayout(json){
   selectChannel(chIndex);
 }
 
+function syncShowMapped(){
+  labelsEl.classList.toggle("hidemap", !showMapped);
+  $("#showMapped").checked = showMapped;
+}
+$("#showMapped").addEventListener("change", (e) => {
+  showMapped = e.target.checked;
+  layout.show_mapped = showMapped;                 // flows into EXPORT JSON
+  syncShowMapped();
+});
+
 function buildChannelButtons(){
   const nav = $("#channels");
   nav.innerHTML = "";
+  chBtnRefs = [];
   layout.mappings.forEach((map, i) => {
     const b = document.createElement("button");
     b.className = "chbtn";
@@ -817,14 +860,15 @@ function buildChannelButtons(){
     b.appendChild(document.createTextNode(map.name || ("CH " + map.channel)));
     b.addEventListener("click", () => selectChannel(i));
     nav.appendChild(b);
+    chBtnRefs.push(sw);
   });
 }
 
 function stopEverything(){
-  triggers.forEach((t) => {
+  banks.forEach((list) => list.forEach((t) => {
     if(t.latched) midiSend(padMsg(t, false));
-  });
-  stopAllVoices();      // stops voices, tears down chains, clears held/latched
+  }));
+  stopAllVoices();      // stops voices, tears down chains, clears held/latched — all banks
 }
 function startClock(){
   clockOn = true;
@@ -846,26 +890,14 @@ stopBtn.addEventListener("click", () => {
 });
 
 function selectChannel(i){
-  stopEverything();     // release anything latched (note or CC dialect) before switching
-
-  chIndex = i;
+  chIndex = i;                       // view switch only — every bank keeps playing
   recArm = -1;
   document.querySelectorAll(".chbtn").forEach((b, k) =>
     b.classList.toggle("active", k === i));
 
   const map = layout.mappings[i] || { triggers: [] };
   backlightRgb = hexToRgb(map.pad_backlight_color || layout.pad_backlight_color || "#ffffff");
-  triggers = map.triggers.map((cfg, k) => ({
-    cfg,
-    rgb: hexToRgb(cfg.color),
-    value: valueStore.has(i + ":" + k) ? valueStore.get(i + ":" + k)
-         : (cfg.effect ? fxDefault(effectName(cfg.effect.type)) : 0.5),
-    glow: 0, flash: 0, held: false, latched: false,
-    fx: { volume: 0.5, pitch: 0.5, reverb: 0, chorus: 0 },
-    voice: null, chain: null, pressSeq: 0,
-    cx: 0, cy: 0, cell: 0, labelEl: null
-  }));
-  triggers.forEach((t) => { if(t.cfg.effect) applyKnobEffect(t); });
+  triggers = banks[i] || [];
   relayout();
   buildRows();
 }
@@ -893,19 +925,19 @@ canvas.addEventListener("pointerdown", (e) => {
   if(t.cfg.type === typeIds.pad){
     if(t.cfg.switch){
       if(t.latched){
-        padOff(i);
+        padOff(t);
         midiSend(padMsg(t, false));
       } else {
-        padOn(i, 1);
+        padOn(t, 1);
         midiSend(padMsg(t, true));
       }
     } else {
-      active.set(e.pointerId, { i, mode:"pad" });
-      padOn(i, 1);
+      active.set(e.pointerId, { t, mode:"pad" });
+      padOn(t, 1);
       midiSend(padMsg(t, true));
     }
   } else {
-    active.set(e.pointerId, { i, mode:"turn", startY: y, startVal: t.value });
+    active.set(e.pointerId, { t, mode:"turn", startY: y, startVal: t.value });
     t.flash = 0.5;
   }
 });
@@ -913,12 +945,11 @@ canvas.addEventListener("pointerdown", (e) => {
 canvas.addEventListener("pointermove", (e) => {
   const a = active.get(e.pointerId);
   if(!a || a.mode !== "turn") return;
-  const t = triggers[a.i];
+  const t = a.t;
   const dy = (a.startY - e.offsetY * dpr) / (170 * dpr);
   const v = Math.min(1, Math.max(0, a.startVal + dy));
   if(v !== t.value){
     t.value = v;
-    valueStore.set(chIndex + ":" + a.i, v);
     t.flash = 0.35;
     applyKnobEffect(t);
     midiSend([0xB0 | outChannelBits(), t.cfg.note & 0x7f, Math.round(v * 127)]);
@@ -929,10 +960,9 @@ function endPointer(e){
   const a = active.get(e.pointerId);
   if(!a) return;
   active.delete(e.pointerId);
-  const t = triggers[a.i];
   if(a.mode === "pad"){
-    padOff(a.i);
-    midiSend(padMsg(t, false));
+    padOff(a.t);            // trigger object: correct even if the view changed mid-hold
+    midiSend(padMsg(a.t, false));
   }
 }
 canvas.addEventListener("pointerup", endPointer);
@@ -1043,41 +1073,52 @@ function handleIn(ch, kind, num, val, on){
 
   const vmax = layout.velocity_max || 127;
   let matched = false;
+  const isRelease = (kind === "note" && !on) || (kind === "cc" && val === 0);
 
-  {
+  // presses and knob moves target the SELECTED bank only
+  // (banks may share numbers — e.g. PAD 1-4 all on notes 100-107)
+  if(!isRelease){
     for(let i = 0; i < triggers.length; i++){
       const t = triggers[i], isPad = t.cfg.type === typeIds.pad;
       if(t.cfg.note !== num) continue;
       if(isPad && kind === (t.cfg.cc ? "cc" : "note")){
         matched = true;
-        const press = (kind === "note") ? on : val > 0;   // CC pads: 127=press, 0=release
-        if(press){
-          ensureCtx();
-          if(t.cfg.switch){
-            if(t.latched){
-              padOff(i);
-              midiSend(padMsg(t, false));                 // LED off
-            } else {
-              padOn(i, 1);                                // switch = always max velocity
-              midiSend(padMsg(t, true));                  // hold LED on
-            }
+        ensureCtx();
+        if(t.cfg.switch){
+          if(t.latched){
+            padOff(t);
+            midiSend(padMsg(t, false));                 // LED off
           } else {
-            padOn(i, val / vmax);
+            padOn(t, 1);                                // switch = always max velocity
+            midiSend(padMsg(t, true));                  // hold LED on
           }
-        } else if(!t.cfg.switch){
-          padOff(i);
-        } else if(t.latched){
-          // device cleared its own LED on physical release — re-assert while latched
-          midiSend(padMsg(t, true));
+        } else {
+          padOn(t, val / vmax);
         }
       } else if(kind === "cc" && !isPad){
         matched = true;
         t.value = val / 127;
-        valueStore.set(chIndex + ":" + i, t.value);
         t.flash = 0.4;
         applyKnobEffect(t);
       }
     }
+  } else {
+    // releases broadcast to EVERY bank, so a pad held on a background
+    // bank always resolves even after the view moved elsewhere
+    let reasserted = false;
+    banks.forEach((list) => {
+      list.forEach((t) => {
+        if(t.cfg.type !== typeIds.pad || t.cfg.note !== num) return;
+        if(kind !== (t.cfg.cc ? "cc" : "note")) return;
+        matched = true;
+        if(!t.cfg.switch){
+          if(t.held) padOff(t);
+        } else if(t.latched && !reasserted){
+          reasserted = true;                            // one LED re-assert per message
+          midiSend(padMsg(t, true));
+        }
+      });
+    });
   }
 
   if(!matched && on){
@@ -1133,7 +1174,7 @@ function buildRows(){
       sel.appendChild(o);
     });
     sel.addEventListener("change", () => {
-      padOff(i);                              // stop audio if a playing pad becomes a knob
+      padOff(t);                              // stop audio if a playing pad becomes a knob
       t.cfg.type = parseInt(sel.value, 10);
       if(t.labelEl) t.labelEl.textContent = labelFor(t);
       buildRows();                            // contextual second line changes with type
@@ -1167,7 +1208,7 @@ function buildRows(){
       cb.addEventListener("change", () => {
         t.cfg.switch = cb.checked;
         if(!cb.checked && t.latched){
-          padOff(i);
+          padOff(t);
           midiSend(padMsg(t, false));
         }
         if(t.labelEl) t.labelEl.textContent = labelFor(t);
@@ -1182,7 +1223,7 @@ function buildRows(){
       ccb.addEventListener("change", () => {
         if(t.latched || t.held){                // release in the old dialect first
           midiSend(padMsg(t, false));
-          padOff(i);
+          padOff(t);
         }
         if(ccb.checked) t.cfg.cc = true; else delete t.cfg.cc;
         if(t.labelEl) t.labelEl.textContent = labelFor(t);
