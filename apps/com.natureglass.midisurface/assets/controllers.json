@@ -5,7 +5,7 @@
     "velocity_max": 127,
     "background_color": "#111111",
     "grid": {
-      "width": 8,
+      "width": 4,
       "height": 4
     },
     "types": {
