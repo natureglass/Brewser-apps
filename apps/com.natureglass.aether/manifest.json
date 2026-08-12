@@ -9,7 +9,9 @@
         "Apps",
         "Demos"
     ],
-    "permissions": [],
+    "permissions": [
+        "storage"
+    ],
     "compatibility": [
         "switch",
         "web"
@@ -19,6 +21,8 @@
     "license": "MIT",
     "exitGame": "PLUS",
     "fullscreen": true,
+    "mouseDisable": false,
+    "freshProcessOnExit": false,
     "publishedAt": "2026-08-06T10:27:22Z",
     "summary": "Type a phrase, watch a world assemble. Fullscreen procedural WebGL2 art that runs offline.",
     "features": [
