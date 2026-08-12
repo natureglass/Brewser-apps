@@ -46,7 +46,7 @@
 
   button{font-family:inherit;font-size:11px;letter-spacing:.12em;text-transform:uppercase;
     background:var(--ae-panel);color:var(--ae-text);border:1px solid var(--ae-line);
-    border-radius:2px;padding:0 15px;cursor:pointer;transition:.13s;white-space:nowrap}
+    border-radius:2px;padding:0 15px;min-height:39px;cursor:pointer;transition:.13s;white-space:nowrap}
   button:hover{border-color:var(--ae-dim);background:var(--ae-panel-hi)}
   button:focus-visible{outline:2px solid var(--ae-cyan);outline-offset:1px}
   button.go{border-color:var(--ae-amber);color:var(--ae-amber)}
@@ -1279,6 +1279,14 @@ window.addEventListener("keydown", e=>{
   else if(k === "/"){ e.preventDefault(); el.prompt.focus(); el.prompt.select(); }
 });
 
+// Direct gamepad polling is intentionally disabled: the Brewser Switch
+// runtime routes the joy-cons as a screen cursor (left stick moves the
+// pointer, A = primary click), driven by reading the SAME
+// navigator.getGamepads() state. Polling it here too meant every press of
+// the click button ALSO fired one of these actions (e.g. A → click a button
+// AND surprise()), so "New prompt" always resolved to "unprompted". The
+// buttons, keyboard shortcuts (P / space / H / F / S) and touch already
+// cover every action, so on-device control is complete without this.
 let padPrev = [];
 function pollPad(){
   const pads = navigator.getGamepads ? navigator.getGamepads() : [];
@@ -1294,7 +1302,13 @@ function pollPad(){
   }
   requestAnimationFrame(pollPad);
 }
-if(navigator.getGamepads) requestAnimationFrame(pollPad);
+// Enable ONLY outside the Brewser runtime (standalone desktop browser with a
+// real controller). Brewser exposes the nx.js `Switch` global to page scripts
+// AND sets navigator.standalone=true; a desktop browser has neither, so this
+// gate keeps native gamepad support there while avoiding the cursor conflict
+// on-device.
+if(navigator.getGamepads && typeof Switch === "undefined" && !navigator.standalone)
+  requestAnimationFrame(pollPad);
 
 window.addEventListener("resize", ()=>{ bufW = 0; });
 
