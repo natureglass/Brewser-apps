@@ -18,6 +18,8 @@
     "license": "MIT",
     "exitGame": "PLUS",
     "fullscreen": true,
+    "hideMouseDocked": false,
+    "hideMouseUndocked": false,
     "publishedAt": "2026-08-06T09:23:48Z",
     "summary": "A three.js image-based-lighting demo of a torus knot reflecting an equirectangular HDR environment.",
     "tags": [

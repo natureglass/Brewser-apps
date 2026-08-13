@@ -18,6 +18,8 @@
     "license": "MIT",
     "exitGame": "PLUS",
     "fullscreen": true,
+    "hideMouseDocked": false,
+    "hideMouseUndocked": false,
     "publishedAt": "2026-08-06T10:18:02Z",
     "summary": "Measure your internet speed against Cloudflare on an animated needle gauge.",
     "tags": [

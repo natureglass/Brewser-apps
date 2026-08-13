@@ -18,6 +18,8 @@
     "license": "MIT",
     "exitGame": "PLUS",
     "fullscreen": true,
+    "hideMouseDocked": false,
+    "hideMouseUndocked": false,
     "publishedAt": "2026-08-06T09:46:50Z",
     "summary": "A three.js diorama rendered through a chunky, adjustable retro pixelation pass.",
     "tags": [

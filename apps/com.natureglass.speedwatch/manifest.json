@@ -19,6 +19,8 @@
     "license": "MIT",
     "exitGame": "PLUS",
     "fullscreen": true,
+    "hideMouseDocked": false,
+    "hideMouseUndocked": false,
     "publishedAt": "2026-08-09T12:49:28Z",
     "summary": "Free GPS speedometer with a live map and automatic speed-limit alerts"
 }

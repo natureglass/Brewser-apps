@@ -18,6 +18,8 @@
     "license": "MIT",
     "exitGame": "PLUS",
     "fullscreen": true,
+    "hideMouseDocked": false,
+    "hideMouseUndocked": false,
     "publishedAt": "2026-08-06T09:23:06Z",
     "summary": "A real-time three.js demo of a chrome sphere reflecting the live scene via a CubeCamera.",
     "tags": [

@@ -22,6 +22,8 @@
     "license": "MIT",
     "exitGame": "PLUS",
     "fullscreen": true,
+    "hideMouseDocked": false,
+    "hideMouseUndocked": false,
     "publishedAt": "2026-08-06T10:24:29Z",
     "summary": "A live dashboard that probes your device's sensors, battery, haptics and network.",
     "tags": [

@@ -18,6 +18,8 @@
     "license": "MIT",
     "exitGame": "PLUS",
     "fullscreen": true,
+    "hideMouseDocked": false,
+    "hideMouseUndocked": false,
     "publishedAt": "2026-08-06T10:21:50Z",
     "summary": "A WebGL2 metaball fluid of merging, dripping water blobs you can pour and colour.",
     "tags": [

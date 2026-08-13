@@ -18,6 +18,8 @@
     "license": "MIT",
     "exitGame": "PLUS",
     "fullscreen": true,
+    "hideMouseDocked": false,
+    "hideMouseUndocked": false,
     "publishedAt": "2026-08-06T10:11:59Z",
     "summary": "An animated three.js ion-drive model with tunable Unreal-style bloom glowing its bright parts.",
     "tags": [
