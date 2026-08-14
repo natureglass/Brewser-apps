@@ -25,8 +25,12 @@
     "fullscreen": true,
     "hideMouseDocked": false,
     "hideMouseUndocked": false,
+    "freshProcessOnExit": false,
     "publishedAt": "2026-08-06T10:33:57Z",
     "summary": "Watch live Twitch streams natively in the Switch browser.",
+    "features": [
+        "Gamepad"
+    ],
     "tags": [
         "Twitch",
         "Streaming"
