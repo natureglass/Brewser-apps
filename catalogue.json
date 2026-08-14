@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-14T13:03:18Z",
+  "generated": "2026-08-14T13:04:14Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -260,7 +260,7 @@
       "tags": [
         "MIDI"
       ],
-      "sizeBytes": 2978305
+      "sizeBytes": 3810130
     },
     {
       "id": "com.natureglass.neuralnetworks",

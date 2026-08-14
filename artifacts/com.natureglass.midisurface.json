@@ -1,8 +1,9 @@
 {
   "id": "com.natureglass.midisurface",
-  "sizeBytes": 2978305,
+  "sizeBytes": 3810130,
   "files": [
     "README.md",
+    "assets/appbanner.gif",
     "assets/appbanner.jpg",
     "assets/controllers-PAD1.json",
     "assets/controllers.json",
