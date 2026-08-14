@@ -1,6 +1,6 @@
 {
   "id": "com.natureglass.2dplatformermicrogame",
-  "sizeBytes": 29104167,
+  "sizeBytes": 30140975,
   "files": [
     "Build/custom_apps.data",
     "Build/custom_apps.framework.js",
@@ -17,6 +17,7 @@
     "TemplateData/unity-logo-dark.png",
     "TemplateData/unity-logo-light.png",
     "TemplateData/webgl-logo.png",
+    "assets/appbanner.gif",
     "assets/appbanner.jpg",
     "assets/appbanner.png",
     "index.html",
