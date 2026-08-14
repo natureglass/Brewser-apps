@@ -1,8 +1,9 @@
 {
   "id": "com.natureglass.threejsequirectenvreflection",
-  "sizeBytes": 4936534,
+  "sizeBytes": 7932863,
   "files": [
     "README.md",
+    "assets/appbanner.gif",
     "assets/appbanner.jpg",
     "build/three.core.js",
     "build/three.module.js",
