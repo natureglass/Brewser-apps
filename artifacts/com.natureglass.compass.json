@@ -1,8 +1,9 @@
 {
   "id": "com.natureglass.compass",
-  "sizeBytes": 38106,
+  "sizeBytes": 744462,
   "files": [
     "README.md",
+    "assets/appbanner.gif",
     "assets/appbanner.jpg",
     "index.html",
     "manifest.json"

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-14T12:32:44Z",
+  "generated": "2026-08-14T12:33:29Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -103,7 +103,7 @@
       "freshProcessOnExit": false,
       "publishedAt": "2026-08-10T12:06:24Z",
       "summary": "A hand-drawn WebGL compass that points to magnetic north from your device's sensors.",
-      "sizeBytes": 38106
+      "sizeBytes": 744462
     },
     {
       "id": "com.natureglass.fluiddynamics",
