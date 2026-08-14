@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-14T08:43:54Z",
+  "generated": "2026-08-14T09:17:27Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -548,7 +548,11 @@
         "Twitch",
         "Streaming"
       ],
-      "sizeBytes": 2461358,
+      "buttonMapping": {
+        "escape": "MINUS",
+        "space": "A"
+      },
+      "sizeBytes": 2461436,
       "featured": true
     },
     {
