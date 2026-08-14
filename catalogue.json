@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-14T12:57:30Z",
+  "generated": "2026-08-14T12:58:08Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -482,7 +482,7 @@
       "tags": [
         "Diagnostics"
       ],
-      "sizeBytes": 62128
+      "sizeBytes": 1250671
     },
     {
       "id": "com.natureglass.speedwatch",

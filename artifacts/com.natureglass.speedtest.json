@@ -1,8 +1,9 @@
 {
   "id": "com.natureglass.speedtest",
-  "sizeBytes": 62128,
+  "sizeBytes": 1250671,
   "files": [
     "README.md",
+    "assets/appbanner.gif",
     "assets/appbanner.jpg",
     "assets/speedtest_logo.png",
     "index.html",
