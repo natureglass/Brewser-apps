@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-14T12:34:39Z",
+  "generated": "2026-08-14T12:35:30Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -194,7 +194,7 @@
       "tags": [
         "Gyroscope"
       ],
-      "sizeBytes": 35382,
+      "sizeBytes": 405706,
       "featured": true
     },
     {
