@@ -1,8 +1,9 @@
 {
   "id": "com.natureglass.threejsloadercollada",
-  "sizeBytes": 4889391,
+  "sizeBytes": 5725295,
   "files": [
     "README.md",
+    "assets/appbanner.gif",
     "assets/appbanner.jpg",
     "build/three.core.js",
     "build/three.module.js",
