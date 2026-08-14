@@ -1,8 +1,9 @@
 {
   "id": "com.natureglass.speedwatch",
-  "sizeBytes": 68599,
+  "sizeBytes": 3150483,
   "files": [
     "README.md",
+    "assets/appbanner.gif",
     "assets/appbanner.jpg",
     "index.html",
     "manifest.json"
