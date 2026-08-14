@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-14T09:24:54Z",
+  "generated": "2026-08-14T09:29:21Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -536,9 +536,9 @@
       "license": "MIT",
       "exitGame": "PLUS",
       "fullscreen": true,
-      "hideMouseDocked": true,
-      "hideMouseUndocked": true,
-      "freshProcessOnExit": true,
+      "hideMouseDocked": false,
+      "hideMouseUndocked": false,
+      "freshProcessOnExit": false,
       "publishedAt": "2026-08-06T10:33:57Z",
       "summary": "Watch live Twitch streams natively in the Switch browser.",
       "features": [
@@ -548,11 +548,7 @@
         "Twitch",
         "Streaming"
       ],
-      "buttonMapping": {
-        "escape": "MINUS",
-        "space": "A"
-      },
-      "sizeBytes": 2461433,
+      "sizeBytes": 2461358,
       "featured": true
     },
     {
