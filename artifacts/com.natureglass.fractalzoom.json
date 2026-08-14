@@ -1,8 +1,9 @@
 {
   "id": "com.natureglass.fractalzoom",
-  "sizeBytes": 67115,
+  "sizeBytes": 2838610,
   "files": [
     "README.md",
+    "assets/appbanner.gif",
     "assets/appbanner.jpg",
     "index.html",
     "manifest.json"

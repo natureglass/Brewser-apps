@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-14T12:44:27Z",
+  "generated": "2026-08-14T12:45:43Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -164,7 +164,7 @@
         "Fractals",
         "Visualizer"
       ],
-      "sizeBytes": 67115
+      "sizeBytes": 2838610
     },
     {
       "id": "com.natureglass.gravityballs",
