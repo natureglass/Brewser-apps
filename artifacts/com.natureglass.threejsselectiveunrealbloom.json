@@ -1,8 +1,9 @@
 {
   "id": "com.natureglass.threejsselectiveunrealbloom",
-  "sizeBytes": 8283986,
+  "sizeBytes": 10934694,
   "files": [
     "README.md",
+    "assets/appbanner.gif",
     "assets/appbanner.jpg",
     "build/three.core.js",
     "build/three.module.js",
