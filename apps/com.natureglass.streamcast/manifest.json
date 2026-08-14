@@ -34,5 +34,9 @@
     "tags": [
         "Twitch",
         "Streaming"
-    ]
+    ],
+    "buttonMapping": {
+        "escape": "MINUS",
+        "space": "A"
+    }
 }
