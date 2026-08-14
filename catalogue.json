@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-13T09:59:28Z",
+  "generated": "2026-08-14T08:31:35Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -846,7 +846,7 @@
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 5152187
+      "sizeBytes": 7073568
     }
   ]
 }
