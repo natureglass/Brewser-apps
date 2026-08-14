@@ -1,8 +1,9 @@
 {
   "id": "com.natureglass.threejsshaderssky",
-  "sizeBytes": 2258010,
+  "sizeBytes": 4154370,
   "files": [
     "README.md",
+    "assets/appbanner.gif",
     "assets/appbanner.jpg",
     "build/three.core.js",
     "build/three.module.js",
