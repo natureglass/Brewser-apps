@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-14T13:07:09Z",
+  "generated": "2026-08-14T13:10:35Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -452,7 +452,7 @@
         "Audio Player",
         "Visualizer"
       ],
-      "sizeBytes": 158780,
+      "sizeBytes": 1462423,
       "featured": true
     },
     {
