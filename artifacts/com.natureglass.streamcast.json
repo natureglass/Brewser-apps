@@ -1,8 +1,9 @@
 {
   "id": "com.natureglass.streamcast",
-  "sizeBytes": 2461358,
+  "sizeBytes": 4413424,
   "files": [
     "README.md",
+    "assets/appbanner.gif",
     "assets/appbanner.jpg",
     "assets/docs/Modding-PVZ-on-XBOX360-is-now-a-reality.docx",
     "assets/screenshots/1.png",
