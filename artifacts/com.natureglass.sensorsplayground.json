@@ -1,8 +1,9 @@
 {
   "id": "com.natureglass.sensorsplayground",
-  "sizeBytes": 102721,
+  "sizeBytes": 1581173,
   "files": [
     "README.md",
+    "assets/appbanner.gif",
     "assets/appbanner.jpg",
     "assets/battery.png",
     "assets/compass.png",
