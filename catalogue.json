@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-14T12:33:29Z",
+  "generated": "2026-08-14T12:34:18Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -293,7 +293,7 @@
         "Probability",
         "WebNN"
       ],
-      "sizeBytes": 91358,
+      "sizeBytes": 1007515,
       "featured": true
     },
     {
