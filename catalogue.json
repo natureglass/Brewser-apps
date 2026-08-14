@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-14T12:29:26Z",
+  "generated": "2026-08-14T12:32:44Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -133,7 +133,7 @@
         "Fluids",
         "Visualizer"
       ],
-      "sizeBytes": 86979,
+      "sizeBytes": 2325683,
       "featured": true
     },
     {
