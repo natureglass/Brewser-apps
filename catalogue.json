@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-15T16:07:17Z",
+  "generated": "2026-08-15T16:07:59Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -228,7 +228,7 @@
         "Web Bluetooth",
         "Web Serial"
       ],
-      "sizeBytes": 69371
+      "sizeBytes": 1506060
     },
     {
       "id": "com.natureglass.metaballssim",
