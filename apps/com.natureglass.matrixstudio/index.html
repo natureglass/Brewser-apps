@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover">
+<title>MATRIX STUDIO</title>
+<style>
+/* Deliberately cheap CSS: flat colors, 1px borders, no shadows/filters/gradients.
+   The WebGL LED grid is the visual centerpiece; chrome stays quiet. */
+:root{
+  --bg:#0b0d14; --panel:#12151f; --line:#252b3d; --line-hi:#3d4a70;
+  --ink:#c7cde0; --dim:#6a7390; --acc:#e8a84c;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);
+  font:14px/1.4 ui-monospace,'Cascadia Mono',Consolas,Menlo,monospace;
+  -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+#bar{position:fixed;top:0;left:0;right:0;height:50px;display:flex;align-items:center;gap:6px;
+  padding:0 10px;background:var(--panel);border-bottom:1px solid var(--line);z-index:10}
+#bar .sep{width:1px;height:26px;background:var(--line);margin:0 2px}
+button{background:transparent;color:var(--ink);border:1px solid var(--line);
+  padding:6px 10px;font:inherit;cursor:pointer;min-height:34px}
+button:active{border-color:var(--line-hi)}
+button.on{border-color:var(--acc);color:var(--acc)}
+.sw{width:28px;height:28px;min-height:28px;padding:0;border:2px solid var(--line)}
+.sw.on{border-color:#fff}
+#status{margin-left:auto;display:flex;align-items:center;gap:8px;color:var(--dim);font-size:12px}
+#dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#3a4158}
+#dot.ok{background:#4ce07a}
+#dot.busy{background:var(--acc)}
+canvas#cv{position:fixed;top:50px;left:0;touch-action:none;display:block}
+/* Settings */
+#settings{position:fixed;top:50px;left:0;right:0;bottom:0;background:var(--bg);
+  overflow-y:auto;z-index:9;padding:16px;display:none}
+#settings.open{display:block}
+#settings h2{font-size:13px;font-weight:normal;color:var(--acc);letter-spacing:.2em;
+  margin:18px 0 8px;border-bottom:1px solid var(--line);padding-bottom:4px}
+#settings h2:first-child{margin-top:0}
+.row{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;margin:8px 0}
+label{color:var(--dim);font-size:12px;display:flex;align-items:center;gap:6px}
+input[type=number],select{background:var(--panel);color:var(--ink);border:1px solid var(--line);
+  font:inherit;padding:5px 6px;width:72px}
+select{width:auto}
+input[type=checkbox]{width:18px;height:18px;accent-color:var(--acc)}
+input[type=range]{width:160px;accent-color:var(--acc)}
+.hint{color:var(--dim);font-size:12px;margin:4px 0 0}
+#settings .wide{width:100%}
+</style>
+</head>
+<body>
+
+<div id="bar">
+  <button id="mDraw" class="on">DRAW</button>
+  <button id="mFluid">FLUID</button>
+  <button id="mDemo">DEMO</button>
+  <span class="sep"></span>
+  <span id="drawTools" style="display:flex;gap:6px;align-items:center"></span>
+  <button id="demoName" style="display:none">RAINBOW</button>
+  <button id="brush">B:2</button>
+  <button id="clear">CLR</button>
+  <span class="sep"></span>
+  <button id="gear">SET</button>
+  <span id="status"><span id="connLabel">offline</span><span id="dot"></span></span>
+</div>
+
+<canvas id="cv"></canvas>
+
+<div id="settings">
+  <h2>MATRIX LAYOUT</h2>
+  <div class="row">
+    <label>width <input type="number" id="sW" min="1" max="128" step="1"></label>
+    <label>height <input type="number" id="sH" min="1" max="64" step="1"></label>
+    <label>panel height <input type="number" id="sPH" min="1" max="64" step="1"></label>
+  </div>
+  <div class="row">
+    <label>wiring
+      <select id="sAxis">
+        <option value="v">vertical (columns)</option>
+        <option value="h">horizontal (rows)</option>
+      </select>
+    </label>
+    <label><input type="checkbox" id="sSerp"> serpentine</label>
+    <label><input type="checkbox" id="sFX"> flip X</label>
+    <label><input type="checkbox" id="sFY"> flip Y</label>
+    <button id="identify">IDENTIFY</button>
+  </div>
+  <p class="hint">Two stacked 32&times;8 panels &rarr; width 32, height 16, panel height 8.
+    IDENTIFY marks the corners (red = top-left, green = top-right, blue = bottom-left)
+    and sweeps left&rarr;right so you can dial in wiring/flips until the physical panel matches.</p>
+
+  <h2>ESP32</h2>
+  <div class="row">
+    <label>data pin <input type="number" id="sPin" min="0" max="48" step="1"></label>
+    <label>brightness <input type="range" id="sBri" min="1" max="255" step="1">
+      <span id="briVal" style="color:var(--ink)"></span></label>
+  </div>
+  <p class="hint">Pin + LED count + brightness are pushed to the ESP32 on connect and on SAVE.
+    Brightness is applied on-device (power limiting &mdash; 512 LEDs at full white pulls ~30 A).</p>
+
+  <h2>CONNECTION</h2>
+  <div class="row">
+    <button id="connUsb">USB SERIAL</button>
+    <button id="connBle">BLUETOOTH</button>
+    <button id="connOff">DISCONNECT</button>
+  </div>
+  <div class="row">
+    <label>baud
+      <select id="sBaud">
+        <option>115200</option><option>460800</option>
+        <option selected>921600</option><option>2000000</option>
+      </select>
+    </label>
+    <label>max send fps
+      <select id="sFps">
+        <option>5</option><option>10</option><option>15</option>
+        <option selected>20</option><option>30</option><option>60</option>
+      </select>
+    </label>
+  </div>
+  <p class="hint" id="connHint">The app is fully functional offline; a link just mirrors the canvas to the panel.
+    USB serial comfortably runs 30&ndash;60 fps at 921600 baud. BLE tops out around 10&ndash;15 fps for a 512-LED frame.</p>
+
+  <div class="row" style="margin-top:20px">
+    <button id="save" style="border-color:var(--acc);color:var(--acc)">SAVE</button>
+    <button id="closeSet">CLOSE</button>
+  </div>
+</div>
+
+<script>
+'use strict';
+/* ================= state ================= */
+const DEF = {w:32,h:16,ph:8,axis:'v',serp:true,fx:false,fy:false,
+             pin:5,bri:40,baud:921600,fps:20,mode:'draw',demo:0,brushIdx:1,color:2};
+let S = Object.assign({}, DEF);
+try{ Object.assign(S, JSON.parse(localStorage.getItem('matrixstudio')||'{}')); }catch(e){}
+const saveLS = () => { try{ localStorage.setItem('matrixstudio', JSON.stringify(S)); }catch(e){} };
+
+let W=S.w, H=S.h, N=W*H;
+let fb;                 // Uint8Array W*H*3, row-major from top-left — single source of truth
+let lut;               // logical index -> strip index
+let pkt;               // reusable outgoing frame packet
+const BRUSHES=[1,2,3];
+
+const PALETTE=[[0,0,0],[255,255,255],[255,40,40],[255,140,0],[255,220,0],
+               [40,220,60],[0,200,200],[60,90,255],[170,60,255],[255,60,170]];
+
+/* ================= layout / mapping ================= */
+function rebuild(){
+  W=S.w; H=S.h; N=W*H;
+  fb=new Uint8Array(N*3);
+  lut=new Uint32Array(N);
+  const ph=Math.min(S.ph,H)||H;
+  for(let y=0;y<H;y++) for(let x=0;x<W;x++){
+    let px=S.fx? W-1-x : x, py=S.fy? H-1-y : y;
+    const panel=Math.floor(py/ph), ly=py%ph, base=panel*W*ph;
+    let idx;
+    if(S.axis==='v'){
+      const r=(S.serp && (px&1))? ph-1-ly : ly;
+      idx=px*ph+r;
+    }else{
+      const c=(S.serp && (ly&1))? W-1-px : px;
+      idx=ly*W+c;
+    }
+    lut[y*W+x]=Math.min(base+idx, N-1);
+  }
+  pkt=new Uint8Array(5+N*3);
+  pkt[0]=0xA5; pkt[1]=0x5A; pkt[2]=0x01; pkt[3]=(N*3)&0xFF; pkt[4]=(N*3)>>8;
+  fluidAlloc(); fireAlloc(); rainAlloc(); allocTex(); layoutView();
+}
+
+/* ================= WebGL renderer (WebGL1) ================= */
+const cv=document.getElementById('cv');
+let gl, tex, uGrid, view={x:0,y:0,w:1,h:1,scale:1}, dpr=1;
+
+function initGL(){
+  gl=cv.getContext('webgl',{antialias:false,alpha:false,preserveDrawingBuffer:false});
+  if(!gl){ document.body.innerHTML='<p style="padding:20px">WebGL unavailable.</p>'; return; }
+  const vs=`attribute vec2 p;varying vec2 uv;
+    void main(){uv=vec2(p.x*.5+.5,.5-p.y*.5);gl_Position=vec4(p,0.,1.);}`;
+  const fs=`precision mediump float;varying vec2 uv;uniform sampler2D t;uniform vec2 g;
+    void main(){
+      vec2 c=uv*g; vec2 cell=floor(c); vec2 f=fract(c)-.5;
+      vec3 col=texture2D(t,(cell+.5)/g).rgb;
+      float d=length(f);
+      float core=1.-smoothstep(.30,.46,d);
+      float glow=(1.-smoothstep(.15,.72,d))*.35;
+      gl_FragColor=vec4(col*core+col*glow+vec3(.015,.017,.025),1.);
+    }`;
+  const mk=(t,s)=>{const o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);return o;};
+  const pr=gl.createProgram();
+  gl.attachShader(pr,mk(gl.VERTEX_SHADER,vs));
+  gl.attachShader(pr,mk(gl.FRAGMENT_SHADER,fs));
+  gl.linkProgram(pr); gl.useProgram(pr);
+  const buf=gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER,buf);
+  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+  const loc=gl.getAttribLocation(pr,'p');
+  gl.enableVertexAttribArray(loc);
+  gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+  uGrid=gl.getUniformLocation(pr,'g');
+  tex=gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D,tex);
+  gl.pixelStorei(gl.UNPACK_ALIGNMENT,1);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+  gl.clearColor(0.043,0.051,0.078,1);
+}
+function allocTex(){
+  if(!gl) return;
+  gl.bindTexture(gl.TEXTURE_2D,tex);
+  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB,W,H,0,gl.RGB,gl.UNSIGNED_BYTE,null);
+}
+function layoutView(){
+  dpr=Math.min(window.devicePixelRatio||1,2);
+  const cw=window.innerWidth, ch=window.innerHeight-50;
+  cv.width=Math.round(cw*dpr); cv.height=Math.round(ch*dpr);
+  cv.style.width=cw+'px'; cv.style.height=ch+'px';
+  const pad=12, s=Math.max(1,Math.min((cw-pad*2)/W,(ch-pad*2)/H));
+  view={scale:s,w:s*W,h:s*H,x:(cw-s*W)/2,y:(ch-s*H)/2};
+}
+function render(){
+  if(!gl) return;
+  gl.viewport(0,0,cv.width,cv.height);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.bindTexture(gl.TEXTURE_2D,tex);
+  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB,W,H,0,gl.RGB,gl.UNSIGNED_BYTE,fb);
+  gl.uniform2f(uGrid,W,H);
+  gl.viewport(Math.round(view.x*dpr),Math.round((window.innerHeight-50-view.y-view.h)*dpr),
+              Math.round(view.w*dpr),Math.round(view.h*dpr));
+  gl.drawArrays(gl.TRIANGLES,0,3);
+}
+
+/* ================= helpers ================= */
+function setPix(x,y,r,g,b){
+  if(x<0||y<0||x>=W||y>=H) return;
+  const i=(y*W+x)*3; fb[i]=r; fb[i+1]=g; fb[i+2]=b;
+}
+function addPix(x,y,r,g,b){
+  if(x<0||y<0||x>=W||y>=H) return;
+  const i=(y*W+x)*3;
+  fb[i]=Math.min(255,fb[i]+r); fb[i+1]=Math.min(255,fb[i+1]+g); fb[i+2]=Math.min(255,fb[i+2]+b);
+}
+function fadeFB(k){ for(let i=0;i<fb.length;i++) fb[i]=(fb[i]*k)>>8; }
+function hsv(h,s,v){ // h 0..1 -> [r,g,b] 0..255
+  h=((h%1)+1)%1; const i=(h*6)|0, f=h*6-i, p=v*(1-s), q=v*(1-f*s), t=v*(1-(1-f)*s);
+  const m=[[v,t,p],[q,v,p],[p,v,t],[p,q,v],[t,p,v],[v,p,q]][i%6];
+  return [m[0]*255|0,m[1]*255|0,m[2]*255|0];
+}
+
+/* ================= input ================= */
+let pDown=false, pLast=null;
+function cellOf(e){
+  const r=cv.getBoundingClientRect();
+  const x=(e.clientX-r.left-view.x)/view.scale, y=(e.clientY-r.top-view.y)/view.scale;
+  return {x,y,cx:Math.floor(x),cy:Math.floor(y)};
+}
+function stroke(a,b){ // paint interpolated line in cells
+  const c=PALETTE[S.color], sz=BRUSHES[S.brushIdx], steps=Math.max(1,Math.ceil(Math.hypot(b.x-a.x,b.y-a.y)));
+  for(let s=0;s<=steps;s++){
+    const x=a.x+(b.x-a.x)*s/steps, y=a.y+(b.y-a.y)*s/steps;
+    const rad=(sz-1)*0.75+0.5;
+    for(let dy=-sz;dy<=sz;dy++) for(let dx=-sz;dx<=sz;dx++){
+      if(Math.hypot(dx,dy)<=rad+0.35) setPix(Math.floor(x)+dx,Math.floor(y)+dy,c[0],c[1],c[2]);
+    }
+  }
+}
+cv.addEventListener('pointerdown',e=>{
+  e.preventDefault(); cv.setPointerCapture(e.pointerId);
+  pDown=true; const p=cellOf(e);
+  if(S.mode==='draw') stroke(p,p);
+  else if(S.mode==='fluid') fluidInject(p,p);
+  else demoPoke(p);
+  pLast=p;
+});
+cv.addEventListener('pointermove',e=>{
+  if(!pDown) return; e.preventDefault();
+  const p=cellOf(e);
+  if(S.mode==='draw') stroke(pLast,p);
+  else if(S.mode==='fluid') fluidInject(pLast,p);
+  else demoPoke(p);
+  pLast=p;
+});
+const up=e=>{pDown=false;pLast=null;};
+cv.addEventListener('pointerup',up); cv.addEventListener('pointercancel',up);
+
+/* ================= fluid (Stam stable fluids at grid res) ================= */
+let vu,vv,vt1,vt2,cr,cg,cb,ct1,ct2,ct3,prs,dvg;
+function fluidAlloc(){
+  const f=()=>new Float32Array(N);
+  vu=f();vv=f();vt1=f();vt2=f();cr=f();cg=f();cb=f();ct1=f();ct2=f();ct3=f();prs=f();dvg=f();
+}
+const gf=(f,x,y)=>f[Math.max(0,Math.min(H-1,y))*W+Math.max(0,Math.min(W-1,x))];
+function fsamp(f,x,y){
+  x=Math.max(0,Math.min(W-1.001,x)); y=Math.max(0,Math.min(H-1.001,y));
+  const x0=x|0,y0=y|0,sx=x-x0,sy=y-y0,x1=Math.min(W-1,x0+1),y1=Math.min(H-1,y0+1);
+  return (f[y0*W+x0]*(1-sx)+f[y0*W+x1]*sx)*(1-sy)+(f[y1*W+x0]*(1-sx)+f[y1*W+x1]*sx)*sy;
+}
+function advect(dst,src,dt,diss){
+  for(let y=0;y<H;y++) for(let x=0;x<W;x++){
+    const i=y*W+x;
+    dst[i]=fsamp(src,x-vu[i]*dt,y-vv[i]*dt)*diss;
+  }
+}
+function project(){
+  for(let y=0;y<H;y++) for(let x=0;x<W;x++){
+    dvg[y*W+x]=-0.5*(gf(vu,x+1,y)-gf(vu,x-1,y)+gf(vv,x,y+1)-gf(vv,x,y-1));
+    prs[y*W+x]=0;
+  }
+  for(let k=0;k<14;k++)
+    for(let y=0;y<H;y++) for(let x=0;x<W;x++)
+      prs[y*W+x]=(dvg[y*W+x]+gf(prs,x-1,y)+gf(prs,x+1,y)+gf(prs,x,y-1)+gf(prs,x,y+1))*0.25;
+  for(let y=0;y<H;y++) for(let x=0;x<W;x++){
+    vu[y*W+x]-=0.5*(gf(prs,x+1,y)-gf(prs,x-1,y));
+    vv[y*W+x]-=0.5*(gf(prs,x,y+1)-gf(prs,x,y-1));
+  }
+}
+function fluidInject(a,b){
+  const c=PALETTE[S.color], dx=b.x-a.x, dy=b.y-a.y;
+  const col=(S.color===0)?[255,255,255]:c;
+  for(let oy=-1;oy<=1;oy++) for(let ox=-1;ox<=1;ox++){
+    const x=b.cx+ox, y=b.cy+oy;
+    if(x<0||y<0||x>=W||y>=H) continue;
+    const i=y*W+x, k=(ox===0&&oy===0)?1:0.45;
+    vu[i]+=dx*6*k; vv[i]+=dy*6*k;
+    cr[i]=Math.min(1.4,cr[i]+col[0]/255*0.55*k);
+    cg[i]=Math.min(1.4,cg[i]+col[1]/255*0.55*k);
+    cb[i]=Math.min(1.4,cb[i]+col[2]/255*0.55*k);
+  }
+}
+function fluidStep(dt){
+  dt=Math.min(dt,0.05)*8;
+  advect(vt1,vu,dt,0.998); advect(vt2,vv,dt,0.998);
+  [vu,vt1]=[vt1,vu]; [vv,vt2]=[vt2,vv];
+  project();
+  advect(ct1,cr,dt,0.982); advect(ct2,cg,dt,0.982); advect(ct3,cb,dt,0.982);
+  [cr,ct1]=[ct1,cr]; [cg,ct2]=[ct2,cg]; [cb,ct3]=[ct3,cb];
+  for(let i=0;i<N;i++){
+    fb[i*3]  =Math.min(255,cr[i]*255)|0;
+    fb[i*3+1]=Math.min(255,cg[i]*255)|0;
+    fb[i*3+2]=Math.min(255,cb[i]*255)|0;
+  }
+}
+
+/* ================= demos ================= */
+let heat, drops;
+function fireAlloc(){ heat=new Float32Array(N); }
+function rainAlloc(){
+  drops=[];
+  for(let x=0;x<W;x++) drops.push({y:Math.random()*-H*2,v:4+Math.random()*10,x});
+}
+const balls=[];
+for(let i=0;i<5;i++) balls.push({x:Math.random()*20,y:Math.random()*10,
+  vx:(Math.random()*8+4)*(Math.random()<.5?-1:1),vy:(Math.random()*6+3)*(Math.random()<.5?-1:1),h:i/5});
+
+const DEMOS=[
+ {name:'RAINBOW',fn:(t)=>{ for(let y=0;y<H;y++) for(let x=0;x<W;x++){
+    const [r,g,b]=hsv(x/W+y*0.015+t*0.12,1,1); setPix(x,y,r,g,b); }}},
+ {name:'PLASMA',fn:(t)=>{ for(let y=0;y<H;y++) for(let x=0;x<W;x++){
+    const v=Math.sin(x*0.45+t*1.6)+Math.sin(y*0.7+t*1.1)
+           +Math.sin((x+y)*0.3+t*0.7)+Math.sin(Math.hypot(x-W/2,y-H/2)*0.55-t*1.8);
+    const [r,g,b]=hsv(v*0.12+t*0.03,0.9,0.5+0.5*Math.sin(v*1.2));
+    setPix(x,y,r,g,b); }}},
+ {name:'FIRE',fn:(t,dt)=>{
+    for(let x=0;x<W;x++) heat[(H-1)*W+x]=Math.random()<0.82?0.9+Math.random()*0.4:0.15;
+    for(let y=0;y<H-1;y++) for(let x=0;x<W;x++){
+      const sx=Math.max(0,Math.min(W-1,x+((Math.random()*3)|0)-1));
+      heat[y*W+x]=Math.max(0,heat[(y+1)*W+sx]-Math.random()*0.14);
+    }
+    for(let i=0;i<N;i++){ const h=heat[i];
+      fb[i*3]=Math.min(255,h*340)|0;
+      fb[i*3+1]=Math.max(0,Math.min(255,(h-0.35)*380))|0;
+      fb[i*3+2]=Math.max(0,Math.min(255,(h-0.8)*500))|0; }}},
+ {name:'RAIN',fn:(t,dt)=>{
+    fadeFB(196);
+    for(const d of drops){
+      d.y+=d.v*dt;
+      const y=d.y|0;
+      setPix(d.x,y,180,255,180); setPix(d.x,y-1,0,170,40); setPix(d.x,y-2,0,80,15);
+      if(y-2>H){ d.y=-Math.random()*H; d.v=4+Math.random()*10; } }}},
+ {name:'BOUNCE',fn:(t,dt)=>{
+    fadeFB(215);
+    for(const b of balls){
+      b.x+=b.vx*dt; b.y+=b.vy*dt;
+      if(b.x<0){b.x=0;b.vx*=-1;} if(b.x>W-1){b.x=W-1;b.vx*=-1;}
+      if(b.y<0){b.y=0;b.vy*=-1;} if(b.y>H-1){b.y=H-1;b.vy*=-1;}
+      const [r,g,bl]=hsv(b.h+t*0.05,1,1);
+      addPix(b.x|0,b.y|0,r,g,bl);
+      addPix((b.x|0)+1,b.y|0,r>>2,g>>2,bl>>2); addPix((b.x|0)-1,b.y|0,r>>2,g>>2,bl>>2);
+      addPix(b.x|0,(b.y|0)+1,r>>2,g>>2,bl>>2); addPix(b.x|0,(b.y|0)-1,r>>2,g>>2,bl>>2); }}},
+];
+function demoPoke(p){ // sparkle where touched
+  for(let i=0;i<4;i++)
+    addPix(p.cx+((Math.random()*3)|0)-1,p.cy+((Math.random()*3)|0)-1,255,255,255);
+  if(S.demo===2 && p.cy>=0 && p.cy<H) heat[Math.min(H-1,p.cy)*W+Math.max(0,Math.min(W-1,p.cx))]=1.3;
+}
+
+/* ================= identify (mapping test) ================= */
+let identUntil=0;
+function identifyFrame(t){
+  fb.fill(0);
+  const sw=(t*6|0)%W;
+  for(let y=0;y<H;y++) setPix(sw,y,90,90,90);
+  setPix(0,0,255,0,0); setPix(W-1,0,0,255,0); setPix(0,H-1,0,0,255); setPix(W-1,H-1,255,255,0);
+}
+
+/* ================= connectivity ================= */
+let sink=null, sending=false, lastSend=0;
+const dot=document.getElementById('dot'), connLabel=document.getElementById('connLabel');
+function setConn(label,ok){ connLabel.textContent=label; dot.className=ok?'ok':''; }
+
+function configPacket(){
+  return new Uint8Array([0xA5,0x5A,0x02,4,0, S.pin&0xFF, N&0xFF, (N>>8)&0xFF, S.bri&0xFF]);
+}
+function buildFrame(){
+  for(let i=0;i<N;i++){
+    const d=5+lut[i]*3, s=i*3;
+    pkt[d]=fb[s]; pkt[d+1]=fb[s+1]; pkt[d+2]=fb[s+2];
+  }
+  return pkt;
+}
+async function disconnect(){
+  const s=sink; sink=null;
+  setConn('offline',false);
+  if(!s) return;
+  try{ await s.close(); }catch(e){}
+}
+async function connectSerial(){
+  if(!navigator.serial){ alert('Web Serial not available in this runtime.'); return; }
+  await disconnect();
+  try{
+    const port=await navigator.serial.requestPort();
+    await port.open({baudRate:S.baud});
+    const writer=port.writable.getWriter();
+    sink={
+      type:'usb',
+      send:async b=>writer.write(b),
+      close:async()=>{ try{writer.releaseLock();}catch(e){} try{await port.close();}catch(e){} }
+    };
+    setConn('usb '+S.baud,true);
+    await sink.send(configPacket());
+  }catch(e){ setConn('offline',false); }
+}
+const NUS='6e400001-b5a3-f393-e0a9-e50e24dcca9e';
+const NUS_RX='6e400002-b5a3-f393-e0a9-e50e24dcca9e';
+async function connectBle(){
+  if(!navigator.bluetooth){ alert('Web Bluetooth not available in this runtime.'); return; }
+  await disconnect();
+  try{
+    const dev=await navigator.bluetooth.requestDevice({
+      filters:[{services:[NUS]}], optionalServices:[NUS]});
+    dev.addEventListener('gattserverdisconnected',()=>{ if(sink&&sink.type==='ble'){sink=null;setConn('offline',false);} });
+    const gatt=await dev.gatt.connect();
+    const svc=await gatt.getPrimaryService(NUS);
+    const rx=await svc.getCharacteristic(NUS_RX);
+    const wr=rx.writeValueWithoutResponse ?
+      b=>rx.writeValueWithoutResponse(b) : b=>rx.writeValue(b);
+    const CH=180;
+    sink={
+      type:'ble',
+      send:async b=>{ for(let o=0;o<b.length;o+=CH) await wr(b.subarray(o,Math.min(b.length,o+CH))); },
+      close:async()=>{ try{dev.gatt.disconnect();}catch(e){} }
+    };
+    setConn('ble',true);
+    await sink.send(configPacket());
+  }catch(e){ setConn('offline',false); }
+}
+async function pump(now){
+  if(!sink||sending) return;
+  if(now-lastSend < 1000/S.fps) return;
+  lastSend=now; sending=true; dot.className='busy';
+  try{ await sink.send(buildFrame()); if(sink) dot.className='ok'; }
+  catch(e){ await disconnect(); }
+  sending=false;
+}
+
+/* ================= UI ================= */
+const $=id=>document.getElementById(id);
+const modeBtns={draw:$('mDraw'),fluid:$('mFluid'),demo:$('mDemo')};
+function setMode(m){
+  S.mode=m; saveLS();
+  for(const k in modeBtns) modeBtns[k].classList.toggle('on',k===m);
+  $('demoName').style.display = m==='demo'?'':'none';
+  $('drawTools').style.display = m==='demo'?'none':'flex';
+}
+modeBtns.draw.onclick=()=>setMode('draw');
+modeBtns.fluid.onclick=()=>setMode('fluid');
+modeBtns.demo.onclick=()=>setMode('demo');
+$('demoName').onclick=()=>{ S.demo=(S.demo+1)%DEMOS.length; $('demoName').textContent=DEMOS[S.demo].name; fb.fill(0); saveLS(); };
+$('demoName').textContent=DEMOS[S.demo%DEMOS.length].name;
+$('brush').onclick=()=>{ S.brushIdx=(S.brushIdx+1)%BRUSHES.length; $('brush').textContent='B:'+BRUSHES[S.brushIdx]; saveLS(); };
+$('brush').textContent='B:'+BRUSHES[S.brushIdx%BRUSHES.length];
+$('clear').onclick=()=>{ fb.fill(0); fluidAlloc(); if(heat)heat.fill(0); };
+
+// palette swatches
+const tools=$('drawTools');
+PALETTE.forEach((c,i)=>{
+  const b=document.createElement('button');
+  b.className='sw'+(i===S.color?' on':'');
+  b.style.background=i===0?'#0b0d14':`rgb(${c[0]},${c[1]},${c[2]})`;
+  if(i===0) b.textContent='\u2715', b.style.color='#666', b.style.fontSize='12px';
+  b.onclick=()=>{ S.color=i; saveLS();
+    tools.querySelectorAll('.sw').forEach((e,j)=>e.classList.toggle('on',j===i)); };
+  tools.appendChild(b);
+});
+
+// settings
+const setEl=$('settings');
+$('gear').onclick=()=>{ fillSettings(); setEl.classList.toggle('open'); };
+$('closeSet').onclick=()=>setEl.classList.remove('open');
+function fillSettings(){
+  $('sW').value=S.w; $('sH').value=S.h; $('sPH').value=S.ph;
+  $('sAxis').value=S.axis; $('sSerp').checked=S.serp;
+  $('sFX').checked=S.fx; $('sFY').checked=S.fy;
+  $('sPin').value=S.pin; $('sBri').value=S.bri; $('briVal').textContent=S.bri;
+  $('sBaud').value=S.baud; $('sFps').value=S.fps;
+}
+$('sBri').oninput=e=>$('briVal').textContent=e.target.value;
+$('save').onclick=async()=>{
+  S.w=Math.max(1,Math.min(128,+$('sW').value|0||32));
+  S.h=Math.max(1,Math.min(64,+$('sH').value|0||16));
+  S.ph=Math.max(1,Math.min(S.h,+$('sPH').value|0||S.h));
+  S.axis=$('sAxis').value; S.serp=$('sSerp').checked;
+  S.fx=$('sFX').checked; S.fy=$('sFY').checked;
+  S.pin=Math.max(0,Math.min(48,+$('sPin').value|0));
+  S.bri=Math.max(1,Math.min(255,+$('sBri').value|0||40));
+  S.baud=+$('sBaud').value; S.fps=+$('sFps').value;
+  saveLS(); rebuild();
+  if(sink){ try{ await sink.send(configPacket()); }catch(e){ disconnect(); } }
+  setEl.classList.remove('open');
+};
+$('identify').onclick=()=>{ identUntil=performance.now()+8000; setEl.classList.remove('open'); };
+$('connUsb').onclick=()=>{ S.baud=+$('sBaud').value; S.fps=+$('sFps').value; saveLS(); connectSerial(); };
+$('connBle').onclick=()=>{ S.fps=+$('sFps').value; saveLS(); connectBle(); };
+$('connOff').onclick=()=>disconnect();
+if(!navigator.serial) $('connUsb').disabled=true;
+if(!navigator.bluetooth) $('connBle').disabled=true;
+
+/* ================= main loop ================= */
+let tPrev=performance.now();
+function loop(now){
+  const dt=Math.min(0.1,(now-tPrev)/1000); tPrev=now;
+  const t=now/1000;
+  if(now<identUntil) identifyFrame(t);
+  else if(S.mode==='fluid') fluidStep(dt);
+  else if(S.mode==='demo') DEMOS[S.demo%DEMOS.length].fn(t,dt);
+  render();
+  pump(now);
+  requestAnimationFrame(loop);
+}
+window.addEventListener('resize',layoutView);
+initGL(); rebuild(); setMode(S.mode);
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
