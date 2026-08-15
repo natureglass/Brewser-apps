@@ -1,6 +1,6 @@
 name: Deploy Pages
 
-# Deterministic GitHub Pages publish for play.brewser.tech.
+# Deterministic GitHub Pages publish for play.brewser.io.
 #
 # WHY THIS EXISTS: the repo used to rely on GitHub's *automatic* branch build
 # ("pages build and deployment", event: dynamic). That build silently stopped
@@ -14,7 +14,7 @@ name: Deploy Pages
 # ONE-TIME SETUP (required): repo Settings → Pages → Build and deployment →
 # Source = "GitHub Actions". Until that switch is made, actions/deploy-pages
 # errors ("not configured to build from GitHub Actions"). The custom domain
-# (CNAME play.brewser.tech) and HTTPS settings carry over unchanged.
+# (CNAME play.brewser.io) and HTTPS settings carry over unchanged.
 
 on:
   # Every push to main. Catches PAT pushes (the plugin's promote / edit / delete

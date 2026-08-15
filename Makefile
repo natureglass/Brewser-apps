@@ -10,7 +10,7 @@
 # locally only when hand-editing apps; the flat apps/<id>/ layout is authoritative.
 #
 # versions.json is NO LONGER produced here — it moved to the brewser-apps-staging
-# repo (served at my.brewser.tech/versions.json) and is written solely by
+# repo (served at my.brewser.io/versions.json) and is written solely by
 # brewser-v8's `make release` (a mirror of romfs/configs/current.json). The old
 # scripts/collect_versions.py generator was retired along with this target.
 

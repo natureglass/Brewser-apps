@@ -42,7 +42,7 @@
 		// (.../apps/{group}/{id}/...), or set it explicitly via configure().
 		packageId: null,
 		// Where the authenticated save API lives.
-		apiBase: 'https://brewser.tech/wp-json/brewser/v1',
+		apiBase: 'https://brewser.io/wp-json/brewser/v1',
 		// localStorage key prefix.
 		nsPrefix: 'brewser_save_',
 		// Debounce for background server pushes (ms).
@@ -61,7 +61,7 @@
 	config.packageId = derivePackageId();
 
 	// --- Auth token access ---------------------------------------------------
-	// The navigator (play.brewser.tech) exposes window.__brewserAuthToken().
+	// The navigator (play.brewser.io) exposes window.__brewserAuthToken().
 	// Inside the player iframe, the app can't see that directly, so the SDK
 	// also accepts a token handed in via configure({ token }) or postMessage.
 
@@ -81,7 +81,7 @@
 	try {
 		global.addEventListener('message', function (event) {
 			// Only accept from the Brewser origin.
-			if (event.origin !== 'https://brewser.tech' && event.origin !== 'https://play.brewser.tech') { return; }
+			if (event.origin !== 'https://brewser.io' && event.origin !== 'https://play.brewser.io') { return; }
 			var d = event.data;
 			if (d && d.type === 'brewser-token' && typeof d.token === 'string') {
 				handedToken = d.token;

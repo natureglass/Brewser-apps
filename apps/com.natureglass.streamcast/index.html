@@ -1231,8 +1231,8 @@
   // ---------- web (desktop browser) playback ----------
   // Twitch's official iframe player. No CORS and no hls.js: Twitch serves the
   // player and does its own quality/ads/DRM. Every ancestor domain must be listed
-  // in `parent=` -- the app runs at play.brewser.tech and is itself embedded in
-  // the brewser.tech [brewser_app] frame -- so we pass both (plus the live host).
+  // in `parent=` -- the app runs at play.brewser.io and is itself embedded in
+  // the brewser.io [brewser_app] frame -- so we pass both (plus the live host).
   // autoplay + fullscreen are forwarded via `allow` and are already granted to the
   // parent embed; the click that picked the channel is the gesture, so audio
   // isn't force-muted.
@@ -1263,8 +1263,8 @@
   }
 
   // Ancestor domains Twitch's `parent` check needs: the live host plus the known
-  // Brewser portal domains, so it works standalone (play.brewser.tech) and
-  // embedded in the WordPress [brewser_app] frame (brewser.tech). Deduped.
+  // Brewser portal domains, so it works standalone (play.brewser.io) and
+  // embedded in the WordPress [brewser_app] frame (brewser.io). Deduped.
   function twitchParents() {
     var seen = {};
     var out = [];
@@ -1273,8 +1273,8 @@
       if (h && !seen[h]) { seen[h] = true; out.push(h); }
     };
     add(location.hostname);
-    add('play.brewser.tech');
-    add('brewser.tech');
+    add('play.brewser.io');
+    add('brewser.io');
     return out;
   }
 

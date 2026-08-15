@@ -29,6 +29,6 @@ A large canvas speedometer is the hero: your live speed swings an eased needle a
 ---
 
 - **Developer:** Alex Daskalakis
-- **Brewser profile:** [natureglass](https://brewser.tech/profile?publisher=natureglass)
+- **Brewser profile:** [natureglass](https://brewser.io/profile?publisher=natureglass)
 - **License:** [MIT](https://choosealicense.com/licenses/mit)
 - **Website:** [https://github.com/natureglass](https://github.com/natureglass)

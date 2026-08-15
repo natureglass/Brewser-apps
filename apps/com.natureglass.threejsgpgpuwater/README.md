@@ -20,6 +20,6 @@ _v1.0.1_
 ---
 
 - **Developer:** Alex Daskalakis
-- **Brewser profile:** [natureglass](https://brewser.tech/profile?publisher=natureglass)
+- **Brewser profile:** [natureglass](https://brewser.io/profile?publisher=natureglass)
 - **License:** [MIT](https://choosealicense.com/licenses/mit)
 - **Website:** [https://github.com/natureglass](https://github.com/natureglass)

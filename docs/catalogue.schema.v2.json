@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://brewser.tech/schema/catalogue-v2.json",
+  "$id": "https://brewser.io/schema/catalogue-v2.json",
   "title": "Brewser catalogue envelope v2",
-  "description": "Contract for play.brewser.tech/catalogue.json. Entries are slim projections of the manifest (browse/decide fields only) — full description, allowed_origins, exitGame, fullscreen, buttonMapping live in the installed manifest.json. Serialization is pinned (UTF-8 no BOM, indent=2, ensure_ascii=False, sort_keys=True, LF, single trailing newline). Cross-field rules Draft-07 cannot express (defaultSource must be a key of sources; every entry source must be a key of sources) are enforced by the producer and the runtime normalizer. Unknown properties at envelope or entry level are non-breaking additions; breaking shape changes require a version bump.",
+  "description": "Contract for play.brewser.io/catalogue.json. Entries are slim projections of the manifest (browse/decide fields only) — full description, allowed_origins, exitGame, fullscreen, buttonMapping live in the installed manifest.json. Serialization is pinned (UTF-8 no BOM, indent=2, ensure_ascii=False, sort_keys=True, LF, single trailing newline). Cross-field rules Draft-07 cannot express (defaultSource must be a key of sources; every entry source must be a key of sources) are enforced by the producer and the runtime normalizer. Unknown properties at envelope or entry level are non-breaking additions; breaking shape changes require a version bump.",
   "type": "object",
   "required": ["version", "generated", "sources", "defaultSource", "revoked", "apps"],
   "properties": {

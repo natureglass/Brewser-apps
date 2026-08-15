@@ -42,8 +42,8 @@
   "generated": "2026-07-24T12:00:00Z",
   "revoked": [],
   "sources": {
-    "base": "https://play.brewser.tech",
-    "ext1": "https://play1.brewser.tech"
+    "base": "https://play.brewser.io",
+    "ext1": "https://play1.brewser.io"
   },
   "version": 2
 }
@@ -95,7 +95,7 @@ Backfill: the 12 live apps get `publishedAt` from WP (`post_date`); git cannot s
 
 ## `stats.json` (C2)
 
-`downloads` / `ratingAvg` / `ratingCount` change continuously and must **not** enter `catalogue.json` — the catalogue is a pure function of git state, and its diffability is why Option A was chosen. Operational counters live in a separate file at the **base repo root**, served from Pages alongside the catalogue (`https://play.brewser.tech/stats.json`), published by **WP-Cron daily** (clients sync weekly at best; fresher is wasted):
+`downloads` / `ratingAvg` / `ratingCount` change continuously and must **not** enter `catalogue.json` — the catalogue is a pure function of git state, and its diffability is why Option A was chosen. Operational counters live in a separate file at the **base repo root**, served from Pages alongside the catalogue (`https://play.brewser.io/stats.json`), published by **WP-Cron daily** (clients sync weekly at best; fresher is wasted):
 
 ```json
 {
@@ -173,9 +173,9 @@ Let `root = sources[app.source ?? defaultSource]`:
 
 - app file → `${root}/apps/${id}/${rel}` (entry: `${root}/apps/${id}/${entry}`; logo: `${root}/apps/${id}/${logo}`)
 - artifacts → `${root}/artifacts/${id}.json`
-- `versions.json` → global, from the base pin: `https://play.brewser.tech/versions.json`
+- `versions.json` → global, from the base pin: `https://play.brewser.io/versions.json`
 
-The runtime keeps exactly **one hardcoded URL**: `https://play.brewser.tech/catalogue.json` (with `versions.json` alongside). Everything else derives from `sources`. Hosting is GitHub Pages behind CNAMEs — never WordPress, never `raw.githubusercontent.com`; a future hosting move is a DNS change.
+The runtime keeps exactly **one hardcoded URL**: `https://play.brewser.io/catalogue.json` (with `versions.json` alongside). Everything else derives from `sources`. Hosting is GitHub Pages behind CNAMEs — never WordPress, never `raw.githubusercontent.com`; a future hosting move is a DNS change.
 
 ## Runtime obligations
 
@@ -191,7 +191,7 @@ The runtime keeps exactly **one hardcoded URL**: `https://play.brewser.tech/cata
 
 ## v1 compatibility
 
-- v1 flat (`{"version":1, "generated":…, "apps":[…]}` — the current live shape): accepted by the runtime normalizer with implicit `sources = {"base": "https://play.brewser.tech"}`, `defaultSource = "base"`, `revoked = []`.
+- v1 flat (`{"version":1, "generated":…, "apps":[…]}` — the current live shape): accepted by the runtime normalizer with implicit `sources = {"base": "https://play.brewser.io"}`, `defaultSource = "base"`, `revoked = []`.
 - Pre-v1 tiered (`{"featured":[…], "community":[…], "experimental":[…]}`): **invalid**. Not parsed, not persisted, no migration (nothing is deployed outside the developer's own hardware).
 
 ## Production pipeline (DECIDED 2026-07-24 — spec only, nothing implemented yet)
