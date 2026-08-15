@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-14T13:10:35Z",
+  "generated": "2026-08-15T09:18:29Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -36,7 +36,7 @@
         "Gamepad",
         "Media Devices"
       ],
-      "sizeBytes": 30140975
+      "sizeBytes": 30140973
     },
     {
       "id": "com.natureglass.aether",
@@ -73,7 +73,7 @@
         "WebGL2",
         "Kaleidoscope"
       ],
-      "sizeBytes": 3034192,
+      "sizeBytes": 3034190,
       "featured": true
     },
     {
@@ -103,7 +103,7 @@
       "freshProcessOnExit": false,
       "publishedAt": "2026-08-10T12:06:24Z",
       "summary": "A hand-drawn WebGL compass that points to magnetic north from your device's sensors.",
-      "sizeBytes": 744462
+      "sizeBytes": 744460
     },
     {
       "id": "com.natureglass.fluiddynamics",
@@ -133,7 +133,7 @@
         "Fluids",
         "Visualizer"
       ],
-      "sizeBytes": 2325683,
+      "sizeBytes": 2325681,
       "featured": true
     },
     {
@@ -164,7 +164,7 @@
         "Fractals",
         "Visualizer"
       ],
-      "sizeBytes": 2838610
+      "sizeBytes": 2838608
     },
     {
       "id": "com.natureglass.gravityballs",
@@ -194,7 +194,7 @@
       "tags": [
         "Gyroscope"
       ],
-      "sizeBytes": 405706,
+      "sizeBytes": 405704,
       "featured": true
     },
     {
@@ -224,7 +224,7 @@
       "tags": [
         "Fluids"
       ],
-      "sizeBytes": 444527
+      "sizeBytes": 444525
     },
     {
       "id": "com.natureglass.midisurface",
@@ -260,7 +260,7 @@
       "tags": [
         "MIDI"
       ],
-      "sizeBytes": 3810130
+      "sizeBytes": 3810128
     },
     {
       "id": "com.natureglass.neuralnetworks",
@@ -293,7 +293,7 @@
         "Probability",
         "WebNN"
       ],
-      "sizeBytes": 1007515,
+      "sizeBytes": 1007513,
       "featured": true
     },
     {
@@ -326,7 +326,7 @@
       "tags": [
         "WebGL1"
       ],
-      "sizeBytes": 2852889
+      "sizeBytes": 2852887
     },
     {
       "id": "com.natureglass.nxjswebgl2test",
@@ -358,7 +358,7 @@
       "tags": [
         "WebGL2"
       ],
-      "sizeBytes": 2095215
+      "sizeBytes": 2095213
     },
     {
       "id": "com.natureglass.savedemo",
@@ -389,7 +389,7 @@
         "Leaderboards",
         "Save Game"
       ],
-      "sizeBytes": 66403
+      "sizeBytes": 66391
     },
     {
       "id": "com.natureglass.sensorsplayground",
@@ -422,7 +422,7 @@
       "tags": [
         "Gyroscope"
       ],
-      "sizeBytes": 1581173,
+      "sizeBytes": 1581171,
       "featured": true
     },
     {
@@ -452,7 +452,7 @@
         "Audio Player",
         "Visualizer"
       ],
-      "sizeBytes": 1462423,
+      "sizeBytes": 1462421,
       "featured": true
     },
     {
@@ -482,7 +482,7 @@
       "tags": [
         "Diagnostics"
       ],
-      "sizeBytes": 1250671
+      "sizeBytes": 1250669
     },
     {
       "id": "com.natureglass.speedwatch",
@@ -509,7 +509,7 @@
       "hideMouseUndocked": false,
       "publishedAt": "2026-08-09T12:49:28Z",
       "summary": "Free GPS speedometer with a live map and automatic speed-limit alerts",
-      "sizeBytes": 3150483
+      "sizeBytes": 3150481
     },
     {
       "id": "com.natureglass.streamcast",
@@ -548,7 +548,7 @@
         "Twitch",
         "Streaming"
       ],
-      "sizeBytes": 4413424,
+      "sizeBytes": 4413410,
       "featured": true
     },
     {
@@ -579,7 +579,7 @@
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 6661715
+      "sizeBytes": 6661713
     },
     {
       "id": "com.natureglass.threejsequirectenvreflection",
@@ -609,7 +609,7 @@
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 7932863
+      "sizeBytes": 7932861
     },
     {
       "id": "com.natureglass.threejsgpgpuwater",
@@ -639,7 +639,7 @@
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 6205727
+      "sizeBytes": 6205725
     },
     {
       "id": "com.natureglass.threejsloadercollada",
@@ -669,7 +669,7 @@
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 5725295
+      "sizeBytes": 5725293
     },
     {
       "id": "com.natureglass.threejsloadergltf",
@@ -699,7 +699,7 @@
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 9865686,
+      "sizeBytes": 9865684,
       "featured": true
     },
     {
@@ -730,7 +730,7 @@
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 3291206
+      "sizeBytes": 3291204
     },
     {
       "id": "com.natureglass.threejsrapier3dphysics",
@@ -760,7 +760,7 @@
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 5797689
+      "sizeBytes": 5797687
     },
     {
       "id": "com.natureglass.threejsselectiveunrealbloom",
@@ -790,7 +790,7 @@
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 10934694
+      "sizeBytes": 10934692
     },
     {
       "id": "com.natureglass.threejsshaderssky",
@@ -820,7 +820,7 @@
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 4154370
+      "sizeBytes": 4154368
     },
     {
       "id": "com.natureglass.threejsspotlightshadowcookie",
@@ -850,7 +850,7 @@
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 7073568
+      "sizeBytes": 7073566
     }
   ]
 }
