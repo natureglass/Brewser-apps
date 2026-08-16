@@ -1,6 +1,6 @@
 # Dusk - Sky Atlas
 
-_v1.0.1_
+_v1.0.3_
 
 **Dusk** is a pocket planetarium that draws the real night sky in WebGL. For any moment and place it renders the stars, constellations, Milky Way, deep-sky objects and planets exactly where they sit in the sky above you — wrapped in a warm dusk glow that fades from the horizon up to the zenith.
 

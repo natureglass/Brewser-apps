@@ -43,6 +43,8 @@
   .rule.r{transform:scaleX(-1)}
   #plateSub{font-size:9.5px;letter-spacing:.3em;text-transform:uppercase;color:var(--brass);
          text-align:center;white-space:nowrap;max-width:78vw;overflow:hidden;text-overflow:ellipsis}
+  #plateCred{font-size:8px;letter-spacing:.22em;text-transform:uppercase;color:rgba(207,162,118,.55);
+         text-align:center;margin-top:3px;white-space:nowrap;max-width:80vw;overflow:hidden;text-overflow:ellipsis}
 
   /* ---------- bottom brass rail ---------- */
   #rail{position:fixed;left:50%;transform:translateX(-50%);
@@ -99,6 +101,7 @@
 <div id="plate" aria-live="polite">
   <div id="plateName"></div>
   <div class="plateRow"><span class="rule r"></span><span id="plateSub"></span><span class="rule"></span></div>
+  <div id="plateCred"></div>
 </div>
 
 <div id="toast" role="status"></div>
@@ -146,6 +149,8 @@ var DATA_BASE = 'assets/';
 var D2R = Math.PI/180, R2D = 180/Math.PI;
 var J2000 = Date.UTC(2000,0,1,12);
 var R_SKY = 700;
+var R_IMG = 690;
+var MINFOV = 6;
 
 /* ---------------- state & prefs ---------------- */
 var state = {
@@ -259,8 +264,8 @@ function bvRGB(bv){
 /* ---------------- reference tables ---------------- */
 var CONST_NAMES = {And:'Andromeda',Ant:'Antlia',Aps:'Apus',Aqr:'Aquarius',Aql:'Aquila',Ara:'Ara',Ari:'Aries',Aur:'Auriga',Boo:'Boötes',Cae:'Caelum',Cam:'Camelopardalis',Cnc:'Cancer',CVn:'Canes Venatici',CMa:'Canis Major',CMi:'Canis Minor',Cap:'Capricornus',Car:'Carina',Cas:'Cassiopeia',Cen:'Centaurus',Cep:'Cepheus',Cet:'Cetus',Cha:'Chamaeleon',Cir:'Circinus',Col:'Columba',Com:'Coma Berenices',CrA:'Corona Australis',CrB:'Corona Borealis',Crv:'Corvus',Crt:'Crater',Cru:'Crux',Cyg:'Cygnus',Del:'Delphinus',Dor:'Dorado',Dra:'Draco',Equ:'Equuleus',Eri:'Eridanus',For:'Fornax',Gem:'Gemini',Gru:'Grus',Her:'Hercules',Hor:'Horologium',Hya:'Hydra',Hyi:'Hydrus',Ind:'Indus',Lac:'Lacerta',Leo:'Leo',LMi:'Leo Minor',Lep:'Lepus',Lib:'Libra',Lup:'Lupus',Lyn:'Lynx',Lyr:'Lyra',Men:'Mensa',Mic:'Microscopium',Mon:'Monoceros',Mus:'Musca',Nor:'Norma',Oct:'Octans',Oph:'Ophiuchus',Ori:'Orion',Pav:'Pavo',Peg:'Pegasus',Per:'Perseus',Phe:'Phoenix',Pic:'Pictor',Psc:'Pisces',PsA:'Piscis Austrinus',Pup:'Puppis',Pyx:'Pyxis',Ret:'Reticulum',Sge:'Sagitta',Sgr:'Sagittarius',Sco:'Scorpius',Scl:'Sculptor',Sct:'Scutum',Ser:'Serpens',Ser1:'Serpens',Ser2:'Serpens',Sex:'Sextans',Tau:'Taurus',Tel:'Telescopium',Tri:'Triangulum',TrA:'Triangulum Australe',Tuc:'Tucana',UMa:'Ursa Major',UMi:'Ursa Minor',Vel:'Vela',Vir:'Virgo',Vol:'Volans',Vul:'Vulpecula'};
 var DSO_FRIENDLY = {'M 31':'Andromeda Galaxy','M 33':'Triangulum Galaxy','M 42':'Orion Nebula','M 45':'Pleiades','M 44':'Beehive Cluster','M 8':'Lagoon Nebula','M 16':'Eagle Nebula','M 6':'Butterfly Cluster','M 7':'Ptolemy Cluster','Mel 25':'Hyades','Mel 20':'Alpha Persei Cluster','Mel 111':'Coma Star Cluster','47 Tuc':'47 Tucanae','h Per':'Double Cluster h Per','χ Per':'Double Cluster χ Per','η Car':'Carina Nebula','ω Cen':'Omega Centauri','LMC':'Large Magellanic Cloud','SMC':'Small Magellanic Cloud','Cr 399':'The Coathanger','IC 2602':'Southern Pleiades','GalCtr':'Galactic Centre','NGC 2244':'Rosette Cluster','NGC 2264':'Christmas Tree Cluster'};
-var DSO_TYPE = {oc:'Open cluster',gc:'Globular cluster',s:'Galaxy',sd:'Galaxy',i:'Galaxy',en:'Nebula',sfr:'Nebula',pos:'Region'};
-var DSO_COLOR = {oc:0xffd9a0,gc:0xffc27a,s:0xd9b8ff,sd:0xd9b8ff,i:0xd9b8ff,en:0xff9e7a,sfr:0xff9e7a,pos:0xffb37a};
+var DSO_TYPE = {oc:'Open cluster',gc:'Globular cluster',s:'Galaxy',sd:'Galaxy',i:'Galaxy',e:'Galaxy',en:'Nebula',rn:'Nebula',sfr:'Nebula',pn:'Planetary nebula',snr:'Supernova remnant',pos:'Region'};
+var DSO_COLOR = {oc:0xffd9a0,gc:0xffc27a,s:0xd9b8ff,sd:0xd9b8ff,i:0xd9b8ff,e:0xd9b8ff,en:0xff9e7a,rn:0xa8c8ff,sfr:0xff9e7a,pn:0xa8e8d8,snr:0xffb0a0,pos:0xffb37a};
 var PLANETS = [
   {key:'mercury',name:'Mercury',color:0xd8c8b8,size:5.0},
   {key:'venus',  name:'Venus',  color:0xfff2d0,size:9.0},
@@ -597,6 +602,88 @@ var sunSprite = new THREE.Sprite(new THREE.SpriteMaterial({
 sunSprite.scale.set(150,150,1); sunSprite.renderOrder=4; sunSprite.frustumCulled=false;
 celestial.add(sunSprite);
 
+/* ----- deep-sky imagery (Stellarium DSO texture pack, sky-aligned quads) ----- */
+var DSO_IMG=null;
+var texLoader=new THREE.TextureLoader();
+var texCache={};
+var imgGroup=null, imgFor=null, imgMats=[], imgOpacity=0;
+function imageEntry(pk){
+  if (DSO_IMG && pk && pk.kind==='dso' && pk.desig && DSO_IMG[pk.desig]) return DSO_IMG[pk.desig];
+  return null;
+}
+var texLRU=[];
+function getTex(path){
+  if (texCache[path]){
+    var k=texLRU.indexOf(path);
+    if (k>=0) texLRU.splice(k,1);
+    texLRU.push(path);
+    return texCache[path];
+  }
+  var t=texLoader.load(path);
+  t.minFilter=THREE.LinearFilter; t.magFilter=THREE.LinearFilter;
+  t.generateMipmaps=false;
+  t.wrapS=THREE.ClampToEdgeWrapping; t.wrapT=THREE.ClampToEdgeWrapping;
+  texCache[path]=t;
+  texLRU.push(path);
+  if (texLRU.length>26){
+    var active={};
+    var e=imageEntry(imgFor);
+    if (e) for (var i=0;i<e.tiles.length;i++) active[DATA_BASE+'dso-img/'+e.tiles[i].img]=1;
+    for (var j=0; j<texLRU.length && texLRU.length>26; j++){
+      var p=texLRU[j];
+      if (!active[p]){
+        texCache[p].dispose(); delete texCache[p];
+        texLRU.splice(j,1); j--;
+      }
+    }
+  }
+  return t;
+}
+function clearImage(){
+  if (!imgGroup){ imgFor=null; return; }
+  celestial.remove(imgGroup);
+  for (var i=0;i<imgGroup.children.length;i++){
+    imgGroup.children[i].geometry.dispose();
+    imgGroup.children[i].material.dispose();     // textures stay cached
+  }
+  imgGroup=null; imgMats=[]; imgFor=null;
+}
+function setImageTarget(pk){
+  clearImage();
+  imgOpacity=0;
+  var e=imageEntry(pk);
+  if (!e) return;
+  imgFor=pk;
+  imgGroup=new THREE.Group();
+  for (var ti=0; ti<e.tiles.length; ti++){
+    var tile=e.tiles[ti];
+    var pos=new Float32Array(12), uv=new Float32Array(8);
+    for (var i=0;i<4;i++){
+      dirFromRaDec(tile.w[i][0], tile.w[i][1], tmpV);
+      pos[i*3]=tmpV.x*R_IMG; pos[i*3+1]=tmpV.y*R_IMG; pos[i*3+2]=tmpV.z*R_IMG;
+      uv[i*2]=tile.uv[i][0]; uv[i*2+1]=tile.uv[i][1];
+    }
+    var g=new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(pos,3));
+    g.setAttribute('uv', new THREE.BufferAttribute(uv,2));
+    g.setIndex([0,1,2, 0,2,3]);
+    var m=new THREE.Mesh(g, new THREE.MeshBasicMaterial({
+      map:getTex(DATA_BASE+'dso-img/'+tile.img), transparent:true, opacity:0,
+      blending:THREE.AdditiveBlending, depthWrite:false, depthTest:false,
+      side:THREE.DoubleSide}));
+    m.renderOrder=1.6; m.frustumCulled=false;
+    imgMats.push(m.material);
+    imgGroup.add(m);
+  }
+  celestial.add(imgGroup);
+}
+function gotoFov(pk){
+  var e=imageEntry(pk);
+  if (e) return Math.max(MINFOV, Math.min(34, e.ext*2.6));
+  if (pk.kind==='dso') return 18;
+  return 14;   // stars, planets, moon, sun
+}
+
 /* ----- layer roots (filled by builders) ----- */
 var starsObj=null, linesObj=null, mwObj=null, dsoObj=null, planetsObj=null;
 
@@ -678,13 +765,13 @@ function buildDSOs(geo){
     pos[i*3]=tmpV.x*R_SKY; pos[i*3+1]=tmpV.y*R_SKY; pos[i*3+2]=tmpV.z*R_SKY;
     C.setHex(DSO_COLOR[pr.type]||0xffd9a0);
     col[i*3]=C.r; col[i*3+1]=C.g; col[i*3+2]=C.b;
-    siz[i]=Math.max(7, Math.min(15, 15-1.9*(+pr.mag||4)));
+    siz[i]=Math.max(4.5, Math.min(15, 15-1.9*(+pr.mag||4)));
     tw[i]=Math.random()*6.283;
-    var name = DSO_FRIENDLY[pr.desig] || pr.desig || f.id;
+    var name = pr.name || DSO_FRIENDLY[pr.desig] || pr.desig || f.id;
     var sub = [DSO_TYPE[pr.type]||'Deep-sky object'];
-    if (DSO_FRIENDLY[pr.desig] && pr.desig!==name) sub.push(pr.desig);
+    if (pr.desig && name!==pr.desig) sub.push(pr.desig);
     sub.push('mag '+(+pr.mag).toFixed(1));
-    var pk={kind:'dso', name:name, sub:sub.join(' · '), mag:+pr.mag, dir:tmpV.clone()};
+    var pk={kind:'dso', desig:pr.desig, name:name, sub:sub.join(' · '), mag:+pr.mag, dir:tmpV.clone()};
     pickables.push(pk); dsoPicks.push(pk);
   }
   dsoPicks.sort(function(a,b){return a.mag-b.mag;});
@@ -752,12 +839,14 @@ function toast(msg, ms){
   clearTimeout(toastTimer);
   toastTimer=setTimeout(function(){ toastEl.classList.remove('show'); }, ms||2600);
 }
-var plate=$('plate'), plateName=$('plateName'), plateSub=$('plateSub');
+var plate=$('plate'), plateName=$('plateName'), plateSub=$('plateSub'), plateCred=$('plateCred');
 function select(pk){
   state.sel=pk;
   if (pk){
     plateName.textContent=pk.name;
     plateSub.textContent=pk.sub;
+    var ie=imageEntry(pk);
+    plateCred.textContent = ie && ie.credit ? 'image · '+ie.credit : '';
     plate.classList.add('show');
     reticle.position.copy(pk.dir).multiplyScalar(R_SKY);
     reticle.visible=true;
@@ -877,6 +966,7 @@ bGyro.addEventListener('click', function(){ setGyro(!state.gyro); });
 /* ---------------- pointer input: drag, pinch, tap ---------------- */
 var down=false, lastX=0, lastY=0, moved=0, downT=0, downX=0, downY=0;
 var pinch=null;
+var lastTapT=0, lastTapX=0, lastTapY=0;
 function radPerPx(){ return (state.fov*D2R)/canvas.clientHeight; }
 function onDown(x,y){
   down=true; lastX=x; lastY=y; downX=x; downY=y; moved=0; downT=performance.now();
@@ -900,7 +990,30 @@ function onUp(x,y){
   if (!down) return;
   down=false;
   var dt=performance.now()-downT;
-  if (moved<9 && dt<380) { pick(x,y); state.vx=0; state.vy=0; }
+  if (moved<9 && dt<380){
+    state.vx=0; state.vy=0;
+    var nowT=performance.now();
+    if (nowT-lastTapT<420 && Math.abs(x-lastTapX)<36 && Math.abs(y-lastTapY)<36){
+      lastTapT=0;
+      var pk=pickAt(x,y);
+      if (pk) gotoObject(pk);        // double-tap an object: full goto + zoom
+      else zoomToward(x,y);          // double-tap empty sky: dive toward it
+    } else {
+      lastTapT=nowT; lastTapX=x; lastTapY=y;
+      select(pickAt(x,y));
+    }
+  }
+}
+function zoomToward(x,y){
+  if (state.gyro) reallySetGyro(false);
+  var w=canvas.clientWidth, h=canvas.clientHeight;
+  tmpV.set((x/w)*2-1, -(y/h)*2+1, 0.5).unproject(camera).normalize();
+  var ty=Math.atan2(tmpV.x,-tmpV.z), tp=Math.asin(Math.max(-1,Math.min(1,tmpV.y)));
+  var dy=((ty-state.yaw+Math.PI)%(Math.PI*2)+Math.PI*2)%(Math.PI*2)-Math.PI;
+  state.anim={t0:performance.now(), dur:700,
+              y0:state.yaw, y1:state.yaw+dy,
+              p0:state.pitch, p1:tp,
+              f0:state.fov, f1:Math.max(MINFOV, state.fov*0.45), mid:0};
 }
 canvas.addEventListener('touchstart', function(e){
   e.preventDefault();
@@ -936,7 +1049,7 @@ canvas.addEventListener('wheel', function(e){
 }, {passive:false});
 canvas.addEventListener('contextmenu', function(e){ e.preventDefault(); });
 function setFov(f){
-  state.fov=Math.max(26, Math.min(85, f));
+  state.fov=Math.max(MINFOV, Math.min(85, f));
   camera.fov=state.fov; camera.updateProjectionMatrix();
   updatePointScale();
 }
@@ -947,7 +1060,7 @@ function updatePointScale(){
 }
 
 /* ---------------- picking ---------------- */
-function pick(x,y){
+function pickAt(x,y){
   var w=canvas.clientWidth, h=canvas.clientHeight;
   camera.getWorldDirection(tmpV2);
   var best=null, bestScore=1e9;
@@ -969,7 +1082,7 @@ function pick(x,y){
     var score=d-bonus;
     if (score<bestScore){ bestScore=score; best=pk; }
   }
-  select(best);
+  return best;
 }
 
 /* ---------------- focus: cycle the showpieces ---------------- */
@@ -982,27 +1095,32 @@ function showpieces(){
   }
   if (moonPick) add(moonPick,0);
   planetPicks.forEach(function(p){ add(p,1); });
-  dsoPicks.forEach(function(p){ add(p,2); });
+  dsoPicks.forEach(function(p){ if (imageEntry(p) || p.mag<5.2) add(p,2); });
   celebs.forEach(function(p){ add(p,3); });
   list.sort(function(a,b){ return a.rank-b.rank || a.pk.mag-b.pk.mag; });
   return list.map(function(e){ return e.pk; });
 }
-$('bFocus').addEventListener('click', function(){
+function gotoObject(pk){
   if (state.gyro) reallySetGyro(false);
-  var L=showpieces();
-  if (!L.length){ toast('Nothing notable above the horizon right now'); return; }
-  var idx=0;
-  for (var i=0;i<L.length;i++) if (L[i].name===lastFocusName){ idx=(i+1)%L.length; break; }
-  var pk=L[idx]; lastFocusName=pk.name;
+  lastFocusName=pk.name;
   tmpV.copy(pk.dir).applyQuaternion(celestial.quaternion);
   var ty=Math.atan2(tmpV.x,-tmpV.z), tp=Math.asin(Math.max(-1,Math.min(1,tmpV.y)));
   var dy=ty-state.yaw;
   dy=((dy+Math.PI)%(Math.PI*2)+Math.PI*2)%(Math.PI*2)-Math.PI;    // shortest path
-  state.anim={t0:performance.now(), dur:950,
+  var f1=gotoFov(pk);
+  state.anim={t0:performance.now(), dur:1150,
               y0:state.yaw, y1:state.yaw+dy,
               p0:state.pitch, p1:tp,
-              f0:state.fov, f1:Math.min(state.fov,46)};
+              f0:state.fov, f1:f1,
+              mid:Math.max(state.fov, f1, 44)};   // zoom-out arc mid-slew
   select(pk);
+}
+$('bFocus').addEventListener('click', function(){
+  var L=showpieces();
+  if (!L.length){ toast('Nothing notable above the horizon right now'); return; }
+  var idx=0;
+  for (var i=0;i<L.length;i++) if (L[i].name===lastFocusName){ idx=(i+1)%L.length; break; }
+  gotoObject(L[idx]);
 });
 
 /* ---------------- main loop ---------------- */
@@ -1020,6 +1138,9 @@ function frame(t){
   sunSprite.visible = !state.layers.night && tmpV.y > -0.03;
   tmpV.copy(moonPick.dir).applyQuaternion(celestial.quaternion);
   moonSprite.visible = state.layers.night || tmpV.y > -0.04;
+  var fovR=state.fov*D2R;
+  var ms=Math.min(46, 700*fovR*0.12); moonSprite.scale.set(ms,ms,1);
+  var ssz=Math.min(150, 700*fovR*0.35); sunSprite.scale.set(ssz,ssz,1);
   starMat.uniforms.uTime.value=t*0.001;
   dsoMat.uniforms.uTime.value=t*0.001;
 
@@ -1027,7 +1148,9 @@ function frame(t){
     var a=state.anim, u=Math.min(1,(performance.now()-a.t0)/a.dur), e=ease(u);
     state.yaw=a.y0+(a.y1-a.y0)*e;
     state.pitch=a.p0+(a.p1-a.p0)*e;
-    setFovQuiet(a.f0+(a.f1-a.f0)*e);
+    var fA=a.f0+(a.f1-a.f0)*e;
+    if (a.mid) fA += (a.mid-Math.max(a.f0,a.f1))*Math.sin(Math.PI*e);
+    setFovQuiet(fA);
     if (u>=1) state.anim=null;
   } else if (!state.gyro && !down){
     if (Math.abs(state.vx)>1e-5||Math.abs(state.vy)>1e-5){
@@ -1049,8 +1172,21 @@ function frame(t){
     camera.rotation.set(state.pitch, -state.yaw, 0);
   }
 
+  /* deep-sky image: builds for the selected object, fades in only once
+     the goto/zoom has fully arrived, fades out on zoom-out or reselect */
+  var wantPk = imageEntry(state.sel) ? state.sel : null;
+  if (wantPk !== imgFor && imgOpacity < 0.02) setImageTarget(wantPk);
+  var imgTgt=0;
+  if (imgFor && wantPk===imgFor && !state.anim){
+    var lo=gotoFov(imgFor), hi=Math.min(lo*1.8, 44);
+    var tt=Math.max(0, Math.min(1, (hi-state.fov)/(hi-lo*1.05)));
+    imgTgt=tt*tt*(3.0-2.0*tt);
+  }
+  imgOpacity += (imgTgt-imgOpacity)*0.08;
+  for (var im=0;im<imgMats.length;im++) imgMats[im].opacity=imgOpacity;
+
   if (state.sel){
-    var s=30*(1+0.06*Math.sin(t*0.004));
+    var s=Math.max(6, 30*(state.fov/62))*(1+0.06*Math.sin(t*0.004));
     reticle.scale.set(s,s,1);
   }
   renderer.render(scene,camera);
@@ -1072,7 +1208,8 @@ var vstat=$('vstat'), vretry=$('vretry'), veil=$('veil');
 function fetchJSON(name){
   if (window.SKY_DATA && window.SKY_DATA[name]) return Promise.resolve(window.SKY_DATA[name]);
   var file={stars:'stars.6.json', starnames:'starnames.json',
-            constellations:'constellations.lines.json', mw:'mw.json', dsos:'dsos.bright.json'}[name];
+            constellations:'constellations.lines.json', mw:'mw.json', dsos:'dsos.bright.json',
+            images:'dso-images.json'}[name];
   return fetch(DATA_BASE+file).then(function(r){
     if (!r.ok) throw new Error(file+' → '+r.status);
     return r.json();
@@ -1083,9 +1220,11 @@ function boot(){
   vstat.textContent='charting the dusk sky…';
   Promise.allSettled([
     fetchJSON('stars'), fetchJSON('starnames'),
-    fetchJSON('constellations'), fetchJSON('mw'), fetchJSON('dsos')
+    fetchJSON('constellations'), fetchJSON('mw'), fetchJSON('dsos'),
+    fetchJSON('images')
   ]).then(function(res){
     var stars=res[0], names=res[1], cons=res[2], mw=res[3], dsos=res[4];
+    if (res[5].status==='fulfilled') DSO_IMG=res[5].value;
     if (stars.status!=='fulfilled'){
       vstat.textContent='star charts failed to load';
       vretry.style.display='inline-block';
