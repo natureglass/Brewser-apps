@@ -21,6 +21,7 @@
     "hideMouseDocked": false,
     "hideMouseUndocked": false,
     "publishedAt": "2026-08-06T09:21:34Z",
+    "updatedAt": "2026-08-06T09:21:34Z",
     "summary": "The very first WebGL1 capability demo on Switch: a moonlit ocean with a floating nx.js-logo cube",
     "features": [
         "Gamepad"

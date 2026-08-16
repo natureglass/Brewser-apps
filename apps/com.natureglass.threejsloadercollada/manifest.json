@@ -21,6 +21,7 @@
     "hideMouseDocked": false,
     "hideMouseUndocked": false,
     "publishedAt": "2026-08-06T09:43:44Z",
+    "updatedAt": "2026-08-06T09:43:44Z",
     "summary": "A Three.js demo loading and spinning a textured Collada elf on the Switch GPU.",
     "tags": [
         "WebGL2",

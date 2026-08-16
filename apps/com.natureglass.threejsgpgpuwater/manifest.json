@@ -21,6 +21,7 @@
     "hideMouseDocked": false,
     "hideMouseUndocked": false,
     "publishedAt": "2026-08-06T09:24:29Z",
+    "updatedAt": "2026-08-06T09:24:29Z",
     "summary": "A GPU-computed three.js water surface that ripples wherever you press and drag.",
     "tags": [
         "WebGL2",

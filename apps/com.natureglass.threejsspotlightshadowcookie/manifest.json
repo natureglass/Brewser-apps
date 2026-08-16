@@ -21,6 +21,7 @@
     "hideMouseDocked": false,
     "hideMouseUndocked": false,
     "publishedAt": "2026-08-06T10:13:47Z",
+    "updatedAt": "2026-08-06T10:13:47Z",
     "summary": "A Three.js spotlight demo projecting a textured cookie and soft shadows on the Switch GPU.",
     "tags": [
         "WebGL2",

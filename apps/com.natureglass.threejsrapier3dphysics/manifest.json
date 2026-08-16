@@ -21,6 +21,7 @@
     "hideMouseDocked": false,
     "hideMouseUndocked": false,
     "publishedAt": "2026-08-06T09:47:43Z",
+    "updatedAt": "2026-08-06T09:47:43Z",
     "summary": "A self-running three.js physics scene where Rapier-driven shapes drop and bounce.",
     "tags": [
         "WebGL2",

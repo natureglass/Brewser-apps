@@ -24,5 +24,6 @@
     "hideMouseUndocked": true,
     "freshProcessOnExit": false,
     "publishedAt": "2026-08-10T12:06:24Z",
+    "updatedAt": "2026-08-10T12:06:24Z",
     "summary": "A hand-drawn WebGL compass that points to magnetic north from your device's sensors."
 }

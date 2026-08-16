@@ -24,6 +24,7 @@
     "hideMouseUndocked": true,
     "freshProcessOnExit": true,
     "publishedAt": "2026-08-08T11:36:13Z",
+    "updatedAt": "2026-08-08T11:36:13Z",
     "summary": "Unity's official 2D Platformer learning template, compiled to WebGL and running on the Switch GPU of",
     "genre": [
         "Platformer"

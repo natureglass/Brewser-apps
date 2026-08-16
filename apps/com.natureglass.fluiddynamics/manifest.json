@@ -21,6 +21,7 @@
     "hideMouseDocked": false,
     "hideMouseUndocked": false,
     "publishedAt": "2026-08-06T10:43:09Z",
+    "updatedAt": "2026-08-06T10:43:09Z",
     "summary": "Paint glowing fluid on a WebGL2 canvas with burst and particle effects.",
     "tags": [
         "Fluids",

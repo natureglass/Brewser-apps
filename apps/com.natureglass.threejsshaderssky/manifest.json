@@ -21,6 +21,7 @@
     "hideMouseDocked": false,
     "hideMouseUndocked": false,
     "publishedAt": "2026-08-06T10:12:52Z",
+    "updatedAt": "2026-08-06T10:12:52Z",
     "summary": "An interactive three.js atmospheric sky shader with a movable sun and drifting clouds.",
     "tags": [
         "WebGL2",

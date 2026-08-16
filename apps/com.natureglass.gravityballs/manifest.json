@@ -22,6 +22,7 @@
     "hideMouseDocked": false,
     "hideMouseUndocked": false,
     "publishedAt": "2026-08-06T10:25:34Z",
+    "updatedAt": "2026-08-06T10:25:34Z",
     "summary": "A WebGL2 physics playground of bouncing balls under gravity.",
     "tags": [
         "Gyroscope"
