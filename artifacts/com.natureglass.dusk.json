@@ -1,8 +1,9 @@
 {
   "id": "com.natureglass.dusk",
-  "sizeBytes": 2576996,
+  "sizeBytes": 4670451,
   "files": [
     "README.md",
+    "assets/appbanner.gif",
     "assets/appbanner.jpg",
     "assets/constellations.lines.json",
     "assets/dsos.bright.json",
