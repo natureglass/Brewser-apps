@@ -1,91 +1,37 @@
 # Brewser Apps
 
-Official app catalog repository for **Brewser**.
+The **published app catalog** for [Brewser](https://brewser.io) — the homebrew app hub and runtime for Nintendo Switch that lets people build and run apps made with everyday web technologies like HTML, CSS, JavaScript, WebGL, and WASM.
 
-**Brewser** is a homebrew app hub/runtime for Nintendo Switch that lets users discover and run web-powered apps built with familiar technologies such as **HTML**, **CSS**, **JavaScript**, **WebGL**, and **WASM**.
-
-This repository contains the public app catalog and app files used by **Brewser**.
+Everything in this repository is **live**. If an app is here, it has been published and anyone using **Brewser Runtime** on their Switch can discover, download, and run it.
 
 ---
 
-## What is Brewser?
+## What lives here
 
-**Brewser** is designed to make Switch homebrew app development more approachable by allowing developers to build apps with web technologies instead of requiring a full native homebrew development workflow.
+This is the final home for published apps — the demos, tools, games, and experiments that have made it through review and gone public. When you browse the catalog inside Brewser Runtime, this is where those apps come from.
 
-The goal is to create a lightweight platform where users can discover apps, demos, tools, games, and experiments, while developers can prototype and publish creative ideas with less friction.
-
----
-
-## About this repository
-
-This repository is maintained by the Brewser developer and is used as the source for apps shown inside **Brewser**.
-
-Apps may be organized into channels such as:
-
-- **Featured** — curated and highlighted apps
-- **Community** — reviewed community apps
-- **Experimental** — early, unstable, risky, or less-reviewed apps that may show stronger warnings
-
-**Brewser** may use this repository to display available apps and download app files.
+Apps arrive here **after** they've been tested in staging and approved. Before that, they live in the [Brewser Apps Staging](https://github.com/natureglass/brewser-apps-staging) repository, where signed-in users can try them on real hardware first.
 
 ---
 
-## Can I submit my own app?
+## Want to publish your own app?
 
-Yes.
+App publishing now happens through the **[brewser.io](https://brewser.io)** website. Sign in, submit your app, and once it's approved it lands here automatically.
 
-Developers can submit their app or app repository for review.
-
-For now, app submissions are handled through [GitHub issues](https://github.com/natureglass/Brewser-apps/issues). Please do **not** directly open pull requests that modify the official app catalog unless specifically asked.
-
-To submit an app, read the full submission guide here:
-
-[Read the app submission guide](https://github.com/natureglass/Brewser-apps/blob/main/submission_info.md)
-
-The submission guide explains:
-
-- Required app structure
-- Required `manifest.json` fields
-- Supported permissions
-- Channel differences
-- Local testing
-- What is allowed and not allowed
-- How to open an app submission issue
-- How app updates should be submitted
+You no longer need to open GitHub issues or pull requests against this repository — the website handles submission, review, and updates for you.
 
 ---
 
-## Local app testing
+## Documentation
 
-Developers can test apps locally before submitting them.
+Building an app, or curious how any of this works under the hood? Everything is documented at:
 
-A local app can be copied directly to the device and run through **Brewser** without needing catalog approval.
-
-Example local app structure:
-
-```text
-/switch/brewser/local-apps/my-test-app/
-  manifest.json
-  index.html
-  app.js
-  style.css
-  assets/
-```
-
-Local apps are intended for development and testing. They are not reviewed by **Brewser** and may show warnings before launch.
-
----
-
-## Project status
-
-**Brewser** is currently in development.
-
-The app catalog, submission rules, supported permissions, and review process may change as the project evolves.
+**[docs.brewser.io/docs](https://docs.brewser.io/docs)**
 
 ---
 
 ## Disclaimer
 
-**Brewser** is an independent homebrew project and is not affiliated with, endorsed by, sponsored by, licensed by, or approved by Nintendo.
+Brewser is an independent homebrew project and is not affiliated with, endorsed by, sponsored by, licensed by, or approved by Nintendo.
 
-**Brewser** does not include, distribute, or provide Nintendo software, firmware, games, ROMs, encryption keys, copyrighted assets, exploits, or tools/instructions for bypassing technological protection measures. Users and contributors are responsible for complying with applicable laws and third-party terms.
+Brewser does not include, distribute, or provide Nintendo software, firmware, games, ROMs, encryption keys, copyrighted assets, exploits, or tools/instructions for bypassing technological protection measures. Users and contributors are responsible for complying with applicable laws and third-party terms.
