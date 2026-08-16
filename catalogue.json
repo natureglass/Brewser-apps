@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-16T11:50:30Z",
+  "generated": "2026-08-16T12:27:47Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -28,6 +28,7 @@
       "hideMouseUndocked": true,
       "freshProcessOnExit": true,
       "publishedAt": "2026-08-08T11:36:13Z",
+      "updatedAt": "2026-08-08T11:36:13Z",
       "summary": "Unity's official 2D Platformer learning template, compiled to WebGL and running on the Switch GPU of",
       "genre": [
         "Platformer"
@@ -36,7 +37,7 @@
         "Gamepad",
         "Media Devices"
       ],
-      "sizeBytes": 30140973
+      "sizeBytes": 30141014
     },
     {
       "id": "com.natureglass.aether",
@@ -65,6 +66,7 @@
       "hideMouseUndocked": false,
       "freshProcessOnExit": false,
       "publishedAt": "2026-08-06T10:27:22Z",
+      "updatedAt": "2026-08-06T10:27:22Z",
       "summary": "Type a phrase, watch a world assemble. Fullscreen procedural WebGL2 art that runs offline.",
       "features": [
         "Gamepad"
@@ -73,7 +75,7 @@
         "WebGL2",
         "Kaleidoscope"
       ],
-      "sizeBytes": 3034190,
+      "sizeBytes": 3034231,
       "featured": true
     },
     {
@@ -102,8 +104,9 @@
       "hideMouseUndocked": true,
       "freshProcessOnExit": false,
       "publishedAt": "2026-08-10T12:06:24Z",
+      "updatedAt": "2026-08-10T12:06:24Z",
       "summary": "A hand-drawn WebGL compass that points to magnetic north from your device's sensors.",
-      "sizeBytes": 744460
+      "sizeBytes": 744501
     },
     {
       "id": "com.natureglass.dusk",
@@ -133,8 +136,9 @@
       "hideMouseUndocked": false,
       "freshProcessOnExit": false,
       "publishedAt": "2026-08-16T11:46:35Z",
+      "updatedAt": "2026-08-16T11:46:35Z",
       "summary": "A pocket planetarium that charts the real night sky — stars, planets, constellations and the Milky W",
-      "sizeBytes": 2576955
+      "sizeBytes": 2576996
     },
     {
       "id": "com.natureglass.fluiddynamics",
@@ -159,12 +163,13 @@
       "hideMouseDocked": false,
       "hideMouseUndocked": false,
       "publishedAt": "2026-08-06T10:43:09Z",
+      "updatedAt": "2026-08-06T10:43:09Z",
       "summary": "Paint glowing fluid on a WebGL2 canvas with burst and particle effects.",
       "tags": [
         "Fluids",
         "Visualizer"
       ],
-      "sizeBytes": 2325681,
+      "sizeBytes": 2325722,
       "featured": true
     },
     {
@@ -190,12 +195,13 @@
       "hideMouseDocked": false,
       "hideMouseUndocked": false,
       "publishedAt": "2026-08-06T10:32:41Z",
+      "updatedAt": "2026-08-06T10:32:41Z",
       "summary": "A GPU-powered WebGL2 explorer for six infinitely detailed fractals.",
       "tags": [
         "Fractals",
         "Visualizer"
       ],
-      "sizeBytes": 2838608
+      "sizeBytes": 2838649
     },
     {
       "id": "com.natureglass.gravityballs",
@@ -221,11 +227,12 @@
       "hideMouseDocked": false,
       "hideMouseUndocked": false,
       "publishedAt": "2026-08-06T10:25:34Z",
+      "updatedAt": "2026-08-06T10:25:34Z",
       "summary": "A WebGL2 physics playground of bouncing balls under gravity.",
       "tags": [
         "Gyroscope"
       ],
-      "sizeBytes": 405704,
+      "sizeBytes": 405745,
       "featured": true
     },
     {
@@ -254,12 +261,13 @@
       "hideMouseUndocked": false,
       "freshProcessOnExit": false,
       "publishedAt": "2026-08-15T15:44:03Z",
+      "updatedAt": "2026-08-15T15:44:03Z",
       "summary": "Design LED-matrix art and stream it live to a real ESP32 panel over USB or Bluetooth.",
       "features": [
         "Web Bluetooth",
         "Web Serial"
       ],
-      "sizeBytes": 1506060
+      "sizeBytes": 1506101
     },
     {
       "id": "com.natureglass.metaballssim",
@@ -284,11 +292,12 @@
       "hideMouseDocked": false,
       "hideMouseUndocked": false,
       "publishedAt": "2026-08-06T10:21:50Z",
+      "updatedAt": "2026-08-06T10:21:50Z",
       "summary": "A WebGL2 metaball fluid of merging, dripping water blobs you can pour and colour.",
       "tags": [
         "Fluids"
       ],
-      "sizeBytes": 444525
+      "sizeBytes": 444566
     },
     {
       "id": "com.natureglass.midisurface",
@@ -317,6 +326,7 @@
       "hideMouseUndocked": true,
       "freshProcessOnExit": false,
       "publishedAt": "2026-08-10T21:22:28Z",
+      "updatedAt": "2026-08-10T21:22:28Z",
       "summary": "A touch MIDI control surface that mirrors your hardware and triggers looping samples with live effec",
       "features": [
         "Web MIDI"
@@ -324,7 +334,7 @@
       "tags": [
         "MIDI"
       ],
-      "sizeBytes": 3810128
+      "sizeBytes": 3810169
     },
     {
       "id": "com.natureglass.neuralnetworks",
@@ -352,12 +362,13 @@
       "hideMouseUndocked": true,
       "freshProcessOnExit": false,
       "publishedAt": "2026-08-06T10:36:13Z",
+      "updatedAt": "2026-08-06T10:36:13Z",
       "summary": "Draw a doodle and let an on-device WebNN model guess what it is.",
       "tags": [
         "Probability",
         "WebNN"
       ],
-      "sizeBytes": 1007513,
+      "sizeBytes": 1007554,
       "featured": true
     },
     {
@@ -383,6 +394,7 @@
       "hideMouseDocked": false,
       "hideMouseUndocked": false,
       "publishedAt": "2026-08-06T09:21:34Z",
+      "updatedAt": "2026-08-06T09:21:34Z",
       "summary": "The very first WebGL1 capability demo on Switch: a moonlit ocean with a floating nx.js-logo cube",
       "features": [
         "Gamepad"
@@ -390,7 +402,7 @@
       "tags": [
         "WebGL1"
       ],
-      "sizeBytes": 2852887
+      "sizeBytes": 2852928
     },
     {
       "id": "com.natureglass.nxjswebgl2test",
@@ -415,6 +427,7 @@
       "hideMouseDocked": false,
       "hideMouseUndocked": false,
       "publishedAt": "2026-08-06T09:22:21Z",
+      "updatedAt": "2026-08-06T09:22:21Z",
       "summary": "The very first WebGL2 shader demo on Switch: a procedural sunset sea with a floating logo cube.",
       "features": [
         "Gamepad"
@@ -422,7 +435,7 @@
       "tags": [
         "WebGL2"
       ],
-      "sizeBytes": 2095213
+      "sizeBytes": 2095254
     },
     {
       "id": "com.natureglass.savedemo",
@@ -448,12 +461,13 @@
       "hideMouseDocked": false,
       "hideMouseUndocked": false,
       "publishedAt": "2026-08-06T10:20:30Z",
+      "updatedAt": "2026-08-06T10:20:30Z",
       "summary": "A hands-on test harness for the Brewser cloud save, records and leaderboard APIs.",
       "tags": [
         "Leaderboards",
         "Save Game"
       ],
-      "sizeBytes": 66391
+      "sizeBytes": 66432
     },
     {
       "id": "com.natureglass.sensorsplayground",
@@ -482,11 +496,12 @@
       "hideMouseDocked": false,
       "hideMouseUndocked": false,
       "publishedAt": "2026-08-06T10:24:29Z",
+      "updatedAt": "2026-08-06T10:24:29Z",
       "summary": "A live dashboard that probes your device's sensors, battery, haptics and network.",
       "tags": [
         "Gyroscope"
       ],
-      "sizeBytes": 1581171,
+      "sizeBytes": 1581212,
       "featured": true
     },
     {
@@ -511,12 +526,13 @@
       "hideMouseDocked": false,
       "hideMouseUndocked": false,
       "publishedAt": "2026-08-06T10:28:14Z",
+      "updatedAt": "2026-08-06T10:28:14Z",
       "summary": "A WebGL2 music player with playlist and live spectrum visualizers.",
       "tags": [
         "Audio Player",
         "Visualizer"
       ],
-      "sizeBytes": 1462421,
+      "sizeBytes": 1462462,
       "featured": true
     },
     {
@@ -542,11 +558,12 @@
       "hideMouseDocked": false,
       "hideMouseUndocked": false,
       "publishedAt": "2026-08-06T10:18:02Z",
+      "updatedAt": "2026-08-06T10:18:02Z",
       "summary": "Measure your internet speed against Cloudflare on an animated needle gauge.",
       "tags": [
         "Diagnostics"
       ],
-      "sizeBytes": 1250669
+      "sizeBytes": 1250710
     },
     {
       "id": "com.natureglass.speedwatch",
@@ -572,8 +589,9 @@
       "hideMouseDocked": false,
       "hideMouseUndocked": false,
       "publishedAt": "2026-08-09T12:49:28Z",
+      "updatedAt": "2026-08-09T12:49:28Z",
       "summary": "Free GPS speedometer with a live map and automatic speed-limit alerts",
-      "sizeBytes": 3150481
+      "sizeBytes": 3150522
     },
     {
       "id": "com.natureglass.streamcast",
@@ -604,6 +622,7 @@
       "hideMouseUndocked": false,
       "freshProcessOnExit": false,
       "publishedAt": "2026-08-06T10:33:57Z",
+      "updatedAt": "2026-08-06T10:33:57Z",
       "summary": "Watch live Twitch streams natively in the Switch browser.",
       "features": [
         "Gamepad"
@@ -612,7 +631,7 @@
         "Twitch",
         "Streaming"
       ],
-      "sizeBytes": 4413410,
+      "sizeBytes": 4413451,
       "featured": true
     },
     {
@@ -638,12 +657,13 @@
       "hideMouseDocked": false,
       "hideMouseUndocked": false,
       "publishedAt": "2026-08-06T09:23:06Z",
+      "updatedAt": "2026-08-06T09:23:06Z",
       "summary": "A real-time three.js demo of a chrome sphere reflecting the live scene via a CubeCamera.",
       "tags": [
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 6661713
+      "sizeBytes": 6661754
     },
     {
       "id": "com.natureglass.threejsequirectenvreflection",
@@ -668,12 +688,13 @@
       "hideMouseDocked": false,
       "hideMouseUndocked": false,
       "publishedAt": "2026-08-06T09:23:48Z",
+      "updatedAt": "2026-08-06T09:23:48Z",
       "summary": "A three.js image-based-lighting demo of a torus knot reflecting an equirectangular HDR environment.",
       "tags": [
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 7932861
+      "sizeBytes": 7932902
     },
     {
       "id": "com.natureglass.threejsgpgpuwater",
@@ -698,12 +719,13 @@
       "hideMouseDocked": false,
       "hideMouseUndocked": false,
       "publishedAt": "2026-08-06T09:24:29Z",
+      "updatedAt": "2026-08-06T09:24:29Z",
       "summary": "A GPU-computed three.js water surface that ripples wherever you press and drag.",
       "tags": [
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 6205725
+      "sizeBytes": 6205766
     },
     {
       "id": "com.natureglass.threejsloadercollada",
@@ -728,12 +750,13 @@
       "hideMouseDocked": false,
       "hideMouseUndocked": false,
       "publishedAt": "2026-08-06T09:43:44Z",
+      "updatedAt": "2026-08-06T09:43:44Z",
       "summary": "A Three.js demo loading and spinning a textured Collada elf on the Switch GPU.",
       "tags": [
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 5725293
+      "sizeBytes": 5725334
     },
     {
       "id": "com.natureglass.threejsloadergltf",
@@ -758,12 +781,13 @@
       "hideMouseDocked": false,
       "hideMouseUndocked": false,
       "publishedAt": "2026-08-06T09:44:35Z",
+      "updatedAt": "2026-08-06T09:44:35Z",
       "summary": "A Three.js demo loading a PBR glTF helmet under HDR lighting on the Switch GPU.",
       "tags": [
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 9865684,
+      "sizeBytes": 9865725,
       "featured": true
     },
     {
@@ -789,12 +813,13 @@
       "hideMouseDocked": false,
       "hideMouseUndocked": false,
       "publishedAt": "2026-08-06T09:46:50Z",
+      "updatedAt": "2026-08-06T09:46:50Z",
       "summary": "A three.js diorama rendered through a chunky, adjustable retro pixelation pass.",
       "tags": [
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 3291204
+      "sizeBytes": 3291245
     },
     {
       "id": "com.natureglass.threejsrapier3dphysics",
@@ -819,12 +844,13 @@
       "hideMouseDocked": false,
       "hideMouseUndocked": false,
       "publishedAt": "2026-08-06T09:47:43Z",
+      "updatedAt": "2026-08-06T09:47:43Z",
       "summary": "A self-running three.js physics scene where Rapier-driven shapes drop and bounce.",
       "tags": [
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 5797687
+      "sizeBytes": 5797728
     },
     {
       "id": "com.natureglass.threejsselectiveunrealbloom",
@@ -849,12 +875,13 @@
       "hideMouseDocked": false,
       "hideMouseUndocked": false,
       "publishedAt": "2026-08-06T10:11:59Z",
+      "updatedAt": "2026-08-06T10:11:59Z",
       "summary": "An animated three.js ion-drive model with tunable Unreal-style bloom glowing its bright parts.",
       "tags": [
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 10934692
+      "sizeBytes": 10934733
     },
     {
       "id": "com.natureglass.threejsshaderssky",
@@ -879,12 +906,13 @@
       "hideMouseDocked": false,
       "hideMouseUndocked": false,
       "publishedAt": "2026-08-06T10:12:52Z",
+      "updatedAt": "2026-08-06T10:12:52Z",
       "summary": "An interactive three.js atmospheric sky shader with a movable sun and drifting clouds.",
       "tags": [
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 4154368
+      "sizeBytes": 4154409
     },
     {
       "id": "com.natureglass.threejsspotlightshadowcookie",
@@ -909,12 +937,13 @@
       "hideMouseDocked": false,
       "hideMouseUndocked": false,
       "publishedAt": "2026-08-06T10:13:47Z",
+      "updatedAt": "2026-08-06T10:13:47Z",
       "summary": "A Three.js spotlight demo projecting a textured cookie and soft shadows on the Switch GPU.",
       "tags": [
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 7073566
+      "sizeBytes": 7073607
     }
   ]
 }
