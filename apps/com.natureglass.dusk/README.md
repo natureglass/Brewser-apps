@@ -1,4 +1,4 @@
-# Dusk
+# Dusk - Sky Atlas
 
 _v1.0.1_
 
