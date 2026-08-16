@@ -1,0 +1,1119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>DUSK · sky atlas</title>
+<style>
+  :root{
+    --cream:#f2e6d0; --gold:#ffd9a0; --ember:#c96a3b; --brass:#cfa276;
+    --char:#0d0912; --panel:rgba(13,9,18,.55); --edge:rgba(255,217,160,.18);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow:hidden;background:var(--char);overscroll-behavior:none}
+  body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--cream)}
+  #cv{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+  #cv:active{cursor:grabbing}
+
+  /* ---------- top-left brand + location chip ---------- */
+  #hud{position:fixed;top:calc(12px + env(safe-area-inset-top));left:16px;z-index:5;
+       display:flex;flex-direction:column;gap:8px;pointer-events:none}
+  #brand{font-family:Georgia,'Times New Roman',serif;font-variant:small-caps;
+         font-size:19px;letter-spacing:.36em;color:var(--cream);
+         text-shadow:0 0 16px rgba(255,170,100,.35);line-height:1}
+  #brand small{display:block;font-family:system-ui,sans-serif;font-variant:normal;
+         font-size:8.5px;letter-spacing:.42em;text-transform:uppercase;color:var(--brass);
+         margin-top:5px;opacity:.9}
+  #chip{pointer-events:auto;appearance:none;border:1px solid var(--edge);background:var(--panel);
+        color:#e8d4b0;font:11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.06em;
+        padding:7px 11px;border-radius:999px;cursor:pointer;backdrop-filter:blur(8px);
+        max-width:72vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left}
+  #chip:active{background:rgba(255,190,110,.12)}
+
+  /* ---------- observatory plate label (selection readout) ---------- */
+  #plate{position:fixed;left:0;right:0;bottom:calc(96px + env(safe-area-inset-bottom));z-index:4;
+         display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none;
+         opacity:0;transform:translateY(6px);transition:opacity .35s ease,transform .35s ease}
+  #plate.show{opacity:1;transform:none}
+  #plateName{font-family:Georgia,'Times New Roman',serif;font-variant:small-caps;
+         font-size:clamp(22px,5.5vw,30px);letter-spacing:.16em;color:var(--cream);
+         text-shadow:0 1px 22px rgba(255,170,100,.35);text-align:center;padding:0 20px}
+  .plateRow{display:flex;align-items:center;gap:13px}
+  .rule{height:1px;width:34px;background:linear-gradient(90deg,transparent,rgba(255,217,160,.6))}
+  .rule.r{transform:scaleX(-1)}
+  #plateSub{font-size:9.5px;letter-spacing:.3em;text-transform:uppercase;color:var(--brass);
+         text-align:center;white-space:nowrap;max-width:78vw;overflow:hidden;text-overflow:ellipsis}
+
+  /* ---------- bottom brass rail ---------- */
+  #rail{position:fixed;left:50%;transform:translateX(-50%);
+        bottom:calc(16px + env(safe-area-inset-bottom));z-index:6;
+        display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:999px;
+        background:var(--panel);border:1px solid var(--edge);backdrop-filter:blur(10px)}
+  #rail .div{width:1px;height:24px;background:var(--edge);margin:0 2px}
+  .rb{appearance:none;border:1px solid transparent;background:transparent;color:var(--brass);
+      width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+      font-size:21px;line-height:1;cursor:pointer;
+      transition:background .2s,border-color .2s,box-shadow .2s,opacity .2s}
+  .rb.on{background:rgba(255,190,110,.14);border-color:rgba(255,217,160,.45);
+      box-shadow:0 0 14px rgba(255,180,100,.22)}
+  .rb:active{transform:scale(.94)}
+
+  /* ---------- toast ---------- */
+  #toast{position:fixed;left:50%;transform:translate(-50%,8px);
+         bottom:calc(150px + env(safe-area-inset-bottom));z-index:7;
+         background:rgba(20,13,26,.86);border:1px solid var(--edge);color:#eddcbe;
+         font-size:12px;letter-spacing:.04em;padding:9px 16px;border-radius:999px;
+         opacity:0;transition:opacity .3s ease,transform .3s ease;pointer-events:none;
+         max-width:84vw;text-align:center}
+  #toast.show{opacity:1;transform:translate(-50%,0)}
+
+  /* ---------- loading veil ---------- */
+  #veil{position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;
+        align-items:center;justify-content:center;gap:18px;text-align:center;
+        background:
+          radial-gradient(120% 85% at 50% 108%, rgba(201,106,59,.5), transparent 55%),
+          linear-gradient(#150d24 0%, #2a1740 55%, #4a2547 82%, #6b3336 100%);
+        transition:opacity .8s ease}
+  #veil.done{opacity:0;pointer-events:none}
+  #veil .b{font-family:Georgia,serif;font-variant:small-caps;font-size:34px;
+        letter-spacing:.5em;text-indent:.5em;color:var(--cream);
+        text-shadow:0 0 30px rgba(255,170,100,.45)}
+  #veil .s{font-size:9.5px;letter-spacing:.44em;text-transform:uppercase;color:var(--brass)}
+  #vstat{font-size:11.5px;letter-spacing:.12em;color:#d9c3a0;min-height:16px;opacity:.85}
+  #vretry{display:none;appearance:none;border:1px solid var(--edge);background:rgba(255,190,110,.12);
+        color:var(--gold);font-size:12px;letter-spacing:.18em;text-transform:uppercase;
+        padding:10px 22px;border-radius:999px;cursor:pointer}
+  @media (prefers-reduced-motion: reduce){
+    #plate,#toast,#veil,.rb{transition:none}
+  }
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+
+<div id="hud">
+  <div id="brand">dusk<small>sky atlas</small></div>
+  <button id="chip" aria-label="Location and time">locating…</button>
+</div>
+
+<div id="plate" aria-live="polite">
+  <div id="plateName"></div>
+  <div class="plateRow"><span class="rule r"></span><span id="plateSub"></span><span class="rule"></span></div>
+</div>
+
+<div id="toast" role="status"></div>
+
+<div id="rail">
+  <button class="rb on" id="bStars" aria-label="Stars">⭐</button>
+  <button class="rb on" id="bLines" aria-label="Constellation lines">📐</button>
+  <button class="rb on" id="bMW" aria-label="Milky Way">🌌</button>
+  <button class="rb on" id="bDSO" aria-label="Deep-sky objects">🌀</button>
+  <button class="rb" id="bNight" aria-label="Night mode — remove ground, look anywhere">🌙</button>
+  <span class="div"></span>
+  <button class="rb" id="bGyro" aria-label="Point device at the sky">🧭</button>
+  <button class="rb" id="bFocus" aria-label="Cycle notable objects">🎯</button>
+</div>
+
+<div id="veil">
+  <div class="b">dusk</div>
+  <div class="s">pocket planetarium</div>
+  <div id="vstat">charting the dusk sky…</div>
+  <button id="vretry">retry</button>
+</div>
+
+<script src="assets/three.min.js"></script>
+<script>
+(function(){
+'use strict';
+if (typeof THREE==='undefined'){
+  var _vs=document.getElementById('vstat'), _vr=document.getElementById('vretry');
+  if (_vs) _vs.textContent='three.js failed to load';
+  if (_vr){ _vr.style.display='inline-block';
+    _vr.addEventListener('click', function(){ location.reload(); }); }
+  return;
+}
+/* =====================================================================
+   DUSK · sky atlas — a pocket planetarium for the Brewser runtime
+   Three.js r128 · WebGL1-safe shaders · d3-celestial data
+   ---------------------------------------------------------------------
+   Bundling later: either
+     a) set DATA_BASE to a local/bundled path, or
+     b) define window.SKY_DATA = { stars, starnames, constellations, mw, dsos }
+        before this script — remote fetch is then skipped entirely.
+   ===================================================================== */
+
+var DATA_BASE = 'assets/';
+var D2R = Math.PI/180, R2D = 180/Math.PI;
+var J2000 = Date.UTC(2000,0,1,12);
+var R_SKY = 700;
+
+/* ---------------- state & prefs ---------------- */
+var state = {
+  lat: 52.37, lon: 4.90, locLabel: 'default', fixed: false,
+  fov: 62, yaw: Math.PI, pitch: 0.42,       // start facing south, tilted up
+  gyro: false, yawOffset: 0,
+  layers: { stars:true, lines:true, mw:true, dso:true, night:false },
+  sel: null, anim: null, vx: 0, vy: 0
+};
+try {
+  var p = JSON.parse(localStorage.getItem('dusk.prefs.v1')||'null');
+  if (p) {
+    if (p.layers) for (var k in state.layers) if (k in p.layers) state.layers[k] = !!p.layers[k];
+    if (isFinite(p.lat) && isFinite(p.lon)) { state.lat=p.lat; state.lon=p.lon; state.locLabel=p.locLabel||'saved'; }
+  }
+} catch(e){}
+try {
+  var q = new URLSearchParams(location.search);
+  if (q.has('lat') && q.has('lon')) {
+    var la=parseFloat(q.get('lat')), lo=parseFloat(q.get('lon'));
+    if (isFinite(la)&&isFinite(lo)) { state.lat=la; state.lon=lo; state.locLabel='url'; state.fixed=true; }
+  }
+} catch(e){}
+function savePrefs(){
+  try { localStorage.setItem('dusk.prefs.v1', JSON.stringify({
+    layers: state.layers, lat: state.lat, lon: state.lon, locLabel: state.locLabel })); } catch(e){}
+}
+
+/* ---------------- astronomy (numerically verified) ----------------
+   World frame: +X east, +Y zenith, +Z south (camera default looks −Z = north).
+   Celestial-group local frame: +Y = north celestial pole,
+   star direction for (ra,dec):  (−cos ra·cos dec,  sin dec,  sin ra·cos dec).
+   Group orientation = Rx(lat−90°) · Ry(90°−LST).                       */
+
+function gmstDeg(ms){
+  var d=(ms-J2000)/86400000;
+  return ((280.46061837 + 360.98564736629*d)%360+360)%360;
+}
+function dirFromRaDec(raDeg, decDeg, out){
+  var ra=raDeg*D2R, dec=decDeg*D2R, cd=Math.cos(dec);
+  return out.set(-Math.cos(ra)*cd, Math.sin(dec), Math.sin(ra)*cd);
+}
+var _qT=new THREE.Quaternion(), _qS=new THREE.Quaternion();
+var AX_X=new THREE.Vector3(1,0,0), AX_Y=new THREE.Vector3(0,1,0);
+function skyQuat(latDeg, lstDeg, out){
+  _qT.setFromAxisAngle(AX_X,(latDeg-90)*D2R);
+  _qS.setFromAxisAngle(AX_Y,(90-lstDeg)*D2R);
+  return out.copy(_qT).multiply(_qS);
+}
+
+/* Keplerian elements (Standish, valid 1800–2050): a e I L varpi Omega + rates/cy */
+var EL = {
+  mercury:[0.38709927,0.20563593,7.00497902,252.25032350,77.45779628,48.33076593, 0.00000037,0.00001906,-0.00594749,149472.67411175,0.16047689,-0.12534081],
+  venus:[0.72333566,0.00677672,3.39467605,181.97909950,131.60246718,76.67984255, 0.00000390,-0.00004107,-0.00078890,58517.81538729,0.00268329,-0.27769418],
+  earth:[1.00000261,0.01671123,-0.00001531,100.46457166,102.93768193,0.0, 0.00000562,-0.00004392,-0.01294668,35999.37244981,0.32327364,0.0],
+  mars:[1.52371034,0.09339410,1.84969142,-4.55343205,-23.94362959,49.55953891, 0.00001847,0.00007882,-0.00813131,19140.30268499,0.44441088,-0.29257343],
+  jupiter:[5.20288700,0.04838624,1.30439695,34.39644051,14.72847983,100.47390909, -0.00011607,-0.00013253,-0.00183714,3034.74612775,0.21252668,0.20469106],
+  saturn:[9.53667594,0.05386179,2.48599187,49.95424423,92.59887831,113.66242448, -0.00125060,-0.00050991,0.00193609,1222.49362201,-0.41897216,-0.28867794],
+  uranus:[19.18916464,0.04725744,0.77263783,313.23810451,170.95427630,74.01692503, -0.00196176,-0.00004397,-0.00242939,428.48202785,0.40805281,0.04240589],
+  neptune:[30.06992276,0.00859048,1.77004347,-55.12002969,44.96476227,131.78422574, 0.00026291,0.00005105,0.00035372,218.45945325,-0.32241464,-0.00508664]
+};
+function helio(name, T){
+  var e0=EL[name];
+  var a=e0[0]+e0[6]*T, ec=e0[1]+e0[7]*T, I=(e0[2]+e0[8]*T)*D2R,
+      L=e0[3]+e0[9]*T, vp=e0[4]+e0[10]*T, OmD=e0[5]+e0[11]*T, Om=OmD*D2R;
+  var w=(vp-OmD)*D2R, M=((L-vp)%360)*D2R;
+  var E=M+ec*Math.sin(M);
+  for (var i=0;i<6;i++) E -= (E-ec*Math.sin(E)-M)/(1-ec*Math.cos(E));
+  var xp=a*(Math.cos(E)-ec), yp=a*Math.sqrt(1-ec*ec)*Math.sin(E);
+  var cw=Math.cos(w),sw=Math.sin(w),cO=Math.cos(Om),sO=Math.sin(Om),ci=Math.cos(I),si=Math.sin(I);
+  return [ (cw*cO-sw*sO*ci)*xp + (-sw*cO-cw*sO*ci)*yp,
+           (cw*sO+sw*cO*ci)*xp + (-sw*sO+cw*cO*ci)*yp,
+           (sw*si)*xp + (cw*si)*yp ];
+}
+/* ecliptic cartesian → celestial-group direction */
+function eclVecToDir(x,y,z,T,out){
+  var eps=(23.43928-0.013*T)*D2R, ce=Math.cos(eps), se=Math.sin(eps);
+  var xe=x, ye=y*ce-z*se, ze=y*se+z*ce;
+  var r=Math.sqrt(xe*xe+ye*ye+ze*ze)||1;
+  return out.set(-xe/r, ze/r, ye/r);   // (−x_eq, z_eq, y_eq) ≡ dirFromRaDec
+}
+/* low-precision Moon (Astronomical Almanac, ~0.3° — plenty for a planetarium) */
+function moonDir(T,out){
+  function s(d){return Math.sin(d*D2R);}
+  var lam = 218.32 + 481267.881*T
+    + 6.29*s(135.0+477198.87*T) - 1.27*s(259.3-413335.36*T)
+    + 0.66*s(235.7+890534.22*T) + 0.21*s(269.9+954397.74*T)
+    - 0.19*s(357.5+35999.05*T)  - 0.11*s(186.5+966404.03*T);
+  var bet = 5.13*s(93.3+483202.02*T) + 0.28*s(228.2+960400.89*T)
+    - 0.28*s(318.3+6003.15*T)   - 0.17*s(217.6-407332.21*T);
+  var cb=Math.cos(bet*D2R);
+  return eclVecToDir(cb*Math.cos(lam*D2R), cb*Math.sin(lam*D2R), Math.sin(bet*D2R), T, out);
+}
+
+/* B−V colour index → RGB (classic approximation) */
+function bvRGB(bv){
+  bv = Math.max(-0.4, Math.min(2.0, bv));
+  var t,r,g,b;
+  if (bv<0){t=(bv+0.4)/0.4; r=0.61+0.11*t+0.1*t*t;}
+  else if (bv<0.4){t=bv/0.4; r=0.83+0.17*t;} else r=1.0;
+  if (bv<0){t=(bv+0.4)/0.4; g=0.70+0.07*t+0.1*t*t;}
+  else if (bv<0.4){t=bv/0.4; g=0.87+0.11*t;}
+  else if (bv<1.6){t=(bv-0.4)/1.2; g=0.98-0.16*t;}
+  else {t=(bv-1.6)/0.4; g=0.82-0.5*t*t;}
+  if (bv<0.4) b=1.0;
+  else if (bv<1.5){t=(bv-0.4)/1.1; b=1.0-0.47*t+0.1*t*t;}
+  else if (bv<1.94){t=(bv-1.5)/0.44; b=0.63-0.6*t*t;} else b=0.0;
+  return [r,g,b];
+}
+
+/* ---------------- reference tables ---------------- */
+var CONST_NAMES = {And:'Andromeda',Ant:'Antlia',Aps:'Apus',Aqr:'Aquarius',Aql:'Aquila',Ara:'Ara',Ari:'Aries',Aur:'Auriga',Boo:'Boötes',Cae:'Caelum',Cam:'Camelopardalis',Cnc:'Cancer',CVn:'Canes Venatici',CMa:'Canis Major',CMi:'Canis Minor',Cap:'Capricornus',Car:'Carina',Cas:'Cassiopeia',Cen:'Centaurus',Cep:'Cepheus',Cet:'Cetus',Cha:'Chamaeleon',Cir:'Circinus',Col:'Columba',Com:'Coma Berenices',CrA:'Corona Australis',CrB:'Corona Borealis',Crv:'Corvus',Crt:'Crater',Cru:'Crux',Cyg:'Cygnus',Del:'Delphinus',Dor:'Dorado',Dra:'Draco',Equ:'Equuleus',Eri:'Eridanus',For:'Fornax',Gem:'Gemini',Gru:'Grus',Her:'Hercules',Hor:'Horologium',Hya:'Hydra',Hyi:'Hydrus',Ind:'Indus',Lac:'Lacerta',Leo:'Leo',LMi:'Leo Minor',Lep:'Lepus',Lib:'Libra',Lup:'Lupus',Lyn:'Lynx',Lyr:'Lyra',Men:'Mensa',Mic:'Microscopium',Mon:'Monoceros',Mus:'Musca',Nor:'Norma',Oct:'Octans',Oph:'Ophiuchus',Ori:'Orion',Pav:'Pavo',Peg:'Pegasus',Per:'Perseus',Phe:'Phoenix',Pic:'Pictor',Psc:'Pisces',PsA:'Piscis Austrinus',Pup:'Puppis',Pyx:'Pyxis',Ret:'Reticulum',Sge:'Sagitta',Sgr:'Sagittarius',Sco:'Scorpius',Scl:'Sculptor',Sct:'Scutum',Ser:'Serpens',Ser1:'Serpens',Ser2:'Serpens',Sex:'Sextans',Tau:'Taurus',Tel:'Telescopium',Tri:'Triangulum',TrA:'Triangulum Australe',Tuc:'Tucana',UMa:'Ursa Major',UMi:'Ursa Minor',Vel:'Vela',Vir:'Virgo',Vol:'Volans',Vul:'Vulpecula'};
+var DSO_FRIENDLY = {'M 31':'Andromeda Galaxy','M 33':'Triangulum Galaxy','M 42':'Orion Nebula','M 45':'Pleiades','M 44':'Beehive Cluster','M 8':'Lagoon Nebula','M 16':'Eagle Nebula','M 6':'Butterfly Cluster','M 7':'Ptolemy Cluster','Mel 25':'Hyades','Mel 20':'Alpha Persei Cluster','Mel 111':'Coma Star Cluster','47 Tuc':'47 Tucanae','h Per':'Double Cluster h Per','χ Per':'Double Cluster χ Per','η Car':'Carina Nebula','ω Cen':'Omega Centauri','LMC':'Large Magellanic Cloud','SMC':'Small Magellanic Cloud','Cr 399':'The Coathanger','IC 2602':'Southern Pleiades','GalCtr':'Galactic Centre','NGC 2244':'Rosette Cluster','NGC 2264':'Christmas Tree Cluster'};
+var DSO_TYPE = {oc:'Open cluster',gc:'Globular cluster',s:'Galaxy',sd:'Galaxy',i:'Galaxy',en:'Nebula',sfr:'Nebula',pos:'Region'};
+var DSO_COLOR = {oc:0xffd9a0,gc:0xffc27a,s:0xd9b8ff,sd:0xd9b8ff,i:0xd9b8ff,en:0xff9e7a,sfr:0xff9e7a,pos:0xffb37a};
+var PLANETS = [
+  {key:'mercury',name:'Mercury',color:0xd8c8b8,size:5.0},
+  {key:'venus',  name:'Venus',  color:0xfff2d0,size:9.0},
+  {key:'mars',   name:'Mars',   color:0xff9a66,size:6.0},
+  {key:'jupiter',name:'Jupiter',color:0xffe6b8,size:8.5},
+  {key:'saturn', name:'Saturn', color:0xf0d9a8,size:6.5},
+  {key:'uranus', name:'Uranus', color:0xbfe8e0,size:4.0},
+  {key:'neptune',name:'Neptune',color:0xa8c8ff,size:3.6}
+];
+
+/* ---------------- milky way → equirect canvas (fill logic verified) ---------------- */
+function unwrapRing(ring){
+  var out=[], prev=null, i, lon;
+  for (i=0;i<ring.length;i++){
+    lon = ring[i][0]; if (lon<0) lon+=360;
+    if (prev!==null){ while(lon-prev>180) lon-=360; while(lon-prev<-180) lon+=360; }
+    prev=lon; out.push([lon, ring[i][1]]);
+  }
+  return out;
+}
+function isEncircling(u){ return Math.abs(u[u.length-1][0]-u[0][0])>180; }
+function eastward(u){ if (isEncircling(u) && u[u.length-1][0]<u[0][0]) u.reverse(); return u; }
+function paintPolygon(ctx,W,H,poly){
+  function px(lon){return lon/360*W;}
+  function py(lat){return (90-lat)/180*H;}
+  var rings=poly.map(function(r){return eastward(unwrapRing(r));});
+  var circ=rings.filter(isEncircling);
+  var simple=rings.filter(function(r){return !isEncircling(r);});
+  var offs=[-360,0,360], i,j,o,r,pt;
+  ctx.beginPath();
+  if (circ.length===2){
+    var A=circ[0], B=circ[1], first=true;
+    for (o=0;o<3;o++) for (i=0;i<A.length;i++){
+      pt=A[i];
+      if (first){ ctx.moveTo(px(pt[0]+offs[o]),py(pt[1])); first=false; }
+      else ctx.lineTo(px(pt[0]+offs[o]),py(pt[1]));
+    }
+    for (o=2;o>=0;o--) for (i=B.length-1;i>=0;i--){
+      pt=B[i]; ctx.lineTo(px(pt[0]+offs[o]),py(pt[1]));
+    }
+    ctx.closePath();
+  }
+  for (j=0;j<simple.length;j++){
+    r=simple[j];
+    for (o=0;o<3;o++){
+      for (i=0;i<r.length;i++){
+        pt=r[i];
+        if (i===0) ctx.moveTo(px(pt[0]+offs[o]),py(pt[1]));
+        else ctx.lineTo(px(pt[0]+offs[o]),py(pt[1]));
+      }
+      ctx.closePath();
+    }
+  }
+  ctx.fill('evenodd');
+}
+function buildMWTexture(geo){
+  var W=1024,H=512;
+  var cv=document.createElement('canvas'); cv.width=W; cv.height=H;
+  var ctx=cv.getContext('2d');
+  ctx.globalCompositeOperation='lighter';
+  var ALPHA={ol1:0.07, ol2:0.09, ol3:0.12, ol4:0.15, ol5:0.19};
+  geo.features.forEach(function(f){
+    ctx.fillStyle='rgba(226,234,255,'+(ALPHA[f.id]||0.12)+')';
+    f.geometry.coordinates.forEach(function(poly){ paintPolygon(ctx,W,H,poly); });
+  });
+  var out=cv;
+  try{
+    var cv2=document.createElement('canvas'); cv2.width=W; cv2.height=H;
+    var c2=cv2.getContext('2d');
+    c2.filter='blur(3px)';
+    if (c2.filter && c2.filter.indexOf('blur')>=0){ c2.drawImage(cv,0,0); out=cv2; }
+    else {
+      c2.globalAlpha=0.22;
+      [[0,0],[2,0],[-2,0],[0,2],[0,-2]].forEach(function(d){ c2.drawImage(cv,d[0],d[1]); });
+      out=cv2;
+    }
+  }catch(e){}
+  var tex=new THREE.CanvasTexture(out);
+  tex.minFilter=THREE.LinearFilter; tex.magFilter=THREE.LinearFilter;
+  tex.generateMipmaps=false; tex.wrapS=THREE.RepeatWrapping;
+  return tex;
+}
+
+/* ---------------- three.js scene ---------------- */
+var canvas = document.getElementById('cv');
+var renderer;
+try {
+  renderer = new THREE.WebGLRenderer({canvas:canvas, antialias:false, alpha:false});
+} catch(err){
+  document.getElementById('vstat').textContent='could not create a WebGL context on this device';
+  return;
+}
+var PR = Math.min(window.devicePixelRatio||1, 1.5);
+renderer.setPixelRatio(PR);
+renderer.setClearColor(0x0d0912);
+var scene = new THREE.Scene();
+var camera = new THREE.PerspectiveCamera(state.fov, 1, 1, 4000);
+camera.rotation.order = 'YXZ';
+var celestial = new THREE.Group();
+scene.add(celestial);
+
+var pickables = [];        // {kind,name,sub,mag,dir:Vector3(local unit)}
+var celebs = [];           // bright named stars for the focus cycle
+var dsoPicks = [], planetPicks = [], moonPick=null, sunPick=null;
+var tmpV = new THREE.Vector3(), tmpV2 = new THREE.Vector3();
+
+/* ----- dusk sky dome ----- */
+var skyMat = new THREE.ShaderMaterial({
+  side: THREE.BackSide, depthWrite:false, depthTest:false,
+  uniforms: { uSun: { value: new THREE.Vector3(0,-0.3,-1) }, uNight: { value: 0 } },
+  vertexShader: [
+    'varying vec3 vDir;',
+    'void main(){ vDir = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }'
+  ].join('\n'),
+  fragmentShader: [
+    'uniform vec3 uSun;',
+    'uniform float uNight;',
+    'varying vec3 vDir;',
+    'void main(){',
+    '  vec3 d = normalize(vDir);',
+    '  float h = d.y;',
+    '  vec3 zen = vec3(0.055,0.050,0.140);',
+    '  vec3 mid = vec3(0.235,0.130,0.300);',
+    '  vec3 hor = vec3(0.620,0.300,0.160);',
+    '  vec3 sky = mix(mid, zen, smoothstep(0.10, 0.72, h));',
+    '  sky = mix(hor, sky, smoothstep(0.0, 0.18, h));',
+    '  vec3 sd = uSun; sd.y = 0.0; sd = normalize(sd + vec3(0.0,0.0,0.0001));',
+    '  vec3 dd = d; dd.y = 0.0; dd = normalize(dd + vec3(0.0,0.0,0.0001));',
+    '  float t = max(dot(dd, sd), 0.0);',
+    '  float glow = pow(t, 6.0) * exp(-max(h,0.0)*5.0);',
+    '  float core = pow(t, 26.0) * exp(-max(h,0.0)*9.0);',
+    '  sky += vec3(1.0,0.70,0.40)*glow*0.34 + vec3(1.0,0.85,0.55)*core*0.38;',
+    '  vec3 gnd = mix(vec3(0.030,0.022,0.036), vec3(0.085,0.048,0.040), smoothstep(-0.30,0.0,h));',
+    '  gnd += hor * 0.22 * exp(h*16.0) * (glow*0.8+0.35);',
+    '  float above = smoothstep(-0.003, 0.003, h);',
+    '  vec3 col = mix(gnd, sky, above);',
+    '  vec3 nightCol = vec3(0.010,0.012,0.026) + vec3(0.006,0.006,0.012)*smoothstep(-0.2,0.9,h);',
+    '  col = mix(col, nightCol, uNight);',
+    '  col += (fract(sin(dot(gl_FragCoord.xy, vec2(12.9898,78.233)))*43758.5453)-0.5)*0.012;',
+    '  gl_FragColor = vec4(col, 1.0);',
+    '}'
+  ].join('\n')
+});
+var dome = new THREE.Mesh(new THREE.SphereGeometry(1500, 48, 32), skyMat);
+dome.renderOrder = 0; dome.frustumCulled = false;
+scene.add(dome);
+
+/* ----- soft-point shader (stars, planets, deep-sky) ----- */
+function makePointsMaterial(diamond){
+  return new THREE.ShaderMaterial({
+    transparent:true, depthWrite:false, depthTest:false,
+    blending:THREE.AdditiveBlending,
+    uniforms: { uTime:{value:0}, uScale:{value:1}, uNight:{value:0} },
+    vertexShader: [
+      'attribute float aSize;',
+      'attribute vec3 aColor;',
+      'attribute float aTw;',
+      'uniform float uTime, uScale, uNight;',
+      'varying vec3 vColor;',
+      'varying float vFade;',
+      'void main(){',
+      '  vec4 wp = modelMatrix * vec4(position,1.0);',
+      '  float h = normalize(wp.xyz).y;',
+      '  vFade = smoothstep(-0.035, 0.01, h) * mix(0.62, 1.0, smoothstep(0.0, 0.22, h));',
+      '  vFade = mix(vFade, 1.0, uNight);',
+      '  vColor = aColor;',
+      '  float tw = 0.87 + 0.13*sin(uTime*2.3 + aTw);',
+      '  gl_PointSize = min(aSize * tw * uScale, 42.0);',
+      '  gl_Position = projectionMatrix * viewMatrix * wp;',
+      '}'
+    ].join('\n'),
+    fragmentShader: [
+      'varying vec3 vColor;',
+      'varying float vFade;',
+      'void main(){',
+      '  vec2 p = gl_PointCoord - 0.5;',
+      '  float d = length(p);',
+      '  float halo = smoothstep(0.5, 0.05, d);',
+      '  float core = smoothstep(0.16, 0.0, d);',
+      diamond
+        ? '  float dm = abs(p.x)+abs(p.y); float spar = smoothstep(0.30, 0.0, dm)*0.5; float a = (halo*halo*0.30 + spar + core*0.55) * vFade;'
+        : '  float a = (halo*halo*0.55 + core*0.85) * vFade;',
+      '  if (a < 0.004) discard;',
+      '  gl_FragColor = vec4(vColor, a);',
+      '}'
+    ].join('\n')
+  });
+}
+var starMat = makePointsMaterial(false);
+var dsoMat  = makePointsMaterial(true);
+
+/* ----- fading line shader (constellations) ----- */
+var lineMat = new THREE.ShaderMaterial({
+  transparent:true, depthWrite:false, depthTest:false,
+  blending:THREE.AdditiveBlending,
+  uniforms: { uCol:{value:new THREE.Color(0x9a7fb8)}, uOp:{value:0.34}, uNight:{value:0} },
+  vertexShader: [
+    'uniform float uNight;',
+    'varying float vFade;',
+    'void main(){',
+    '  vec4 wp = modelMatrix * vec4(position,1.0);',
+    '  vFade = smoothstep(-0.02, 0.02, normalize(wp.xyz).y);',
+    '  vFade = mix(vFade, 1.0, uNight);',
+    '  gl_Position = projectionMatrix * viewMatrix * wp;',
+    '}'
+  ].join('\n'),
+  fragmentShader: [
+    'uniform vec3 uCol; uniform float uOp;',
+    'varying float vFade;',
+    'void main(){ gl_FragColor = vec4(uCol, uOp*vFade); }'
+  ].join('\n')
+});
+
+/* ----- milky way sphere (canvas texture, fades under horizon) ----- */
+function makeMWMaterial(tex){
+  return new THREE.ShaderMaterial({
+    side:THREE.BackSide, transparent:true, depthWrite:false, depthTest:false,
+    blending:THREE.AdditiveBlending,
+    uniforms: { uMap:{value:tex}, uTint:{value:new THREE.Color(0.34,0.42,0.68)},
+                uOp:{value:0.55}, uNight:{value:0} },
+    vertexShader: [
+      'varying vec2 vUv; varying float vH;',
+      'void main(){',
+      '  vUv = uv;',
+      '  vec4 wp = modelMatrix * vec4(position,1.0);',
+      '  vH = normalize(wp.xyz).y;',
+      '  gl_Position = projectionMatrix * viewMatrix * wp;',
+      '}'
+    ].join('\n'),
+    fragmentShader: [
+      'uniform sampler2D uMap; uniform vec3 uTint; uniform float uOp; uniform float uNight;',
+      'varying vec2 vUv; varying float vH;',
+      /* x-periodic value noise so the band has no seam where it crosses RA 0 */
+      'float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453); }',
+      'float vnoise(vec2 p, float per){',
+      '  vec2 i = floor(p); vec2 f = fract(p); f = f*f*(3.0-2.0*f);',
+      '  float x0 = mod(i.x, per), x1 = mod(i.x+1.0, per);',
+      '  float a = hash(vec2(x0, i.y)),     b = hash(vec2(x1, i.y));',
+      '  float c = hash(vec2(x0, i.y+1.0)), d = hash(vec2(x1, i.y+1.0));',
+      '  return mix(mix(a,b,f.x), mix(c,d,f.x), f.y);',
+      '}',
+      'float fbm(vec2 uv, vec2 scale){',
+      '  vec2 p = uv*scale; float per = scale.x;',
+      '  float v = 0.0; float amp = 0.5;',
+      '  for (int i=0;i<3;i++){ v += amp*vnoise(p, per); p = p*2.0 + vec2(0.0, 7.31); per *= 2.0; amp *= 0.5; }',
+      '  return v;',
+      '}',
+      'void main(){',
+      '  vec4 t = texture2D(uMap, vUv);',
+      '  float f = smoothstep(-0.03, 0.05, vH);',
+      '  f = mix(f, 1.0, uNight);',
+      '  float n1 = fbm(vUv, vec2(72.0, 36.0));',                 // fine star-cloud grain
+      '  float n2 = fbm(vUv + vec2(0.0, 0.37), vec2(24.0, 12.0));', // broad clumping
+      '  float body = t.a;',
+      '  float grain = 0.40 + 0.85*n1;',
+      '  float dust = smoothstep(0.50, 0.78, n2) * smoothstep(0.12, 0.45, body);',
+      '  float a = body * grain * (1.0 - 0.62*dust) * uOp * f * mix(1.0, 1.3, uNight);',
+      '  vec3 col = uTint * (0.75 + 0.85*n2) + vec3(0.05,0.06,0.10)*n1;',
+      '  gl_FragColor = vec4(col, a);',
+      '}'
+    ].join('\n')
+  });
+}
+
+/* ----- sprite helpers ----- */
+function glowTexture(size, stops){
+  var c=document.createElement('canvas'); c.width=c.height=size;
+  var x=c.getContext('2d');
+  var g=x.createRadialGradient(size/2,size/2,0,size/2,size/2,size/2);
+  stops.forEach(function(s){ g.addColorStop(s[0],s[1]); });
+  x.fillStyle=g; x.fillRect(0,0,size,size);
+  var t=new THREE.CanvasTexture(c); t.minFilter=THREE.LinearFilter; return t;
+}
+function textSprite(txt, px, color){
+  var c=document.createElement('canvas'); c.width=c.height=96;
+  var x=c.getContext('2d');
+  x.font='600 '+px+'px Georgia, serif';
+  x.textAlign='center'; x.textBaseline='middle';
+  x.shadowColor='rgba(255,170,100,0.8)'; x.shadowBlur=10;
+  x.fillStyle=color; x.fillText(txt,48,50);
+  var t=new THREE.CanvasTexture(c); t.minFilter=THREE.LinearFilter;
+  var m=new THREE.SpriteMaterial({map:t, transparent:true, depthWrite:false, depthTest:false});
+  return new THREE.Sprite(m);
+}
+function ringTexture(){
+  var c=document.createElement('canvas'); c.width=c.height=128;
+  var x=c.getContext('2d');
+  x.strokeStyle='rgba(255,217,160,0.95)'; x.lineWidth=3;
+  var g=0.5; // gap half-angle
+  [0,Math.PI/2,Math.PI,Math.PI*1.5].forEach(function(a){
+    x.beginPath(); x.arc(64,64,42,a+g,a+Math.PI/2-g); x.stroke();
+  });
+  x.strokeStyle='rgba(255,217,160,0.28)'; x.lineWidth=1;
+  x.beginPath(); x.arc(64,64,52,0,Math.PI*2); x.stroke();
+  var t=new THREE.CanvasTexture(c); t.minFilter=THREE.LinearFilter; return t;
+}
+
+/* ----- static world furniture: horizon ring + cardinal letters ----- */
+(function(){
+  var seg=128, pos=new Float32Array(seg*3);
+  for (var i=0;i<seg;i++){
+    var a=i/seg*Math.PI*2;
+    pos[i*3]=Math.cos(a)*650; pos[i*3+1]=0; pos[i*3+2]=Math.sin(a)*650;
+  }
+  var g=new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  var ring=new THREE.LineLoop(g, new THREE.LineBasicMaterial({
+    color:0xc96a3b, transparent:true, opacity:0.38, depthWrite:false, depthTest:false}));
+  ring.renderOrder=6; ring.frustumCulled=false; scene.add(ring);
+  var cards=[['N',0,-640],['E',640,0],['S',0,640],['W',-640,0]];
+  cards.forEach(function(cd){
+    var s=textSprite(cd[0],46,'rgba(255,217,160,0.9)');
+    s.position.set(cd[1],14,cd[2]); s.scale.set(30,30,1);
+    s.renderOrder=7; s.frustumCulled=false; scene.add(s);
+  });
+})();
+
+/* ----- selection reticle ----- */
+var reticle = new THREE.Sprite(new THREE.SpriteMaterial({
+  map:ringTexture(), transparent:true, depthWrite:false, depthTest:false}));
+reticle.scale.set(30,30,1); reticle.visible=false; reticle.renderOrder=8;
+reticle.frustumCulled=false;
+celestial.add(reticle);
+
+/* ----- moon & sun sprites ----- */
+var moonSprite = new THREE.Sprite(new THREE.SpriteMaterial({
+  map: glowTexture(128, [[0,'rgba(255,250,235,1)'],[0.28,'rgba(255,244,220,0.95)'],[0.42,'rgba(255,225,180,0.35)'],[1,'rgba(255,210,150,0)']]),
+  transparent:true, depthWrite:false, depthTest:false, blending:THREE.AdditiveBlending}));
+moonSprite.scale.set(46,46,1); moonSprite.renderOrder=4; moonSprite.frustumCulled=false;
+celestial.add(moonSprite);
+var sunSprite = new THREE.Sprite(new THREE.SpriteMaterial({
+  map: glowTexture(256, [[0,'rgba(255,246,220,1)'],[0.12,'rgba(255,230,180,0.9)'],[0.35,'rgba(255,180,110,0.35)'],[1,'rgba(255,150,80,0)']]),
+  transparent:true, depthWrite:false, depthTest:false, blending:THREE.AdditiveBlending}));
+sunSprite.scale.set(150,150,1); sunSprite.renderOrder=4; sunSprite.frustumCulled=false;
+celestial.add(sunSprite);
+
+/* ----- layer roots (filled by builders) ----- */
+var starsObj=null, linesObj=null, mwObj=null, dsoObj=null, planetsObj=null;
+
+function buildStars(geo, names){
+  var feats = geo.features, n=feats.length;
+  var pos=new Float32Array(n*3), col=new Float32Array(n*3),
+      siz=new Float32Array(n), tw=new Float32Array(n);
+  for (var i=0;i<n;i++){
+    var f=feats[i], c=f.geometry.coordinates;
+    dirFromRaDec(c[0], c[1], tmpV);
+    pos[i*3]=tmpV.x*R_SKY; pos[i*3+1]=tmpV.y*R_SKY; pos[i*3+2]=tmpV.z*R_SKY;
+    var mag = +f.properties.mag;
+    var bv = parseFloat(f.properties.bv); if (!isFinite(bv)) bv=0.6;
+    var rgb = bvRGB(bv);
+    col[i*3]=rgb[0]; col[i*3+1]=rgb[1]*0.985; col[i*3+2]=rgb[2]*0.94;  // warm the whites a touch
+    siz[i]=Math.max(1.3, Math.min(12, 9.5*Math.pow(1.32,-mag)));
+    tw[i]=Math.random()*6.283;
+    var nm = names ? names[String(f.id)] : null;
+    var name, desig='';
+    if (nm){
+      if (nm.bayer) desig = nm.bayer+' '+nm.c;
+      else if (nm.flam) desig = nm.flam+' '+nm.c;
+      name = nm.name || desig || ('HIP '+f.id);
+    } else name = 'HIP '+f.id;
+    var sub = [];
+    if (nm && nm.name && desig) sub.push(desig);
+    if (nm && CONST_NAMES[nm.c]) sub.push(CONST_NAMES[nm.c]);
+    sub.push('mag '+mag.toFixed(1));
+    var pk = {kind:'star', name:name, sub:sub.join(' · '), mag:mag, dir:tmpV.clone()};
+    pickables.push(pk);
+    if (nm && nm.name && mag < 1.05) celebs.push(pk);
+  }
+  celebs.sort(function(a,b){return a.mag-b.mag;});
+  var g=new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  g.setAttribute('aColor', new THREE.BufferAttribute(col,3));
+  g.setAttribute('aSize', new THREE.BufferAttribute(siz,1));
+  g.setAttribute('aTw', new THREE.BufferAttribute(tw,1));
+  starsObj=new THREE.Points(g, starMat);
+  starsObj.renderOrder=2; starsObj.frustumCulled=false;
+  celestial.add(starsObj);
+}
+
+function buildLines(geo){
+  var pts=[];
+  geo.features.forEach(function(f){
+    var lines = f.geometry.type==='MultiLineString' ? f.geometry.coordinates : [f.geometry.coordinates];
+    lines.forEach(function(line){
+      for (var i=0;i<line.length-1;i++){
+        dirFromRaDec(line[i][0], line[i][1], tmpV);
+        pts.push(tmpV.x*R_SKY, tmpV.y*R_SKY, tmpV.z*R_SKY);
+        dirFromRaDec(line[i+1][0], line[i+1][1], tmpV);
+        pts.push(tmpV.x*R_SKY, tmpV.y*R_SKY, tmpV.z*R_SKY);
+      }
+    });
+  });
+  var g=new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(pts),3));
+  linesObj=new THREE.LineSegments(g, lineMat);
+  linesObj.renderOrder=5; linesObj.frustumCulled=false;
+  celestial.add(linesObj);
+}
+
+function buildMW(geo){
+  var tex=buildMWTexture(geo);
+  mwObj=new THREE.Mesh(new THREE.SphereGeometry(1200, 48, 32), makeMWMaterial(tex));
+  mwObj.renderOrder=1; mwObj.frustumCulled=false;
+  celestial.add(mwObj);
+}
+
+function buildDSOs(geo){
+  var feats=geo.features, n=feats.length;
+  var pos=new Float32Array(n*3), col=new Float32Array(n*3),
+      siz=new Float32Array(n), tw=new Float32Array(n);
+  var C=new THREE.Color();
+  for (var i=0;i<n;i++){
+    var f=feats[i], pr=f.properties, c=f.geometry.coordinates;
+    dirFromRaDec(c[0], c[1], tmpV);
+    pos[i*3]=tmpV.x*R_SKY; pos[i*3+1]=tmpV.y*R_SKY; pos[i*3+2]=tmpV.z*R_SKY;
+    C.setHex(DSO_COLOR[pr.type]||0xffd9a0);
+    col[i*3]=C.r; col[i*3+1]=C.g; col[i*3+2]=C.b;
+    siz[i]=Math.max(7, Math.min(15, 15-1.9*(+pr.mag||4)));
+    tw[i]=Math.random()*6.283;
+    var name = DSO_FRIENDLY[pr.desig] || pr.desig || f.id;
+    var sub = [DSO_TYPE[pr.type]||'Deep-sky object'];
+    if (DSO_FRIENDLY[pr.desig] && pr.desig!==name) sub.push(pr.desig);
+    sub.push('mag '+(+pr.mag).toFixed(1));
+    var pk={kind:'dso', name:name, sub:sub.join(' · '), mag:+pr.mag, dir:tmpV.clone()};
+    pickables.push(pk); dsoPicks.push(pk);
+  }
+  dsoPicks.sort(function(a,b){return a.mag-b.mag;});
+  var g=new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  g.setAttribute('aColor', new THREE.BufferAttribute(col,3));
+  g.setAttribute('aSize', new THREE.BufferAttribute(siz,1));
+  g.setAttribute('aTw', new THREE.BufferAttribute(tw,1));
+  dsoObj=new THREE.Points(g, dsoMat);
+  dsoObj.renderOrder=3; dsoObj.frustumCulled=false;
+  celestial.add(dsoObj);
+}
+
+function buildPlanets(){
+  var n=PLANETS.length;
+  var pos=new Float32Array(n*3), col=new Float32Array(n*3),
+      siz=new Float32Array(n), tw=new Float32Array(n);
+  var C=new THREE.Color();
+  for (var i=0;i<n;i++){
+    C.setHex(PLANETS[i].color);
+    col[i*3]=C.r; col[i*3+1]=C.g; col[i*3+2]=C.b;
+    siz[i]=PLANETS[i].size; tw[i]=0;
+    var pk={kind:'planet', name:PLANETS[i].name, sub:'Planet', mag:-1, dir:new THREE.Vector3(0,1,0)};
+    pickables.push(pk); planetPicks.push(pk);
+  }
+  var g=new THREE.BufferGeometry();
+  var posAttr=new THREE.BufferAttribute(pos,3); posAttr.setUsage(THREE.DynamicDrawUsage);
+  g.setAttribute('position', posAttr);
+  g.setAttribute('aColor', new THREE.BufferAttribute(col,3));
+  g.setAttribute('aSize', new THREE.BufferAttribute(siz,1));
+  g.setAttribute('aTw', new THREE.BufferAttribute(tw,1));
+  planetsObj=new THREE.Points(g, starMat);
+  planetsObj.renderOrder=4; planetsObj.frustumCulled=false;
+  celestial.add(planetsObj);
+  moonPick={kind:'moon', name:'Moon', sub:'Natural satellite', mag:-12, dir:new THREE.Vector3(0,1,0)};
+  sunPick={kind:'sun', name:'Sun', sub:'Our star', mag:-26, dir:new THREE.Vector3(0,1,0)};
+  pickables.push(moonPick); pickables.push(sunPick);
+}
+
+/* ----- ephemeris refresh ----- */
+var sunDir=new THREE.Vector3(0,-1,0), lastEph=0;
+function updateEphemeris(){
+  lastEph=Date.now();
+  var T=(lastEph-J2000)/3155760000000;   // julian centuries
+  var e=helio('earth',T);
+  for (var i=0;i<PLANETS.length;i++){
+    var p=helio(PLANETS[i].key,T);
+    eclVecToDir(p[0]-e[0], p[1]-e[1], p[2]-e[2], T, planetPicks[i].dir);
+    var a=planetsObj.geometry.getAttribute('position');
+    a.setXYZ(i, planetPicks[i].dir.x*R_SKY, planetPicks[i].dir.y*R_SKY, planetPicks[i].dir.z*R_SKY);
+  }
+  planetsObj.geometry.getAttribute('position').needsUpdate=true;
+  eclVecToDir(-e[0],-e[1],-e[2],T,sunDir);
+  sunPick.dir.copy(sunDir);
+  sunSprite.position.copy(sunDir).multiplyScalar(680);
+  moonDir(T, moonPick.dir);
+  moonSprite.position.copy(moonPick.dir).multiplyScalar(680);
+}
+
+/* ---------------- UI helpers ---------------- */
+var $ = function(id){ return document.getElementById(id); };
+var toastEl=$('toast'), toastTimer=0;
+function toast(msg, ms){
+  toastEl.textContent=msg; toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){ toastEl.classList.remove('show'); }, ms||2600);
+}
+var plate=$('plate'), plateName=$('plateName'), plateSub=$('plateSub');
+function select(pk){
+  state.sel=pk;
+  if (pk){
+    plateName.textContent=pk.name;
+    plateSub.textContent=pk.sub;
+    plate.classList.add('show');
+    reticle.position.copy(pk.dir).multiplyScalar(R_SKY);
+    reticle.visible=true;
+  } else {
+    plate.classList.remove('show');
+    reticle.visible=false;
+  }
+}
+function fmtLoc(){
+  var la=Math.abs(state.lat).toFixed(1)+'°'+(state.lat>=0?'N':'S');
+  var lo=Math.abs(state.lon).toFixed(1)+'°'+(state.lon>=0?'E':'W');
+  var pre = state.locLabel==='gps' ? '' : '≈ ';
+  return pre+la+' '+lo;
+}
+var chip=$('chip');
+function updateChip(){
+  var d=new Date();
+  var hh=('0'+d.getHours()).slice(-2), mm=('0'+d.getMinutes()).slice(-2);
+  chip.textContent=fmtLoc()+' · '+hh+':'+mm;
+}
+setInterval(updateChip, 5000);
+
+function locate(fromTap){
+  if (state.fixed){ if(fromTap) toast('Location pinned by URL'); return; }
+  if (!navigator.geolocation || !navigator.geolocation.getCurrentPosition){
+    if (fromTap) toast('No positioning on this device — using '+fmtLoc());
+    return;
+  }
+  if (fromTap) toast('Finding your position…');
+  navigator.geolocation.getCurrentPosition(function(r){
+    state.lat=r.coords.latitude; state.lon=r.coords.longitude; state.locLabel='gps';
+    savePrefs(); updateChip(); toast('Position updated');
+  }, function(){
+    if (fromTap) toast('Positioning unavailable — using '+fmtLoc());
+  }, {timeout:8000, maximumAge:600000, enableHighAccuracy:false});
+}
+chip.addEventListener('click', function(){ locate(true); });
+
+/* layer toggles */
+var layerBtns={stars:$('bStars'), lines:$('bLines'), mw:$('bMW'), dso:$('bDSO'), night:$('bNight')};
+function applyLayers(){
+  if (starsObj) starsObj.visible=state.layers.stars;
+  if (linesObj) linesObj.visible=state.layers.lines;
+  if (mwObj) mwObj.visible=state.layers.mw;
+  if (dsoObj) dsoObj.visible=state.layers.dso;
+  var n = state.layers.night ? 1 : 0;
+  skyMat.uniforms.uNight.value=n;
+  starMat.uniforms.uNight.value=n;
+  dsoMat.uniforms.uNight.value=n;
+  lineMat.uniforms.uNight.value=n;
+  if (mwObj) mwObj.material.uniforms.uNight.value=n;
+  for (var k in layerBtns) layerBtns[k].classList.toggle('on', !!state.layers[k]);
+}
+Object.keys(layerBtns).forEach(function(k){
+  layerBtns[k].addEventListener('click', function(){
+    state.layers[k]=!state.layers[k]; applyLayers(); savePrefs();
+  });
+});
+
+/* ---------------- camera: manual + device orientation ---------------- */
+var dor=null, dorAbs=false, gyroWaitT=0, gyroHinted=false;
+window.addEventListener('deviceorientationabsolute', function(e){ onDO(e,true); });
+window.addEventListener('deviceorientation', function(e){ onDO(e,false); });
+function onDO(e, abs){
+  if (e.alpha==null && e.beta==null && e.gamma==null) return;
+  if (dorAbs && !abs) return;
+  if (abs) dorAbs=true;
+  dor={a:(e.alpha||0)*D2R, b:(e.beta||0)*D2R, g:(e.gamma||0)*D2R};
+}
+function screenAngle(){
+  var a=(screen.orientation && typeof screen.orientation.angle==='number')
+        ? screen.orientation.angle
+        : (typeof window.orientation==='number' ? window.orientation : 0);
+  return a*D2R;
+}
+/* classic W3C deviceorientation → camera quaternion (world: X=E, Y=up, −Z=N) */
+var _e=new THREE.Euler(), _q0=new THREE.Quaternion(), _qDev=new THREE.Quaternion(),
+    _qOff=new THREE.Quaternion(), _qView=new THREE.Quaternion(),
+    _q1=new THREE.Quaternion(-Math.sqrt(0.5),0,0,Math.sqrt(0.5)),
+    _zee=new THREE.Vector3(0,0,1);
+function deviceQuat(out){
+  _e.set(dor.b, dor.a, -dor.g, 'YXZ');
+  out.setFromEuler(_e);
+  out.multiply(_q1);
+  out.multiply(_q0.setFromAxisAngle(_zee, -screenAngle()));
+  return out;
+}
+function captureView(){
+  camera.getWorldDirection(tmpV);
+  state.yaw=Math.atan2(tmpV.x,-tmpV.z);
+  state.pitch=Math.asin(Math.max(-1,Math.min(1,tmpV.y)));
+}
+var bGyro=$('bGyro');
+function setGyro(on){
+  if (on && typeof DeviceOrientationEvent!=='undefined'
+        && typeof DeviceOrientationEvent.requestPermission==='function'){
+    DeviceOrientationEvent.requestPermission().then(function(r){
+      if (r==='granted') reallySetGyro(true);
+      else toast('Motion access declined');
+    }).catch(function(){ reallySetGyro(true); });
+    return;
+  }
+  reallySetGyro(on);
+}
+function reallySetGyro(on){
+  state.gyro=on;
+  bGyro.classList.toggle('on', on);
+  if (on){
+    state.yawOffset=0; gyroWaitT=performance.now();
+    if (!gyroHinted){ toast('Point the device at the sky · drag sideways to align the compass', 3400); gyroHinted=true; }
+  } else {
+    captureView();
+  }
+}
+bGyro.addEventListener('click', function(){ setGyro(!state.gyro); });
+
+/* ---------------- pointer input: drag, pinch, tap ---------------- */
+var down=false, lastX=0, lastY=0, moved=0, downT=0, downX=0, downY=0;
+var pinch=null;
+function radPerPx(){ return (state.fov*D2R)/canvas.clientHeight; }
+function onDown(x,y){
+  down=true; lastX=x; lastY=y; downX=x; downY=y; moved=0; downT=performance.now();
+  state.anim=null; state.vx=0; state.vy=0;
+}
+function onMove(x,y){
+  if (!down) return;
+  var dx=x-lastX, dy=y-lastY; lastX=x; lastY=y;
+  moved+=Math.abs(dx)+Math.abs(dy);
+  var k=radPerPx();
+  if (state.gyro){
+    state.yawOffset += dx*k;               // grab-the-sky heading alignment
+  } else {
+    state.yaw   -= dx*k;
+    state.pitch += dy*k;
+    state.pitch = Math.max(-1.53, Math.min(1.53, state.pitch));
+    state.vx = -dx*k; state.vy = dy*k;     // inertia
+  }
+}
+function onUp(x,y){
+  if (!down) return;
+  down=false;
+  var dt=performance.now()-downT;
+  if (moved<9 && dt<380) { pick(x,y); state.vx=0; state.vy=0; }
+}
+canvas.addEventListener('touchstart', function(e){
+  e.preventDefault();
+  if (e.touches.length===1) onDown(e.touches[0].clientX, e.touches[0].clientY);
+  else if (e.touches.length===2){
+    down=false;
+    var dx=e.touches[0].clientX-e.touches[1].clientX,
+        dy=e.touches[0].clientY-e.touches[1].clientY;
+    pinch={d:Math.sqrt(dx*dx+dy*dy), fov:state.fov};
+  }
+}, {passive:false});
+canvas.addEventListener('touchmove', function(e){
+  e.preventDefault();
+  if (pinch && e.touches.length===2){
+    var dx=e.touches[0].clientX-e.touches[1].clientX,
+        dy=e.touches[0].clientY-e.touches[1].clientY;
+    var d=Math.sqrt(dx*dx+dy*dy)||1;
+    setFov(pinch.fov*pinch.d/d);
+  } else if (e.touches.length===1) onMove(e.touches[0].clientX, e.touches[0].clientY);
+}, {passive:false});
+canvas.addEventListener('touchend', function(e){
+  e.preventDefault();
+  if (e.touches.length<2) pinch=null;
+  if (e.touches.length===0 && e.changedTouches.length)
+    onUp(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+}, {passive:false});
+canvas.addEventListener('mousedown', function(e){ onDown(e.clientX,e.clientY); });
+window.addEventListener('mousemove', function(e){ onMove(e.clientX,e.clientY); });
+window.addEventListener('mouseup', function(e){ onUp(e.clientX,e.clientY); });
+canvas.addEventListener('wheel', function(e){
+  e.preventDefault();
+  setFov(state.fov*(1+e.deltaY*0.0011));
+}, {passive:false});
+canvas.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+function setFov(f){
+  state.fov=Math.max(26, Math.min(85, f));
+  camera.fov=state.fov; camera.updateProjectionMatrix();
+  updatePointScale();
+}
+function updatePointScale(){
+  var s=(canvas.clientHeight*PR/850)*(62/state.fov);
+  starMat.uniforms.uScale.value=s;
+  dsoMat.uniforms.uScale.value=s;
+}
+
+/* ---------------- picking ---------------- */
+function pick(x,y){
+  var w=canvas.clientWidth, h=canvas.clientHeight;
+  camera.getWorldDirection(tmpV2);
+  var best=null, bestScore=1e9;
+  for (var i=0;i<pickables.length;i++){
+    var pk=pickables[i];
+    if (pk.kind==='star' && !state.layers.stars) continue;
+    if (pk.kind==='dso'  && !state.layers.dso) continue;
+    tmpV.copy(pk.dir).applyQuaternion(celestial.quaternion);
+    if (tmpV.dot(tmpV2) < 0.25) continue;               // behind / far off-view
+    if (!state.layers.night && tmpV.y < -0.03) continue; // set below horizon
+    tmpV.multiplyScalar(R_SKY).project(camera);
+    var sx=( tmpV.x*0.5+0.5)*w, sy=(-tmpV.y*0.5+0.5)*h;
+    var d=Math.sqrt((sx-x)*(sx-x)+(sy-y)*(sy-y));
+    if (d>36) continue;
+    var bonus = pk.kind==='moon'||pk.kind==='sun' ? 24
+              : pk.kind==='planet' ? 20
+              : pk.kind==='dso' ? 14
+              : Math.max(0,(6.5-pk.mag))*1.5;
+    var score=d-bonus;
+    if (score<bestScore){ bestScore=score; best=pk; }
+  }
+  select(best);
+}
+
+/* ---------------- focus: cycle the showpieces ---------------- */
+var lastFocusName=null;
+function showpieces(){
+  var list=[], sin3=Math.sin(3*D2R);
+  function add(pk, rank){
+    tmpV.copy(pk.dir).applyQuaternion(celestial.quaternion);
+    if (state.layers.night || tmpV.y>sin3) list.push({pk:pk, rank:rank});
+  }
+  if (moonPick) add(moonPick,0);
+  planetPicks.forEach(function(p){ add(p,1); });
+  dsoPicks.forEach(function(p){ add(p,2); });
+  celebs.forEach(function(p){ add(p,3); });
+  list.sort(function(a,b){ return a.rank-b.rank || a.pk.mag-b.pk.mag; });
+  return list.map(function(e){ return e.pk; });
+}
+$('bFocus').addEventListener('click', function(){
+  if (state.gyro) reallySetGyro(false);
+  var L=showpieces();
+  if (!L.length){ toast('Nothing notable above the horizon right now'); return; }
+  var idx=0;
+  for (var i=0;i<L.length;i++) if (L[i].name===lastFocusName){ idx=(i+1)%L.length; break; }
+  var pk=L[idx]; lastFocusName=pk.name;
+  tmpV.copy(pk.dir).applyQuaternion(celestial.quaternion);
+  var ty=Math.atan2(tmpV.x,-tmpV.z), tp=Math.asin(Math.max(-1,Math.min(1,tmpV.y)));
+  var dy=ty-state.yaw;
+  dy=((dy+Math.PI)%(Math.PI*2)+Math.PI*2)%(Math.PI*2)-Math.PI;    // shortest path
+  state.anim={t0:performance.now(), dur:950,
+              y0:state.yaw, y1:state.yaw+dy,
+              p0:state.pitch, p1:tp,
+              f0:state.fov, f1:Math.min(state.fov,46)};
+  select(pk);
+});
+
+/* ---------------- main loop ---------------- */
+function ease(t){ return t<0.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2; }
+var lastChipT=0;
+function frame(t){
+  requestAnimationFrame(frame);
+  var now=Date.now();
+  var lst=gmstDeg(now)+state.lon;
+  skyQuat(state.lat, lst, celestial.quaternion);
+
+  if (now-lastEph>30000) updateEphemeris();
+  tmpV.copy(sunDir).applyQuaternion(celestial.quaternion);
+  skyMat.uniforms.uSun.value.copy(tmpV);
+  sunSprite.visible = !state.layers.night && tmpV.y > -0.03;
+  tmpV.copy(moonPick.dir).applyQuaternion(celestial.quaternion);
+  moonSprite.visible = state.layers.night || tmpV.y > -0.04;
+  starMat.uniforms.uTime.value=t*0.001;
+  dsoMat.uniforms.uTime.value=t*0.001;
+
+  if (state.anim){
+    var a=state.anim, u=Math.min(1,(performance.now()-a.t0)/a.dur), e=ease(u);
+    state.yaw=a.y0+(a.y1-a.y0)*e;
+    state.pitch=a.p0+(a.p1-a.p0)*e;
+    setFovQuiet(a.f0+(a.f1-a.f0)*e);
+    if (u>=1) state.anim=null;
+  } else if (!state.gyro && !down){
+    if (Math.abs(state.vx)>1e-5||Math.abs(state.vy)>1e-5){
+      state.yaw+=state.vx; state.pitch=Math.max(-1.53,Math.min(1.53,state.pitch+state.vy));
+      state.vx*=0.93; state.vy*=0.93;
+    }
+  }
+
+  if (state.gyro && dor){
+    deviceQuat(_qDev);
+    _qOff.setFromAxisAngle(AX_Y, state.yawOffset);
+    _qView.copy(_qOff).multiply(_qDev);
+    camera.quaternion.slerp(_qView, 0.35);
+  } else {
+    if (state.gyro && !dor && performance.now()-gyroWaitT>2200){
+      reallySetGyro(false);
+      toast('No orientation sensor found — drag to look around');
+    }
+    camera.rotation.set(state.pitch, -state.yaw, 0);
+  }
+
+  if (state.sel){
+    var s=30*(1+0.06*Math.sin(t*0.004));
+    reticle.scale.set(s,s,1);
+  }
+  renderer.render(scene,camera);
+}
+function setFovQuiet(f){
+  state.fov=f; camera.fov=f; camera.updateProjectionMatrix(); updatePointScale();
+}
+
+function resize(){
+  var w=window.innerWidth, h=window.innerHeight;
+  renderer.setSize(w,h,false);
+  camera.aspect=w/h; camera.updateProjectionMatrix();
+  updatePointScale();
+}
+window.addEventListener('resize', resize);
+
+/* ---------------- boot ---------------- */
+var vstat=$('vstat'), vretry=$('vretry'), veil=$('veil');
+function fetchJSON(name){
+  if (window.SKY_DATA && window.SKY_DATA[name]) return Promise.resolve(window.SKY_DATA[name]);
+  var file={stars:'stars.6.json', starnames:'starnames.json',
+            constellations:'constellations.lines.json', mw:'mw.json', dsos:'dsos.bright.json'}[name];
+  return fetch(DATA_BASE+file).then(function(r){
+    if (!r.ok) throw new Error(file+' → '+r.status);
+    return r.json();
+  });
+}
+function boot(){
+  vretry.style.display='none';
+  vstat.textContent='charting the dusk sky…';
+  Promise.allSettled([
+    fetchJSON('stars'), fetchJSON('starnames'),
+    fetchJSON('constellations'), fetchJSON('mw'), fetchJSON('dsos')
+  ]).then(function(res){
+    var stars=res[0], names=res[1], cons=res[2], mw=res[3], dsos=res[4];
+    if (stars.status!=='fulfilled'){
+      vstat.textContent='star charts failed to load';
+      vretry.style.display='inline-block';
+      return;
+    }
+    var missing=[];
+    buildStars(stars.value, names.status==='fulfilled'?names.value:null);
+    if (cons.status==='fulfilled') buildLines(cons.value); else missing.push('constellations');
+    if (mw.status==='fulfilled'){ try{ buildMW(mw.value); }catch(e){ missing.push('milky way'); } }
+      else missing.push('milky way');
+    if (dsos.status==='fulfilled') buildDSOs(dsos.value); else missing.push('deep sky');
+    buildPlanets();
+    updateEphemeris();
+    applyLayers();
+    if (!linesObj) layerBtns.lines.style.opacity=0.35;
+    if (!mwObj) layerBtns.mw.style.opacity=0.35;
+    if (!dsoObj) layerBtns.dso.style.opacity=0.35;
+    resize(); updateChip();
+    veil.classList.add('done');
+    setTimeout(function(){ veil.style.display='none'; }, 900);
+    if (missing.length) toast('Loaded without: '+missing.join(', '));
+    requestAnimationFrame(frame);
+    setTimeout(function(){ locate(false); }, 700);
+  });
+}
+vretry.addEventListener('click', boot);
+boot();
+})();
+</script>
+</body>
+</html>
