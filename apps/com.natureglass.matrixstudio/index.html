@@ -6,7 +6,7 @@
 <title>MATRIX STUDIO</title>
 <style>
 /* Deliberately cheap CSS: flat colors, 1px borders, no shadows/filters/gradients.
-   The WebGL LED grid is the visual centerpiece; chrome stays quiet. */
+   The Canvas-2D LED grid is the visual centerpiece; chrome stays quiet. */
 :root{
   --bg:#0b0d14; --panel:#12151f; --line:#252b3d; --line-hi:#3d4a70;
   --ink:#c7cde0; --dim:#6a7390; --acc:#e8a84c;
@@ -28,7 +28,7 @@ button.on{border-color:var(--acc);color:var(--acc)}
 #dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#3a4158}
 #dot.ok{background:#4ce07a}
 #dot.busy{background:var(--acc)}
-canvas#cv{position:fixed;top:50px;left:0;touch-action:none;display:block}
+canvas#cv{position:fixed;inset:0;width:100vw;height:100vh;touch-action:none;display:block}
 /* Settings */
 #settings{position:fixed;top:50px;left:0;right:0;bottom:0;background:var(--bg);
   overflow-y:auto;z-index:9;padding:16px;display:none}
@@ -63,7 +63,7 @@ input[type=range]{width:160px;accent-color:var(--acc)}
   <span id="status"><span id="connLabel">offline</span><span id="dot"></span></span>
 </div>
 
-<canvas id="cv"></canvas>
+<canvas id="cv" width="1280" height="720"></canvas>
 
 <div id="settings">
   <h2>MATRIX LAYOUT</h2>
@@ -165,71 +165,141 @@ function rebuild(){
   }
   pkt=new Uint8Array(5+N*3);
   pkt[0]=0xA5; pkt[1]=0x5A; pkt[2]=0x01; pkt[3]=(N*3)&0xFF; pkt[4]=(N*3)>>8;
-  fluidAlloc(); fireAlloc(); rainAlloc(); allocTex(); layoutView();
+  fluidAlloc(); fireAlloc(); rainAlloc(); buildGeom(); layoutView();
 }
 
-/* ================= WebGL renderer (WebGL1) ================= */
+/* ================= WebGL2 renderer (texture-free) =================
+   Built on fluiddynamics' proven WebGL2 skeleton (raw WebGL2 that composites and
+   animates correctly on this device): a canvas born 1280x720 (never resized in
+   JS), a webgl2 context with {alpha:false,depth:false,stencil:false,
+   antialias:false,preserveDrawingBuffer:false}, an explicit VAO, #version 300 es
+   shaders, and a present that binds the default framebuffer, sets a full-screen
+   viewport, then draws.
+
+   IMPORTANT — no data textures. On this device (Mesa-Nouveau NV120, jitless V8)
+   uploading CPU pixel data into a texture (texImage2D / texSubImage2D with a
+   typed array, any format) hard-crashes the shared bridge context; only null-
+   allocated textures survive. fluiddynamics never uploads CPU texels either — it
+   renders into FBOs. So the grid is drawn WITHOUT a texture: one quad (2 tris, 6
+   verts) per cell, cell color delivered through a per-vertex attribute updated
+   each frame with bufferSubData (the vertex-buffer path IS proven — fluiddynamics
+   uploads its geometry the same way). The cell quads tile the grid rect with no
+   gaps, so a flat per-quad substrate reads as one continuous field and the round
+   core+glow (identical smoothstep math to the original LED shader, using the
+   cell-local 0..1 coord in place of fract(uv*grid)) gives the exact LED look.
+   The screen is cleared to the matrix background first, so everything outside the
+   grid rect (and behind the 50px toolbar) is the dark field. `fb` (the W*H*3 byte
+   grid) stays the single source of truth: every mode, the demos, the fluid sim
+   and the ESP32 packet builder are unchanged. */
 const cv=document.getElementById('cv');
-let gl, tex, uGrid, view={x:0,y:0,w:1,h:1,scale:1}, dpr=1;
+let gl, prog, vao, ccBuf, colBuf, colorData, uRes, uRect, uGrid, view={x:0,y:0,w:1,h:1,scale:1};
+
+const VS=`#version 300 es
+precision highp float;
+layout(location=0) in vec4 aCellCorner;  // cellX, cellY, cornerX(0/1), cornerY(0/1)
+layout(location=1) in vec3 aColor;        // cell color 0..1
+uniform vec2 uRes;    // drawing-buffer size, px
+uniform vec4 uRect;   // grid rect x,y,w,h in drawing-buffer px, top-left origin
+uniform vec2 uGrid;   // W,H cells
+out vec2 vLocal;      // 0..1 within the cell
+out vec3 vColor;
+void main(){
+  vec2 corner = aCellCorner.zw;                                  // 0..1
+  vec2 px = uRect.xy + (aCellCorner.xy + corner) * (uRect.zw / uGrid);  // top-left px
+  vec2 clip = vec2(px.x / uRes.x * 2.0 - 1.0, 1.0 - px.y / uRes.y * 2.0);
+  gl_Position = vec4(clip, 0.0, 1.0);
+  vLocal = corner;
+  vColor = aColor;
+}`;
+const FS=`#version 300 es
+precision highp float;
+in vec2 vLocal;
+in vec3 vColor;
+out vec4 o;
+void main(){
+  vec2 f = vLocal - 0.5;                       // matches the original fract(uv*grid)-0.5
+  float d = length(f);
+  float core = 1.0 - smoothstep(0.30, 0.46, d);
+  float glow = (1.0 - smoothstep(0.15, 0.72, d)) * 0.35;
+  o = vec4(vColor*core + vColor*glow + vec3(0.015, 0.017, 0.025), 1.0);
+}`;
 
 function initGL(){
-  gl=cv.getContext('webgl',{antialias:false,alpha:false,preserveDrawingBuffer:false});
-  if(!gl){ document.body.innerHTML='<p style="padding:20px">WebGL unavailable.</p>'; return; }
-  const vs=`attribute vec2 p;varying vec2 uv;
-    void main(){uv=vec2(p.x*.5+.5,.5-p.y*.5);gl_Position=vec4(p,0.,1.);}`;
-  const fs=`precision mediump float;varying vec2 uv;uniform sampler2D t;uniform vec2 g;
-    void main(){
-      vec2 c=uv*g; vec2 cell=floor(c); vec2 f=fract(c)-.5;
-      vec3 col=texture2D(t,(cell+.5)/g).rgb;
-      float d=length(f);
-      float core=1.-smoothstep(.30,.46,d);
-      float glow=(1.-smoothstep(.15,.72,d))*.35;
-      gl_FragColor=vec4(col*core+col*glow+vec3(.015,.017,.025),1.);
-    }`;
-  const mk=(t,s)=>{const o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);return o;};
-  const pr=gl.createProgram();
-  gl.attachShader(pr,mk(gl.VERTEX_SHADER,vs));
-  gl.attachShader(pr,mk(gl.FRAGMENT_SHADER,fs));
-  gl.linkProgram(pr); gl.useProgram(pr);
-  const buf=gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER,buf);
-  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
-  const loc=gl.getAttribLocation(pr,'p');
-  gl.enableVertexAttribArray(loc);
-  gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
-  uGrid=gl.getUniformLocation(pr,'g');
-  tex=gl.createTexture();
-  gl.bindTexture(gl.TEXTURE_2D,tex);
-  gl.pixelStorei(gl.UNPACK_ALIGNMENT,1);
-  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.NEAREST);
-  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.NEAREST);
-  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
-  gl.clearColor(0.043,0.051,0.078,1);
+  gl=cv.getContext('webgl2',{alpha:false,depth:false,stencil:false,antialias:false,preserveDrawingBuffer:false});
+  if(!gl){ document.body.innerHTML='<p style="padding:20px">WebGL2 unavailable.</p>'; return; }
+  const mk=(t,s)=>{ const o=gl.createShader(t); gl.shaderSource(o,s); gl.compileShader(o); return o; };
+  prog=gl.createProgram();
+  gl.attachShader(prog,mk(gl.VERTEX_SHADER,VS));
+  gl.attachShader(prog,mk(gl.FRAGMENT_SHADER,FS));
+  gl.linkProgram(prog);
+  // Explicit VAO with two attribute buffers (never rely on default VAO 0 state).
+  // ccBuf: static cell+corner geometry (rebuilt on grid resize in buildGeom).
+  // colBuf: per-vertex color, rewritten each frame with bufferSubData.
+  vao=gl.createVertexArray();
+  gl.bindVertexArray(vao);
+  ccBuf=gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER,ccBuf);
+  gl.enableVertexAttribArray(0);
+  gl.vertexAttribPointer(0,4,gl.FLOAT,false,0,0);
+  colBuf=gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER,colBuf);
+  gl.enableVertexAttribArray(1);
+  gl.vertexAttribPointer(1,3,gl.FLOAT,false,0,0);
+  gl.bindVertexArray(null);
+  uRes=gl.getUniformLocation(prog,'uRes');
+  uRect=gl.getUniformLocation(prog,'uRect');
+  uGrid=gl.getUniformLocation(prog,'uGrid');
 }
-function allocTex(){
+// Rebuild the per-cell quad geometry (6 verts/cell) and size the color buffer.
+// Called from rebuild() whenever W/H change.
+function buildGeom(){
   if(!gl) return;
-  gl.bindTexture(gl.TEXTURE_2D,tex);
-  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB,W,H,0,gl.RGB,gl.UNSIGNED_BYTE,null);
+  const verts=N*6, cc=new Float32Array(verts*4);
+  colorData=new Float32Array(verts*3);
+  const CO=[0,0, 1,0, 0,1, 1,0, 1,1, 0,1];   // two triangles of a unit quad
+  let p=0;
+  for(let y=0;y<H;y++) for(let x=0;x<W;x++){
+    for(let k=0;k<6;k++){ cc[p++]=x; cc[p++]=y; cc[p++]=CO[k*2]; cc[p++]=CO[k*2+1]; }
+  }
+  gl.bindVertexArray(vao);
+  gl.bindBuffer(gl.ARRAY_BUFFER,ccBuf);
+  gl.bufferData(gl.ARRAY_BUFFER,cc,gl.STATIC_DRAW);
+  gl.bindBuffer(gl.ARRAY_BUFFER,colBuf);
+  gl.bufferData(gl.ARRAY_BUFFER,colorData.byteLength,gl.DYNAMIC_DRAW);
+  gl.bindVertexArray(null);
 }
 function layoutView(){
-  dpr=Math.min(window.devicePixelRatio||1,2);
-  const cw=window.innerWidth, ch=window.innerHeight-50;
-  cv.width=Math.round(cw*dpr); cv.height=Math.round(ch*dpr);
-  cv.style.width=cw+'px'; cv.style.height=ch+'px';
-  const pad=12, s=Math.max(1,Math.min((cw-pad*2)/W,(ch-pad*2)/H));
-  view={scale:s,w:s*W,h:s*H,x:(cw-s*W)/2,y:(ch-s*H)/2};
+  // Canvas stays 1280x720 (born that size, never resized in JS — matches
+  // fluiddynamics). `view` is CSS-px for pointer hit-testing; render() feeds the
+  // shader the same rect converted to drawing-buffer px.
+  const cw=window.innerWidth, ch=window.innerHeight;
+  const top=50, pad=12, availW=cw-pad*2, availH=ch-top-pad;
+  const s=Math.max(1,Math.min(availW/W,availH/H));
+  view={scale:s,w:s*W,h:s*H,x:(cw-s*W)/2,y:top+(availH-s*H)/2};
 }
 function render(){
   if(!gl) return;
-  gl.viewport(0,0,cv.width,cv.height);
-  gl.clear(gl.COLOR_BUFFER_BIT);
-  gl.bindTexture(gl.TEXTURE_2D,tex);
-  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB,W,H,0,gl.RGB,gl.UNSIGNED_BYTE,fb);
+  // Fill per-vertex colors from fb (the 6 verts of a cell share its color).
+  let p=0;
+  for(let i=0;i<N;i++){
+    const s=i*3, r=fb[s]/255, g=fb[s+1]/255, b=fb[s+2]/255;
+    for(let k=0;k<6;k++){ colorData[p++]=r; colorData[p++]=g; colorData[p++]=b; }
+  }
+  gl.useProgram(prog);
+  gl.bindVertexArray(vao);
+  gl.bindBuffer(gl.ARRAY_BUFFER,colBuf);
+  gl.bufferSubData(gl.ARRAY_BUFFER,0,colorData);
+  // view is CSS px; scale into drawing-buffer px (identity on the 1:1 target).
+  const sx=cv.width/window.innerWidth, sy=cv.height/window.innerHeight;
+  gl.uniform2f(uRes,cv.width,cv.height);
+  gl.uniform4f(uRect,view.x*sx,view.y*sy,view.w*sx,view.h*sy);
   gl.uniform2f(uGrid,W,H);
-  gl.viewport(Math.round(view.x*dpr),Math.round((window.innerHeight-50-view.y-view.h)*dpr),
-              Math.round(view.w*dpr),Math.round(view.h*dpr));
-  gl.drawArrays(gl.TRIANGLES,0,3);
+  gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+  gl.viewport(0,0,gl.drawingBufferWidth,gl.drawingBufferHeight);
+  gl.disable(gl.BLEND);
+  gl.clearColor(0.043,0.051,0.078,1);   // matrix background outside the grid rect
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.drawArrays(gl.TRIANGLES,0,N*6);
 }
 
 /* ================= helpers ================= */
