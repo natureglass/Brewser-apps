@@ -16,9 +16,7 @@ Apps arrive here **after** they've been tested in staging and approved. Before t
 
 ## Want to publish your own app?
 
-App publishing now happens through the **[brewser.io](https://brewser.io)** website. Sign in, submit your app, and once it's approved it lands here automatically.
-
-You no longer need to open GitHub issues or pull requests against this repository — the website handles submission, review, and updates for you.
+App publishing happens through the **[brewser.io](https://brewser.io/submit/)** website. Sign in, submit your app, and once it's approved it lands here automatically.
 
 ---
 
@@ -26,7 +24,7 @@ You no longer need to open GitHub issues or pull requests against this repositor
 
 Building an app, or curious how any of this works under the hood? Everything is documented at:
 
-**[docs.brewser.io/docs](https://docs.brewser.io/docs)**
+**[docs.brewser.io/](https://docs.brewser.io/)**
 
 ---
 
