@@ -1,6 +1,6 @@
 # Compass
 
-_v1.0.3_
+_v1.0.4_
 
 **Compass** is a working magnetic compass rendered entirely in WebGL. It reads your device's orientation sensors to point at magnetic north, showing a precise heading in degrees and the cardinal direction you're facing — on a hand-drawn dial that swings smoothly like the real thing.
 
