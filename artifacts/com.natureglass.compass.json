@@ -1,11 +1,18 @@
 {
   "id": "com.natureglass.compass",
-  "sizeBytes": 744538,
+  "sizeBytes": 1020791,
   "files": [
     "README.md",
+    "app.webmanifest",
     "assets/appbanner.gif",
     "assets/appbanner.jpg",
+    "brewser-pwa.js",
+    "brewser-sw.js",
     "index.html",
-    "manifest.json"
+    "manifest.json",
+    "pwa/apple-touch-icon.png",
+    "pwa/icon-192.png",
+    "pwa/icon-512.png",
+    "pwa/icon-maskable.png"
   ]
 }

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-17T16:42:09Z",
+  "generated": "2026-08-17T16:50:38Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -109,7 +109,7 @@
       "tags": [
         "PWA"
       ],
-      "sizeBytes": 744538
+      "sizeBytes": 1020791
     },
     {
       "id": "com.natureglass.dusk",
