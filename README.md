@@ -24,7 +24,7 @@ App publishing happens through the **[brewser.io](https://brewser.io/submit/)** 
 
 Building an app, or curious how any of this works under the hood? Everything is documented at:
 
-**[docs.brewser.io/](https://docs.brewser.io/)**
+**[docs.brewser.io](https://docs.brewser.io/)**
 
 ---
 
