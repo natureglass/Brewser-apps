@@ -1,6 +1,6 @@
 # Aether
 
-_v1.0.1_
+_v1.0.2_
 
 **AETHER** turns a written phrase into a fullscreen animated field. Describe a world, watch it assemble, then open the console and take it apart.
 

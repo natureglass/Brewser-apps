@@ -666,7 +666,7 @@ uniform float uTime;
 uniform float uSeed;
 
 uniform float uScale, uLacunarity, uGain, uRidged, uSharpen;
-uniform int   uOctaves, uWarpIter, uFold, uPattern;
+uniform int   uOctaves, uWarpOctaves, uWarpIter, uFold, uPattern;
 uniform float uWarpStrength, uWarpSpin, uStructure, uPatScale;
 uniform float uFlowSpeed, uFlowAngle, uPulse, uSpinRate;
 uniform float uMirror, uPolarWarp;
@@ -674,6 +674,7 @@ uniform float uZoom, uRotate;
 uniform vec2  uPan;
 uniform vec3  uPalA, uPalB, uPalC, uPalD;
 uniform float uHue, uPalFreq, uPalPhase, uPalContrast;
+uniform vec3  uDcCol;   // palette DC term, hue-rotated on the CPU (constant per frame)
 uniform float uBrightness, uContrast, uSaturation, uFog, uGlow;
 uniform float uVignette, uGrain, uAberration, uScanline, uPosterize;
 
@@ -694,15 +695,16 @@ float vnoise(vec2 p){
   return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
 }
 
-float fbm(vec2 p){
+float fbm(vec2 p, int oct){
   float sum = 0.0, amp = 0.5, norm = 0.0;
+  vec2 soff = vec2(uSeed * 0.037, -uSeed * 0.021);  // loop-invariant, hoisted out
   for(int i = 0; i < 8; i++){
-    if(i >= uOctaves) break;
+    if(i >= oct) break;
     float n = vnoise(p);
-    n = mix(n, 1.0 - abs(n * 2.0 - 1.0), uRidged);
+    if(uRidged > 0.0) n = mix(n, 1.0 - abs(n * 2.0 - 1.0), uRidged);
     sum  += n * amp;
     norm += amp;
-    p = p * uLacunarity + vec2(uSeed * 0.037, -uSeed * 0.021);
+    p = p * uLacunarity + soff;
     amp *= uGain;
   }
   // Summed octaves cluster hard around 0.5 (central limit). Without this
@@ -755,6 +757,7 @@ float shape(float f, float rad, vec2 uv, vec2 fp){
 }
 
 vec3 hueRot(vec3 col, float h){
+  if(h == 0.0) return col;   // no rotation — skip the cos/sin/cross/dot
   const vec3 k = vec3(0.57735027);
   float ca = cos(h);
   return col * ca + cross(k, col) * sin(h) + k * dot(k, col) * (1.0 - ca);
@@ -797,19 +800,19 @@ void main(){
 
   vec2 q = vec2(0.0), r = vec2(0.0);
   if(uWarpIter >= 1){
-    q = vec2(fbm(p), fbm(p + vec2(5.2, 1.3)));
+    q = vec2(fbm(p, uWarpOctaves), fbm(p + vec2(5.2, 1.3), uWarpOctaves));
     q = rot2(q, uWarpSpin * t * 0.2);
   }
   if(uWarpIter >= 2){
-    r = vec2(fbm(p + uWarpStrength * q + vec2(1.7, 9.2)),
-             fbm(p + uWarpStrength * q + vec2(8.3, 2.8)));
+    r = vec2(fbm(p + uWarpStrength * q + vec2(1.7, 9.2), uWarpOctaves),
+             fbm(p + uWarpStrength * q + vec2(8.3, 2.8), uWarpOctaves));
   }
   if(uWarpIter >= 3){
-    r = vec2(fbm(p + uWarpStrength * r + vec2(3.1, 4.4)),
-             fbm(p + uWarpStrength * r + vec2(7.7, 6.6)));
+    r = vec2(fbm(p + uWarpStrength * r + vec2(3.1, 4.4), uWarpOctaves),
+             fbm(p + uWarpStrength * r + vec2(7.7, 6.6), uWarpOctaves));
   }
   vec2 fp = p + uWarpStrength * (uWarpIter >= 2 ? r : q);
-  float f = (uWarpIter >= 1) ? fbm(fp) : fbm(p);
+  float f = (uWarpIter >= 1) ? fbm(fp, uOctaves) : fbm(p, uOctaves);
 
   f += uPulse * 0.14 * sin(t * 1.3 + rad0 * 3.0);
 
@@ -833,17 +836,18 @@ void main(){
   // correct limit of a cosine palette is its DC term. Converging on it kills
   // the rainbow fizz instead of letting it alias.
   float wpx = fwidth(tc) * uPalFreq;
-  col = mix(col, hueRot(uPalA, uHue), smoothstep(0.30, 0.95, wpx));
+  col = mix(col, uDcCol, smoothstep(0.30, 0.95, wpx));
 
   // depth from the warp magnitude — reads as shadowed troughs
   col *= 1.0 - uStructure * 0.40 * clamp(dot(q, q) * 1.6, 0.0, 1.0);
 
   // bloom: 2.2 rather than 3.0 so mid-tones lift too, not just clipped whites
-  col += pow(max(col, 0.0), vec3(2.2)) * uGlow * 1.5;
+  if(uGlow > 0.002) col += pow(max(col, 0.0), vec3(2.2)) * uGlow * 1.5;
 
   // edge fade, rotated with the palette so it can't clash (v1 left this on the
-  // un-rotated base and produced warm rims on cool scenes)
-  vec3 deep = hueRot(uPalA * 0.35, uHue);
+  // un-rotated base and produced warm rims on cool scenes). hueRot is linear in
+  // colour, so hueRot(uPalA*0.35, uHue) == 0.35 * uDcCol — reuse the CPU value.
+  vec3 deep = uDcCol * 0.35;
   col = mix(col, deep, uFog * smoothstep(0.25, 1.5, rad0));
 
   // grade
@@ -913,6 +917,58 @@ const U = {};
 function loc(n){ if(!(n in U)) U[n] = gl.getUniformLocation(prog, n); return U[n]; }
 
 /* --------------------------------------------------------------------------
+   6b. UPSCALE BLIT
+   This runtime presents the WebGL drawing buffer 1:1 — a smaller canvas backing
+   store is NOT stretched to fill the element, it just draws into a corner of a
+   fixed full-screen surface. So dynamic resolution can't shrink the canvas.
+   Instead the heavy field renders into an offscreen texture at reduced size,
+   and this pass samples it (bilinear) across the full-screen default buffer.
+   -------------------------------------------------------------------------- */
+const BLIT_VERT = `#version 300 es
+out vec2 vUv;
+void main(){
+  vec2 p = vec2((gl_VertexID << 1) & 2, gl_VertexID & 2);
+  vUv = p;                       // 0..2 across the fullscreen triangle
+  gl_Position = vec4(p * 2.0 - 1.0, 0.0, 1.0);
+}`;
+const BLIT_FRAG = `#version 300 es
+precision highp float;
+in vec2 vUv;
+uniform sampler2D uTex;
+out vec4 o;
+void main(){ o = texture(uTex, vUv); }`;
+
+const blitProg = gl.createProgram();
+gl.attachShader(blitProg, compile(gl.VERTEX_SHADER, BLIT_VERT));
+gl.attachShader(blitProg, compile(gl.FRAGMENT_SHADER, BLIT_FRAG));
+gl.linkProgram(blitProg);
+if(!gl.getProgramParameter(blitProg, gl.LINK_STATUS))
+  throw new Error(gl.getProgramInfoLog(blitProg));
+const blitTexLoc = gl.getUniformLocation(blitProg, "uTex");
+// The blit always samples texture unit 0 — bind that once instead of per frame.
+gl.useProgram(blitProg);
+gl.uniform1i(blitTexLoc, 0);
+gl.activeTexture(gl.TEXTURE0);
+gl.useProgram(prog);
+
+// Offscreen render target for the reduced-resolution field pass.
+let fbo = null, fboTex = null, loW = 0, loH = 0;
+function ensureFbo(w, h){
+  if(!fbo){ fbo = gl.createFramebuffer(); fboTex = gl.createTexture(); }
+  gl.bindTexture(gl.TEXTURE_2D, fboTex);
+  // null-alloc render target (no CPU pixel upload — safe on this bridge)
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, fboTex, 0);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  gl.bindTexture(gl.TEXTURE_2D, null);
+}
+
+/* --------------------------------------------------------------------------
    7. STATE + MORPH
    -------------------------------------------------------------------------- */
 const state = {
@@ -925,9 +981,11 @@ function beginMorph(target){
   state.from = Object.assign({}, state.params);
   state.to   = Object.assign({}, target);
   state.morphT = 0;
+  uDirty = true;
 }
 function stepMorph(dt){
   if(state.morphT >= 1) return;
+  uDirty = true;   // params move every frame while morphing
   state.morphT = Math.min(1, state.morphT + dt / state.morphDur);
   const e = state.morphT < .5 ? 4*Math.pow(state.morphT,3)
                               : 1 - Math.pow(-2*state.morphT + 2, 3)/2;
@@ -951,31 +1009,109 @@ function currentPalette(){
 /* --------------------------------------------------------------------------
    8. FRAME LOOP
    -------------------------------------------------------------------------- */
-let bufW = 0, bufH = 0;
+let bufW = 0, bufH = 0;   // full-screen default framebuffer (always fills the surface)
+let useFbo = false;       // true when the field pass runs at reduced size + upscales
+let uDirty = true;        // re-upload the full uniform set only when something changed
+
+/* Dynamic resolution. The scene is a single fullscreen procedural shader, so
+   cost is dominated by the number of fragments. Under load the field renders
+   into a smaller offscreen texture that the BLIT pass upscales to the full
+   screen (this runtime maps the drawing buffer 1:1, so a smaller canvas would
+   render into a corner instead of stretching). Smooth noise hides a softened
+   buffer far better than the eye tolerates a dropped framerate. autoScale sizes
+   that offscreen buffer and only ever pulls below full, converging on the
+   largest buffer that still holds ~60fps. Starts conservative so the first
+   seconds are smooth, then climbs if the GPU has headroom. */
+/* Two-lever quality ladder. On this hardware the field pass stays ALU-bound even
+   at the resolution floor, so one knob isn't enough. Each rung trades a little
+   more quality for speed, ordered so the least visible cuts come first: trim the
+   domain-warp's high-frequency octaves (nearly invisible — the warp is only used
+   as displacement), THEN drop resolution, and only at the very bottom trim the
+   final field's octaves. warpCap/fieldCap cap fBm octaves; res scales the buffer. */
+const LADDER = [
+  // warpCap, res,  fieldCap
+  [   8,     1.00,   8 ],   // 0 — full quality
+  [   5,     1.00,   8 ],   // 1 — trim warp octaves (imperceptible)
+  [   4,     0.85,   8 ],   // 2
+  [   4,     0.70,   8 ],   // 3
+  [   3,     0.60,   8 ],   // 4
+  [   3,     0.50,   8 ],   // 5
+  [   2,     0.42,   8 ],   // 6
+  [   2,     0.36,   6 ],   // 7 — start trimming field detail
+  [   2,     0.30,   5 ]    // 8 — floor
+];
+let perf = 2;                 // start mildly conservative for a smooth boot, then converge
+let autoScale, curWarpCap, curFieldCap;
+function applyPerf(){
+  curWarpCap  = LADDER[perf][0];
+  autoScale   = LADDER[perf][1];
+  curFieldCap = LADDER[perf][2];
+}
+applyPerf();
+function adaptScale(fps){
+  const MAX = LADDER.length - 1, prev = perf;
+  if(fps < 30 && perf < MAX)      perf += 2;   // severely slow — jump two rungs to converge fast
+  else if(fps < 50 && perf < MAX) perf += 1;   // under target — ease down one rung
+  else if(fps >= 58 && perf > 0)  perf -= 1;   // headroom — reclaim quality
+  // 50–58 is a dead zone so the ladder doesn't oscillate.
+  perf = Math.max(0, Math.min(MAX, perf));
+  if(perf !== prev){ applyPerf(); uDirty = true; }   // octave caps / resolution changed
+}
+
 function resize(){
-  const s = state.params.resScale;
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  const w = Math.max(1, Math.round(canvas.clientWidth  * dpr * s));
-  const h = Math.max(1, Math.round(canvas.clientHeight * dpr * s));
-  if(w !== bufW || h !== bufH){
-    bufW = canvas.width = w;
-    bufH = canvas.height = h;
-    gl.viewport(0,0,w,h);
-    el.dims.textContent = w + "\u00d7" + h;
+  // Canvas backing store always matches the surface so the frame fills the screen.
+  const w = Math.max(1, Math.round(canvas.clientWidth  * dpr));
+  const h = Math.max(1, Math.round(canvas.clientHeight * dpr));
+  if(w !== bufW || h !== bufH){ bufW = canvas.width = w; bufH = canvas.height = h; uDirty = true; }
+
+  // Offscreen field size = full * user Render-scale * adaptive scale.
+  const eff = Math.min(1, state.params.resScale * autoScale);
+  const lw = Math.max(1, Math.round(w * eff));
+  const lh = Math.max(1, Math.round(h * eff));
+  if(lw !== loW || lh !== loH){
+    loW = lw; loH = lh;
+    useFbo = (lw < w || lh < h);
+    uDirty = true;                 // uRes changed
+    if(useFbo) ensureFbo(lw, lh);
+    el.dims.textContent = useFbo ? (lw + "\u00d7" + lh + " \u2192 " + w + "\u00d7" + h)
+                                 : (w + "\u00d7" + h);
   }
 }
 
 const P = state.params;
+// hueRot() from the shader, evaluated once on the CPU for the palette DC term.
+// Rodrigues rotation is linear in the colour, so this single value covers both
+// the aliasing-limit mix and the edge-fade colour (scaled) in the fragment shader.
+function hueRotJS(c, h){
+  const k = 0.57735027, ca = Math.cos(h), sa = Math.sin(h), oneCa = 1 - ca;
+  const cx = k*c[2] - k*c[1], cy = k*c[0] - k*c[2], cz = k*c[1] - k*c[0];
+  const dv = k*(c[0] + c[1] + c[2]);
+  return [c[0]*ca + cx*sa + k*dv*oneCa,
+          c[1]*ca + cy*sa + k*dv*oneCa,
+          c[2]*ca + cz*sa + k*dv*oneCa];
+}
 function upload(){
-  const pal = currentPalette();
-  gl.uniform2f(loc("uRes"), bufW, bufH);
+  // uTime advances every frame, so upload it unconditionally. Everything else
+  // only changes on a new render, a slider move, a morph step or a ladder step —
+  // all of which set uDirty — so a settled scene skips ~40 GL calls per frame,
+  // which is what actually caps framerate on this emulated bridge.
   gl.uniform1f(loc("uTime"), state.time);
+  if(!uDirty) return;
+  uDirty = false;
+
+  const pal = currentPalette();
+  // gl_FragCoord is in the render target's pixel space — the offscreen buffer
+  // when downscaling, the full screen otherwise.
+  gl.uniform2f(loc("uRes"), useFbo ? loW : bufW, useFbo ? loH : bufH);
   gl.uniform1f(loc("uSeed"), P.seed);
 
   gl.uniform1f(loc("uScale"), P.scale);
   gl.uniform1i(loc("uPattern"), Math.max(0, PATTERNS.indexOf(P.pattern)));
   gl.uniform1f(loc("uPatScale"), P.patScale);
-  gl.uniform1i(loc("uOctaves"), P.octaves|0);
+  const oct = Math.min(P.octaves|0, curFieldCap);   // final-field octaves (capped only at the bottom rungs)
+  gl.uniform1i(loc("uOctaves"), oct);
+  gl.uniform1i(loc("uWarpOctaves"), Math.min(curWarpCap, oct));   // warp octaves (trimmed first)
   gl.uniform1f(loc("uLacunarity"), P.lacunarity);
   gl.uniform1f(loc("uGain"), P.gain);
   gl.uniform1f(loc("uRidged"), P.ridged);
@@ -1004,6 +1140,7 @@ function upload(){
   gl.uniform3fv(loc("uPalC"), pal.c);
   gl.uniform3fv(loc("uPalD"), pal.d);
   gl.uniform1f(loc("uHue"), P.hue);
+  gl.uniform3fv(loc("uDcCol"), hueRotJS(pal.a, P.hue));
   gl.uniform1f(loc("uPalFreq"), P.palFreq);
   gl.uniform1f(loc("uPalPhase"), P.palPhase);
   gl.uniform1f(loc("uPalContrast"), P.palContrast);
@@ -1029,15 +1166,39 @@ function frame(now){
 
   stepMorph(dt);
   resize();
+
+  gl.useProgram(prog);
+  gl.bindVertexArray(vao);
   upload();
-  gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+  if(useFbo){
+    // 1) field pass into the reduced-size offscreen texture
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+    gl.viewport(0, 0, loW, loH);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    // 2) upscale that texture across the full-screen default framebuffer
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0, 0, bufW, bufH);
+    gl.useProgram(blitProg);
+    gl.bindTexture(gl.TEXTURE_2D, fboTex);   // unit 0 + sampler set once at init
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  } else {
+    // full resolution — render straight to the screen, no blit
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0, 0, bufW, bufH);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
 
   fpsAcc += dt; fpsN++;
   if(fpsAcc >= .5){
-    el.fps.textContent = Math.round(fpsN / fpsAcc);
+    const fps = fpsN / fpsAcc;
+    el.fps.textContent = Math.round(fps);
     fpsAcc = 0; fpsN = 0;
-    const taps = P.octaves * (1 + (P.warpIter>=1?2:0) + (P.warpIter>=2?2:0) + (P.warpIter>=3?2:0));
-    el.cost.textContent = taps + " taps";
+    adaptScale(fps);
+    const cOct = Math.min(P.octaves|0, curFieldCap);
+    const cWarp = Math.min(curWarpCap, cOct);
+    const warpCalls = (P.warpIter>=1?2:0) + (P.warpIter>=2?2:0) + (P.warpIter>=3?2:0);
+    el.cost.textContent = (cOct + warpCalls * cWarp) + " taps";
   }
   requestAnimationFrame(frame);
 }
@@ -1087,6 +1248,7 @@ function buildUI(){
         sel.addEventListener("change", ()=>{
           state.morphT = 1;
           state.params[r.k] = sel.value;
+          uDirty = true;
         });
         row.appendChild(sel);
         inputs[r.k] = {row:row, input:sel};
@@ -1106,6 +1268,7 @@ function buildUI(){
           state.params[r.k] = parseFloat(rng.value);
           val.textContent = fmt(r, state.params[r.k]);
           if(r.k === "resScale") bufW = 0;
+          uDirty = true;
         });
         row.appendChild(rng);
         inputs[r.k] = {row:row, input:rng, val:val};
