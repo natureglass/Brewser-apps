@@ -16,6 +16,15 @@
   #err{position:fixed;inset:0;display:none;align-items:center;justify-content:center;
     color:#e8eaee;background:#05070b;z-index:10;padding:24px;text-align:center;font-size:14px}
 </style>
+
+<!-- brewser-pwa:start -->
+<link rel="manifest" href="pwa/app.webmanifest">
+<meta name="theme-color" content="#927c3f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="pwa/apple-touch-icon.png">
+<script src="pwa/brewser-pwa.js" defer></script>
+<!-- brewser-pwa:end -->
 </head>
 <body>
 <canvas id="c" width="1280" height="720"></canvas>
