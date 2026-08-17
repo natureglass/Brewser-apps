@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-17T19:44:59Z",
+  "generated": "2026-08-17T19:45:31Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -200,14 +200,15 @@
       "fullscreen": true,
       "hideMouseDocked": false,
       "hideMouseUndocked": false,
+      "freshProcessOnExit": false,
       "publishedAt": "2026-08-06T10:32:41Z",
-      "updatedAt": "2026-08-06T10:32:41Z",
+      "updatedAt": "2026-08-06T19:36:56Z",
       "summary": "A GPU-powered WebGL2 explorer for six infinitely detailed fractals.",
       "tags": [
         "Fractals",
         "Visualizer"
       ],
-      "sizeBytes": 2838649
+      "sizeBytes": 2838682
     },
     {
       "id": "com.natureglass.gravityballs",
