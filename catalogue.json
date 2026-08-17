@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-17T19:46:36Z",
+  "generated": "2026-08-17T20:07:36Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -603,7 +603,11 @@
       "publishedAt": "2026-08-09T12:49:28Z",
       "updatedAt": "2026-08-17T17:10:32Z",
       "summary": "Free GPS speedometer with a live map and automatic speed-limit alerts",
-      "sizeBytes": 3317351
+      "tags": [
+        "PWA",
+        "Maps"
+      ],
+      "sizeBytes": 3317402
     },
     {
       "id": "com.natureglass.streamcast",
