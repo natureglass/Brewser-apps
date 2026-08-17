@@ -1,6 +1,6 @@
 # Fluid dynamics
 
-_v1.0.2_
+_v1.0.3_
 
 **Fluid dynamics** is a real-time fluid simulation you paint with your finger. Under the hood it solves the same equations that describe real smoke and water — the Navier–Stokes equations — entirely on the GPU using WebGL2, so thick, swirling dye reacts to every stroke at full frame rate.
 
