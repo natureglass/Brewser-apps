@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-17T19:45:31Z",
+  "generated": "2026-08-17T19:46:36Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -504,13 +504,14 @@
       "fullscreen": true,
       "hideMouseDocked": false,
       "hideMouseUndocked": false,
+      "freshProcessOnExit": false,
       "publishedAt": "2026-08-06T10:24:29Z",
       "updatedAt": "2026-08-06T10:24:29Z",
       "summary": "A live dashboard that probes your device's sensors, battery, haptics and network.",
       "tags": [
         "Gyroscope"
       ],
-      "sizeBytes": 1581212,
+      "sizeBytes": 1581245,
       "featured": true
     },
     {
