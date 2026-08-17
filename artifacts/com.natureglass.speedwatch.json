@@ -1,16 +1,16 @@
 {
   "id": "com.natureglass.speedwatch",
-  "sizeBytes": 3318097,
+  "sizeBytes": 3317351,
   "files": [
     "README.md",
-    "app.webmanifest",
     "assets/appbanner.gif",
     "assets/appbanner.jpg",
-    "brewser-pwa.js",
     "brewser-sw.js",
     "index.html",
     "manifest.json",
+    "pwa/app.webmanifest",
     "pwa/apple-touch-icon.png",
+    "pwa/brewser-pwa.js",
     "pwa/icon-192.png",
     "pwa/icon-512.png",
     "pwa/icon-maskable.png"
