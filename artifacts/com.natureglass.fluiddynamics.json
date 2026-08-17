@@ -1,11 +1,18 @@
 {
   "id": "com.natureglass.fluiddynamics",
-  "sizeBytes": 2325722,
+  "sizeBytes": 3332960,
   "files": [
     "README.md",
     "assets/appbanner.gif",
     "assets/appbanner.jpg",
+    "brewser-sw.js",
     "index.html",
-    "manifest.json"
+    "manifest.json",
+    "pwa/app.webmanifest",
+    "pwa/apple-touch-icon.png",
+    "pwa/brewser-pwa.js",
+    "pwa/icon-192.png",
+    "pwa/icon-512.png",
+    "pwa/icon-maskable.png"
   ]
 }
