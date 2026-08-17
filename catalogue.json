@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-17T19:30:41Z",
+  "generated": "2026-08-17T19:44:59Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -366,17 +366,17 @@
       "license": "MIT",
       "exitGame": "PLUS",
       "fullscreen": true,
-      "hideMouseDocked": true,
+      "hideMouseDocked": false,
       "hideMouseUndocked": true,
       "freshProcessOnExit": false,
       "publishedAt": "2026-08-06T10:36:13Z",
-      "updatedAt": "2026-08-06T10:36:13Z",
+      "updatedAt": "2026-08-09T21:02:18Z",
       "summary": "Draw a doodle and let an on-device WebNN model guess what it is.",
       "tags": [
         "Probability",
         "WebNN"
       ],
-      "sizeBytes": 1007554,
+      "sizeBytes": 1007555,
       "featured": true
     },
     {
