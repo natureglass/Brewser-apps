@@ -21,7 +21,8 @@
     "fullscreen": true,
     "hideMouseDocked": false,
     "hideMouseUndocked": false,
+    "freshProcessOnExit": false,
     "publishedAt": "2026-08-09T12:49:28Z",
-    "updatedAt": "2026-08-09T12:49:28Z",
+    "updatedAt": "2026-08-09T15:41:35Z",
     "summary": "Free GPS speedometer with a live map and automatic speed-limit alerts"
 }
