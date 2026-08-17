@@ -20,8 +20,9 @@
     "fullscreen": true,
     "hideMouseDocked": false,
     "hideMouseUndocked": false,
+    "freshProcessOnExit": false,
     "publishedAt": "2026-08-06T10:32:41Z",
-    "updatedAt": "2026-08-06T10:32:41Z",
+    "updatedAt": "2026-08-06T19:36:56Z",
     "summary": "A GPU-powered WebGL2 explorer for six infinitely detailed fractals.",
     "tags": [
         "Fractals",
