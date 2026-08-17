@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-17T10:58:48Z",
+  "generated": "2026-08-17T11:06:05Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -557,13 +557,14 @@
       "fullscreen": true,
       "hideMouseDocked": false,
       "hideMouseUndocked": false,
+      "freshProcessOnExit": false,
       "publishedAt": "2026-08-06T10:18:02Z",
       "updatedAt": "2026-08-06T10:18:02Z",
       "summary": "Measure your internet speed against Cloudflare on an animated needle gauge.",
       "tags": [
         "Diagnostics"
       ],
-      "sizeBytes": 1250710
+      "sizeBytes": 1250743
     },
     {
       "id": "com.natureglass.speedwatch",
