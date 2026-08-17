@@ -1,6 +1,6 @@
 # Speed Watch
 
-_v1.0.2_
+_v1.0.3_
 
 **Speed Watch** turns your device into a GPS speedometer with a live map and automatic speed-limit alerts — a full driving head-up dashboard in a single page, with no libraries, no API keys, and no account.
 
