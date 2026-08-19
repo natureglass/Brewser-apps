@@ -503,15 +503,36 @@ function padChain(t){
   return c;
 }
 
-function applyFx(t){
+// Apply ONE effect's nodes. A knob controls a single effect, so the hot path
+// (applyKnobEffect, fired per pointermove) schedules only the 1-3 params it
+// actually changes instead of re-scheduling the whole chain each move.
+function applyFxParam(t, name){
   if(!t.chain || !actx) return;
   const now = actx.currentTime, fx = t.fx, k = 0.02;
-  t.chain.vol.gain.setTargetAtTime(fx.volume * 2, now, k);        // center = unity
-  t.chain.rvb.gain.setTargetAtTime(fx.reverb, now, k);
-  t.chain.chWet.gain.setTargetAtTime(fx.chorus * 0.9, now, k);
-  t.chain.chDepth.gain.setTargetAtTime(fx.chorus * 0.006, now, k);
-  t.chain.dry.gain.setTargetAtTime(1 - fx.chorus * 0.3, now, k);
-  if(t.voice) t.voice.src.playbackRate.setTargetAtTime(pitchRate(fx.pitch), now, 0.01);
+  switch(name){
+    case "volume":
+      t.chain.vol.gain.setTargetAtTime(fx.volume * 2, now, k);      // center = unity
+      break;
+    case "reverb":
+      t.chain.rvb.gain.setTargetAtTime(fx.reverb, now, k);
+      break;
+    case "chorus":
+      t.chain.chWet.gain.setTargetAtTime(fx.chorus * 0.9, now, k);
+      t.chain.chDepth.gain.setTargetAtTime(fx.chorus * 0.006, now, k);
+      t.chain.dry.gain.setTargetAtTime(1 - fx.chorus * 0.3, now, k);
+      break;
+    case "pitch":
+      if(t.voice) t.voice.src.playbackRate.setTargetAtTime(pitchRate(fx.pitch), now, 0.01);
+      break;
+  }
+}
+
+// Full re-apply (chain creation / new voice): push every effect once.
+function applyFx(t){
+  applyFxParam(t, "volume");
+  applyFxParam(t, "reverb");
+  applyFxParam(t, "chorus");
+  applyFxParam(t, "pitch");
 }
 
 function padOn(t, velNorm){
@@ -605,7 +626,7 @@ function applyKnobEffect(t, list){
   const pad  = padById(e.pad, list);
   if(!name || !pad) return;
   pad.fx[name] = t.value;
-  applyFx(pad);
+  applyFxParam(pad, name);      // only this effect's nodes — not the whole chain
 }
 
 window.addEventListener("pointerdown", () => { ensureCtx(); }, true);
