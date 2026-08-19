@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-18T19:46:59Z",
+  "generated": "2026-08-19T19:42:06Z",
   "stats": {
     "com.natureglass.aether": {
       "downloads": 1,
@@ -11,8 +11,13 @@
       "ratingAvg": 0,
       "ratingCount": 0
     },
+    "com.natureglass.dusk": {
+      "downloads": 1,
+      "ratingAvg": 0,
+      "ratingCount": 0
+    },
     "com.natureglass.fluiddynamics": {
-      "downloads": 0,
+      "downloads": 1,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.8611
@@ -29,13 +34,18 @@
       "ratingCount": 1,
       "ratingScore": 4.8611
     },
+    "com.natureglass.matrixstudio": {
+      "downloads": 1,
+      "ratingAvg": 0,
+      "ratingCount": 0
+    },
     "com.natureglass.metaballssim": {
       "downloads": 1,
       "ratingAvg": 0,
       "ratingCount": 0
     },
     "com.natureglass.midisurface": {
-      "downloads": 1,
+      "downloads": 4,
       "ratingAvg": 0,
       "ratingCount": 0
     },
