@@ -610,6 +610,12 @@ if(!navigator.bluetooth) $('connBle').disabled=true;
 /* ================= main loop ================= */
 let tPrev=performance.now();
 function loop(now){
+  // The Settings overlay is opaque and covers the whole canvas, so while it's
+  // open there's nothing to see — skip the WebGL render AND the fluid/demo sim
+  // instead of burning a full frame on a hidden canvas (which, stacked with the
+  // engine compositing the settings panel, is what tanked the FPS). Keep the
+  // rAF loop alive and tPrev fresh so animation resumes cleanly on close.
+  if(setEl.classList.contains('open')){ tPrev=now; requestAnimationFrame(loop); return; }
   const dt=Math.min(0.1,(now-tPrev)/1000); tPrev=now;
   const t=now/1000;
   if(now<identUntil) identifyFrame(t);
