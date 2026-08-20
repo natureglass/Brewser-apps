@@ -2,7 +2,7 @@
 
 _v1.0.0_
 
-**Stream Cast** brings live Twitch streaming to the Switch browser. A "Live now" sidebar lists popular channels while the main stage swaps between a search screen and full-screen video.
+**Stream Cast** brings live Twitch streaming to the Switch. A "Live now" sidebar lists popular channels while the main stage swaps between a search screen and full-screen video.
 
  **How it works.** The app talks to Twitch's own web service to do everything the site does: it fetches the directory of top live channels, looks up a stream's title, viewer count and uptime, and requests a signed playback token for the channel you choose. With that token it builds the stream's live video playlist, reads the list of available quality variants, and picks one according to your preference before handing it to the video player to decode and play. On the Switch this plays the real Twitch video feed directly; on ordinary desktop browsers, where that isn't permitted, it gracefully falls back to Twitch's official embedded player instead.
 
