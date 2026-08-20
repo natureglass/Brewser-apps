@@ -490,7 +490,8 @@ function buildFrame(){
   }
   return pkt;
 }
-async function disconnect(){
+async function disconnect(intentional){
+  if(intentional) bleGiveUp=true;   // user asked to stop -> cancel any pending reconnect
   const s=sink; sink=null;
   setConn('offline',false);
   if(!s) return;
@@ -498,7 +499,7 @@ async function disconnect(){
 }
 async function connectSerial(){
   if(!navigator.serial){ alert('Web Serial not available in this runtime.'); return; }
-  await disconnect();
+  await disconnect(true);          // switching transports -> intentional, no BLE reconnect
   try{
     const port=await navigator.serial.requestPort();
     await port.open({baudRate:S.baud});
@@ -514,34 +515,115 @@ async function connectSerial(){
 }
 const NUS='6e400001-b5a3-f393-e0a9-e50e24dcca9e';
 const NUS_RX='6e400002-b5a3-f393-e0a9-e50e24dcca9e';
+let sendFails=0;                 // consecutive send failures; resets on any success
+const MAX_SEND_FAILS=8;          // only tear down after this many in a row
+
+/* ---- Option C: auto-reconnect ----
+ * On an unintended drop, silently reconnect to the SAME device (no chooser),
+ * with backoff and a bounded retry count. A user-initiated DISCONNECT sets
+ * bleGiveUp and cancels all of this. */
+let bleDev=null;                 // remembered device for silent reconnect
+let bleGiveUp=false;             // true once the user disconnects on purpose
+let bleReconnecting=false;       // guards against overlapping reconnect loops
+const RECONNECT_TRIES=6;
+const RECONNECT_BACKOFF=[400,800,1500,2500,4000,6000];  // ms per attempt
+
+// Wire a connected GATT device into the sink. Shared by first connect + reconnect.
+async function attachBle(dev){
+  const gatt = dev.gatt.connected ? dev.gatt : await dev.gatt.connect();
+  const svc=await gatt.getPrimaryService(NUS);
+  const rx=await svc.getCharacteristic(NUS_RX);
+  // Capability check must use .properties — the method itself always exists
+  // on the prototype whether or not this characteristic supports it.
+  const canWNR=!!(rx.properties&&rx.properties.writeWithoutResponse);
+  const wr = canWNR ? b=>rx.writeValueWithoutResponse(b)
+           : rx.writeValueWithResponse ? b=>rx.writeValueWithResponse(b)
+           : b=>rx.writeValue(b);
+  const CH=180;
+  sendFails=0;
+  sink={
+    type:'ble',
+    alive:true,
+    isConnected:()=>{ try{ return dev.gatt.connected; }catch(e){ return false; } },
+    // Write-without-response only. WNR never wedges the way writeWithResponse can
+    // on Chrome ("NotSupportedError: GATT operation failed for unknown reason").
+    // Flow control lives in pump()'s fps cap; the ESP32's 8 KB ring absorbs bursts.
+    send:async b=>{
+      for(let o=0;o<b.length;o+=CH){
+        await wr(b.subarray(o,Math.min(b.length,o+CH)));
+      }
+    },
+    close:async()=>{ try{dev.gatt.disconnect();}catch(e){} }
+  };
+  setConn('ble',true);
+  await sink.send(configPacket());   // restore pin/count/brightness on (re)connect
+}
+
+// Try to silently re-establish the link to the remembered device.
+async function reconnectBle(){
+  if(bleReconnecting||bleGiveUp||!bleDev) return;
+  bleReconnecting=true;
+  for(let i=0;i<RECONNECT_TRIES && !bleGiveUp;i++){
+    setConn(`reconnecting ${i+1}/${RECONNECT_TRIES}`,false);
+    await new Promise(r=>setTimeout(r,RECONNECT_BACKOFF[i]||6000));
+    if(bleGiveUp) break;
+    try{
+      await attachBle(bleDev);
+      bleReconnecting=false;
+      return;
+    }catch(e){ /* try again with backoff */ }
+  }
+  bleReconnecting=false;
+  if(!bleGiveUp) setConn('offline',false);
+}
+
 async function connectBle(){
   if(!navigator.bluetooth){ alert('Web Bluetooth not available in this runtime.'); return; }
-  await disconnect();
+  await disconnect(true);          // clear any prior link; intentional so no reconnect races
+  bleGiveUp=false;
   try{
     const dev=await navigator.bluetooth.requestDevice({
       filters:[{services:[NUS]}], optionalServices:[NUS]});
-    dev.addEventListener('gattserverdisconnected',()=>{ if(sink&&sink.type==='ble'){sink=null;setConn('offline',false);} });
-    const gatt=await dev.gatt.connect();
-    const svc=await gatt.getPrimaryService(NUS);
-    const rx=await svc.getCharacteristic(NUS_RX);
-    const wr=rx.writeValueWithoutResponse ?
-      b=>rx.writeValueWithoutResponse(b) : b=>rx.writeValue(b);
-    const CH=180;
-    sink={
-      type:'ble',
-      send:async b=>{ for(let o=0;o<b.length;o+=CH) await wr(b.subarray(o,Math.min(b.length,o+CH))); },
-      close:async()=>{ try{dev.gatt.disconnect();}catch(e){} }
-    };
-    setConn('ble',true);
-    await sink.send(configPacket());
+    bleDev=dev;
+    dev.addEventListener('gattserverdisconnected',()=>{
+      if(sink&&sink.type==='ble'){ sink.alive=false; sink=null; }
+      // Unintended drop -> attempt silent reconnect (unless the user bailed).
+      if(!bleGiveUp) reconnectBle();
+      else setConn('offline',false);
+    });
+    await attachBle(dev);
   }catch(e){ setConn('offline',false); }
 }
 async function pump(now){
   if(!sink||sending) return;
   if(now-lastSend < 1000/S.fps) return;
   lastSend=now; sending=true; dot.className='busy';
-  try{ await sink.send(buildFrame()); if(sink) dot.className='ok'; }
-  catch(e){ await disconnect(); }
+  try{
+    await sink.send(buildFrame());
+    sendFails=0;                 // clean frame — clear the streak
+    if(sink) dot.className='ok';
+  }catch(e){
+    // A single failed write is NORMAL on BLE. Chrome throws
+    // "NotSupportedError: GATT operation failed for unknown reason" under
+    // momentary GATT congestion even on a perfectly healthy link. This is
+    // realtime video: the failed frame is already stale, so we DROP it (the
+    // next frame supersedes it) rather than retrying, and we do NOT tear down.
+    // Only a real disconnect (gattserverdisconnected sets sink.alive=false) or
+    // a sustained run of failures — meaning the link is actually gone, not just
+    // congested — ends the session.
+    sendFails++;
+    dot.className='busy';
+    const dead = !sink || sink.alive===false ||
+                 (sink.isConnected && !sink.isConnected());
+    if(dead || sendFails>=MAX_SEND_FAILS){
+      const wasBle = sink && sink.type==='ble';
+      await disconnect();          // not "intentional" -> reconnect stays allowed
+      // If the gattserverdisconnected event didn't fire (e.g. gatt already gone),
+      // kick the reconnect directly so a wedged-but-not-dropped link still heals.
+      if(wasBle && !bleGiveUp && !bleReconnecting) reconnectBle();
+    }
+    // else: silently skip this frame and let the next one try
+  }
   sending=false;
 }
 
@@ -603,7 +685,7 @@ $('save').onclick=async()=>{
 $('identify').onclick=()=>{ identUntil=performance.now()+8000; setEl.classList.remove('open'); };
 $('connUsb').onclick=()=>{ S.baud=+$('sBaud').value; S.fps=+$('sFps').value; saveLS(); connectSerial(); };
 $('connBle').onclick=()=>{ S.fps=+$('sFps').value; saveLS(); connectBle(); };
-$('connOff').onclick=()=>disconnect();
+$('connOff').onclick=()=>disconnect(true);
 if(!navigator.serial) $('connUsb').disabled=true;
 if(!navigator.bluetooth) $('connBle').disabled=true;
 
