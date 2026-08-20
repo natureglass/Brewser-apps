@@ -1,15 +1,27 @@
 {
   "id": "com.natureglass.midisurface",
-  "sizeBytes": 1621617,
+  "sizeBytes": 4349752,
   "files": [
     "README.md",
     "assets/appbanner.gif",
     "assets/appbanner.jpg",
+    "assets/controllers-PAD1.json",
+    "assets/controllers.json",
     "assets/docs/ESP32_Diagram.png",
     "assets/docs/matrix_studio_esp32.ino",
     "assets/screenshots/1.png",
-    "assets/screenshots/2.jpg",
     "index.html",
-    "manifest.json"
+    "manifest.json",
+    "samples/alarmvoice.mp3",
+    "samples/artpop.mp3",
+    "samples/drop.mp3",
+    "samples/entertainment.mp3",
+    "samples/fillingin.mp3",
+    "samples/flute.mp3",
+    "samples/horn.mp3",
+    "samples/houseloop.mp3",
+    "samples/requiem.mp3",
+    "samples/rythm.mp3",
+    "samples/techno.mp3"
   ]
 }
