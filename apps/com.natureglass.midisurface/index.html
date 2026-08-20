@@ -1,649 +1,1447 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover">
-<title>MATRIX STUDIO</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>MIDI Surface</title>
 <style>
-/* Deliberately cheap CSS: flat colors, 1px borders, no shadows/filters/gradients.
-   The Canvas-2D LED grid is the visual centerpiece; chrome stays quiet. */
-:root{
-  --bg:#0b0d14; --panel:#12151f; --line:#252b3d; --line-hi:#3d4a70;
-  --ink:#c7cde0; --dim:#6a7390; --acc:#e8a84c;
-}
-*{box-sizing:border-box}
-html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);
-  font:14px/1.4 ui-monospace,'Cascadia Mono',Consolas,Menlo,monospace;
-  -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
-#bar{position:fixed;top:0;left:0;right:0;height:50px;display:flex;align-items:center;gap:6px;
-  padding:0 10px;background:var(--panel);border-bottom:1px solid var(--line);z-index:10}
-#bar .sep{width:1px;height:26px;background:var(--line);margin:0 2px}
-button{background:transparent;color:var(--ink);border:1px solid var(--line);
-  padding:6px 10px;font:inherit;cursor:pointer;min-height:34px}
-button:active{border-color:var(--line-hi)}
-button.on{border-color:var(--acc);color:var(--acc)}
-.sw{width:28px;height:28px;min-height:28px;padding:0;border:2px solid var(--line)}
-.sw.on{border-color:#fff}
-#status{margin-left:auto;display:flex;align-items:center;gap:8px;color:var(--dim);font-size:12px}
-#dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#3a4158}
-#dot.ok{background:#4ce07a}
-#dot.busy{background:var(--acc)}
-canvas#cv{position:fixed;inset:0;width:100vw;height:100vh;touch-action:none;display:block}
-/* Settings */
-#settings{position:fixed;top:50px;left:0;right:0;bottom:0;background:var(--bg);
-  overflow-y:auto;z-index:9;padding:16px;display:none}
-#settings.open{display:block}
-#settings h2{font-size:13px;font-weight:normal;color:var(--acc);letter-spacing:.2em;
-  margin:18px 0 8px;border-bottom:1px solid var(--line);padding-bottom:4px}
-#settings h2:first-child{margin-top:0}
-.row{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;margin:8px 0}
-label{color:var(--dim);font-size:12px;display:flex;align-items:center;gap:6px}
-input[type=number],select{background:var(--panel);color:var(--ink);border:1px solid var(--line);
-  font:inherit;padding:5px 6px;width:72px}
-select{width:auto}
-input[type=checkbox]{width:18px;height:18px;accent-color:var(--acc)}
-input[type=range]{width:160px;accent-color:var(--acc)}
-.hint{color:var(--dim);font-size:12px;margin:4px 0 0}
-#settings .wide{width:100%}
+  /* ── faceplate tokens ─────────────────────────────────────────── */
+  :root{
+    --panel:#0e0f11;      /* chassis */
+    --panel-2:#16181b;    /* header strip */
+    --panel-3:#1c1f23;    /* controls */
+    --ink:#d8dad6;        /* screen-print */
+    --ink-dim:#7a7d78;
+    --line:#26292d;       /* panel seams */
+    --rec:#ff4136;
+    --ok:#39d353;
+    --header-h:56px;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html,body{ height:100%; overflow:hidden; }
+  body{
+    background:var(--panel);
+    color:var(--ink);
+    font-family:"IBM Plex Mono", ui-monospace, "Cascadia Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+    font-size:13px;
+    -webkit-user-select:none; user-select:none;
+  }
+
+  /* ── header: silk-screened faceplate ──────────────────────────── */
+  header{
+    height:var(--header-h);
+    display:flex; align-items:center; gap:16px;
+    padding:0 16px;
+    background:var(--panel-2);
+    border-bottom:1px solid var(--line);
+  }
+  #model{
+    font-size:16px; font-weight:700; letter-spacing:.14em;
+    text-transform:uppercase; white-space:nowrap;
+  }
+  #model small{
+    display:block; font-size:9px; font-weight:400;
+    letter-spacing:.3em; color:var(--ink-dim);
+  }
+  #ctrlSelect{
+    appearance:none; -webkit-appearance:none;
+    border:1px solid var(--line); background:var(--panel-3);
+    color:var(--ink); font:inherit; font-size:11px; letter-spacing:.08em;
+    padding:8px 28px 8px 10px; border-radius:3px; cursor:pointer;
+    width:100%; text-transform:uppercase;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%237a7d78'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 10px center;
+  }
+  #channels{ display:flex; gap:6px; margin-left:8px; }
+  .chbtn{
+    appearance:none; border:1px solid var(--line); background:var(--panel-3);
+    color:var(--ink-dim); font:inherit; font-size:11px; letter-spacing:.08em;
+    padding:7px 12px 7px 9px; cursor:pointer;
+    display:flex; align-items:center; gap:7px; border-radius:3px;
+  }
+  .chbtn .sw{ width:9px; height:9px; border-radius:50%; background:#2b2e33; }  /* unlit LED */
+  .chbtn.active{ border-color:var(--ink); color:var(--ink); background:#22252a; }
+  .chbtn.active .sw{ background:var(--ok); }                                    /* lit: green */
+  .chbtn .sw.on{ background:var(--ok); }                                        /* audio active */
+  .chbtn.pulse .sw{ animation:swpulse .5s steps(2) infinite; }
+  @keyframes swpulse{ 50%{ background:var(--ink); } }
+
+  .viz{
+    flex:1; min-width:0; height:38px; align-self:center;
+    background:#0a0a0b; border:1px solid var(--line); border-radius:4px;
+  }
+  #btnStopAll{ color:var(--ok); border-color:#1e3a26; }
+  #btnStopAll:active{ background:var(--ok); border-color:var(--ok); color:#0e0f11; }
+  #btnStopAll.run{ color:var(--rec); border-color:#3a2427; }
+  #btnStopAll.run:active{ background:var(--rec); border-color:var(--rec); color:#fff; }
+
+  #midiStatus{
+    display:flex; align-items:center; gap:8px;
+    color:var(--ink-dim); font-size:11px; letter-spacing:.06em; white-space:nowrap;
+  }
+  #midiInWrap{ padding:0 16px 10px; }
+  #midiIn{
+    display:block; text-align:center; white-space:nowrap;
+    background:var(--panel-3); border:1px solid var(--line); border-radius:3px;
+    padding:7px 8px; font-size:10px; letter-spacing:.08em; color:var(--ink-dim);
+  }
+  #midiIn.hot{ color:var(--ink); border-color:var(--ink-dim); }
+  #midiDot{ width:8px; height:8px; border-radius:50%; background:#444; }
+  #midiDot.on{ background:var(--ok); }
+  #midiDot.blink{ animation:blink .12s steps(2) 1; }
+  @keyframes blink{ 50%{ background:#fff; } }
+
+  header button.tool{
+    appearance:none; border:1px solid var(--line); background:var(--panel-3);
+    color:var(--ink); font:inherit; font-size:11px; letter-spacing:.1em;
+    padding:8px 14px; cursor:pointer; border-radius:3px; white-space:nowrap;
+  }
+  header button.tool[aria-pressed="true"]{ background:var(--ink); color:var(--panel); border-color:var(--ink); }
+  #btnSettings{ display:flex; align-items:center; padding:7px 9px; }
+  #btnSettings svg{ display:block; }
+  #midiText{ padding:0 16px 8px; font-size:11px; letter-spacing:.06em; color:var(--ink-dim); }
+
+  /* ── stage ────────────────────────────────────────────────────── */
+  #stage{ position:absolute; inset:var(--header-h) 0 0 0; }
+  #gl{ position:absolute; inset:0; width:100%; height:100%; display:block; touch-action:none; }
+
+  #labels{ position:absolute; inset:0; pointer-events:none; }
+  .lbl{
+    position:absolute; transform:translate(-50%,0);
+    font-size:10px; letter-spacing:.12em; color:var(--ink-dim);
+    white-space:nowrap;
+  }
+  .lbl.rec{ color:var(--rec); animation:recblink .6s steps(2) infinite; }
+  #labels.hidemap .lbl{ display:none; }
+  #labels.hidemap .lbl.rec{ display:block; }
+  @keyframes recblink{ 50%{ opacity:.2; } }
+
+  #empty{
+    position:absolute; inset:0; display:none;
+    align-items:center; justify-content:center;
+    color:var(--ink-dim); letter-spacing:.2em; font-size:12px;
+  }
+
+  /* ── settings drawer ──────────────────────────────────────────── */
+  #panel{
+    position:absolute; top:var(--header-h); right:0; bottom:0;
+    width:min(340px, 92vw);
+    background:var(--panel-2); border-left:1px solid var(--line);
+    transform:translateX(105%); transition:transform .18s ease;
+    display:flex; flex-direction:column; z-index:10;
+  }
+  #panel.open{ transform:translateX(0); }
+  #ctrlWrap{ padding:0 16px 12px; }
+  #showMapLab{ margin-top:10px; }
+  #panel h2{
+    font-size:10px; font-weight:700; letter-spacing:.3em; text-transform:uppercase;
+    color:var(--ink-dim); padding:14px 16px 8px;
+  }
+  #devices{ padding:0 16px 10px; font-size:11px; color:var(--ink-dim); line-height:1.7; }
+  #devices b{ color:var(--ink); font-weight:400; }
+  #panel .actions{ display:flex; gap:8px; padding:0 16px 12px; border-bottom:1px solid var(--line); }
+  #panel .actions button{
+    flex:1; appearance:none; border:1px solid var(--line); background:var(--panel-3);
+    color:var(--ink); font:inherit; font-size:11px; letter-spacing:.08em;
+    padding:9px 0; cursor:pointer; border-radius:3px;
+  }
+  #rows{ flex:1; overflow-y:auto; padding:6px 10px 16px; }
+  .row{ padding:8px 6px; border-bottom:1px solid var(--line); }
+  .row .line{ display:grid; gap:8px; align-items:center; }
+  .row .l1{ grid-template-columns:24px 1fr 64px 46px; }
+  .row .l2{ margin-top:6px; }
+  .row .l2.padx{ grid-template-columns:46px 44px 1fr 34px; }
+  .row .l2.fxx{ grid-template-columns:1fr 84px; }
+  .row .idx{ color:var(--ink-dim); font-size:11px; }
+  .row select,.row input{
+    appearance:none; width:100%; border:1px solid var(--line); background:var(--panel-3);
+    color:var(--ink); font:inherit; font-size:11px; padding:6px 6px; border-radius:3px;
+  }
+  .row input{ text-align:center; }
+  .row input[type="text"]{ text-align:left; }
+  .swlab{
+    display:flex; align-items:center; gap:5px; cursor:pointer;
+    font-size:10px; letter-spacing:.1em; color:var(--ink-dim);
+  }
+  .swlab input{
+    appearance:none; -webkit-appearance:none; flex:none;
+    width:13px; height:13px; padding:0; margin:0;
+    border:1px solid var(--line); border-radius:2px; background:var(--panel-3);
+    cursor:pointer;
+  }
+  .swlab input:checked{
+    background-color:var(--ink); border-color:var(--ink);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='7'%3E%3Cpath d='M1 3.5L3.5 6 8 1' stroke='%230e0f11' stroke-width='1.8' fill='none'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:center;
+  }
+  .row .browse{
+    appearance:none; border:1px solid var(--line); background:var(--panel-3);
+    color:var(--ink); font:inherit; font-size:12px; padding:6px 0;
+    cursor:pointer; border-radius:3px;
+  }
+  .row .recbtn{
+    appearance:none; border:1px solid var(--line); background:var(--panel-3);
+    color:var(--ink-dim); font:inherit; font-size:10px; letter-spacing:.12em;
+    padding:7px 0; cursor:pointer; border-radius:3px;
+  }
+  .row .recbtn.armed{ background:var(--rec); border-color:var(--rec); color:#fff; animation:recblink .6s steps(2) infinite; }
+  #recHint{ padding:10px 16px; font-size:10px; letter-spacing:.08em; color:var(--ink-dim); border-top:1px solid var(--line); }
+  #recHint b{ color:var(--rec); font-weight:400; }
+
+  #audioGate{
+    position:absolute; top:14px; left:50%; transform:translateX(-50%);
+    display:none; z-index:15; cursor:pointer; appearance:none;
+    background:var(--panel-3); border:1px solid var(--rec); color:var(--ink);
+    font:inherit; font-size:11px; letter-spacing:.14em; padding:10px 18px;
+    border-radius:3px; white-space:nowrap;
+  }
+  #audioGate.show{ display:block; }
+  #audioGate.nudge{ animation:gatepulse .4s steps(2) 3; }
+  @keyframes gatepulse{ 50%{ background:var(--rec); } }
+
+  #warn{
+    position:absolute; left:50%; bottom:14px; transform:translateX(-50%);
+    background:var(--panel-3); border:1px solid var(--line); color:var(--ink-dim);
+    padding:8px 14px; font-size:11px; letter-spacing:.06em; border-radius:3px;
+    display:none; white-space:nowrap; z-index:20;
+  }
 </style>
 </head>
 <body>
+<header>
+  <div id="model">—<small>MIDI SURFACE</small></div>
+  <nav id="channels" aria-label="Channel"></nav>
+  <canvas id="vizL" class="viz"></canvas>
+  <button class="tool" id="btnStopAll" title="Start the beat clock / stop everything">START</button>
+  <canvas id="vizR" class="viz"></canvas>
+  <div id="midiStatus"><span id="midiDot"></span></div>
+  <button class="tool" id="btnSettings" aria-pressed="false" aria-label="Settings" title="Settings"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg></button>
+</header>
 
-<div id="bar">
-  <button id="mDraw" class="on">DRAW</button>
-  <button id="mFluid">FLUID</button>
-  <button id="mDemo">DEMO</button>
-  <span class="sep"></span>
-  <span id="drawTools" style="display:flex;gap:6px;align-items:center"></span>
-  <button id="demoName" style="display:none">RAINBOW</button>
-  <button id="brush">B:2</button>
-  <button id="clear">CLR</button>
-  <span class="sep"></span>
-  <button id="gear">SET</button>
-  <span id="status"><span id="connLabel">offline</span><span id="dot"></span></span>
+<div id="stage">
+  <canvas id="gl"></canvas>
+  <div id="labels"></div>
+  <div id="empty">NO TRIGGERS ON THIS CHANNEL</div>
+  <button id="audioGate">TAP TO ENABLE AUDIO</button>
 </div>
 
-<canvas id="cv" width="1280" height="720"></canvas>
-
-<div id="settings">
-  <h2>MATRIX LAYOUT</h2>
-  <div class="row">
-    <label>width <input type="number" id="sW" min="1" max="128" step="1"></label>
-    <label>height <input type="number" id="sH" min="1" max="64" step="1"></label>
-    <label>panel height <input type="number" id="sPH" min="1" max="64" step="1"></label>
+<aside id="panel" aria-label="Settings">
+  <h2>Controller</h2>
+  <div id="ctrlWrap">
+    <select id="ctrlSelect" aria-label="Controller"></select>
+    <label class="swlab" id="showMapLab"><input type="checkbox" id="showMapped"> SHOW MAPPINGS</label>
   </div>
-  <div class="row">
-    <label>wiring
-      <select id="sAxis">
-        <option value="v">vertical (columns)</option>
-        <option value="h">horizontal (rows)</option>
-      </select>
-    </label>
-    <label><input type="checkbox" id="sSerp"> serpentine</label>
-    <label><input type="checkbox" id="sFX"> flip X</label>
-    <label><input type="checkbox" id="sFY"> flip Y</label>
-    <button id="identify">IDENTIFY</button>
+  <h2>MIDI Devices</h2>
+  <div id="midiText">MIDI: …</div>
+  <div id="midiInWrap"><span id="midiIn">—</span></div>
+  <div id="devices">—</div>
+  <div class="actions">
+    <button id="btnLoad">LOAD JSON</button>
+    <button id="btnExport">EXPORT JSON</button>
   </div>
-  <p class="hint">Two stacked 32&times;8 panels &rarr; width 32, height 16, panel height 8.
-    IDENTIFY marks the corners (red = top-left, green = top-right, blue = bottom-left)
-    and sweeps left&rarr;right so you can dial in wiring/flips until the physical panel matches.</p>
+  <h2>Trigger Map</h2>
+  <div id="rows"></div>
+  <div id="recHint"><b>REC</b> — arm a trigger, then hit a pad / turn a knob on your controller to assign its note.</div>
+</aside>
 
-  <h2>ESP32</h2>
-  <div class="row">
-    <label>data pin <input type="number" id="sPin" min="0" max="48" step="1"></label>
-    <label>brightness <input type="range" id="sBri" min="1" max="255" step="1">
-      <span id="briVal" style="color:var(--ink)"></span></label>
-  </div>
-  <p class="hint">Pin + LED count + brightness are pushed to the ESP32 on connect and on SAVE.
-    Brightness is applied on-device (power limiting &mdash; 512 LEDs at full white pulls ~30 A).</p>
+<input type="file" id="filePick" accept=".json,application/json" hidden>
+<input type="file" id="samplePick" accept="audio/*" hidden>
+<datalist id="sampleList"></datalist>
+<div id="warn"></div>
 
-  <h2>CONNECTION</h2>
-  <div class="row">
-    <button id="connUsb">USB SERIAL</button>
-    <button id="connBle">BLUETOOTH</button>
-    <button id="connOff">DISCONNECT</button>
-  </div>
-  <div class="row">
-    <label>baud
-      <select id="sBaud">
-        <option>115200</option><option>460800</option>
-        <option selected>921600</option><option>2000000</option>
-      </select>
-    </label>
-    <label>max send fps
-      <select id="sFps">
-        <option>5</option><option>10</option><option>15</option>
-        <option selected>20</option><option>30</option><option>60</option>
-      </select>
-    </label>
-  </div>
-  <p class="hint" id="connHint">The app is fully functional offline; a link just mirrors the canvas to the panel.
-    USB serial comfortably runs 30&ndash;60 fps at 921600 baud. BLE tops out around 10&ndash;15 fps for a 512-LED frame.</p>
+<script id="app-js">
+"use strict";
 
-  <div class="row" style="margin-top:20px">
-    <button id="save" style="border-color:var(--acc);color:var(--acc)">SAVE</button>
-    <button id="closeSet">CLOSE</button>
-  </div>
-</div>
+/* ════════════════════════════════════════════════════════════════
+   State
+   ════════════════════════════════════════════════════════════════ */
+let controllers = [];       // array loaded from assets/controllers.json
+let ctrlIndex   = 0;        // selected controller
+let layout      = null;     // the active controller object (mutable: settings edit it)
+let typeIds  = { pad:1, knob:2, fader:3 };
+let effectIds = { volume:1, pitch:2, reverb:3, chorus:4 };
+let chIndex  = 0;           // index into layout.mappings
+let banks    = [];          // persistent runtime state, one list per mapping
+let triggers = [];          // view alias: banks[chIndex]
+let chBtnRefs = [];         // channel button LED refs for the beat pulse
+let recArm   = -1;          // trigger index armed for REC, -1 = none
+let hwInChannel = null;     // MIDI channel of the last incoming message
+let clockOn = false, clockStart = 0, bpm = 120;   // beat clock (transport)
+let vizColor = "#ff991c";                          // stereo visualizer bar color
+let showMapped = true;                             // note/CC labels under triggers
+let anaL = null, anaR = null, tdBuf = null;        // per-side analysers
+const histL = [], histR = [];                      // scrolling peak history
+let warnT    = 0;           // toast timer (must exist before any boot-time showWarn)
+let dpr      = Math.max(1, window.devicePixelRatio || 1);
+let bgRgb        = [0.055, 0.059, 0.067];   // stage clear color (#0e0f11 chassis default)
+let backlightRgb = [1, 1, 1];               // pad hit-glow color
 
-<script>
-'use strict';
-/* ================= state ================= */
-const DEF = {w:32,h:16,ph:8,axis:'v',serp:true,fx:false,fy:false,
-             pin:5,bri:40,baud:921600,fps:20,mode:'draw',demo:0,brushIdx:1,color:2};
-let S = Object.assign({}, DEF);
-try{ Object.assign(S, JSON.parse(localStorage.getItem('matrixstudio')||'{}')); }catch(e){}
-const saveLS = () => { try{ localStorage.setItem('matrixstudio', JSON.stringify(S)); }catch(e){} };
+const $  = (s) => document.querySelector(s);
+const stage = $("#stage"), labelsEl = $("#labels"), rowsEl = $("#rows"), stopBtn = $("#btnStopAll");
+const vizLEl = $("#vizL"), vizREl = $("#vizR");
 
-let W=S.w, H=S.h, N=W*H;
-let fb;                 // Uint8Array W*H*3, row-major from top-left — single source of truth
-let lut;               // logical index -> strip index
-let pkt;               // reusable outgoing frame packet
-const BRUSHES=[1,2,3];
+/* ════════════════════════════════════════════════════════════════
+   WebGL renderer (WebGL1, SDF shapes, flat + additive glow)
+   ════════════════════════════════════════════════════════════════ */
+const canvas = $("#gl");
+const gl = canvas.getContext("webgl", { alpha:false, antialias:true, premultipliedAlpha:true });
 
-const PALETTE=[[0,0,0],[255,255,255],[255,40,40],[255,140,0],[255,220,0],
-               [40,220,60],[0,200,200],[60,90,255],[170,60,255],[255,60,170]];
+const VS = [
+  "attribute vec2 a_pos;",
+  "uniform vec2 u_res;",
+  "uniform vec2 u_center;",
+  "uniform vec2 u_half;",
+  "varying vec2 v_p;",
+  "void main(){",
+  "  v_p = a_pos * u_half;",
+  "  vec2 pix = u_center + vec2(a_pos.x, -a_pos.y) * u_half;",
+  "  vec2 clip = (pix / u_res) * 2.0 - 1.0;",
+  "  gl_Position = vec4(clip.x, -clip.y, 0.0, 1.0);",
+  "}"
+].join("\n");
 
-/* ================= layout / mapping ================= */
-function rebuild(){
-  W=S.w; H=S.h; N=W*H;
-  fb=new Uint8Array(N*3);
-  lut=new Uint32Array(N);
-  const ph=Math.min(S.ph,H)||H;
-  for(let y=0;y<H;y++) for(let x=0;x<W;x++){
-    let px=S.fx? W-1-x : x, py=S.fy? H-1-y : y;
-    const panel=Math.floor(py/ph), ly=py%ph, base=panel*W*ph;
-    let idx;
-    if(S.axis==='v'){
-      const r=(S.serp && (px&1))? ph-1-ly : ly;
-      idx=px*ph+r;
-    }else{
-      const c=(S.serp && (ly&1))? W-1-px : px;
-      idx=ly*W+c;
+const FS = [
+  "precision mediump float;",
+  "varying vec2 v_p;",
+  "uniform vec2  u_inner;",
+  "uniform vec3  u_color;",
+  "uniform int   u_shape;",   // 0 pad, 1 knob, 2 fader
+  "uniform float u_value;",
+  "uniform float u_glow;",
+  "uniform float u_rec;",
+  "uniform vec3  u_backlight;",
+  "float sdBox(vec2 p, vec2 b, float r){",
+  "  vec2 d = abs(p) - b + vec2(r);",
+  "  return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0) - r;",
+  "}",
+  "float sdSeg(vec2 p, vec2 a, vec2 b){",
+  "  vec2 pa = p - a, ba = b - a;",
+  "  float h = clamp(dot(pa,ba)/dot(ba,ba), 0.0, 1.0);",
+  "  return length(pa - ba*h);",
+  "}",
+  "float fill(float d){ return 1.0 - smoothstep(0.0, 1.5, d); }",
+  "void main(){",
+  "  vec3 rgb = vec3(0.0);",
+  "  float a  = 0.0;",
+  "  float dSil = 1e5;",                       // silhouette distance for rim + glow
+  "  if(u_shape == 0){",                       // ── PAD ──
+  "    float d = sdBox(v_p, u_inner, min(u_inner.x,u_inner.y)*0.16);",
+  "    dSil = d;",
+  "    float f = fill(d);",
+  "    rgb += u_color * f;  a += f;",
+  "  } else if(u_shape == 1){",                // ── KNOB ──
+  "    float r = min(u_inner.x, u_inner.y);",
+  "    float d = length(v_p) - r;",
+  "    dSil = d;",
+  "    float f = fill(d);",
+  "    rgb += u_color * f;  a += f;",
+  "    float ang = radians(225.0) - u_value * radians(270.0);",
+  "    vec2 dir  = vec2(cos(ang), sin(ang));",
+  "    float di  = sdSeg(v_p, dir*r*0.28, dir*r*0.80) - max(1.5, r*0.06);",
+  "    float fi  = fill(di);",
+  "    rgb = mix(rgb, vec3(0.92), fi);  a = max(a, fi);",
+  "    float dn  = length(v_p) - r*0.10;",     // center dot
+  "    float fn  = fill(dn);",
+  "    rgb = mix(rgb, vec3(0.92)*0.6, fn*0.8);",
+  "  } else {",                                // ── FADER ──
+  "    float tw = max(2.0, u_inner.x*0.14);",
+  "    float dt = sdBox(v_p, vec2(tw, u_inner.y), tw);",
+  "    float ft = fill(dt);",
+  "    rgb += u_color * 0.35 * ft;  a += ft*0.9;",
+  "    float hh = max(5.0, u_inner.y*0.10);",
+  "    float hy = mix(-(u_inner.y-hh), u_inner.y-hh, u_value);",
+  "    float dh = sdBox(v_p - vec2(0.0, hy), vec2(u_inner.x*0.62, hh), hh*0.45);",
+  "    float fh = fill(dh);",
+  "    rgb = mix(rgb, u_color, fh);  a = max(a, fh);",
+  "    dSil = min(dt, dh);",
+  "  }",
+  "  float rim = 1.0 - smoothstep(0.6, 2.2, abs(dSil));",   // always-on seam so dark colors read
+  "  rgb += vec3(0.55) * rim * 0.22;  a = max(a, rim*0.22);",
+  "  float g = clamp(u_glow + u_rec, 0.0, 1.6);",           // hit glow: white rim + halo
+  "  if(g > 0.001){",
+  "    vec3 gc = mix(u_backlight, vec3(1.0,0.35,0.30), step(0.001,u_rec)*0.85);",
+  "    float rimW = 1.0 - smoothstep(0.0, 3.0, abs(dSil));",
+  "    float halo = exp(-max(dSil,0.0) * 0.11) * step(0.0, dSil);",
+  "    float k = rimW * g + halo * g * 0.75;",
+  "    rgb += gc * k;  a = clamp(a + k, 0.0, 1.0);",
+  "  }",
+  "  gl_FragColor = vec4(rgb, a);",            // premultiplied
+  "}"
+].join("\n");
+
+function makeShader(type, src){
+  const s = gl.createShader(type);
+  gl.shaderSource(s, src); gl.compileShader(s);
+  if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+  return s;
+}
+const prog = gl.createProgram();
+gl.attachShader(prog, makeShader(gl.VERTEX_SHADER, VS));
+gl.attachShader(prog, makeShader(gl.FRAGMENT_SHADER, FS));
+gl.linkProgram(prog);
+if(!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+gl.useProgram(prog);
+
+const quad = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+const aPos = gl.getAttribLocation(prog, "a_pos");
+gl.enableVertexAttribArray(aPos);
+gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+const U = {};
+["u_res","u_center","u_half","u_inner","u_color","u_shape","u_value","u_glow","u_rec","u_backlight"]
+  .forEach(n => U[n] = gl.getUniformLocation(prog, n));
+
+gl.enable(gl.BLEND);
+gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+gl.clearColor(0.055, 0.059, 0.067, 1.0);
+
+function hexToRgb(hex){
+  const m = /^#?([0-9a-f]{6})$/i.exec(String(hex).trim());
+  const v = m ? parseInt(m[1], 16) : 0x808080;
+  return [((v>>16)&255)/255, ((v>>8)&255)/255, (v&255)/255];
+}
+
+/* ════════════════════════════════════════════════════════════════
+   Audio engine: looping sample voices + per-pad effect chains
+   pad chain: voice → input → [dry | chorus] → volume → master
+                                        volume → reverb send → shared convolver
+   ════════════════════════════════════════════════════════════════ */
+let actx = null, master = null, reverbBus = null;
+const sampleCache   = new Map();   // name → AudioBuffer | pending Promise
+const warnedOnce    = new Set();
+
+function showWarnOnce(msg){
+  if(warnedOnce.has(msg)) return;
+  warnedOnce.add(msg); showWarn(msg);
+}
+
+function ensureCtx(){
+  if(!actx){
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if(!AC) return null;
+    actx = new AC();
+    master = actx.createGain();
+    master.gain.value = 0.9;
+    master.connect(actx.destination);
+    reverbBus = actx.createConvolver();
+    reverbBus.buffer = makeImpulse(1.8, 2.6);
+    reverbBus.connect(master);
+    actx.onstatechange = updateAudioBadge;
+    const split = actx.createChannelSplitter(2);
+    anaL = actx.createAnalyser();  anaL.fftSize = 512;
+    anaR = actx.createAnalyser();  anaR.fftSize = 512;
+    master.connect(split);
+    split.connect(anaL, 0);
+    split.connect(anaR, 1);
+  }
+  if(actx.state === "suspended") actx.resume();
+  return actx;
+}
+
+function makeImpulse(seconds, decay){
+  const len = Math.floor(actx.sampleRate * seconds);
+  const buf = actx.createBuffer(2, len, actx.sampleRate);
+  for(let c = 0; c < 2; c++){
+    const d = buf.getChannelData(c);
+    for(let i = 0; i < len; i++)
+      d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
+  }
+  return buf;
+}
+
+function loadSample(name){
+  if(sampleCache.has(name)) return Promise.resolve(sampleCache.get(name));
+  const p = fetch("samples/" + encodeURIComponent(name))
+    .then((r) => { if(!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
+    .then((ab) => actx.decodeAudioData(ab))
+    .then((buf) => { sampleCache.set(name, buf); return buf; })
+    .catch(() => {
+      sampleCache.delete(name);
+      showWarnOnce("Missing sample: samples/" + name);
+      return null;
+    });
+  sampleCache.set(name, p);
+  return p;
+}
+
+function updateAudioBadge(){
+  $("#audioGate").classList.toggle("show", !!actx && actx.state !== "running");
+}
+function nudgeAudioBadge(){
+  const g = $("#audioGate");
+  if(!g.classList.contains("show")) return;
+  g.classList.remove("nudge"); void g.offsetWidth; g.classList.add("nudge");
+}
+
+function pitchRate(v){ return Math.pow(2, (v - 0.5) * 2); }   // 0.5 → 1.0×
+function fxDefault(name){ return (name === "volume" || name === "pitch") ? 0.5 : 0; }
+
+function padChain(t){
+  if(t.chain) return t.chain;
+  const c = {};
+  c.input   = actx.createGain();
+  c.dry     = actx.createGain();  c.dry.gain.value = 1;
+  c.chDelay = actx.createDelay(0.05);
+  c.chDelay.delayTime.value = 0.015;
+  c.chWet   = actx.createGain();  c.chWet.gain.value = 0;
+  c.chDepth = actx.createGain();  c.chDepth.gain.value = 0;
+  c.chLFO   = actx.createOscillator();
+  c.chLFO.frequency.value = 0.8;
+  c.chLFO.connect(c.chDepth);
+  c.chDepth.connect(c.chDelay.delayTime);
+  c.chLFO.start();
+  c.vol = actx.createGain();  c.vol.gain.value = 1;
+  c.rvb = actx.createGain();  c.rvb.gain.value = 0;
+  c.input.connect(c.dry);      c.dry.connect(c.vol);
+  c.input.connect(c.chDelay);  c.chDelay.connect(c.chWet);  c.chWet.connect(c.vol);
+  c.vol.connect(master);
+  c.vol.connect(c.rvb);        c.rvb.connect(reverbBus);
+  t.chain = c;
+  applyFx(t);
+  return c;
+}
+
+// Apply ONE effect's nodes. A knob controls a single effect, so the hot path
+// (applyKnobEffect, fired per pointermove) schedules only the 1-3 params it
+// actually changes instead of re-scheduling the whole chain each move.
+function applyFxParam(t, name){
+  if(!t.chain || !actx) return;
+  const now = actx.currentTime, fx = t.fx, k = 0.02;
+  switch(name){
+    case "volume":
+      t.chain.vol.gain.setTargetAtTime(fx.volume * 2, now, k);      // center = unity
+      break;
+    case "reverb":
+      t.chain.rvb.gain.setTargetAtTime(fx.reverb, now, k);
+      break;
+    case "chorus":
+      t.chain.chWet.gain.setTargetAtTime(fx.chorus * 0.9, now, k);
+      t.chain.chDepth.gain.setTargetAtTime(fx.chorus * 0.006, now, k);
+      t.chain.dry.gain.setTargetAtTime(1 - fx.chorus * 0.3, now, k);
+      break;
+    case "pitch":
+      if(t.voice) t.voice.src.playbackRate.setTargetAtTime(pitchRate(fx.pitch), now, 0.01);
+      break;
+  }
+}
+
+// Full re-apply (chain creation / new voice): push every effect once.
+function applyFx(t){
+  applyFxParam(t, "volume");
+  applyFxParam(t, "reverb");
+  applyFxParam(t, "chorus");
+  applyFxParam(t, "pitch");
+}
+
+function padOn(t, velNorm){
+  if(!clockOn) startClock();     // first pad press starts the beat (press = beat 1)
+  t.held = true;
+  if(t.cfg.switch) t.latched = true;
+  t.glow = Math.max(0.25, velNorm);
+  if(!t.cfg.sample) return;
+  if(!ensureCtx()){ showWarnOnce("Audio is not available in this browser."); return; }
+  if(actx.state === "suspended") nudgeAudioBadge();
+  stopVoice(t);
+  const seq = t.pressSeq = (t.pressSeq || 0) + 1;
+  loadSample(t.cfg.sample).then((buf) => {
+    if(!buf || seq !== t.pressSeq || !t.held) return;   // released / retriggered meanwhile
+    const src = actx.createBufferSource();
+    src.buffer = buf;
+    src.loop = true;
+    src.playbackRate.value = pitchRate(t.fx.pitch);
+    const vg = actx.createGain();
+    vg.gain.value = 0;
+    let when = actx.currentTime;                        // push pads: immediately
+    if(t.cfg.switch && clockOn){
+      // launch-quantize with a 50ms grace window: a press just after a beat
+      // (including the press that started the clock) catches that beat;
+      // computed post-load so slow decodes still land on-grid
+      const beatMs  = 60000 / bpm;
+      const elapsed = performance.now() - clockStart;
+      const target  = clockStart + Math.max(0, Math.ceil((elapsed - 50) / beatMs)) * beatMs;
+      when = actx.currentTime + Math.max(0, target - performance.now()) / 1000;
     }
-    lut[y*W+x]=Math.min(base+idx, N-1);
+    vg.gain.setTargetAtTime(Math.max(0.2, velNorm), when, 0.004);
+    src.connect(vg);
+    vg.connect(padChain(t).input);
+    src.start(when);
+    t.voice = { src, vGain: vg };
+  });
+}
+
+function padOff(t){
+  t.held = false;
+  t.latched = false;
+  t.pressSeq = (t.pressSeq || 0) + 1;
+  stopVoice(t);
+}
+
+function stopVoice(t){
+  if(!t.voice || !actx) return;
+  const v = t.voice; t.voice = null;
+  const now = actx.currentTime;
+  v.vGain.gain.setTargetAtTime(0, now, 0.012);          // declick
+  try{ v.src.stop(now + 0.08); }catch(_){}
+}
+
+function teardownChain(t){
+  if(!t.chain) return;
+  try{ t.chain.chLFO.stop(); }catch(_){}
+  Object.keys(t.chain).forEach((k) => { try{ t.chain[k].disconnect(); }catch(_){} });
+  t.chain = null;
+}
+
+function stopAllVoices(){
+  banks.forEach((list) => list.forEach((t) => {
+    stopVoice(t);
+    teardownChain(t);
+    t.held = false; t.latched = false;
+  }));
+}
+
+/* knob → pad effect routing (effect.pad references trigger id) */
+function padById(id, list){
+  list = list || triggers;
+  for(let i = 0; i < list.length; i++)
+    if(list[i].cfg.id === id && list[i].cfg.type === typeIds.pad) return list[i];
+  return null;
+}
+function nextFreeId(){
+  let max = 0;
+  (layout.mappings || []).forEach((m) => (m.triggers || []).forEach((tr) => {
+    if(typeof tr.id === "number" && tr.id > max) max = tr.id;
+  }));
+  return max + 1;
+}
+function effectName(id){
+  for(const k in effectIds) if(effectIds[k] === id) return k;
+  return null;
+}
+function applyKnobEffect(t, list){
+  const e = t.cfg.effect;
+  if(!e) return;
+  const name = effectName(e.type);
+  const pad  = padById(e.pad, list);
+  if(!name || !pad) return;
+  pad.fx[name] = t.value;
+  applyFxParam(pad, name);      // only this effect's nodes — not the whole chain
+}
+
+window.addEventListener("pointerdown", () => { ensureCtx(); }, true);
+window.addEventListener("keydown", () => { ensureCtx(); }, true);
+$("#audioGate").addEventListener("click", () => { ensureCtx(); });
+
+/* ════════════════════════════════════════════════════════════════
+   Layout: distribute triggers over the JSON grid, fit any screen
+   ════════════════════════════════════════════════════════════════ */
+function relayout(){
+  dpr = Math.max(1, window.devicePixelRatio || 1);
+  const wCss = stage.clientWidth, hCss = stage.clientHeight;
+  canvas.width  = Math.round(wCss * dpr);
+  canvas.height = Math.round(hCss * dpr);
+  gl.viewport(0, 0, canvas.width, canvas.height);
+  gl.uniform2f(U.u_res, canvas.width, canvas.height);
+
+  const n = triggers.length;
+  $("#empty").style.display = n ? "none" : "flex";
+  if(!n){ labelsEl.innerHTML = ""; return; }
+
+  const cols = Math.max(1, layout.grid.width | 0);
+  const maxRows = Math.max(1, layout.grid.height | 0);
+  const rows = Math.min(maxRows, Math.ceil(n / cols));
+
+  const margin = 18 * dpr;
+  const availW = canvas.width  - margin * 2;
+  const availH = canvas.height - margin * 2;
+  const cell   = Math.floor(Math.min(availW / cols, availH / rows));
+  const gridW  = cell * cols, gridH = cell * rows;
+  const ox = (canvas.width  - gridW) / 2;
+  const oy = (canvas.height - gridH) / 2;
+
+  labelsEl.innerHTML = "";
+  for(let i = 0; i < n; i++){
+    const t = triggers[i];
+    const c = i % cols, r = Math.floor(i / cols);
+    t.cx = ox + c * cell + cell / 2;
+    t.cy = oy + r * cell + cell / 2;
+    t.cell = cell;
+
+    const label = document.createElement("span");
+    label.className = "lbl";
+    label.style.left = (t.cx / dpr) + "px";
+    label.style.top  = ((t.cy + cell * 0.5 - 15 * dpr) / dpr) + "px";
+    label.textContent = labelFor(t);
+    t.labelEl = label;
+    labelsEl.appendChild(label);
   }
-  pkt=new Uint8Array(5+N*3);
-  pkt[0]=0xA5; pkt[1]=0x5A; pkt[2]=0x01; pkt[3]=(N*3)&0xFF; pkt[4]=(N*3)>>8;
-  fluidAlloc(); fireAlloc(); rainAlloc(); buildGeom(); layoutView();
+  syncRecLabels();
 }
 
-/* ================= WebGL2 renderer (texture-free) =================
-   Built on fluiddynamics' proven WebGL2 skeleton (raw WebGL2 that composites and
-   animates correctly on this device): a canvas born 1280x720 (never resized in
-   JS), a webgl2 context with {alpha:false,depth:false,stencil:false,
-   antialias:false,preserveDrawingBuffer:false}, an explicit VAO, #version 300 es
-   shaders, and a present that binds the default framebuffer, sets a full-screen
-   viewport, then draws.
-
-   IMPORTANT — no data textures. On this device (Mesa-Nouveau NV120, jitless V8)
-   uploading CPU pixel data into a texture (texImage2D / texSubImage2D with a
-   typed array, any format) hard-crashes the shared bridge context; only null-
-   allocated textures survive. fluiddynamics never uploads CPU texels either — it
-   renders into FBOs. So the grid is drawn WITHOUT a texture: one quad (2 tris, 6
-   verts) per cell, cell color delivered through a per-vertex attribute updated
-   each frame with bufferSubData (the vertex-buffer path IS proven — fluiddynamics
-   uploads its geometry the same way). The cell quads tile the grid rect with no
-   gaps, so a flat per-quad substrate reads as one continuous field and the round
-   core+glow (identical smoothstep math to the original LED shader, using the
-   cell-local 0..1 coord in place of fract(uv*grid)) gives the exact LED look.
-   The screen is cleared to the matrix background first, so everything outside the
-   grid rect (and behind the 50px toolbar) is the dark field. `fb` (the W*H*3 byte
-   grid) stays the single source of truth: every mode, the demos, the fluid sim
-   and the ESP32 packet builder are unchanged. */
-const cv=document.getElementById('cv');
-let gl, prog, vao, ccBuf, colBuf, colorData, uRes, uRect, uGrid, view={x:0,y:0,w:1,h:1,scale:1};
-
-const VS=`#version 300 es
-precision highp float;
-layout(location=0) in vec4 aCellCorner;  // cellX, cellY, cornerX(0/1), cornerY(0/1)
-layout(location=1) in vec3 aColor;        // cell color 0..1
-uniform vec2 uRes;    // drawing-buffer size, px
-uniform vec4 uRect;   // grid rect x,y,w,h in drawing-buffer px, top-left origin
-uniform vec2 uGrid;   // W,H cells
-out vec2 vLocal;      // 0..1 within the cell
-out vec3 vColor;
-void main(){
-  vec2 corner = aCellCorner.zw;                                  // 0..1
-  vec2 px = uRect.xy + (aCellCorner.xy + corner) * (uRect.zw / uGrid);  // top-left px
-  vec2 clip = vec2(px.x / uRes.x * 2.0 - 1.0, 1.0 - px.y / uRes.y * 2.0);
-  gl_Position = vec4(clip, 0.0, 1.0);
-  vLocal = corner;
-  vColor = aColor;
-}`;
-const FS=`#version 300 es
-precision highp float;
-in vec2 vLocal;
-in vec3 vColor;
-out vec4 o;
-void main(){
-  vec2 f = vLocal - 0.5;                       // matches the original fract(uv*grid)-0.5
-  float d = length(f);
-  float core = 1.0 - smoothstep(0.30, 0.46, d);
-  float glow = (1.0 - smoothstep(0.15, 0.72, d)) * 0.35;
-  o = vec4(vColor*core + vColor*glow + vec3(0.015, 0.017, 0.025), 1.0);
-}`;
-
-function initGL(){
-  gl=cv.getContext('webgl2',{alpha:false,depth:false,stencil:false,antialias:false,preserveDrawingBuffer:false});
-  if(!gl){ document.body.innerHTML='<p style="padding:20px">WebGL2 unavailable.</p>'; return; }
-  const mk=(t,s)=>{ const o=gl.createShader(t); gl.shaderSource(o,s); gl.compileShader(o); return o; };
-  prog=gl.createProgram();
-  gl.attachShader(prog,mk(gl.VERTEX_SHADER,VS));
-  gl.attachShader(prog,mk(gl.FRAGMENT_SHADER,FS));
-  gl.linkProgram(prog);
-  // Explicit VAO with two attribute buffers (never rely on default VAO 0 state).
-  // ccBuf: static cell+corner geometry (rebuilt on grid resize in buildGeom).
-  // colBuf: per-vertex color, rewritten each frame with bufferSubData.
-  vao=gl.createVertexArray();
-  gl.bindVertexArray(vao);
-  ccBuf=gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER,ccBuf);
-  gl.enableVertexAttribArray(0);
-  gl.vertexAttribPointer(0,4,gl.FLOAT,false,0,0);
-  colBuf=gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER,colBuf);
-  gl.enableVertexAttribArray(1);
-  gl.vertexAttribPointer(1,3,gl.FLOAT,false,0,0);
-  gl.bindVertexArray(null);
-  uRes=gl.getUniformLocation(prog,'uRes');
-  uRect=gl.getUniformLocation(prog,'uRect');
-  uGrid=gl.getUniformLocation(prog,'uGrid');
-}
-// Rebuild the per-cell quad geometry (6 verts/cell) and size the color buffer.
-// Called from rebuild() whenever W/H change.
-function buildGeom(){
-  if(!gl) return;
-  const verts=N*6, cc=new Float32Array(verts*4);
-  colorData=new Float32Array(verts*3);
-  const CO=[0,0, 1,0, 0,1, 1,0, 1,1, 0,1];   // two triangles of a unit quad
-  let p=0;
-  for(let y=0;y<H;y++) for(let x=0;x<W;x++){
-    for(let k=0;k<6;k++){ cc[p++]=x; cc[p++]=y; cc[p++]=CO[k*2]; cc[p++]=CO[k*2+1]; }
+function labelFor(t){
+  const isPad = t.cfg.type === typeIds.pad;
+  if(isPad) return (t.cfg.cc ? "CC " : "N ") + t.cfg.note + (t.cfg.switch ? " \u00b7SW" : "");
+  let s = "CC " + t.cfg.note;
+  if(t.cfg.effect){
+    const n = effectName(t.cfg.effect.type);
+    if(n) s += " " + n.slice(0, 3).toUpperCase() + "\u2192P" + t.cfg.effect.pad;
   }
-  gl.bindVertexArray(vao);
-  gl.bindBuffer(gl.ARRAY_BUFFER,ccBuf);
-  gl.bufferData(gl.ARRAY_BUFFER,cc,gl.STATIC_DRAW);
-  gl.bindBuffer(gl.ARRAY_BUFFER,colBuf);
-  gl.bufferData(gl.ARRAY_BUFFER,colorData.byteLength,gl.DYNAMIC_DRAW);
-  gl.bindVertexArray(null);
+  return s;
 }
-function layoutView(){
-  // Canvas stays 1280x720 (born that size, never resized in JS — matches
-  // fluiddynamics). `view` is CSS-px for pointer hit-testing; render() feeds the
-  // shader the same rect converted to drawing-buffer px.
-  const cw=window.innerWidth, ch=window.innerHeight;
-  const top=50, pad=12, availW=cw-pad*2, availH=ch-top-pad;
-  const s=Math.max(1,Math.min(availW/W,availH/H));
-  view={scale:s,w:s*W,h:s*H,x:(cw-s*W)/2,y:top+(availH-s*H)/2};
-}
-function render(){
-  if(!gl) return;
-  // Fill per-vertex colors from fb (the 6 verts of a cell share its color).
-  let p=0;
-  for(let i=0;i<N;i++){
-    const s=i*3, r=fb[s]/255, g=fb[s+1]/255, b=fb[s+2]/255;
-    for(let k=0;k<6;k++){ colorData[p++]=r; colorData[p++]=g; colorData[p++]=b; }
+
+/* ════════════════════════════════════════════════════════════════
+   Render loop
+   ════════════════════════════════════════════════════════════════ */
+let lastT = performance.now();
+function frame(now){
+  const dt = Math.min(0.1, (now - lastT) / 1000); lastT = now;
+  const decay = Math.pow(0.02, dt);           // ~fully gone in ~1s
+  const recPulse = 0.35 + 0.35 * Math.sin(now / 130);
+
+  let beatPulse = 0;
+  if(clockOn){
+    const beatMs = 60000 / bpm;
+    beatPulse = Math.pow(1 - ((now - clockStart) % beatMs) / beatMs, 3);   // sharp tick, decays
+    stopBtn.style.borderColor = "rgb(" +
+      Math.round(58 + 197 * beatPulse) + "," +
+      Math.round(36 + 219 * beatPulse) + "," +
+      Math.round(39 + 216 * beatPulse) + ")";                              // base ↔ white
   }
-  gl.useProgram(prog);
-  gl.bindVertexArray(vao);
-  gl.bindBuffer(gl.ARRAY_BUFFER,colBuf);
-  gl.bufferSubData(gl.ARRAY_BUFFER,0,colorData);
-  // view is CSS px; scale into drawing-buffer px (identity on the 1:1 target).
-  const sx=cv.width/window.innerWidth, sy=cv.height/window.innerHeight;
-  gl.uniform2f(uRes,cv.width,cv.height);
-  gl.uniform4f(uRect,view.x*sx,view.y*sy,view.w*sx,view.h*sy);
-  gl.uniform2f(uGrid,W,H);
-  gl.bindFramebuffer(gl.FRAMEBUFFER,null);
-  gl.viewport(0,0,gl.drawingBufferWidth,gl.drawingBufferHeight);
-  gl.disable(gl.BLEND);
-  gl.clearColor(0.043,0.051,0.078,1);   // matrix background outside the grid rect
+
   gl.clear(gl.COLOR_BUFFER_BIT);
-  gl.drawArrays(gl.TRIANGLES,0,N*6);
-}
 
-/* ================= helpers ================= */
-function setPix(x,y,r,g,b){
-  if(x<0||y<0||x>=W||y>=H) return;
-  const i=(y*W+x)*3; fb[i]=r; fb[i+1]=g; fb[i+2]=b;
-}
-function addPix(x,y,r,g,b){
-  if(x<0||y<0||x>=W||y>=H) return;
-  const i=(y*W+x)*3;
-  fb[i]=Math.min(255,fb[i]+r); fb[i+1]=Math.min(255,fb[i+1]+g); fb[i+2]=Math.min(255,fb[i+2]+b);
-}
-function fadeFB(k){ for(let i=0;i<fb.length;i++) fb[i]=(fb[i]*k)>>8; }
-function hsv(h,s,v){ // h 0..1 -> [r,g,b] 0..255
-  h=((h%1)+1)%1; const i=(h*6)|0, f=h*6-i, p=v*(1-s), q=v*(1-f*s), t=v*(1-(1-f)*s);
-  const m=[[v,t,p],[q,v,p],[p,v,t],[p,q,v],[t,p,v],[v,p,q]][i%6];
-  return [m[0]*255|0,m[1]*255|0,m[2]*255|0];
-}
+  for(let i = 0; i < triggers.length; i++){
+    const t = triggers[i];
+    if(!t.held) t.glow *= decay;
+    if(t.glow < 0.004) t.glow = 0;
+    if(t.flash > 0){ t.flash *= decay; if(t.flash < 0.004) t.flash = 0; }
 
-/* ================= input ================= */
-let pDown=false, pLast=null;
-function cellOf(e){
-  const r=cv.getBoundingClientRect();
-  const x=(e.clientX-r.left-view.x)/view.scale, y=(e.clientY-r.top-view.y)/view.scale;
-  return {x,y,cx:Math.floor(x),cy:Math.floor(y)};
-}
-function stroke(a,b){ // paint interpolated line in cells
-  const c=PALETTE[S.color], sz=BRUSHES[S.brushIdx], steps=Math.max(1,Math.ceil(Math.hypot(b.x-a.x,b.y-a.y)));
-  for(let s=0;s<=steps;s++){
-    const x=a.x+(b.x-a.x)*s/steps, y=a.y+(b.y-a.y)*s/steps;
-    const rad=(sz-1)*0.75+0.5;
-    for(let dy=-sz;dy<=sz;dy++) for(let dx=-sz;dx<=sz;dx++){
-      if(Math.hypot(dx,dy)<=rad+0.35) setPix(Math.floor(x)+dx,Math.floor(y)+dy,c[0],c[1],c[2]);
+    const half = t.cell * 0.72;               // quad bigger than cell → glow halo room
+    gl.uniform2f(U.u_center, t.cx, t.cy);
+    gl.uniform2f(U.u_half, half, half);
+
+    const kind = t.cfg.type === typeIds.pad ? 0 : (t.cfg.type === typeIds.fader ? 2 : 1);
+    gl.uniform1i(U.u_shape, kind);
+    if(kind === 0)      gl.uniform2f(U.u_inner, t.cell*0.40, t.cell*0.40);
+    else if(kind === 1) gl.uniform2f(U.u_inner, t.cell*0.31, t.cell*0.31);
+    else                gl.uniform2f(U.u_inner, t.cell*0.20, t.cell*0.42);
+
+    const col = t.rgb;
+    gl.uniform3f(U.u_color, col[0], col[1], col[2]);
+    gl.uniform1f(U.u_value, t.value);
+    let g = Math.max(t.glow, t.flash);
+    if(clockOn && t.latched) g = 0.8 + 0.2 * beatPulse;   // active pads breathe with the beat
+    gl.uniform1f(U.u_glow, g);
+    gl.uniform1f(U.u_rec, i === recArm ? recPulse : 0.0);
+    if(kind === 0) gl.uniform3f(U.u_backlight, backlightRgb[0], backlightRgb[1], backlightRgb[2]);
+    else           gl.uniform3f(U.u_backlight, 1.0, 1.0, 1.0);
+
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  }
+
+  for(let b = 0; b < chBtnRefs.length && b < banks.length; b++){
+    let act = false;
+    const list = banks[b];
+    for(let k = 0; k < list.length; k++){
+      if(list[k].latched || list[k].held){ act = true; break; }
     }
+    const sw = chBtnRefs[b];
+    sw.classList.toggle("on", act);
+    sw.style.opacity = act ? String(0.5 + 0.5 * beatPulse) : "";
+  }
+
+  let pL = 0, pR = 0;
+  if(anaL && actx && actx.state === "running"){
+    if(!tdBuf) tdBuf = new Uint8Array(anaL.fftSize);
+    pL = readPeak(anaL, tdBuf);
+    pR = readPeak(anaR, tdBuf);
+  }
+  drawViz(vizLEl, histL, pL);
+  drawViz(vizREl, histR, pR);
+
+  requestAnimationFrame(frame);
+}
+
+function readPeak(ana, buf){
+  ana.getByteTimeDomainData(buf);
+  let m = 0;
+  for(let i = 0; i < buf.length; i++){
+    const v = Math.abs(buf[i] - 128);
+    if(v > m) m = v;
+  }
+  return m / 128;
+}
+
+function drawViz(cv, hist, peak){
+  const w = cv.clientWidth, h = cv.clientHeight;
+  if(!w || !h) return;                                   // collapsed on tiny screens
+  const W = Math.round(w * dpr), H = Math.round(h * dpr);
+  if(cv.width !== W || cv.height !== H){ cv.width = W; cv.height = H; }
+  const c2 = cv._c2 || (cv._c2 = cv.getContext("2d"));
+  const step = Math.max(2, Math.round(3 * dpr));         // bar pitch
+  const n = Math.max(1, Math.floor(W / step));
+  hist.push(peak);
+  while(hist.length > n) hist.shift();
+  c2.clearRect(0, 0, W, H);
+  c2.fillStyle = vizColor;
+  const mid = H / 2, bw = Math.max(1, Math.round(1.6 * dpr));
+  for(let i = 0; i < hist.length; i++){
+    const x = W - (hist.length - i) * step;
+    const bh = Math.max(1, hist[i] * H * 0.92);
+    c2.fillRect(x, mid - bh / 2, bw, bh);                // newest at the right edge
   }
 }
-cv.addEventListener('pointerdown',e=>{
-  e.preventDefault(); cv.setPointerCapture(e.pointerId);
-  pDown=true; const p=cellOf(e);
-  if(S.mode==='draw') stroke(p,p);
-  else if(S.mode==='fluid') fluidInject(p,p);
-  else demoPoke(p);
-  pLast=p;
+
+/* ════════════════════════════════════════════════════════════════
+   Controller list (assets/controllers.json)
+   ════════════════════════════════════════════════════════════════ */
+function setControllers(list){
+  controllers = list;
+  const sel = $("#ctrlSelect");
+  sel.innerHTML = "";
+  controllers.forEach((c, i) => {
+    const o = document.createElement("option");
+    o.value = i;
+    o.textContent = c.model || ("Controller " + (i + 1));
+    sel.appendChild(o);
+  });
+  applyController(Math.min(ctrlIndex, controllers.length - 1));
+}
+
+function applyController(i){
+  ctrlIndex = Math.max(0, i);
+  $("#ctrlSelect").value = ctrlIndex;
+  chIndex = 0;
+  applyLayout(controllers[ctrlIndex]);
+}
+
+$("#ctrlSelect").addEventListener("change", (e) => {
+  applyController(parseInt(e.target.value, 10) || 0);
 });
-cv.addEventListener('pointermove',e=>{
-  if(!pDown) return; e.preventDefault();
-  const p=cellOf(e);
-  if(S.mode==='draw') stroke(pLast,p);
-  else if(S.mode==='fluid') fluidInject(pLast,p);
-  else demoPoke(p);
-  pLast=p;
+
+/* ════════════════════════════════════════════════════════════════
+   Channel / layout plumbing
+   ════════════════════════════════════════════════════════════════ */
+function applyLayout(json){
+  layout = json;
+  typeIds   = Object.assign({ pad:1, knob:2, fader:3 }, json.types || {});
+  effectIds = Object.assign({ volume:1, pitch:2, reverb:3, chorus:4 }, json.effects || {});
+  bgRgb = hexToRgb(layout.background_color || "#0e0f11");
+  bpm = Number(layout.bpm) > 0 ? Number(layout.bpm) : 120;
+  vizColor = layout.visualizer_color || "#ff991c";
+  showMapped = layout.show_mapped !== false;       // default: shown
+  syncShowMapped();
+  gl.clearColor(bgRgb[0], bgRgb[1], bgRgb[2], 1.0);
+  chIndex = Math.min(chIndex, Math.max(0, layout.mappings.length - 1));
+
+  stopEverything();                      // different controller = different world
+  banks = layout.mappings.map((map) => map.triggers.map((cfg) => ({
+    cfg,
+    rgb: hexToRgb(cfg.color),
+    value: cfg.effect ? fxDefault(effectName(cfg.effect.type)) : 0.5,
+    glow: 0, flash: 0, held: false, latched: false,
+    fx: { volume: 0.5, pitch: 0.5, reverb: 0, chorus: 0 },
+    voice: null, chain: null, pressSeq: 0,
+    cx: 0, cy: 0, cell: 0, labelEl: null
+  })));
+  banks.forEach((list) => list.forEach((t) => {
+    if(t.cfg.effect) applyKnobEffect(t, list);
+  }));
+
+  const m = $("#model");
+  m.firstChild.textContent = layout.model || "MIDI Surface";
+  document.title = (layout.model || "MIDI") + " · Surface";
+
+  buildChannelButtons();
+  selectChannel(chIndex);
+}
+
+function syncShowMapped(){
+  labelsEl.classList.toggle("hidemap", !showMapped);
+  $("#showMapped").checked = showMapped;
+}
+$("#showMapped").addEventListener("change", (e) => {
+  showMapped = e.target.checked;
+  layout.show_mapped = showMapped;                 // flows into EXPORT JSON
+  syncShowMapped();
 });
-const up=e=>{pDown=false;pLast=null;};
-cv.addEventListener('pointerup',up); cv.addEventListener('pointercancel',up);
 
-/* ================= fluid (Stam stable fluids at grid res) ================= */
-let vu,vv,vt1,vt2,cr,cg,cb,ct1,ct2,ct3,prs,dvg;
-function fluidAlloc(){
-  const f=()=>new Float32Array(N);
-  vu=f();vv=f();vt1=f();vt2=f();cr=f();cg=f();cb=f();ct1=f();ct2=f();ct3=f();prs=f();dvg=f();
-}
-const gf=(f,x,y)=>f[Math.max(0,Math.min(H-1,y))*W+Math.max(0,Math.min(W-1,x))];
-function fsamp(f,x,y){
-  x=Math.max(0,Math.min(W-1.001,x)); y=Math.max(0,Math.min(H-1.001,y));
-  const x0=x|0,y0=y|0,sx=x-x0,sy=y-y0,x1=Math.min(W-1,x0+1),y1=Math.min(H-1,y0+1);
-  return (f[y0*W+x0]*(1-sx)+f[y0*W+x1]*sx)*(1-sy)+(f[y1*W+x0]*(1-sx)+f[y1*W+x1]*sx)*sy;
-}
-function advect(dst,src,dt,diss){
-  for(let y=0;y<H;y++) for(let x=0;x<W;x++){
-    const i=y*W+x;
-    dst[i]=fsamp(src,x-vu[i]*dt,y-vv[i]*dt)*diss;
-  }
-}
-function project(){
-  for(let y=0;y<H;y++) for(let x=0;x<W;x++){
-    dvg[y*W+x]=-0.5*(gf(vu,x+1,y)-gf(vu,x-1,y)+gf(vv,x,y+1)-gf(vv,x,y-1));
-    prs[y*W+x]=0;
-  }
-  for(let k=0;k<14;k++)
-    for(let y=0;y<H;y++) for(let x=0;x<W;x++)
-      prs[y*W+x]=(dvg[y*W+x]+gf(prs,x-1,y)+gf(prs,x+1,y)+gf(prs,x,y-1)+gf(prs,x,y+1))*0.25;
-  for(let y=0;y<H;y++) for(let x=0;x<W;x++){
-    vu[y*W+x]-=0.5*(gf(prs,x+1,y)-gf(prs,x-1,y));
-    vv[y*W+x]-=0.5*(gf(prs,x,y+1)-gf(prs,x,y-1));
-  }
-}
-function fluidInject(a,b){
-  const c=PALETTE[S.color], dx=b.x-a.x, dy=b.y-a.y;
-  const col=(S.color===0)?[255,255,255]:c;
-  for(let oy=-1;oy<=1;oy++) for(let ox=-1;ox<=1;ox++){
-    const x=b.cx+ox, y=b.cy+oy;
-    if(x<0||y<0||x>=W||y>=H) continue;
-    const i=y*W+x, k=(ox===0&&oy===0)?1:0.45;
-    vu[i]+=dx*6*k; vv[i]+=dy*6*k;
-    cr[i]=Math.min(1.4,cr[i]+col[0]/255*0.55*k);
-    cg[i]=Math.min(1.4,cg[i]+col[1]/255*0.55*k);
-    cb[i]=Math.min(1.4,cb[i]+col[2]/255*0.55*k);
-  }
-}
-function fluidStep(dt){
-  dt=Math.min(dt,0.05)*8;
-  advect(vt1,vu,dt,0.998); advect(vt2,vv,dt,0.998);
-  [vu,vt1]=[vt1,vu]; [vv,vt2]=[vt2,vv];
-  project();
-  advect(ct1,cr,dt,0.982); advect(ct2,cg,dt,0.982); advect(ct3,cb,dt,0.982);
-  [cr,ct1]=[ct1,cr]; [cg,ct2]=[ct2,cg]; [cb,ct3]=[ct3,cb];
-  for(let i=0;i<N;i++){
-    fb[i*3]  =Math.min(255,cr[i]*255)|0;
-    fb[i*3+1]=Math.min(255,cg[i]*255)|0;
-    fb[i*3+2]=Math.min(255,cb[i]*255)|0;
-  }
+function buildChannelButtons(){
+  const nav = $("#channels");
+  nav.innerHTML = "";
+  chBtnRefs = [];
+  layout.mappings.forEach((map, i) => {
+    const b = document.createElement("button");
+    b.className = "chbtn";
+    b.dataset.ch = map.channel;
+    const sw = document.createElement("span");
+    sw.className = "sw";
+    b.appendChild(sw);
+    b.appendChild(document.createTextNode(map.name || ("CH " + map.channel)));
+    b.addEventListener("click", () => selectChannel(i));
+    nav.appendChild(b);
+    chBtnRefs.push(sw);
+  });
 }
 
-/* ================= demos ================= */
-let heat, drops;
-function fireAlloc(){ heat=new Float32Array(N); }
-function rainAlloc(){
-  drops=[];
-  for(let x=0;x<W;x++) drops.push({y:Math.random()*-H*2,v:4+Math.random()*10,x});
+function stopEverything(){
+  banks.forEach((list) => list.forEach((t) => {
+    if(t.latched) midiSend(padMsg(t, false));
+  }));
+  stopAllVoices();      // stops voices, tears down chains, clears held/latched — all banks
 }
-const balls=[];
-for(let i=0;i<5;i++) balls.push({x:Math.random()*20,y:Math.random()*10,
-  vx:(Math.random()*8+4)*(Math.random()<.5?-1:1),vy:(Math.random()*6+3)*(Math.random()<.5?-1:1),h:i/5});
+function startClock(){
+  clockOn = true;
+  clockStart = performance.now();
+  updateTransportBtn();
+}
+function stopClock(){
+  clockOn = false;
+  stopBtn.style.borderColor = "";
+  updateTransportBtn();
+}
+function updateTransportBtn(){
+  stopBtn.classList.toggle("run", clockOn);
+  stopBtn.textContent = clockOn ? "STOP ALL" : "START";
+}
+stopBtn.addEventListener("click", () => {
+  if(clockOn){ stopClock(); stopEverything(); }
+  else startClock();
+});
 
-const DEMOS=[
- {name:'RAINBOW',fn:(t)=>{ for(let y=0;y<H;y++) for(let x=0;x<W;x++){
-    const [r,g,b]=hsv(x/W+y*0.015+t*0.12,1,1); setPix(x,y,r,g,b); }}},
- {name:'PLASMA',fn:(t)=>{ for(let y=0;y<H;y++) for(let x=0;x<W;x++){
-    const v=Math.sin(x*0.45+t*1.6)+Math.sin(y*0.7+t*1.1)
-           +Math.sin((x+y)*0.3+t*0.7)+Math.sin(Math.hypot(x-W/2,y-H/2)*0.55-t*1.8);
-    const [r,g,b]=hsv(v*0.12+t*0.03,0.9,0.5+0.5*Math.sin(v*1.2));
-    setPix(x,y,r,g,b); }}},
- {name:'FIRE',fn:(t,dt)=>{
-    for(let x=0;x<W;x++) heat[(H-1)*W+x]=Math.random()<0.82?0.9+Math.random()*0.4:0.15;
-    for(let y=0;y<H-1;y++) for(let x=0;x<W;x++){
-      const sx=Math.max(0,Math.min(W-1,x+((Math.random()*3)|0)-1));
-      heat[y*W+x]=Math.max(0,heat[(y+1)*W+sx]-Math.random()*0.14);
+function selectChannel(i){
+  chIndex = i;                       // view switch only — every bank keeps playing
+  recArm = -1;
+  document.querySelectorAll(".chbtn").forEach((b, k) =>
+    b.classList.toggle("active", k === i));
+
+  const map = layout.mappings[i] || { triggers: [] };
+  backlightRgb = hexToRgb(map.pad_backlight_color || layout.pad_backlight_color || "#ffffff");
+  triggers = banks[i] || [];
+  relayout();
+  buildRows();
+}
+
+/* ════════════════════════════════════════════════════════════════
+   Pointer interaction (touch + mouse), screen → MIDI out
+   ════════════════════════════════════════════════════════════════ */
+const active = new Map();   // pointerId → {i, mode, startY, startVal}
+
+function hitTest(x, y){
+  for(let i = 0; i < triggers.length; i++){
+    const t = triggers[i], h = t.cell / 2;
+    if(x >= t.cx - h && x <= t.cx + h && y >= t.cy - h && y <= t.cy + h) return i;
+  }
+  return -1;
+}
+
+canvas.addEventListener("pointerdown", (e) => {
+  ensureCtx();
+  const x = e.offsetX * dpr, y = e.offsetY * dpr;
+  const i = hitTest(x, y);
+  if(i < 0) return;
+  canvas.setPointerCapture(e.pointerId);
+  const t = triggers[i];
+  if(t.cfg.type === typeIds.pad){
+    if(t.cfg.switch){
+      if(t.latched){
+        padOff(t);
+        midiSend(padMsg(t, false));
+      } else {
+        padOn(t, 1);
+        midiSend(padMsg(t, true));
+      }
+    } else {
+      active.set(e.pointerId, { t, mode:"pad" });
+      padOn(t, 1);
+      midiSend(padMsg(t, true));
     }
-    for(let i=0;i<N;i++){ const h=heat[i];
-      fb[i*3]=Math.min(255,h*340)|0;
-      fb[i*3+1]=Math.max(0,Math.min(255,(h-0.35)*380))|0;
-      fb[i*3+2]=Math.max(0,Math.min(255,(h-0.8)*500))|0; }}},
- {name:'RAIN',fn:(t,dt)=>{
-    fadeFB(196);
-    for(const d of drops){
-      d.y+=d.v*dt;
-      const y=d.y|0;
-      setPix(d.x,y,180,255,180); setPix(d.x,y-1,0,170,40); setPix(d.x,y-2,0,80,15);
-      if(y-2>H){ d.y=-Math.random()*H; d.v=4+Math.random()*10; } }}},
- {name:'BOUNCE',fn:(t,dt)=>{
-    fadeFB(215);
-    for(const b of balls){
-      b.x+=b.vx*dt; b.y+=b.vy*dt;
-      if(b.x<0){b.x=0;b.vx*=-1;} if(b.x>W-1){b.x=W-1;b.vx*=-1;}
-      if(b.y<0){b.y=0;b.vy*=-1;} if(b.y>H-1){b.y=H-1;b.vy*=-1;}
-      const [r,g,bl]=hsv(b.h+t*0.05,1,1);
-      addPix(b.x|0,b.y|0,r,g,bl);
-      addPix((b.x|0)+1,b.y|0,r>>2,g>>2,bl>>2); addPix((b.x|0)-1,b.y|0,r>>2,g>>2,bl>>2);
-      addPix(b.x|0,(b.y|0)+1,r>>2,g>>2,bl>>2); addPix(b.x|0,(b.y|0)-1,r>>2,g>>2,bl>>2); }}},
-];
-function demoPoke(p){ // sparkle where touched
-  for(let i=0;i<4;i++)
-    addPix(p.cx+((Math.random()*3)|0)-1,p.cy+((Math.random()*3)|0)-1,255,255,255);
-  if(S.demo===2 && p.cy>=0 && p.cy<H) heat[Math.min(H-1,p.cy)*W+Math.max(0,Math.min(W-1,p.cx))]=1.3;
-}
-
-/* ================= identify (mapping test) ================= */
-let identUntil=0;
-function identifyFrame(t){
-  fb.fill(0);
-  const sw=(t*6|0)%W;
-  for(let y=0;y<H;y++) setPix(sw,y,90,90,90);
-  setPix(0,0,255,0,0); setPix(W-1,0,0,255,0); setPix(0,H-1,0,0,255); setPix(W-1,H-1,255,255,0);
-}
-
-/* ================= connectivity ================= */
-let sink=null, sending=false, lastSend=0;
-const dot=document.getElementById('dot'), connLabel=document.getElementById('connLabel');
-function setConn(label,ok){ connLabel.textContent=label; dot.className=ok?'ok':''; }
-
-function configPacket(){
-  return new Uint8Array([0xA5,0x5A,0x02,4,0, S.pin&0xFF, N&0xFF, (N>>8)&0xFF, S.bri&0xFF]);
-}
-function buildFrame(){
-  for(let i=0;i<N;i++){
-    const d=5+lut[i]*3, s=i*3;
-    pkt[d]=fb[s]; pkt[d+1]=fb[s+1]; pkt[d+2]=fb[s+2];
+  } else {
+    active.set(e.pointerId, { t, mode:"turn", startY: y, startVal: t.value });
+    t.flash = 0.5;
   }
-  return pkt;
+});
+
+canvas.addEventListener("pointermove", (e) => {
+  const a = active.get(e.pointerId);
+  if(!a || a.mode !== "turn") return;
+  const t = a.t;
+  const dy = (a.startY - e.offsetY * dpr) / (170 * dpr);
+  const v = Math.min(1, Math.max(0, a.startVal + dy));
+  if(v !== t.value){
+    t.value = v;
+    t.flash = 0.35;
+    applyKnobEffect(t);
+    midiSend([0xB0 | outChannelBits(), t.cfg.note & 0x7f, Math.round(v * 127)]);
+  }
+});
+
+function endPointer(e){
+  const a = active.get(e.pointerId);
+  if(!a) return;
+  active.delete(e.pointerId);
+  if(a.mode === "pad"){
+    padOff(a.t);            // trigger object: correct even if the view changed mid-hold
+    midiSend(padMsg(a.t, false));
+  }
 }
-async function disconnect(){
-  const s=sink; sink=null;
-  setConn('offline',false);
-  if(!s) return;
-  try{ await s.close(); }catch(e){}
+canvas.addEventListener("pointerup", endPointer);
+canvas.addEventListener("pointercancel", endPointer);
+
+function padMsg(t, down){
+  const n = t.cfg.note & 0x7f;
+  if(t.cfg.cc) return [0xB0 | outChannelBits(), n, down ? 127 : 0];   // CC-mode pad
+  return [(down ? 0x90 : 0x80) | outChannelBits(), n, down ? 127 : 0];
 }
-async function connectSerial(){
-  if(!navigator.serial){ alert('Web Serial not available in this runtime.'); return; }
-  await disconnect();
-  try{
-    const port=await navigator.serial.requestPort();
-    await port.open({baudRate:S.baud});
-    const writer=port.writable.getWriter();
-    sink={
-      type:'usb',
-      send:async b=>writer.write(b),
-      close:async()=>{ try{writer.releaseLock();}catch(e){} try{await port.close();}catch(e){} }
-    };
-    setConn('usb '+S.baud,true);
-    await sink.send(configPacket());
-  }catch(e){ setConn('offline',false); }
+
+function outChannelBits(){
+  const ch = hwInChannel || (layout.mappings[chIndex] && layout.mappings[chIndex].channel) || 1;
+  return (Math.max(1, ch) - 1) & 0x0f;
 }
-const NUS='6e400001-b5a3-f393-e0a9-e50e24dcca9e';
-const NUS_RX='6e400002-b5a3-f393-e0a9-e50e24dcca9e';
-async function connectBle(){
-  if(!navigator.bluetooth){ alert('Web Bluetooth not available in this runtime.'); return; }
-  await disconnect();
-  try{
-    const dev=await navigator.bluetooth.requestDevice({
-      filters:[{services:[NUS]}], optionalServices:[NUS]});
-    dev.addEventListener('gattserverdisconnected',()=>{ if(sink&&sink.type==='ble'){sink=null;setConn('offline',false);} });
-    const gatt=await dev.gatt.connect();
-    const svc=await gatt.getPrimaryService(NUS);
-    const rx=await svc.getCharacteristic(NUS_RX);
-    // Capability check must use .properties — the method itself always exists
-    // on the prototype whether or not this characteristic supports it.
-    const canWNR=!!(rx.properties&&rx.properties.writeWithoutResponse);
-    const wrAck =rx.writeValueWithResponse ? b=>rx.writeValueWithResponse(b) : b=>rx.writeValue(b);
-    const wrFast=canWNR ? b=>rx.writeValueWithoutResponse(b) : wrAck;
-    const CH=180;
-    sink={
-      type:'ble',
-      // Chunks stream out via write-without-response, but the LAST chunk of
-      // every packet is a write WITH response. That ACK round-trip is the real
-      // flow control: writeValueWithoutResponse resolves long before the bytes
-      // hit the air, so awaiting it alone lets the OS BLE queue silently grow
-      // until the central drops the link. The per-frame ACK self-clocks the
-      // stream to what the radio actually sustains — the fps setting becomes a
-      // ceiling, not a promise.
-      send:async b=>{
-        for(let o=0;o<b.length;o+=CH){
-          const chunk=b.subarray(o,Math.min(b.length,o+CH));
-          if(o+CH>=b.length) await wrAck(chunk);
-          else await wrFast(chunk);
+
+/* ════════════════════════════════════════════════════════════════
+   Web MIDI: controller → screen, screen → controller
+   ════════════════════════════════════════════════════════════════ */
+let midi = null;
+
+function midiSend(bytes){
+  if(!midi) return;
+  midi.outputs.forEach((out) => { try{ out.send(bytes); }catch(_){} });
+  pingDot();
+}
+
+function pingDot(){
+  const d = $("#midiDot");
+  d.classList.remove("blink"); void d.offsetWidth; d.classList.add("blink");
+}
+
+function refreshDevices(){
+  const dot = $("#midiDot"), txt = $("#midiText"), dev = $("#devices");
+  if(!midi){
+    dot.classList.remove("on");
+    txt.textContent = "MIDI: unavailable";
+    dev.textContent = "Web MIDI is not available in this browser.";
+    return;
+  }
+  const ins = [...midi.inputs.values()], outs = [...midi.outputs.values()];
+  dot.classList.toggle("on", ins.length > 0);
+  txt.textContent = "MIDI: " + ins.length + " in / " + outs.length + " out";
+  dev.innerHTML =
+    "IN&nbsp;&nbsp;· " + (ins.length  ? ins.map(i => "<b>" + esc(i.name) + "</b>").join(", ")  : "none") + "<br>" +
+    "OUT · "           + (outs.length ? outs.map(o => "<b>" + esc(o.name) + "</b>").join(", ") : "none");
+  ins.forEach((inp) => { inp.onmidimessage = onMidiMessage; });
+}
+
+function esc(s){ return String(s).replace(/[&<>]/g, (c) => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;" }[c])); }
+
+let midiInT = 0;
+function showMidiIn(s){
+  const el = $("#midiIn");
+  el.textContent = s;
+  el.classList.add("hot");
+  clearTimeout(midiInT);
+  midiInT = setTimeout(() => {
+    el.textContent = "—";
+    el.classList.remove("hot");
+  }, 2000);
+}
+
+function fmtMidiIn(cmd, ch, num, val){
+  switch(cmd){
+    case 0x90: return "CH" + ch + " N" + num + " · " + (val > 0 ? val : "OFF");
+    case 0x80: return "CH" + ch + " N" + num + " · OFF";
+    case 0xB0: return "CH" + ch + " CC" + num + " · " + val;
+    case 0xC0: return "CH" + ch + " PC · " + num;      // LPD8 PROG CHNG mode
+    case 0xA0: return "CH" + ch + " AT" + num + " · " + val;
+    case 0xD0: return "CH" + ch + " AT · " + num;
+    default:   return null;
+  }
+}
+
+function onMidiMessage(ev){
+  const d = ev.data;
+  if(!d || d.length < 2) return;
+  const cmd = d[0] & 0xf0, ch = (d[0] & 0x0f) + 1;
+  const num = d[1], val = d.length > 2 ? d[2] : 0;
+  if(actx && actx.state === "suspended") actx.resume();   // works where policy allows
+  pingDot();
+  const s = fmtMidiIn(cmd, ch, num, val);
+  if(s) showMidiIn(s);
+
+  if(cmd === 0x90 && val > 0)      handleIn(ch, "note", num, val, true);
+  else if(cmd === 0x80 || (cmd === 0x90 && val === 0)) handleIn(ch, "note", num, 0, false);
+  else if(cmd === 0xB0)            handleIn(ch, "cc", num, val, true);
+}
+
+function handleIn(ch, kind, num, val, on){
+  hwInChannel = ch;   // echoes go back on the channel the hardware talks on
+
+  // REC assignment takes priority
+  if(recArm >= 0 && on){
+    const t = triggers[recArm];
+    t.cfg.note = num;
+    if(t.cfg.type === typeIds.pad){
+      if(kind === "cc") t.cfg.cc = true; else delete t.cfg.cc;
+    }
+    if(t.labelEl) t.labelEl.textContent = labelFor(t);
+    const inp = rowsEl.querySelector('input[data-i="' + recArm + '"]');
+    if(inp) inp.value = num;
+    setRec(-1);
+    t.flash = 1.0;
+    return;
+  }
+
+  const vmax = layout.velocity_max || 127;
+  let matched = false;
+  const isRelease = (kind === "note" && !on) || (kind === "cc" && val === 0);
+
+  // presses and knob moves target the SELECTED bank only
+  // (banks may share numbers — e.g. PAD 1-4 all on notes 100-107)
+  if(!isRelease){
+    for(let i = 0; i < triggers.length; i++){
+      const t = triggers[i], isPad = t.cfg.type === typeIds.pad;
+      if(t.cfg.note !== num) continue;
+      if(isPad && kind === (t.cfg.cc ? "cc" : "note")){
+        matched = true;
+        ensureCtx();
+        if(t.cfg.switch){
+          if(t.latched){
+            padOff(t);
+            midiSend(padMsg(t, false));                 // LED off
+          } else {
+            padOn(t, 1);                                // switch = always max velocity
+            midiSend(padMsg(t, true));                  // hold LED on
+          }
+        } else {
+          padOn(t, val / vmax);
         }
-      },
-      close:async()=>{ try{dev.gatt.disconnect();}catch(e){} }
-    };
-    setConn('ble',true);
-    await sink.send(configPacket());
-  }catch(e){ setConn('offline',false); }
-}
-async function pump(now){
-  if(!sink||sending) return;
-  if(now-lastSend < 1000/S.fps) return;
-  lastSend=now; sending=true; dot.className='busy';
-  try{ await sink.send(buildFrame()); if(sink) dot.className='ok'; }
-  catch(e){ await disconnect(); }
-  sending=false;
+      } else if(kind === "cc" && !isPad){
+        matched = true;
+        t.value = val / 127;
+        t.flash = 0.4;
+        applyKnobEffect(t);
+      }
+    }
+  } else {
+    // releases broadcast to EVERY bank, so a pad held on a background
+    // bank always resolves even after the view moved elsewhere
+    let reasserted = false;
+    banks.forEach((list) => {
+      list.forEach((t) => {
+        if(t.cfg.type !== typeIds.pad || t.cfg.note !== num) return;
+        if(kind !== (t.cfg.cc ? "cc" : "note")) return;
+        matched = true;
+        if(!t.cfg.switch){
+          if(t.held) padOff(t);
+        } else if(t.latched && !reasserted){
+          reasserted = true;                            // one LED re-assert per message
+          midiSend(padMsg(t, true));
+        }
+      });
+    });
+  }
+
+  if(!matched && on){
+    // nothing here answered — hint at a bank that declares this channel
+    const cur = layout.mappings[chIndex];
+    if(!cur || cur.channel !== ch){
+      const btn = document.querySelector('.chbtn[data-ch="' + ch + '"]');
+      if(btn){
+        btn.classList.add("pulse");
+        clearTimeout(btn._pt);
+        btn._pt = setTimeout(() => btn.classList.remove("pulse"), 900);
+      }
+    }
+  }
 }
 
-/* ================= UI ================= */
-const $=id=>document.getElementById(id);
-const modeBtns={draw:$('mDraw'),fluid:$('mFluid'),demo:$('mDemo')};
-function setMode(m){
-  S.mode=m; saveLS();
-  for(const k in modeBtns) modeBtns[k].classList.toggle('on',k===m);
-  $('demoName').style.display = m==='demo'?'':'none';
-  $('drawTools').style.display = m==='demo'?'none':'flex';
+if(navigator.requestMIDIAccess){
+  navigator.requestMIDIAccess({ sysex:false }).then((access) => {
+    midi = access;
+    midi.onstatechange = refreshDevices;
+    refreshDevices();
+  }, () => {
+    refreshDevices();
+    showWarn("MIDI access was denied — screen controls still work.");
+  });
+} else {
+  refreshDevices();
+  showWarn("Web MIDI is not supported here — screen controls still work.");
 }
-modeBtns.draw.onclick=()=>setMode('draw');
-modeBtns.fluid.onclick=()=>setMode('fluid');
-modeBtns.demo.onclick=()=>setMode('demo');
-$('demoName').onclick=()=>{ S.demo=(S.demo+1)%DEMOS.length; $('demoName').textContent=DEMOS[S.demo].name; fb.fill(0); saveLS(); };
-$('demoName').textContent=DEMOS[S.demo%DEMOS.length].name;
-$('brush').onclick=()=>{ S.brushIdx=(S.brushIdx+1)%BRUSHES.length; $('brush').textContent='B:'+BRUSHES[S.brushIdx]; saveLS(); };
-$('brush').textContent='B:'+BRUSHES[S.brushIdx%BRUSHES.length];
-$('clear').onclick=()=>{ fb.fill(0); fluidAlloc(); if(heat)heat.fill(0); };
 
-// palette swatches
-const tools=$('drawTools');
-PALETTE.forEach((c,i)=>{
-  const b=document.createElement('button');
-  b.className='sw'+(i===S.color?' on':'');
-  b.style.background=i===0?'#0b0d14':`rgb(${c[0]},${c[1]},${c[2]})`;
-  if(i===0) b.textContent='\u2715', b.style.color='#666', b.style.fontSize='12px';
-  b.onclick=()=>{ S.color=i; saveLS();
-    tools.querySelectorAll('.sw').forEach((e,j)=>e.classList.toggle('on',j===i)); };
-  tools.appendChild(b);
+/* ════════════════════════════════════════════════════════════════
+   Settings drawer: type / note editing, REC, load & export
+   ════════════════════════════════════════════════════════════════ */
+function buildRows(){
+  rowsEl.innerHTML = "";
+  refreshSampleList();
+  const names = Object.keys(typeIds); // e.g. pad, knob, fader
+  triggers.forEach((t, i) => {
+    const row = document.createElement("div");
+    row.className = "row";
+    const l1 = document.createElement("div");
+    l1.className = "line l1";
+
+    const idx = document.createElement("span");
+    idx.className = "idx";
+    idx.textContent = t.cfg.id != null ? "P" + t.cfg.id : String(i + 1).padStart(2, "0");
+
+    const sel = document.createElement("select");
+    names.forEach((n) => {
+      const o = document.createElement("option");
+      o.value = typeIds[n]; o.textContent = n.toUpperCase();
+      if(typeIds[n] === t.cfg.type) o.selected = true;
+      sel.appendChild(o);
+    });
+    sel.addEventListener("change", () => {
+      padOff(t);                              // stop audio if a playing pad becomes a knob
+      t.cfg.type = parseInt(sel.value, 10);
+      if(t.labelEl) t.labelEl.textContent = labelFor(t);
+      buildRows();                            // contextual second line changes with type
+    });
+
+    const inp = document.createElement("input");
+    inp.type = "number"; inp.min = 0; inp.max = 127; inp.value = t.cfg.note;
+    inp.dataset.i = i;
+    inp.addEventListener("change", () => {
+      const v = Math.min(127, Math.max(0, parseInt(inp.value, 10) || 0));
+      inp.value = v; t.cfg.note = v;
+      if(t.labelEl) t.labelEl.textContent = labelFor(t);
+    });
+
+    const rec = document.createElement("button");
+    rec.className = "recbtn"; rec.textContent = "REC";
+    rec.dataset.i = i;
+    rec.addEventListener("click", () => setRec(recArm === i ? -1 : i));
+
+    l1.appendChild(idx); l1.appendChild(sel); l1.appendChild(inp); l1.appendChild(rec);
+    row.appendChild(l1);
+
+    const l2 = document.createElement("div");
+    if(t.cfg.type === typeIds.pad){
+      l2.className = "line l2 padx";
+
+      const lab = document.createElement("label");
+      lab.className = "swlab"; lab.title = "Switch: sticky toggle instead of push";
+      const cb = document.createElement("input");
+      cb.type = "checkbox"; cb.checked = !!t.cfg.switch;
+      cb.addEventListener("change", () => {
+        t.cfg.switch = cb.checked;
+        if(!cb.checked && t.latched){
+          padOff(t);
+          midiSend(padMsg(t, false));
+        }
+        if(t.labelEl) t.labelEl.textContent = labelFor(t);
+      });
+      lab.appendChild(cb);
+      lab.appendChild(document.createTextNode("SW"));
+
+      const clab = document.createElement("label");
+      clab.className = "swlab"; clab.title = "Pad listens to CC messages instead of notes (LPD8 CC mode)";
+      const ccb = document.createElement("input");
+      ccb.type = "checkbox"; ccb.checked = !!t.cfg.cc;
+      ccb.addEventListener("change", () => {
+        if(t.latched || t.held){                // release in the old dialect first
+          midiSend(padMsg(t, false));
+          padOff(t);
+        }
+        if(ccb.checked) t.cfg.cc = true; else delete t.cfg.cc;
+        if(t.labelEl) t.labelEl.textContent = labelFor(t);
+      });
+      clab.appendChild(ccb);
+      clab.appendChild(document.createTextNode("CC"));
+
+      const smp = document.createElement("input");
+      smp.type = "text"; smp.placeholder = "sample.mp3";
+      smp.setAttribute("list", "sampleList");
+      smp.value = t.cfg.sample || "";
+      smp.addEventListener("change", () => {
+        const v = smp.value.trim();
+        if(v) t.cfg.sample = v; else delete t.cfg.sample;
+      });
+
+      const br = document.createElement("button");
+      br.className = "browse"; br.textContent = "\u2026";
+      br.title = "Pick a local audio file";
+      br.addEventListener("click", () => {
+        samplePickTarget = { i, inputEl: smp };
+        $("#samplePick").click();
+      });
+
+      l2.appendChild(lab); l2.appendChild(clab); l2.appendChild(smp); l2.appendChild(br);
+    } else {
+      l2.className = "line l2 fxx";
+
+      const fsel = document.createElement("select");
+      fsel.appendChild(new Option("NO EFFECT", ""));
+      Object.keys(effectIds).forEach((n) => {
+        const o = new Option(n.toUpperCase(), effectIds[n]);
+        if(t.cfg.effect && t.cfg.effect.type === effectIds[n]) o.selected = true;
+        fsel.appendChild(o);
+      });
+
+      const psel = document.createElement("select");
+      const padIdxs = [];
+      triggers.forEach((x, k) => { if(x.cfg.type === typeIds.pad) padIdxs.push(k); });
+      if(!padIdxs.length) psel.appendChild(new Option("\u2014", ""));
+      padIdxs.forEach((k) => {
+        const x = triggers[k];
+        const o = new Option(x.cfg.id != null ? "PAD " + x.cfg.id : "PAD #" + (k + 1), "k" + k);
+        if(t.cfg.effect && x.cfg.id != null && t.cfg.effect.pad === x.cfg.id) o.selected = true;
+        psel.appendChild(o);
+      });
+
+      const commit = () => {
+        const et = parseInt(fsel.value, 10);
+        const k  = parseInt(String(psel.value).slice(1), 10);
+        const target = triggers[k];
+        if(!et || !target){
+          delete t.cfg.effect;
+          if(t.labelEl) t.labelEl.textContent = labelFor(t);
+          return;
+        }
+        const needsId = target.cfg.id == null;
+        if(needsId) target.cfg.id = nextFreeId();   // give an id-less pad a stable id
+        t.cfg.effect = { type: et, pad: target.cfg.id };
+        applyKnobEffect(t);
+        if(t.labelEl) t.labelEl.textContent = labelFor(t);
+        if(needsId) buildRows();                    // re-render so its row shows the new id
+      };
+      fsel.addEventListener("change", commit);
+      psel.addEventListener("change", commit);
+
+      l2.appendChild(fsel); l2.appendChild(psel);
+    }
+    row.appendChild(l2);
+    rowsEl.appendChild(row);
+  });
+  syncRecLabels();
+}
+
+/* sample re-assign: local file → decoded buffer under its filename */
+let samplePickTarget = null;
+$("#samplePick").addEventListener("change", (e) => {
+  const f = e.target.files && e.target.files[0];
+  e.target.value = "";
+  if(!f || !samplePickTarget) return;
+  const { i, inputEl } = samplePickTarget;
+  samplePickTarget = null;
+  if(!ensureCtx()){ showWarn("Audio is not available in this browser."); return; }
+  f.arrayBuffer()
+    .then((ab) => actx.decodeAudioData(ab))
+    .then((buf) => {
+      sampleCache.set(f.name, buf);
+      const t = triggers[i];
+      if(!t) return;
+      t.cfg.sample = f.name;
+      if(inputEl) inputEl.value = f.name;
+      refreshSampleList();
+      t.flash = 0.8;
+      showWarn("Assigned " + f.name + " \u2014 keep a copy in samples/ for next load");
+    })
+    .catch(() => showWarn("Could not decode that audio file."));
 });
 
-// settings
-const setEl=$('settings');
-$('gear').onclick=()=>{ fillSettings(); setEl.classList.toggle('open'); };
-$('closeSet').onclick=()=>setEl.classList.remove('open');
-function fillSettings(){
-  $('sW').value=S.w; $('sH').value=S.h; $('sPH').value=S.ph;
-  $('sAxis').value=S.axis; $('sSerp').checked=S.serp;
-  $('sFX').checked=S.fx; $('sFY').checked=S.fy;
-  $('sPin').value=S.pin; $('sBri').value=S.bri; $('briVal').textContent=S.bri;
-  $('sBaud').value=S.baud; $('sFps').value=S.fps;
+function refreshSampleList(){
+  const dl = $("#sampleList");
+  dl.innerHTML = "";
+  const names = new Set();
+  controllers.forEach((c) => (c.mappings || []).forEach((m) =>
+    (m.triggers || []).forEach((tr) => { if(tr.sample) names.add(tr.sample); })));
+  sampleCache.forEach((_, n) => names.add(n));
+  names.forEach((n) => {
+    const o = document.createElement("option");
+    o.value = n;
+    dl.appendChild(o);
+  });
 }
-$('sBri').oninput=e=>$('briVal').textContent=e.target.value;
-$('save').onclick=async()=>{
-  S.w=Math.max(1,Math.min(128,+$('sW').value|0||32));
-  S.h=Math.max(1,Math.min(64,+$('sH').value|0||16));
-  S.ph=Math.max(1,Math.min(S.h,+$('sPH').value|0||S.h));
-  S.axis=$('sAxis').value; S.serp=$('sSerp').checked;
-  S.fx=$('sFX').checked; S.fy=$('sFY').checked;
-  S.pin=Math.max(0,Math.min(48,+$('sPin').value|0));
-  S.bri=Math.max(1,Math.min(255,+$('sBri').value|0||40));
-  S.baud=+$('sBaud').value; S.fps=+$('sFps').value;
-  saveLS(); rebuild();
-  if(sink){ try{ await sink.send(configPacket()); }catch(e){ disconnect(); } }
-  setEl.classList.remove('open');
-};
-$('identify').onclick=()=>{ identUntil=performance.now()+8000; setEl.classList.remove('open'); };
-$('connUsb').onclick=()=>{ S.baud=+$('sBaud').value; S.fps=+$('sFps').value; saveLS(); connectSerial(); };
-$('connBle').onclick=()=>{ S.fps=+$('sFps').value; saveLS(); connectBle(); };
-$('connOff').onclick=()=>disconnect();
-if(!navigator.serial) $('connUsb').disabled=true;
-if(!navigator.bluetooth) $('connBle').disabled=true;
 
-/* ================= main loop ================= */
-let tPrev=performance.now();
-function loop(now){
-  // The Settings overlay is opaque and covers the whole canvas, so while it's
-  // open there's nothing to see — skip the WebGL render AND the fluid/demo sim
-  // instead of burning a full frame on a hidden canvas (which, stacked with the
-  // engine compositing the settings panel, is what tanked the FPS). Keep the
-  // rAF loop alive and tPrev fresh so animation resumes cleanly on close.
-  if(setEl.classList.contains('open')){ tPrev=now; requestAnimationFrame(loop); return; }
-  const dt=Math.min(0.1,(now-tPrev)/1000); tPrev=now;
-  const t=now/1000;
-  if(now<identUntil) identifyFrame(t);
-  else if(S.mode==='fluid') fluidStep(dt);
-  else if(S.mode==='demo') DEMOS[S.demo%DEMOS.length].fn(t,dt);
-  render();
-  pump(now);
-  requestAnimationFrame(loop);
+function setRec(i){
+  recArm = i;
+  rowsEl.querySelectorAll(".recbtn").forEach((b) =>
+    b.classList.toggle("armed", parseInt(b.dataset.i, 10) === i));
+  syncRecLabels();
 }
-window.addEventListener('resize',layoutView);
-initGL(); rebuild(); setMode(S.mode);
-requestAnimationFrame(loop);
+
+function syncRecLabels(){
+  triggers.forEach((t, i) => {
+    if(!t.labelEl) return;
+    const armed = i === recArm;
+    t.labelEl.classList.toggle("rec", armed);
+    t.labelEl.textContent = armed ? "REC · HIT A TRIGGER" : labelFor(t);
+  });
+}
+
+$("#btnSettings").addEventListener("click", () => {
+  const open = !$("#panel").classList.contains("open");
+  $("#panel").classList.toggle("open", open);
+  $("#btnSettings").setAttribute("aria-pressed", String(open));
+  if(!open) setRec(-1);
+});
+
+$("#btnLoad").addEventListener("click", () => $("#filePick").click());
+$("#filePick").addEventListener("change", (e) => {
+  const f = e.target.files && e.target.files[0];
+  if(!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try{
+      const json = JSON.parse(r.result);
+      const list = Array.isArray(json) ? json : [json];
+      if(!list.length || !list.every((c) => c && c.grid && Array.isArray(c.mappings)))
+        throw new Error("bad shape");
+      ctrlIndex = 0;
+      setControllers(list);
+      showWarn("Loaded " + list.length + " controller" + (list.length === 1 ? "" : "s"));
+    }catch(_){
+      showWarn("Could not read that file as a controllers JSON.");
+    }
+    e.target.value = "";
+  };
+  r.readAsText(f);
+});
+
+$("#btnExport").addEventListener("click", () => {
+  const blob = new Blob([JSON.stringify(controllers, null, 2)], { type:"application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "controllers.json";
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+});
+
+function showWarn(msg){
+  const w = $("#warn");
+  w.textContent = msg; w.style.display = "block";
+  clearTimeout(warnT);
+  warnT = setTimeout(() => { w.style.display = "none"; }, 3500);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   Boot
+   ════════════════════════════════════════════════════════════════ */
+window.addEventListener("resize", relayout);
+requestAnimationFrame(frame);
+ensureCtx();            // eager: gate is visible before the first hardware hit
+updateAudioBadge();
+
+fetch("assets/controllers.json", { cache: "no-cache" })
+  .then((r) => { if(!r.ok) throw new Error(r.status); return r.json(); })
+  .then((json) => {
+    const list = Array.isArray(json) ? json : [json];
+    if(!list.length || !list.every((c) => c && c.grid && Array.isArray(c.mappings)))
+      throw new Error("bad shape");
+    setControllers(list);
+  })
+  .catch(() => {
+    const e = $("#empty");
+    e.textContent = "COULD NOT LOAD assets/controllers.json";
+    e.style.display = "flex";
+    showWarn("Serve over http(s) — or use LOAD JSON in Settings.");
+    $("#panel").classList.add("open");
+    $("#btnSettings").setAttribute("aria-pressed", "true");
+  });
 </script>
 </body>
 </html>
