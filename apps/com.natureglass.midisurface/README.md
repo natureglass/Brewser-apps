@@ -1,6 +1,6 @@
 # MIDI Surface
 
-_v1.0.4_
+_v1.0.5_
 
 **MIDI Surface** is a touch-driven MIDI control surface and sample instrument. It draws your controller as an on-screen grid of glowing pads, knobs and faders that light up as you play the real hardware — and, on devices with lit pads, tapping the screen sends the signal back to illuminate the hardware in return. Every pad can also fire a looping audio sample shaped by live effects.
 

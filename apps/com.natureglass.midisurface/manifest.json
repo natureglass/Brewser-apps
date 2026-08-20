@@ -1,7 +1,7 @@
 {
     "id": "com.natureglass.midisurface",
     "name": "MIDI Surface",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "description": "<p><strong>MIDI Surface</strong> is a touch-driven MIDI control surface and sample instrument. It draws your controller as an on-screen grid of glowing pads, knobs and faders that light up as you play the real hardware — and, on devices with lit pads, tapping the screen sends the signal back to illuminate the hardware in return. Every pad can also fire a looping audio sample shaped by live effects.</p>\r\n<p><strong>How it works.</strong> The app connects to your controller through the browser's <em>Web MIDI</em> and reads a bundled profile (shipping with an AKAI LPD8 preset) that describes the grid and one or more channel <em>banks</em> of pads, knobs and faders. Incoming notes and CC messages light the matching control on screen; touching a control sends MIDI straight back out on the same channel the hardware speaks on, so the device's LEDs stay in sync. Each pad holds a looping sample played through a Web Audio engine, and every pad carries its own effect chain — volume, pitch, reverb and chorus. Knobs and faders are assigned to drive an effect on a chosen pad, so a dial becomes, say, the reverb on pad 3. Pads can be momentary or sticky (<em>switch</em>) toggles, and speak either notes or CC for controllers running in CC mode.</p>\r\n<p><strong>How you interact:</strong></p>\r\n<ul>\r\n<li><strong>Enable audio</strong> — tap once to unlock sound (browsers require a first tap) before you play.</li>\r\n<li><strong>Play the grid</strong> — tap pads to trigger their samples and drag a knob or fader up and down to sweep its effect; hardware and touch stay mirrored.</li>\r\n<li><strong>Channel banks</strong> — switch between mapping banks with the CH buttons in the header.</li>\r\n<li><strong>REC learn</strong> — arm a trigger, then hit a pad or turn a knob on your controller to assign its note or CC automatically.</li>\r\n<li><strong>Stop all</strong> — release every held pad and silence all audio in a single press.</li>\r\n<li><strong>Settings</strong> — pick a controller, edit each trigger's type and note, assign or browse local samples, map knobs to pad effects, and Load or Export the whole setup as JSON.</li>\r\n</ul>\r\n<p>Self-contained and offline — plug in a USB MIDI controller, or play the surface entirely by touch.</p>",
     "logo": "assets/appbanner.jpg",
     "entry": "index.html",
@@ -25,10 +25,12 @@
     "hideMouseUndocked": true,
     "freshProcessOnExit": false,
     "publishedAt": "2026-08-10T21:22:28Z",
-    "updatedAt": "2026-08-19T14:05:10Z",
+    "updatedAt": "2026-08-20T19:33:56Z",
     "summary": "A touch MIDI control surface that mirrors your hardware and triggers looping samples with live effec",
     "features": [
-        "Web MIDI"
+        "Web Bluetooth",
+        "Web MIDI",
+        "Web Serial"
     ],
     "tags": [
         "MIDI"
