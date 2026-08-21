@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-21T09:03:26Z",
+  "generated": "2026-08-21T09:34:07Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -684,7 +684,7 @@
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 6661754
+      "sizeBytes": 6661769
     },
     {
       "id": "com.natureglass.threejsequirectenvreflection",
@@ -715,7 +715,7 @@
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 7932902
+      "sizeBytes": 7932917
     },
     {
       "id": "com.natureglass.threejsgpgpuwater",
@@ -746,7 +746,7 @@
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 6205766
+      "sizeBytes": 6205791
     },
     {
       "id": "com.natureglass.threejsloadercollada",
@@ -777,7 +777,7 @@
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 5725334
+      "sizeBytes": 5725343
     },
     {
       "id": "com.natureglass.threejsloadergltf",
@@ -808,7 +808,7 @@
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 9865725,
+      "sizeBytes": 9865740,
       "featured": true
     },
     {
@@ -840,7 +840,7 @@
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 3291245
+      "sizeBytes": 3291266
     },
     {
       "id": "com.natureglass.threejsrapier3dphysics",
@@ -871,7 +871,7 @@
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 5797728
+      "sizeBytes": 5797737
     },
     {
       "id": "com.natureglass.threejsselectiveunrealbloom",
@@ -902,7 +902,7 @@
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 10934733
+      "sizeBytes": 10934748
     },
     {
       "id": "com.natureglass.threejsshaderssky",
@@ -933,7 +933,7 @@
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 4154409
+      "sizeBytes": 4154424
     },
     {
       "id": "com.natureglass.threejsspotlightshadowcookie",
@@ -964,7 +964,7 @@
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 7073607
+      "sizeBytes": 7073622
     }
   ]
 }
