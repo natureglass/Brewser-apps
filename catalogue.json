@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-21T11:15:25Z",
+  "generated": "2026-08-21T11:15:44Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -678,15 +678,16 @@
       "exitGame": "PLUS",
       "fullscreen": true,
       "hideMouseDocked": false,
-      "hideMouseUndocked": false,
+      "hideMouseUndocked": true,
+      "freshProcessOnExit": false,
       "publishedAt": "2026-08-06T09:23:06Z",
-      "updatedAt": "2026-08-06T09:23:06Z",
+      "updatedAt": "2026-08-06T09:58:00Z",
       "summary": "A real-time three.js demo of a chrome sphere reflecting the live scene via a CubeCamera.",
       "tags": [
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 6661778
+      "sizeBytes": 6661810
     },
     {
       "id": "com.natureglass.threejsequirectenvreflection",
