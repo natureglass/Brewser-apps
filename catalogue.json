@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-21T11:15:44Z",
+  "generated": "2026-08-21T11:16:06Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -710,15 +710,16 @@
       "exitGame": "PLUS",
       "fullscreen": true,
       "hideMouseDocked": false,
-      "hideMouseUndocked": false,
+      "hideMouseUndocked": true,
+      "freshProcessOnExit": false,
       "publishedAt": "2026-08-06T09:23:48Z",
-      "updatedAt": "2026-08-06T09:23:48Z",
+      "updatedAt": "2026-08-06T10:00:42Z",
       "summary": "A three.js image-based-lighting demo of a torus knot reflecting an equirectangular HDR environment.",
       "tags": [
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 7932929
+      "sizeBytes": 7932961
     },
     {
       "id": "com.natureglass.threejsgpgpuwater",
