@@ -19,9 +19,10 @@
     "exitGame": "PLUS",
     "fullscreen": true,
     "hideMouseDocked": false,
-    "hideMouseUndocked": false,
+    "hideMouseUndocked": true,
+    "freshProcessOnExit": false,
     "publishedAt": "2026-08-06T09:23:48Z",
-    "updatedAt": "2026-08-06T09:23:48Z",
+    "updatedAt": "2026-08-06T10:00:42Z",
     "summary": "A three.js image-based-lighting demo of a torus knot reflecting an equirectangular HDR environment.",
     "tags": [
         "WebGL2",
