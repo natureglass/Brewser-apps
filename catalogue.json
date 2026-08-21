@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-21T11:25:18Z",
+  "generated": "2026-08-21T11:43:57Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -300,7 +300,7 @@
       "exitGame": "PLUS",
       "fullscreen": true,
       "hideMouseDocked": false,
-      "hideMouseUndocked": false,
+      "hideMouseUndocked": true,
       "freshProcessOnExit": false,
       "publishedAt": "2026-08-06T10:21:50Z",
       "updatedAt": "2026-08-17T20:13:36Z",
@@ -308,7 +308,7 @@
       "tags": [
         "Fluids"
       ],
-      "sizeBytes": 444599
+      "sizeBytes": 444598
     },
     {
       "id": "com.natureglass.midisurface",
