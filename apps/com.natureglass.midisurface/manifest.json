@@ -22,7 +22,7 @@
     "license": "MIT",
     "exitGame": "PLUS",
     "fullscreen": true,
-    "hideMouseDocked": true,
+    "hideMouseDocked": false,
     "hideMouseUndocked": true,
     "freshProcessOnExit": false,
     "publishedAt": "2026-08-10T21:22:28Z",
