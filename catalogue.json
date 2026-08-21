@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-21T11:24:02Z",
+  "generated": "2026-08-21T11:24:44Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -101,7 +101,7 @@
       "exitGame": "PLUS",
       "fullscreen": true,
       "hideMouseDocked": false,
-      "hideMouseUndocked": false,
+      "hideMouseUndocked": true,
       "freshProcessOnExit": false,
       "publishedAt": "2026-08-10T12:06:24Z",
       "updatedAt": "2026-08-17T17:11:10Z",
@@ -109,7 +109,7 @@
       "tags": [
         "PWA"
       ],
-      "sizeBytes": 1020045
+      "sizeBytes": 1020044
     },
     {
       "id": "com.natureglass.dusk",
