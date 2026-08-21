@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-21T10:50:21Z",
+  "generated": "2026-08-21T11:14:09Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -406,9 +406,10 @@
       "exitGame": "PLUS",
       "fullscreen": true,
       "hideMouseDocked": false,
-      "hideMouseUndocked": false,
+      "hideMouseUndocked": true,
+      "freshProcessOnExit": false,
       "publishedAt": "2026-08-06T09:21:34Z",
-      "updatedAt": "2026-08-06T09:21:34Z",
+      "updatedAt": "2026-08-06T09:56:05Z",
       "summary": "The very first WebGL1 capability demo on Switch: a moonlit ocean with a floating nx.js-logo cube",
       "features": [
         "Gamepad"
@@ -416,7 +417,7 @@
       "tags": [
         "WebGL1"
       ],
-      "sizeBytes": 2852928
+      "sizeBytes": 2852960
     },
     {
       "id": "com.natureglass.nxjswebgl2test",
