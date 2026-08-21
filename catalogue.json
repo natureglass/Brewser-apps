@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-21T11:19:44Z",
+  "generated": "2026-08-21T11:20:11Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -644,7 +644,7 @@
       "exitGame": "PLUS",
       "fullscreen": true,
       "hideMouseDocked": false,
-      "hideMouseUndocked": false,
+      "hideMouseUndocked": true,
       "freshProcessOnExit": false,
       "publishedAt": "2026-08-06T10:33:57Z",
       "updatedAt": "2026-08-06T10:33:57Z",
@@ -656,7 +656,7 @@
         "Twitch",
         "Streaming"
       ],
-      "sizeBytes": 4413414,
+      "sizeBytes": 4413413,
       "featured": true
     },
     {
