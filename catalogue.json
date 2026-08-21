@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-21T11:14:09Z",
+  "generated": "2026-08-21T11:15:03Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -833,7 +833,8 @@
       "exitGame": "PLUS",
       "fullscreen": true,
       "hideMouseDocked": false,
-      "hideMouseUndocked": false,
+      "hideMouseUndocked": true,
+      "freshProcessOnExit": false,
       "publishedAt": "2026-08-06T09:46:50Z",
       "updatedAt": "2026-08-06T09:46:50Z",
       "summary": "A three.js diorama rendered through a chunky, adjustable retro pixelation pass.",
@@ -841,7 +842,7 @@
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 3291266
+      "sizeBytes": 3291298
     },
     {
       "id": "com.natureglass.threejsrapier3dphysics",
