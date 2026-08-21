@@ -24,7 +24,7 @@
     "exitGame": "PLUS",
     "fullscreen": true,
     "hideMouseDocked": false,
-    "hideMouseUndocked": false,
+    "hideMouseUndocked": true,
     "freshProcessOnExit": false,
     "publishedAt": "2026-08-06T10:33:57Z",
     "updatedAt": "2026-08-06T10:33:57Z",
