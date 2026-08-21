@@ -12,10 +12,10 @@
 	</head>
 
 	<body>
-		<div id="info">
+		<!-- <div id="info">
 			<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> - GLTFLoader<br />
 			<a href="https://hdrihaven.com/hdri/?h=royal_esplanade" target="_blank" rel="noopener">Royal Esplanade</a> from <a href="https://hdrihaven.com/" target="_blank" rel="noopener">HDRI Haven</a>
-		</div>
+		</div> -->
 
 		<script type="importmap">
 			{
@@ -76,7 +76,7 @@
 
 						// model — load from LOCAL_MODELS instead of the GitHub
 						// model-index (blocked by manifest allowed_origins=[]).
-						const gui = new GUI();
+						/* const gui = new GUI();
 						const modelNames = LOCAL_MODELS.map( m => m.name );
 						const params = { model: modelNames[ 0 ] };
 						gui.add( params, 'model', modelNames ).onChange( name => {
@@ -84,7 +84,7 @@
 							loadModel( LOCAL_MODELS.find( m => m.name === name ) );
 
 						} );
-						gui.add( scene, 'backgroundBlurriness', 0, 1 );
+						gui.add( scene, 'backgroundBlurriness', 0, 1 ); */
 						loadModel( LOCAL_MODELS[ 0 ] );
 
 					} );

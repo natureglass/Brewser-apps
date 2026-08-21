@@ -17,7 +17,7 @@
 	</head>
 	<body>
 
-		<div id="info"><a href="https://threejs.org" target="_blank" rel="noopener">three.js webgl</a> - materials - dynamic cube reflection</div>
+		<!-- <div id="info"><a href="https://threejs.org" target="_blank" rel="noopener">three.js webgl</a> - materials - dynamic cube reflection</div> -->
 
 		<script type="importmap">
 			{
@@ -93,10 +93,10 @@
 					metalness: 1
 				} );
 
-				const gui = new GUI();
+				/* const gui = new GUI();
 				gui.add( material, 'roughness', 0, 1 );
 				gui.add( material, 'metalness', 0, 1 );
-				gui.add( renderer, 'toneMappingExposure', 0, 2 ).name( 'exposure' );
+				gui.add( renderer, 'toneMappingExposure', 0, 2 ).name( 'exposure' ); */
 
 				sphere = new THREE.Mesh( new THREE.IcosahedronGeometry( 15, 8 ), material );
 				scene.add( sphere );

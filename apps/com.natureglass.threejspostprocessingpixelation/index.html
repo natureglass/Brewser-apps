@@ -13,10 +13,10 @@
 </head>
 
 <body>
-	<div id="info">
+	<!-- <div id="info">
 		<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> - Pixelation pass with optional single pixel outlines by
 		<a href="https://github.com/KodyJKing" target="_blank" rel="noopener">Kody King</a><br /><br />
-	</div>
+	</div> -->
 
 	<div id="container"></div>
 
@@ -79,9 +79,9 @@
 
 			// gui
 
-			gui = new GUI();
+			/* gui = new GUI(); */
 			params = { pixelSize: 6, normalEdgeStrength: .3, depthEdgeStrength: .4, pixelAlignedPanning: true };
-			gui.add( params, 'pixelSize' ).min( 1 ).max( 16 ).step( 1 )
+			/* gui.add( params, 'pixelSize' ).min( 1 ).max( 16 ).step( 1 )
 				.onChange( () => {
 
 					renderPixelatedPass.setPixelSize( params.pixelSize );
@@ -89,7 +89,7 @@
 				} );
 			gui.add( renderPixelatedPass, 'normalEdgeStrength' ).min( 0 ).max( 2 ).step( .05 );
 			gui.add( renderPixelatedPass, 'depthEdgeStrength' ).min( 0 ).max( 1 ).step( .05 );
-			gui.add( params, 'pixelAlignedPanning' );
+			gui.add( params, 'pixelAlignedPanning' ); */
 
 			// textures
 

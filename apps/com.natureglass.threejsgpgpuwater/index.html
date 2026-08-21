@@ -12,10 +12,10 @@
 	</head>
 	<body>
 
-		<div id="info">
+		<!-- <div id="info">
 			<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> - <span id="waterSize"></span> webgl gpgpu water<br/>
 			Click and Move mouse to disturb water.
-		</div>
+		</div> -->
 
 
 		<!-- This is just a smoothing 'compute shader' for using manually: -->
@@ -247,8 +247,8 @@
 				scene.environmentIntensity = 1.25;
 
 
-				const gui = new GUI();
-				gui.domElement.style.right = '0px';
+				/* const gui = new GUI();
+				gui.domElement.style.right = '0px'; */
 
 				const valuesChanger = function () {
 
@@ -258,7 +258,7 @@
 
 				};
 
-				gui.add( effectController, 'mouseSize', 0.1, 1.0, 0.1 ).onChange( valuesChanger );
+				/* gui.add( effectController, 'mouseSize', 0.1, 1.0, 0.1 ).onChange( valuesChanger );
 				gui.add( effectController, 'mouseDeep', 0.01, 1.0, 0.01 ).onChange( valuesChanger );
 				gui.add( effectController, 'viscosity', 0.9, 0.999, 0.001 ).onChange( valuesChanger );
 				gui.add( effectController, 'speed', 1, 6, 1 );
@@ -272,6 +272,7 @@
 
 				//const buttonSmooth = { smoothWater: function () {smoothWater();} };
 				//gui.add( buttonSmooth, 'smoothWater' );
+				*/
 
 
 				initWater();
