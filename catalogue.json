@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-21T11:16:06Z",
+  "generated": "2026-08-21T11:16:42Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -742,15 +742,16 @@
       "exitGame": "PLUS",
       "fullscreen": true,
       "hideMouseDocked": false,
-      "hideMouseUndocked": false,
+      "hideMouseUndocked": true,
+      "freshProcessOnExit": false,
       "publishedAt": "2026-08-06T09:24:29Z",
-      "updatedAt": "2026-08-06T09:24:29Z",
+      "updatedAt": "2026-08-06T10:02:15Z",
       "summary": "A GPU-computed three.js water surface that ripples wherever you press and drag.",
       "tags": [
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 6205800
+      "sizeBytes": 6205832
     },
     {
       "id": "com.natureglass.threejsloadercollada",
