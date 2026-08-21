@@ -1,6 +1,6 @@
 {
   "id": "com.natureglass.midisurface",
-  "sizeBytes": 4349752,
+  "sizeBytes": 4435562,
   "files": [
     "README.md",
     "assets/appbanner.gif",
@@ -10,6 +10,7 @@
     "assets/docs/ESP32_Diagram.png",
     "assets/docs/matrix_studio_esp32.ino",
     "assets/screenshots/1.png",
+    "assets/screenshots/2.jpg",
     "index.html",
     "manifest.json",
     "samples/alarmvoice.mp3",
