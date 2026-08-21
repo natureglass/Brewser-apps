@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-21T11:23:07Z",
+  "generated": "2026-08-21T11:24:02Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -63,7 +63,7 @@
       "exitGame": "PLUS",
       "fullscreen": true,
       "hideMouseDocked": false,
-      "hideMouseUndocked": false,
+      "hideMouseUndocked": true,
       "freshProcessOnExit": false,
       "publishedAt": "2026-08-06T10:27:22Z",
       "updatedAt": "2026-08-17T11:18:20Z",
@@ -75,7 +75,7 @@
         "WebGL2",
         "Kaleidoscope"
       ],
-      "sizeBytes": 3042623,
+      "sizeBytes": 3042622,
       "featured": true
     },
     {
