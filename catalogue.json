@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-21T11:44:40Z",
+  "generated": "2026-08-21T11:47:07Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -334,7 +334,7 @@
       "license": "MIT",
       "exitGame": "PLUS",
       "fullscreen": true,
-      "hideMouseDocked": true,
+      "hideMouseDocked": false,
       "hideMouseUndocked": true,
       "freshProcessOnExit": false,
       "publishedAt": "2026-08-10T21:22:28Z",
@@ -348,7 +348,7 @@
       "tags": [
         "MIDI"
       ],
-      "sizeBytes": 4132069
+      "sizeBytes": 4132070
     },
     {
       "id": "com.natureglass.neuralnetworks",
