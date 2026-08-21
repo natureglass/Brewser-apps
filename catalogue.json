@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-21T09:02:46Z",
+  "generated": "2026-08-21T09:03:26Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -321,6 +321,7 @@
         "Apps"
       ],
       "permissions": [
+        "bluetooth",
         "usb"
       ],
       "compatibility": [
@@ -347,7 +348,7 @@
       "tags": [
         "MIDI"
       ],
-      "sizeBytes": 4132048
+      "sizeBytes": 4132069
     },
     {
       "id": "com.natureglass.neuralnetworks",
