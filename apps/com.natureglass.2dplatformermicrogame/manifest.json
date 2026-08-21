@@ -20,11 +20,11 @@
     "license": "MIT",
     "exitGame": "PLUS",
     "fullscreen": true,
-    "hideMouseDocked": true,
+    "hideMouseDocked": false,
     "hideMouseUndocked": true,
     "freshProcessOnExit": true,
     "publishedAt": "2026-08-08T11:36:13Z",
-    "updatedAt": "2026-08-08T11:36:13Z",
+    "updatedAt": "2026-08-09T21:04:34Z",
     "summary": "Unity's official 2D Platformer learning template, compiled to WebGL and running on the Switch GPU of",
     "genre": [
         "Platformer"
