@@ -117,8 +117,8 @@
 				const pmremGenerator = new THREE.PMREMGenerator( renderer );
 				pmremGenerator.compileEquirectangularShader();
 
-				stats = new Stats();
-				container.appendChild( stats.dom );
+				/* stats = new Stats();
+				container.appendChild( stats.dom ); */
 
 				controls = new OrbitControls( camera, renderer.domElement );
 				controls.minDistance = 50;
@@ -151,9 +151,9 @@
 
 			function animate() {
 
-				stats.begin();
+				// stats.begin();
 				render();
-				stats.end();
+				// stats.end();
 
 			}
 
