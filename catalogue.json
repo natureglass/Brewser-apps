@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-21T11:16:42Z",
+  "generated": "2026-08-21T11:16:57Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -805,15 +805,16 @@
       "exitGame": "PLUS",
       "fullscreen": true,
       "hideMouseDocked": false,
-      "hideMouseUndocked": false,
+      "hideMouseUndocked": true,
+      "freshProcessOnExit": false,
       "publishedAt": "2026-08-06T09:44:35Z",
-      "updatedAt": "2026-08-06T09:44:35Z",
+      "updatedAt": "2026-08-06T10:07:15Z",
       "summary": "A Three.js demo loading a PBR glTF helmet under HDR lighting on the Switch GPU.",
       "tags": [
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 9865740,
+      "sizeBytes": 9865772,
       "featured": true
     },
     {
