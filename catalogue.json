@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-21T11:18:30Z",
+  "generated": "2026-08-21T11:19:24Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -541,7 +541,8 @@
       "exitGame": "PLUS",
       "fullscreen": true,
       "hideMouseDocked": false,
-      "hideMouseUndocked": false,
+      "hideMouseUndocked": true,
+      "freshProcessOnExit": false,
       "publishedAt": "2026-08-06T10:28:14Z",
       "updatedAt": "2026-08-06T10:28:14Z",
       "summary": "A WebGL2 music player with playlist and live spectrum visualizers.",
@@ -549,7 +550,7 @@
         "Audio Player",
         "Visualizer"
       ],
-      "sizeBytes": 1462462,
+      "sizeBytes": 1462494,
       "featured": true
     },
     {
