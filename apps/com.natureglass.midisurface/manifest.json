@@ -9,6 +9,7 @@
         "Apps"
     ],
     "permissions": [
+        "bluetooth",
         "usb"
     ],
     "compatibility": [
