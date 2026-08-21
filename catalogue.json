@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-21T11:20:11Z",
+  "generated": "2026-08-21T11:20:30Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -965,15 +965,16 @@
       "exitGame": "PLUS",
       "fullscreen": true,
       "hideMouseDocked": false,
-      "hideMouseUndocked": false,
+      "hideMouseUndocked": true,
+      "freshProcessOnExit": false,
       "publishedAt": "2026-08-06T10:13:47Z",
-      "updatedAt": "2026-08-06T10:13:47Z",
+      "updatedAt": "2026-08-06T10:50:04Z",
       "summary": "A Three.js spotlight demo projecting a textured cookie and soft shadows on the Switch GPU.",
       "tags": [
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 7073622
+      "sizeBytes": 7073654
     }
   ]
 }
