@@ -130,7 +130,8 @@
 
 				//
 
-				/* const gui = new GUI();
+				const gui = new GUI();
+				gui.close(); // start collapsed so the panel stays minimal (GUI must render for this example to run on brewser)
 
 				const bloomFolder = gui.addFolder( 'bloom' );
 
@@ -158,7 +159,7 @@
 
 					renderer.toneMappingExposure = Math.pow( value, 4.0 );
 
-				} ); */
+				} );
 
 				window.addEventListener( 'resize', onWindowResize );
 
