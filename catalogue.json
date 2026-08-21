@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-21T11:15:03Z",
+  "generated": "2026-08-21T11:15:25Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -440,9 +440,10 @@
       "exitGame": "PLUS",
       "fullscreen": true,
       "hideMouseDocked": false,
-      "hideMouseUndocked": false,
+      "hideMouseUndocked": true,
+      "freshProcessOnExit": false,
       "publishedAt": "2026-08-06T09:22:21Z",
-      "updatedAt": "2026-08-06T09:22:21Z",
+      "updatedAt": "2026-08-06T09:56:45Z",
       "summary": "The very first WebGL2 shader demo on Switch: a procedural sunset sea with a floating logo cube.",
       "features": [
         "Gamepad"
@@ -450,7 +451,7 @@
       "tags": [
         "WebGL2"
       ],
-      "sizeBytes": 2095254
+      "sizeBytes": 2095286
     },
     {
       "id": "com.natureglass.savedemo",
