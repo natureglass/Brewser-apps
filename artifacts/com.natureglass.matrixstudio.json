@@ -1,11 +1,10 @@
 {
   "id": "com.natureglass.matrixstudio",
-  "sizeBytes": 1745753,
+  "sizeBytes": 1725585,
   "files": [
     "README.md",
     "assets/appbanner.gif",
     "assets/appbanner.jpg",
-    "assets/docs/matrix_studio_esp32-C6.ino",
     "assets/docs/matrix_studio_esp32.ino",
     "assets/screenshots/2.jpg",
     "index.html",
