@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-21T12:45:51Z",
+  "generated": "2026-08-22T12:58:48Z",
   "stats": {
     "com.natureglass.aether": {
       "downloads": 1,
@@ -12,12 +12,12 @@
       "ratingCount": 0
     },
     "com.natureglass.dusk": {
-      "downloads": 1,
+      "downloads": 3,
       "ratingAvg": 0,
       "ratingCount": 0
     },
     "com.natureglass.fluiddynamics": {
-      "downloads": 1,
+      "downloads": 3,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.8611
@@ -29,7 +29,7 @@
       "ratingScore": 4.6944
     },
     "com.natureglass.gravityballs": {
-      "downloads": 0,
+      "downloads": 1,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.8611
@@ -60,7 +60,7 @@
       "ratingCount": 0
     },
     "com.natureglass.spectraplay": {
-      "downloads": 0,
+      "downloads": 1,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.8611
@@ -92,7 +92,7 @@
       "ratingCount": 0
     },
     "com.natureglass.threejsselectiveunrealbloom": {
-      "downloads": 0,
+      "downloads": 1,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.8611
