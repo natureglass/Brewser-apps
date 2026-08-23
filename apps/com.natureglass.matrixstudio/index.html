@@ -103,7 +103,6 @@ input[type=range]{width:160px;accent-color:var(--acc)}
   <h2>CONNECTION</h2>
   <div class="row">
     <button id="connUsb">USB SERIAL</button>
-    <button id="connBle">BLUETOOTH</button>
     <button id="connOff">DISCONNECT</button>
   </div>
   <div class="row">
@@ -116,14 +115,12 @@ input[type=range]{width:160px;accent-color:var(--acc)}
     <label>max send fps (USB)
       <select id="sFps">
         <option>5</option><option>10</option><option>15</option>
-        <option>20</option><option selected>30</option><option>60</option>
+        <option>20</option><option selected>30</option>
       </select>
     </label>
   </div>
   <p class="hint" id="connHint">The app is fully functional offline; a link just mirrors the canvas to the panel.
-    USB runs up to ~50 fps for 512 LEDs. BLE is paced by the panel's acknowledgement and lands around
-    1 frame/s for 512 LEDs (a Windows&nbsp;+&nbsp;Chrome platform limit) &mdash; use it for control and slow updates,
-    USB for animation.</p>
+    USB runs up to ~50 fps for 512 LEDs.</p>
 
   <div class="row" style="margin-top:20px">
     <button id="save" style="border-color:var(--acc);color:var(--acc)">SAVE</button>
@@ -140,6 +137,7 @@ const DEF = {w:32,h:16,ph:8,axis:'v',serp:true,fx:false,fy:false,
 let S = Object.assign({}, DEF);
 try{ Object.assign(S, JSON.parse(localStorage.getItem('matrixstudio')||'{}')); }catch(e){}
 if(S.ver!==2){ S.pin=20; S.ver=2; }   // v1 settings carried pin 5 (old default); the panel is on GPIO 20
+if(S.fps>30) S.fps=30;                 // max send fps is capped at 30 (an older setting may hold 60)
 const saveLS = () => { try{ localStorage.setItem('matrixstudio', JSON.stringify(S)); }catch(e){} };
 
 let W=S.w, H=S.h, N=W*H;
@@ -502,31 +500,18 @@ function buildRawOrder(){
 }
 
 /* ================= connectivity =================
-   Protocol v2, on the transport proven by simple_serial_panel v16/v17
-   (see BLE_LED_streaming_findings.md). The rules that layer encodes — do not undo them:
+   Protocol v2 over USB/serial (Web Serial). The rules this layer encodes — do not undo them:
      - encode each packet exactly ONCE; one seq counter, +1 per packet of any type
-     - hand a whole packet to one write; the browser fragments it across the MTU
-     - BLE: writeValueWithResponse only (write-without-response silently drops on Windows),
-       one GATT operation at a time (gattSerial), all sub-writes of a packet before the next
-     - BLE ingest on the device is event-based; the page paces frames on the device's "OK <seq>"
-     - probe the largest accepted BLE write once, on the first frame-sized write (never on CONFIG)
+     - hand a whole packet to one write
    Packet: A5 5A | type | seq | len16 | payload | sum16
      type 1 FRAME  payload = R G B per LED in physical strip order (lut applied here)
      type 2 CONFIG payload = [pin][count_lo][count_hi][brightness]
-   Platform floor: USB ~50 fps; BLE ~1 fps for 512 LEDs with ~2.5% of frames lost on the
-   Windows radio path (each costs one frame, the device re-syncs). Not tunable from here. */
-const NUS='6e400001-b5a3-f393-e0a9-e50e24dcca9e';
-const NUS_RX='6e400002-b5a3-f393-e0a9-e50e24dcca9e';
-const NUS_TX='6e400003-b5a3-f393-e0a9-e50e24dcca9e';
+   Platform floor: USB ~50 fps for 512 LEDs. */
 const PKT_FRAME=0x01, PKT_CONFIG=0x02;
-const ACK_TIMEOUT_MS=1200;       // BLE: a dropped write means no OK ever comes; release the pump
 let sink=null, sending=false, lastSend=0;
 let seq=0;
 const dot=document.getElementById('dot'), connLabel=document.getElementById('connLabel');
 function setConn(label,ok){ connLabel.textContent=label; dot.className=ok?'ok':''; }
-
-let gattChain=Promise.resolve();   // Web Bluetooth allows one GATT operation at a time
-function gattSerial(fn){ const p=gattChain.then(fn,fn); gattChain=p.catch(()=>{}); return p; }
 
 function encode(type,payload){
   const len=payload.length;
@@ -551,47 +536,30 @@ function buildFrame(){                 // lut: logical (y*W+x) -> physical strip
   return framePayload;
 }
 
-/* ---- text from the firmware (both transports): OK <seq> acks, CFG, BOOT, RMTERR ---- */
-let lineBuf='', lastAckSeq=-1, ackWaiter=null;
+/* ---- text from the firmware: OK <seq> acks, CFG, BOOT, RMTERR ---- */
+let lineBuf='';
 function feedText(text){
   lineBuf+=text;
   let nl;
   while((nl=lineBuf.indexOf('\n'))>=0){
     const line=lineBuf.slice(0,nl).trim(); lineBuf=lineBuf.slice(nl+1);
     if(!line) continue;
-    if(line.startsWith('OK ')){
-      lastAckSeq=+line.slice(3);
-      if(ackWaiter && ackWaiter.want===lastAckSeq) ackWaiter.done();
-    }
+    if(line.startsWith('OK ')) continue;                 // per-packet ack (diagnostic; USB is free-running)
     else if(line.startsWith('STAT ')) continue;          // only present with DEBUG_STATS firmware
-    else console.log('[esp32] '+line);                    // BOOT / CFG / MTU / RMTERR
+    else console.log('[esp32] '+line);                    // BOOT / CFG / RMTERR
   }
 }
-function waitForAck(want,ms){
-  if(lastAckSeq===want) return Promise.resolve(true);
-  return new Promise(res=>{
-    const t=setTimeout(()=>{ ackWaiter=null; res(false); },ms);
-    ackWaiter={ want,
-      done:  ()=>{ clearTimeout(t); ackWaiter=null; res(true); },
-      cancel:()=>{ clearTimeout(t); ackWaiter=null; res(false); } };
-  });
-}
-function cancelAck(){ if(ackWaiter) ackWaiter.cancel(); }
 
-/* ---- send one packet: encode once, deliver whole, pace BLE frames on the device's OK ---- */
+/* ---- send one packet: encode once, deliver whole ---- */
 async function sendPacket(type,payload){
   if(!sink) return false;
   const bytes=encode(type,payload);
-  const want=bytes[3];
-  await sink.write(bytes);             // resolves after the ENTIRE packet (all sub-writes) is written
-  if(sink && sink.type==='ble' && type===PKT_FRAME) await waitForAck(want,ACK_TIMEOUT_MS);
+  await sink.write(bytes);             // resolves after the entire packet is written
   return true;
 }
 
-async function disconnect(intentional){
-  if(intentional) bleGiveUp=true;   // user asked to stop -> cancel any pending reconnect
+async function disconnect(){
   const s=sink; sink=null;
-  cancelAck();
   setConn('offline',false);
   if(!s) return;
   try{ await s.close(); }catch(e){}
@@ -600,7 +568,7 @@ async function disconnect(intentional){
 /* ---- Web Serial ---- */
 async function connectSerial(){
   if(!navigator.serial){ alert('Web Serial not available in this runtime.'); return; }
-  await disconnect(true);          // switching transports -> intentional, no BLE reconnect
+  await disconnect();              // clear any prior link
   let port, writer, reader, readableDone;
   try{
     port=await navigator.serial.requestPort();
@@ -631,112 +599,18 @@ async function connectSerial(){
 }
 if(navigator.serial) navigator.serial.addEventListener('disconnect',()=>{ if(sink&&sink.type==='usb') disconnect(); });
 
-/* ---- Web Bluetooth (Nordic UART) ---- */
-let sendFails=0;                 // consecutive send failures; resets on any success
-const MAX_SEND_FAILS=8;          // only tear down after this many in a row
-let maxWrite=0;                  // largest single BLE write the OS accepts (0 = probe on first frame)
-
-/* Auto-reconnect: on an unintended drop, silently reconnect to the SAME device (no chooser),
- * with backoff and a bounded retry count. A user-initiated DISCONNECT sets bleGiveUp. */
-let bleDev=null, bleGiveUp=false, bleReconnecting=false;
-const RECONNECT_TRIES=6;
-const RECONNECT_BACKOFF=[400,800,1500,2500,4000,6000];  // ms per attempt
-const dec=new TextDecoder();
-const onBleNotify=e=>feedText(dec.decode(e.target.value));
-
-// Wire a connected GATT device into the sink. Shared by first connect + reconnect.
-async function attachBle(dev){
-  const gatt=dev.gatt.connected ? dev.gatt : await dev.gatt.connect();
-  const svc=await gatt.getPrimaryService(NUS);
-  const rx=await svc.getCharacteristic(NUS_RX);
-  const tx=await svc.getCharacteristic(NUS_TX);
-  await tx.startNotifications();
-  tx.removeEventListener('characteristicvaluechanged',onBleNotify);   // no duplicates across reattach
-  tx.addEventListener('characteristicvaluechanged',onBleNotify);
-  const doWrite=p=>rx.writeValueWithResponse ? rx.writeValueWithResponse(p) : rx.writeValue(p);
-  maxWrite=0; lineBuf=''; sendFails=0; cancelAck();
-  sink={
-    type:'ble',
-    alive:true,
-    isConnected:()=>{ try{ return dev.gatt.connected; }catch(e){ return false; } },
-    write:bytes=>gattSerial(async()=>{
-      // Short packets (CONFIG) always fit one write and must NOT run the probe.
-      if(bytes.length<=20){ await doWrite(bytes); return; }
-      // Probe the largest write the OS accepts, once, on the first frame-sized write.
-      if(maxWrite===0){
-        for(const cand of [512,244,182,20]){
-          try{ await doWrite(bytes.slice(0,Math.min(cand,bytes.length))); maxWrite=cand;
-               console.log('[ble] max write = '+cand+' B ('+Math.ceil(bytes.length/cand)+' writes/frame)'); break; }
-          catch(e){ if(!dev.gatt.connected) throw e; }
-        }
-        if(maxWrite===0) throw new Error('no write size accepted');
-        for(let off=Math.min(maxWrite,bytes.length); off<bytes.length; off+=maxWrite)
-          await doWrite(bytes.slice(off,off+maxWrite));
-        return;
-      }
-      for(let off=0; off<bytes.length; off+=maxWrite)
-        await doWrite(bytes.slice(off,off+maxWrite));
-    }),
-    close:async()=>{ try{ dev.gatt.disconnect(); }catch(e){} }
-  };
-  setConn('ble',true);
-  await sendPacket(PKT_CONFIG,configPayload());   // restore pin/count/brightness on (re)connect
-}
-
-async function reconnectBle(){
-  if(bleReconnecting||bleGiveUp||!bleDev) return;
-  bleReconnecting=true;
-  for(let i=0;i<RECONNECT_TRIES && !bleGiveUp;i++){
-    setConn(`reconnecting ${i+1}/${RECONNECT_TRIES}`,false);
-    await new Promise(r=>setTimeout(r,RECONNECT_BACKOFF[i]||6000));
-    if(bleGiveUp) break;
-    try{ await attachBle(bleDev); bleReconnecting=false; return; }
-    catch(e){ /* try again with backoff */ }
-  }
-  bleReconnecting=false;
-  if(!bleGiveUp) setConn('offline',false);
-}
-
-async function connectBle(){
-  if(!navigator.bluetooth){ alert('Web Bluetooth not available in this runtime.'); return; }
-  await disconnect(true);          // clear any prior link; intentional so no reconnect races
-  bleGiveUp=false;
-  try{
-    const dev=await navigator.bluetooth.requestDevice({filters:[{services:[NUS]}], optionalServices:[NUS]});
-    bleDev=dev;
-    dev.addEventListener('gattserverdisconnected',()=>{
-      if(sink&&sink.type==='ble'){ sink.alive=false; sink=null; cancelAck(); }
-      if(!bleGiveUp) reconnectBle();   // unintended drop -> silent reconnect
-      else setConn('offline',false);
-    });
-    await attachBle(dev);
-  }catch(e){ setConn('offline',false); }
-}
-
 /* ---- pump: latest frame wins, one in flight ----
-   USB: free-running under the fps cap (the link has end-to-end backpressure).
-   BLE: the cap is irrelevant — sendPacket holds `sending` until the device's OK (or the
-   ack timeout), which is the pacing the reference proved. */
+   USB is free-running under the fps cap (the link has end-to-end backpressure). */
 async function pump(now, build=buildFrame){
   if(!sink||sending) return;
-  if(sink.type==='usb' && now-lastSend < 1000/S.fps) return;
+  if(now-lastSend < 1000/S.fps) return;
   lastSend=now; sending=true; dot.className='busy';
   try{
     await sendPacket(PKT_FRAME,build());
-    sendFails=0;                 // clean frame — clear the streak
     if(sink) dot.className='ok';
   }catch(e){
-    // A single failed write is NORMAL on BLE (momentary GATT congestion on a healthy link).
-    // The failed frame is already stale: drop it, the next one supersedes it. Only a real
-    // disconnect (sink.alive=false) or a sustained run of failures ends the session.
-    sendFails++;
     dot.className='busy';
-    const dead = !sink || sink.alive===false || (sink.isConnected && !sink.isConnected());
-    if(dead || sendFails>=MAX_SEND_FAILS){
-      const wasBle = sink && sink.type==='ble';
-      await disconnect();          // not "intentional" -> reconnect stays allowed
-      if(wasBle && !bleGiveUp && !bleReconnecting) reconnectBle();
-    }
+    await disconnect();          // a failed USB write means the port is gone
   }
   sending=false;
 }
@@ -792,7 +666,7 @@ $('save').onclick=async()=>{
   S.fx=$('sFX').checked; S.fy=$('sFY').checked;
   S.pin=Math.max(0,Math.min(48,+$('sPin').value|0));
   S.bri=Math.max(1,Math.min(255,+$('sBri').value|0||40));
-  S.baud=+$('sBaud').value; S.fps=+$('sFps').value;
+  S.baud=+$('sBaud').value; S.fps=Math.min(30,+$('sFps').value||30);
   saveLS(); rebuild();
   if(sink){ try{ await sendPacket(PKT_CONFIG,configPayload()); }catch(e){ disconnect(); } }
   setEl.classList.remove('open');
@@ -800,10 +674,8 @@ $('save').onclick=async()=>{
 $('identify').onclick=()=>{ identUntil=performance.now()+8000; setEl.classList.remove('open'); };
 $('rawtest').onclick=()=>{ rawUntil=performance.now()+15000; setEl.classList.remove('open'); };
 $('connUsb').onclick=()=>{ S.baud=+$('sBaud').value; S.fps=+$('sFps').value; saveLS(); connectSerial(); };
-$('connBle').onclick=()=>{ S.fps=+$('sFps').value; saveLS(); connectBle(); };
-$('connOff').onclick=()=>disconnect(true);
+$('connOff').onclick=()=>disconnect();
 if(!navigator.serial) $('connUsb').disabled=true;
-if(!navigator.bluetooth) $('connBle').disabled=true;
 
 /* ================= main loop ================= */
 let tPrev=performance.now();

@@ -1,6 +1,6 @@
 # Matrix Studio
 
-_v1.0.10_
+_v1.0.11_
 
 **Matrix Studio** is a design-and-control studio for addressable-LED matrix panels. Draw straight onto a glowing on-screen grid, stir it like fluid, or run built-in animations — then stream the picture live to a real ESP32-driven panel over USB serial or Bluetooth.
 
