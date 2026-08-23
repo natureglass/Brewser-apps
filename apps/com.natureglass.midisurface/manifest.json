@@ -29,7 +29,6 @@
     "updatedAt": "2026-08-23T20:47:11Z",
     "summary": "A touch MIDI control surface that mirrors your hardware and triggers looping samples with live effec",
     "features": [
-        "Web Bluetooth",
         "Web MIDI",
         "Web Serial"
     ],
