@@ -115,12 +115,13 @@ input[type=range]{width:160px;accent-color:var(--acc)}
     <label>max send fps (USB)
       <select id="sFps">
         <option>5</option><option>10</option><option>15</option>
-        <option>20</option><option selected>30</option>
+        <option>20</option><option>30</option><option>45</option><option selected>60</option>
       </select>
     </label>
   </div>
   <p class="hint" id="connHint">The app is fully functional offline; a link just mirrors the canvas to the panel.
-    USB runs up to ~50 fps for 512 LEDs.</p>
+    Only changed pixels are sent (delta encoding), so drawing and sparse scenes reach 60&nbsp;fps;
+    full-screen animations auto-pace to ~30&nbsp;fps. Needs ESP32 firmware v2.3+.</p>
 
   <div class="row" style="margin-top:20px">
     <button id="save" style="border-color:var(--acc);color:var(--acc)">SAVE</button>
@@ -133,11 +134,14 @@ input[type=range]{width:160px;accent-color:var(--acc)}
 /* ================= state ================= */
 const MAX_LEDS=1024;      // firmware MAX_LEDS — W*H is clamped to this
 const DEF = {w:32,h:16,ph:8,axis:'v',serp:true,fx:false,fy:false,
-             pin:20,bri:40,baud:921600,fps:30,mode:'draw',demo:0,brushIdx:1,color:2,ver:2};
+             pin:20,bri:40,baud:921600,fps:60,mode:'draw',demo:0,brushIdx:1,color:2,ver:3};
 let S = Object.assign({}, DEF);
 try{ Object.assign(S, JSON.parse(localStorage.getItem('matrixstudio')||'{}')); }catch(e){}
-if(S.ver!==2){ S.pin=20; S.ver=2; }   // v1 settings carried pin 5 (old default); the panel is on GPIO 20
-if(S.fps>30) S.fps=30;                 // max send fps is capped at 30 (an older setting may hold 60)
+const oldVer=S.ver||0;
+if(oldVer<2) S.pin=20;                 // v1 carried pin 5 (old default); the panel is on GPIO 20
+if(oldVer<3) S.fps=60;                 // v3: delta streaming makes 60 fps the safe default (byte-budget paced)
+S.ver=3;
+if(S.fps>60||S.fps<1) S.fps=60;        // sanitize any out-of-range stored value
 const saveLS = () => { try{ localStorage.setItem('matrixstudio', JSON.stringify(S)); }catch(e){} };
 
 let W=S.w, H=S.h, N=W*H;
@@ -169,6 +173,8 @@ function rebuild(){
     lut[y*W+x]=Math.min(base+idx, N-1);
   }
   framePayload=new Uint8Array(N*3);
+  deltaBuf=new Uint8Array(N*5);   // worst-case delta: idx16+RGB per LED
+  resetDelta();                    // layout changed → the device's framebuffer meaning changed → keyframe
   fluidAlloc(); fireAlloc(); rainAlloc(); buildGeom(); layoutView();
 }
 
@@ -507,11 +513,46 @@ function buildRawOrder(){
      type 1 FRAME  payload = R G B per LED in physical strip order (lut applied here)
      type 2 CONFIG payload = [pin][count_lo][count_hi][brightness]
    Platform floor: USB ~50 fps for 512 LEDs. */
-const PKT_FRAME=0x01, PKT_CONFIG=0x02;
+const PKT_FRAME=0x01, PKT_CONFIG=0x02, PKT_DELTA=0x03;
 let sink=null, sending=false, lastSend=0;
 let seq=0;
 const dot=document.getElementById('dot'), connLabel=document.getElementById('connLabel');
 function setConn(label,ok){ connLabel.textContent=label; dot.className=ok?'ok':''; }
+
+/* ---- delta streaming (firmware v2.3+) + byte-budget pacing ----
+   A full FRAME is 3 B per LED; a DELTA is 5 B per CHANGED LED, so a delta is smaller whenever
+   fewer than ~60% of the panel changes (drawing, sparse fluid, rain, sparkles...). Each frame we
+   send whichever is smaller, and we pace by BYTES rather than frames: sparse content reaches
+   60 fps while a full-field animation (plasma/rainbow/fire) auto-throttles to ~30 fps — both
+   staying under the throughput that was rebooting the C6's USB-Serial/JTAG. A dropped delta is
+   healed by the periodic full keyframe, so brief USB corruption never sticks. */
+let deltaSupported=false;        // true once the firmware CFG line reports delta=1
+let lastSentFB=null;             // frame the device currently shows (physical order); null = unknown
+let framesSinceKey=0;
+let deltaBuf=null;               // scratch for delta entries, sized in rebuild()
+const KEYFRAME_EVERY=30;         // force a full FRAME at least this often (~0.5 s at 60 fps)
+const DELTA_THRESH=4;            // min per-channel change to emit a pixel (sparsifies slow fades)
+const TARGET_BPS=46000;          // byte-rate ceiling — the 30fps-full rate proven stable on HW
+const BUCKET_MAX=3000;           // largest send burst (~2 full frames)
+let byteBucket=0, lastBudgetT=0;
+function resetDelta(){ lastSentFB=null; framesSinceKey=0; byteBucket=0; }
+function encodeDelta(){          // diff framePayload against lastSentFB → deltaBuf; return bytes used
+  let p=0;
+  for(let phys=0; phys<N; phys++){
+    const s=phys*3;
+    const r=framePayload[s], g=framePayload[s+1], b=framePayload[s+2];
+    const or=lastSentFB[s], og=lastSentFB[s+1], ob=lastSentFB[s+2];
+    // Emit on a meaningful change, and ALWAYS emit the moment a pixel reaches full black even if
+    // that last step is sub-threshold — otherwise a fading LED sticks a hair above 0 (visible pop).
+    const changed = Math.abs(r-or)>DELTA_THRESH || Math.abs(g-og)>DELTA_THRESH || Math.abs(b-ob)>DELTA_THRESH;
+    const wentBlack = (r|g|b)===0 && (or|og|ob)!==0;
+    if(changed || wentBlack){
+      deltaBuf[p++]=phys&255; deltaBuf[p++]=(phys>>8)&255;   // idx16 LE (physical strip index)
+      deltaBuf[p++]=r; deltaBuf[p++]=g; deltaBuf[p++]=b;
+    }
+  }
+  return p;
+}
 
 function encode(type,payload){
   const len=payload.length;
@@ -546,7 +587,10 @@ function feedText(text){
     if(!line) continue;
     if(line.startsWith('OK ')) continue;                 // per-packet ack (diagnostic; USB is free-running)
     else if(line.startsWith('STAT ')) continue;          // only present with DEBUG_STATS firmware
-    else console.log('[esp32] '+line);                    // BOOT / CFG / RMTERR
+    else {                                                // BOOT / CFG / RMTERR
+      if(line.startsWith('CFG ') && line.includes('delta=1')) deltaSupported=true;   // firmware speaks DELTA
+      console.log('[esp32] '+line);
+    }
   }
 }
 
@@ -595,19 +639,51 @@ async function connectSerial(){
     }
   };
   setConn('usb '+S.baud,true);
+  deltaSupported=false; resetDelta();   // new link: send a keyframe first, re-learn delta support from CFG
   try{ await sendPacket(PKT_CONFIG,configPayload()); }catch(e){ disconnect(); }
 }
 if(navigator.serial) navigator.serial.addEventListener('disconnect',()=>{ if(sink&&sink.type==='usb') disconnect(); });
 
 /* ---- pump: latest frame wins, one in flight ----
-   USB is free-running under the fps cap (the link has end-to-end backpressure). */
+   Sends the smaller of {full FRAME, DELTA}, paced by a byte budget so the byte-rate stays under
+   what the C6's USB stack can hold. `S.fps` is an upper cap; the byte budget is the real limiter. */
 async function pump(now, build=buildFrame){
   if(!sink||sending) return;
-  if(now-lastSend < 1000/S.fps) return;
+  if(now-lastSend < 1000/S.fps) return;             // fps upper cap
+  build();                                           // fill framePayload (physical strip order)
+  // Pick full vs delta. Delta only when the firmware supports it, we have a reference frame, a
+  // keyframe isn't due, and it's actually smaller. RAW test bypasses the lut → always a full frame.
+  let type=PKT_FRAME, payload=framePayload;
+  if(deltaSupported && build===buildFrame && lastSentFB && framesSinceKey<KEYFRAME_EVERY){
+    const dn=encodeDelta();
+    if(dn===0){ framesSinceKey++; return; }          // nothing changed → skip; keyframe cadence still advances
+    if(dn < framePayload.length){ type=PKT_DELTA; payload=deltaBuf.subarray(0,dn); }
+  }
+  // Byte-budget token bucket: skip this frame if we'd exceed the safe throughput.
+  const dtB=Math.min(0.25,(now-lastBudgetT)/1000); lastBudgetT=now;
+  byteBucket=Math.min(BUCKET_MAX, byteBucket + TARGET_BPS*dtB);
+  const cost=payload.length+8;                       // A5 5A|type|seq|len16|payload|sum16
+  if(byteBucket<cost) return;                         // not enough budget → drop (next frame supersedes)
+  byteBucket-=cost;
   lastSend=now; sending=true; dot.className='busy';
   try{
-    await sendPacket(PKT_FRAME,build());
-    if(sink) dot.className='ok';
+    await sendPacket(type,payload);
+    if(sink){
+      dot.className='ok';
+      if(type===PKT_FRAME){
+        if(!lastSentFB || lastSentFB.length!==framePayload.length) lastSentFB=new Uint8Array(framePayload.length);
+        lastSentFB.set(framePayload);                 // full frame: the device now shows the whole frame
+        framesSinceKey=0;
+      }else{
+        // DELTA: mirror ONLY the pixels we actually sent, so sub-threshold fade steps accumulate in
+        // lastSentFB (and eventually cross the threshold) instead of being silently discarded.
+        for(let i=0;i<payload.length;i+=5){
+          const d=(payload[i]|(payload[i+1]<<8))*3;
+          lastSentFB[d]=payload[i+2]; lastSentFB[d+1]=payload[i+3]; lastSentFB[d+2]=payload[i+4];
+        }
+        framesSinceKey++;
+      }
+    }
   }catch(e){
     dot.className='busy';
     await disconnect();          // a failed USB write means the port is gone
@@ -631,7 +707,7 @@ $('demoName').onclick=()=>{ S.demo=(S.demo+1)%DEMOS.length; $('demoName').textCo
 $('demoName').textContent=DEMOS[S.demo%DEMOS.length].name;
 $('brush').onclick=()=>{ S.brushIdx=(S.brushIdx+1)%BRUSHES.length; $('brush').textContent='B:'+BRUSHES[S.brushIdx]; saveLS(); };
 $('brush').textContent='B:'+BRUSHES[S.brushIdx%BRUSHES.length];
-$('clear').onclick=()=>{ fb.fill(0); fluidAlloc(); if(heat)heat.fill(0); };
+$('clear').onclick=()=>{ fb.fill(0); fluidAlloc(); if(heat)heat.fill(0); resetDelta(); };
 
 // palette swatches
 const tools=$('drawTools');
@@ -666,13 +742,13 @@ $('save').onclick=async()=>{
   S.fx=$('sFX').checked; S.fy=$('sFY').checked;
   S.pin=Math.max(0,Math.min(48,+$('sPin').value|0));
   S.bri=Math.max(1,Math.min(255,+$('sBri').value|0||40));
-  S.baud=+$('sBaud').value; S.fps=Math.min(30,+$('sFps').value||30);
+  S.baud=+$('sBaud').value; S.fps=Math.min(60,+$('sFps').value||60);
   saveLS(); rebuild();
   if(sink){ try{ await sendPacket(PKT_CONFIG,configPayload()); }catch(e){ disconnect(); } }
   setEl.classList.remove('open');
 };
-$('identify').onclick=()=>{ identUntil=performance.now()+8000; setEl.classList.remove('open'); };
-$('rawtest').onclick=()=>{ rawUntil=performance.now()+15000; setEl.classList.remove('open'); };
+$('identify').onclick=()=>{ identUntil=performance.now()+8000; resetDelta(); setEl.classList.remove('open'); };
+$('rawtest').onclick=()=>{ rawUntil=performance.now()+15000; resetDelta(); setEl.classList.remove('open'); };
 $('connUsb').onclick=()=>{ S.baud=+$('sBaud').value; S.fps=+$('sFps').value; saveLS(); connectSerial(); };
 $('connOff').onclick=()=>disconnect();
 if(!navigator.serial) $('connUsb').disabled=true;
