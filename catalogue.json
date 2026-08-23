@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-23T19:26:34Z",
+  "generated": "2026-08-23T19:28:04Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -255,7 +255,6 @@
         "Apps"
       ],
       "permissions": [
-        "bluetooth",
         "usb"
       ],
       "compatibility": [
@@ -275,10 +274,9 @@
       "updatedAt": "2026-08-23T19:22:25Z",
       "summary": "Design LED-matrix art and stream it live to a real ESP32 panel over USB or Bluetooth.",
       "features": [
-        "Web Bluetooth",
         "Web Serial"
       ],
-      "sizeBytes": 1723636
+      "sizeBytes": 1723590
     },
     {
       "id": "com.natureglass.metaballssim",
