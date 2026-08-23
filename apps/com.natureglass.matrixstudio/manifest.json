@@ -9,7 +9,6 @@
         "Apps"
     ],
     "permissions": [
-        "bluetooth",
         "usb"
     ],
     "compatibility": [
@@ -29,7 +28,6 @@
     "updatedAt": "2026-08-23T19:22:25Z",
     "summary": "Design LED-matrix art and stream it live to a real ESP32 panel over USB or Bluetooth.",
     "features": [
-        "Web Bluetooth",
         "Web Serial"
     ]
 }
