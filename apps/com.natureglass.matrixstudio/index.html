@@ -116,7 +116,7 @@ input[type=range]{width:160px;accent-color:var(--acc)}
     <label>max send fps (USB)
       <select id="sFps">
         <option>5</option><option>10</option><option>15</option>
-        <option selected>20</option><option>30</option><option>60</option>
+        <option>20</option><option selected>30</option><option>60</option>
       </select>
     </label>
   </div>
@@ -136,7 +136,7 @@ input[type=range]{width:160px;accent-color:var(--acc)}
 /* ================= state ================= */
 const MAX_LEDS=1024;      // firmware MAX_LEDS — W*H is clamped to this
 const DEF = {w:32,h:16,ph:8,axis:'v',serp:true,fx:false,fy:false,
-             pin:20,bri:40,baud:921600,fps:20,mode:'draw',demo:0,brushIdx:1,color:2,ver:2};
+             pin:20,bri:40,baud:921600,fps:30,mode:'draw',demo:0,brushIdx:1,color:2,ver:2};
 let S = Object.assign({}, DEF);
 try{ Object.assign(S, JSON.parse(localStorage.getItem('matrixstudio')||'{}')); }catch(e){}
 if(S.ver!==2){ S.pin=20; S.ver=2; }   // v1 settings carried pin 5 (old default); the panel is on GPIO 20
@@ -604,7 +604,7 @@ async function connectSerial(){
   let port, writer, reader, readableDone;
   try{
     port=await navigator.serial.requestPort();
-    await port.open({baudRate:S.baud, bufferSize:65536});
+    await port.open({baudRate:S.baud});
     writer=port.writable.getWriter();
   }catch(e){ setConn('offline',false); return; }
   lineBuf='';
