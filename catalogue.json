@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-23T20:49:29Z",
+  "generated": "2026-08-23T20:50:51Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -340,14 +340,13 @@
       "updatedAt": "2026-08-23T20:47:11Z",
       "summary": "A touch MIDI control surface that mirrors your hardware and triggers looping samples with live effec",
       "features": [
-        "Web Bluetooth",
         "Web MIDI",
         "Web Serial"
       ],
       "tags": [
         "MIDI"
       ],
-      "sizeBytes": 4132058
+      "sizeBytes": 4132033
     },
     {
       "id": "com.natureglass.neuralnetworks",
