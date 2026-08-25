@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-24T12:41:58Z",
+  "generated": "2026-08-25T12:48:29Z",
   "stats": {
     "com.natureglass.aether": {
       "downloads": 1,
@@ -17,7 +17,7 @@
       "ratingCount": 0
     },
     "com.natureglass.fluiddynamics": {
-      "downloads": 3,
+      "downloads": 4,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.8611
@@ -35,7 +35,7 @@
       "ratingScore": 4.8611
     },
     "com.natureglass.matrixstudio": {
-      "downloads": 9,
+      "downloads": 10,
       "ratingAvg": 0,
       "ratingCount": 0
     },
@@ -45,7 +45,12 @@
       "ratingCount": 0
     },
     "com.natureglass.midisurface": {
-      "downloads": 4,
+      "downloads": 5,
+      "ratingAvg": 0,
+      "ratingCount": 0
+    },
+    "com.natureglass.neuralnetworks": {
+      "downloads": 1,
       "ratingAvg": 0,
       "ratingCount": 0
     },
@@ -71,7 +76,7 @@
       "ratingCount": 0
     },
     "com.natureglass.streamcast": {
-      "downloads": 1,
+      "downloads": 2,
       "ratingAvg": 0,
       "ratingCount": 0
     },
@@ -81,7 +86,7 @@
       "ratingCount": 0
     },
     "com.natureglass.threejsloadergltf": {
-      "downloads": 0,
+      "downloads": 1,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.8611
@@ -92,7 +97,7 @@
       "ratingCount": 0
     },
     "com.natureglass.threejsselectiveunrealbloom": {
-      "downloads": 1,
+      "downloads": 2,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.8611
