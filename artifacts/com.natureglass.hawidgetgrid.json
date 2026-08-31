@@ -1,0 +1,18 @@
+{
+  "files": [
+    "README.md",
+    "assets/appbanner.jpg",
+    "assets/appbanner.png",
+    "brewser-sw.js",
+    "index.html",
+    "manifest.json",
+    "pwa/app.webmanifest",
+    "pwa/apple-touch-icon.png",
+    "pwa/brewser-pwa.js",
+    "pwa/icon-192.png",
+    "pwa/icon-512.png",
+    "pwa/icon-maskable.png"
+  ],
+  "id": "com.natureglass.hawidgetgrid",
+  "sizeBytes": 251901
+}
