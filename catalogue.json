@@ -159,7 +159,7 @@
       "name": "Fractal Zoom",
       "permissions": [],
       "publishedAt": "2026-08-06T10:32:41Z",
-      "sizeBytes": 2838700,
+      "sizeBytes": 2838645,
       "summary": "A GPU-powered WebGL2 explorer for six infinitely detailed fractals.",
       "tags": [
         "Fractals",
@@ -239,7 +239,7 @@
       "name": "Metaballs sim",
       "permissions": [],
       "publishedAt": "2026-08-06T10:21:50Z",
-      "sizeBytes": 444678,
+      "sizeBytes": 444623,
       "summary": "A WebGL2 metaball fluid of merging, dripping water blobs you can pour and colour.",
       "tags": [
         "Fluids"
@@ -299,7 +299,7 @@
       "name": "Neural Networks",
       "permissions": [],
       "publishedAt": "2026-08-06T10:36:13Z",
-      "sizeBytes": 1007620,
+      "sizeBytes": 1007564,
       "summary": "Draw a doodle and let an on-device WebNN model guess what it is.",
       "tags": [
         "Probability",
@@ -328,7 +328,7 @@
       "name": "nxjs WebGL1 Test",
       "permissions": [],
       "publishedAt": "2026-08-06T09:21:34Z",
-      "sizeBytes": 2853040,
+      "sizeBytes": 2852983,
       "summary": "The very first WebGL1 capability demo on Switch: a moonlit ocean with a floating nx.js-logo cube",
       "tags": [
         "WebGL1"
@@ -356,7 +356,7 @@
       "name": "nxjs WebGL2 Test",
       "permissions": [],
       "publishedAt": "2026-08-06T09:22:21Z",
-      "sizeBytes": 2095387,
+      "sizeBytes": 2095331,
       "summary": "The very first WebGL2 shader demo on Switch: a procedural sunset sea with a floating logo cube.",
       "tags": [
         "WebGL2"
@@ -412,7 +412,7 @@
         "device_info"
       ],
       "publishedAt": "2026-08-06T10:24:29Z",
-      "sizeBytes": 1581289,
+      "sizeBytes": 1581231,
       "summary": "A live dashboard that probes your device's sensors, battery, haptics and network.",
       "tags": [
         "Gyroscope"
@@ -462,7 +462,7 @@
       "name": "Speed Test",
       "permissions": [],
       "publishedAt": "2026-08-06T10:18:02Z",
-      "sizeBytes": 1250806,
+      "sizeBytes": 1250754,
       "summary": "Measure your internet speed against Cloudflare on an animated needle gauge.",
       "tags": [
         "Diagnostics"
@@ -488,7 +488,7 @@
       "name": "Speed Watch",
       "permissions": [],
       "publishedAt": "2026-08-09T12:49:28Z",
-      "sizeBytes": 3314130,
+      "sizeBytes": 3313983,
       "summary": "Free GPS speedometer with a live map and automatic speed-limit alerts",
       "tags": [
         "PWA",
@@ -544,7 +544,7 @@
       "name": "ThreeJS Dynamic Cubemap Reflection",
       "permissions": [],
       "publishedAt": "2026-08-06T09:23:06Z",
-      "sizeBytes": 6661877,
+      "sizeBytes": 6661824,
       "summary": "A real-time three.js demo of a chrome sphere reflecting the live scene via a CubeCamera.",
       "tags": [
         "WebGL2",
@@ -570,7 +570,7 @@
       "name": "ThreeJS Equirect Env Reflection",
       "permissions": [],
       "publishedAt": "2026-08-06T09:23:48Z",
-      "sizeBytes": 7933088,
+      "sizeBytes": 7933034,
       "summary": "A three.js image-based-lighting demo of a torus knot reflecting an equirectangular HDR environment.",
       "tags": [
         "WebGL2",
@@ -596,7 +596,7 @@
       "name": "ThreeJS GPGPU Water",
       "permissions": [],
       "publishedAt": "2026-08-06T09:24:29Z",
-      "sizeBytes": 6205923,
+      "sizeBytes": 6205867,
       "summary": "A GPU-computed three.js water surface that ripples wherever you press and drag.",
       "tags": [
         "WebGL2",
@@ -648,7 +648,7 @@
       "name": "ThreeJS Loader GLTF",
       "permissions": [],
       "publishedAt": "2026-08-06T09:44:35Z",
-      "sizeBytes": 9865806,
+      "sizeBytes": 9865752,
       "summary": "A Three.js demo loading a PBR glTF helmet under HDR lighting on the Switch GPU.",
       "tags": [
         "WebGL2",
@@ -674,7 +674,7 @@
       "name": "ThreeJS Postprocessing Pixelation",
       "permissions": [],
       "publishedAt": "2026-08-06T09:46:50Z",
-      "sizeBytes": 3291394,
+      "sizeBytes": 3291339,
       "summary": "A three.js diorama rendered through a chunky, adjustable retro pixelation pass.",
       "tags": [
         "WebGL2",
@@ -726,7 +726,7 @@
       "name": "ThreeJS Selective Unreal Bloom",
       "permissions": [],
       "publishedAt": "2026-08-06T10:11:59Z",
-      "sizeBytes": 10934992,
+      "sizeBytes": 10934937,
       "summary": "An animated three.js ion-drive model with tunable Unreal-style bloom glowing its bright parts.",
       "tags": [
         "WebGL2",
@@ -752,7 +752,7 @@
       "name": "ThreeJS Shaders Sky",
       "permissions": [],
       "publishedAt": "2026-08-06T10:12:52Z",
-      "sizeBytes": 4154553,
+      "sizeBytes": 4154498,
       "summary": "An interactive three.js atmospheric sky shader with a movable sun and drifting clouds.",
       "tags": [
         "WebGL2",
@@ -778,7 +778,7 @@
       "name": "ThreeJS Spotlight Shadow Cookie",
       "permissions": [],
       "publishedAt": "2026-08-06T10:13:47Z",
-      "sizeBytes": 7073739,
+      "sizeBytes": 7073684,
       "summary": "A Three.js spotlight demo projecting a textured cookie and soft shadows on the Switch GPU.",
       "tags": [
         "WebGL2",
@@ -788,7 +788,7 @@
     }
   ],
   "defaultSource": "base",
-  "generated": "2026-08-31T21:15:59Z",
+  "generated": "2026-08-31T21:16:32Z",
   "revoked": [],
   "sources": {
     "base": "https://play.brewser.io"
