@@ -1,6 +1,6 @@
 # Speed Test
 
-_v1.0.0_
+_v1.0.1_
 
 **Speed Test** checks how fast your internet connection really is, measuring against Cloudflare's global network and showing the results on an animated needle gauge with live metric tiles and a diagnostics log.
 
