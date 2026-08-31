@@ -2,6 +2,7 @@
   "defaultSource": "base",
   "local": "base",
   "sources": {
-    "base": "https://play.brewser.io"
+    "base": "https://play.brewser.io",
+    "ext1": "https://play1.brewser.io"
   }
 }
