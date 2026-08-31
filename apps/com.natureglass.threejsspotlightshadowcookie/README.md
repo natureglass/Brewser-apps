@@ -1,6 +1,6 @@
 # ThreeJS Spotlight Shadow Cookie
 
-_v1.0.1_
+_v1.0.2_
 
 **ThreeJS Spotlight Shadow Cookie** lights a marble angel with a single moving spotlight that projects a patterned texture and casts a soft, shifting shadow across the floor.
 
