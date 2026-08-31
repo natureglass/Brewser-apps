@@ -20,11 +20,25 @@
     pointer-events: none;
   }
   #hud b { color: #e8edf2; font-weight: 600; }
+  /* iOS motion-permission button — revealed by JS only when the browser gates
+     DeviceOrientation behind a user gesture. Flat: solid fill + solid border. */
+  #perm {
+    position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    z-index: 10;
+    padding: 13px 22px;
+    color: #101418; background: #48dbfb; border: 2px solid #48dbfb;
+    border-radius: 8px;
+    font: 600 13px/1 ui-monospace, Menlo, Consolas, monospace;
+    letter-spacing: .12em;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  #perm:active { color: #48dbfb; background: #101418; }
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
 <div id="hud"><b>GRAVITY BALLS</b> · <span id="st">BOOT</span></div>
+<button id="perm" type="button" hidden>ENABLE TILT</button>
 
 <script>
 "use strict";
@@ -219,19 +233,34 @@ canvas.addEventListener('pointermove', e => { if (dragging) pointerTilt(e); });
 window.addEventListener('pointerup', () => { dragging = false; });
 window.addEventListener('pointercancel', () => { dragging = false; });
 
-// Hook the sensor immediately — matches sensorstest's pattern. The Switch
-// runtime's DeviceOrientationEvent polyfill auto-grants permission (no
-// user gesture required); on mobile Safari with real iOS 13+ permission
-// gating, this listener silently no-ops until permission is granted
-// elsewhere, and the pointer-drag fallback above covers that case.
-//
-// Note: `window.addEventListener` (explicit receiver), NOT bare
-// `addEventListener()` — under `"use strict"` a bare call passes
-// `this === undefined` to the runtime's LiveWindow.prototype.addEventListener
-// wrap, which then fails to register the underlying listener on the
-// LiveWindow. `window.addEventListener(...)` sets `this === window` and
-// works correctly.
-window.addEventListener('deviceorientation', onOrient);
+// Attach the IMU listener. `window.addEventListener` (explicit receiver), NOT
+// bare `addEventListener()` — under `"use strict"` a bare call passes
+// `this === undefined` to the Switch runtime's LiveWindow.prototype
+// .addEventListener wrap, which then fails to register the underlying listener;
+// `window.addEventListener(...)` sets `this === window` and works correctly.
+function attachOrientation() {
+  window.addEventListener('deviceorientation', onOrient);
+}
+
+// Motion permission. iOS 13+ (Safari — the only place this gate exists) requires
+// DeviceOrientationEvent.requestPermission() to be called from a USER GESTURE, so
+// reveal a one-tap "ENABLE TILT" button and only attach once granted. Everywhere
+// else — Android, and the Switch runtime whose polyfill auto-grants — there is no
+// gate, so attach immediately. The pointer-drag fallback above keeps the app
+// playable if permission is denied or absent.
+const DOE = window.DeviceOrientationEvent;
+if (DOE && typeof DOE.requestPermission === 'function') {
+  const permBtn = document.getElementById('perm');
+  permBtn.hidden = false;
+  permBtn.addEventListener('click', function () {
+    DOE.requestPermission().then(function (res) {
+      if (res === 'granted') attachOrientation();
+      permBtn.hidden = true;
+    }).catch(function () { permBtn.hidden = true; });
+  });
+} else {
+  attachOrientation();
+}
 
 /* Impulse + positional-correction solver. 20 balls → 190 pairs; at
  * 5 substeps × 8 iterations this is still trivially cheap, and the
