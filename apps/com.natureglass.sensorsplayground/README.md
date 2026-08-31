@@ -1,6 +1,6 @@
 # Sensors Playground
 
-_v1.0.0_
+_v1.0.1_
 
 **Sensors Playground** is a hardware diagnostics dashboard that surfaces the sensors and capabilities of your device. Each panel probes a real piece of hardware through a standard web API and shows a live readout, so you can see — and feel — exactly what your device exposes.
 
