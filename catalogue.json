@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-08-31T18:45:36Z",
+  "generated": "2026-08-31T18:52:03Z",
   "apps": [
     {
       "id": "com.natureglass.2dplatformermicrogame",
@@ -190,6 +190,7 @@
       ],
       "permissions": [],
       "compatibility": [
+        "mobile",
         "switch",
         "web"
       ],
@@ -208,7 +209,7 @@
         "Fractals",
         "Visualizer"
       ],
-      "sizeBytes": 2838681
+      "sizeBytes": 2838699
     },
     {
       "id": "com.natureglass.gravityballs",
@@ -290,6 +291,7 @@
       ],
       "permissions": [],
       "compatibility": [
+        "mobile",
         "switch",
         "web"
       ],
@@ -307,7 +309,7 @@
       "tags": [
         "Fluids"
       ],
-      "sizeBytes": 444598
+      "sizeBytes": 444616
     },
     {
       "id": "com.natureglass.midisurface",
@@ -362,6 +364,7 @@
       ],
       "permissions": [],
       "compatibility": [
+        "mobile",
         "switch",
         "web"
       ],
@@ -380,7 +383,7 @@
         "Probability",
         "WebNN"
       ],
-      "sizeBytes": 1007555,
+      "sizeBytes": 1007573,
       "featured": true
     },
     {
@@ -395,6 +398,7 @@
       ],
       "permissions": [],
       "compatibility": [
+        "mobile",
         "switch",
         "web"
       ],
@@ -415,7 +419,7 @@
       "tags": [
         "WebGL1"
       ],
-      "sizeBytes": 2852960
+      "sizeBytes": 2852978
     },
     {
       "id": "com.natureglass.nxjswebgl2test",
@@ -429,6 +433,7 @@
       ],
       "permissions": [],
       "compatibility": [
+        "mobile",
         "switch",
         "web"
       ],
@@ -449,7 +454,7 @@
       "tags": [
         "WebGL2"
       ],
-      "sizeBytes": 2095286
+      "sizeBytes": 2095304
     },
     {
       "id": "com.natureglass.savedemo",
@@ -500,6 +505,7 @@
         "device_info"
       ],
       "compatibility": [
+        "mobile",
         "switch",
         "web"
       ],
@@ -517,7 +523,7 @@
       "tags": [
         "Gyroscope"
       ],
-      "sizeBytes": 1581244,
+      "sizeBytes": 1581262,
       "featured": true
     },
     {
@@ -564,6 +570,7 @@
       ],
       "permissions": [],
       "compatibility": [
+        "mobile",
         "switch",
         "web"
       ],
@@ -581,7 +588,7 @@
       "tags": [
         "Diagnostics"
       ],
-      "sizeBytes": 1250742
+      "sizeBytes": 1250760
     },
     {
       "id": "com.natureglass.speedwatch",
@@ -669,6 +676,7 @@
       ],
       "permissions": [],
       "compatibility": [
+        "mobile",
         "switch",
         "web"
       ],
@@ -687,7 +695,7 @@
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 6661810
+      "sizeBytes": 6661828
     },
     {
       "id": "com.natureglass.threejsequirectenvreflection",
@@ -701,6 +709,7 @@
       ],
       "permissions": [],
       "compatibility": [
+        "mobile",
         "switch",
         "web"
       ],
@@ -719,7 +728,7 @@
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 7932961
+      "sizeBytes": 7932979
     },
     {
       "id": "com.natureglass.threejsgpgpuwater",
@@ -733,6 +742,7 @@
       ],
       "permissions": [],
       "compatibility": [
+        "mobile",
         "switch",
         "web"
       ],
@@ -751,7 +761,7 @@
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 6205832
+      "sizeBytes": 6205850
     },
     {
       "id": "com.natureglass.threejsloadercollada",
@@ -765,6 +775,7 @@
       ],
       "permissions": [],
       "compatibility": [
+        "mobile",
         "switch",
         "web"
       ],
@@ -782,7 +793,7 @@
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 5725352
+      "sizeBytes": 5725370
     },
     {
       "id": "com.natureglass.threejsloadergltf",
@@ -796,6 +807,7 @@
       ],
       "permissions": [],
       "compatibility": [
+        "mobile",
         "switch",
         "web"
       ],
@@ -814,7 +826,7 @@
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 9865772,
+      "sizeBytes": 9865790,
       "featured": true
     },
     {
@@ -829,6 +841,7 @@
       ],
       "permissions": [],
       "compatibility": [
+        "mobile",
         "switch",
         "web"
       ],
@@ -847,7 +860,7 @@
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 3291298
+      "sizeBytes": 3291316
     },
     {
       "id": "com.natureglass.threejsrapier3dphysics",
@@ -861,6 +874,7 @@
       ],
       "permissions": [],
       "compatibility": [
+        "mobile",
         "switch",
         "web"
       ],
@@ -878,7 +892,7 @@
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 5797746
+      "sizeBytes": 5797764
     },
     {
       "id": "com.natureglass.threejsselectiveunrealbloom",
@@ -892,6 +906,7 @@
       ],
       "permissions": [],
       "compatibility": [
+        "mobile",
         "switch",
         "web"
       ],
@@ -910,7 +925,7 @@
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 10934899
+      "sizeBytes": 10934917
     },
     {
       "id": "com.natureglass.threejsshaderssky",
@@ -924,6 +939,7 @@
       ],
       "permissions": [],
       "compatibility": [
+        "mobile",
         "switch",
         "web"
       ],
@@ -942,7 +958,7 @@
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 4154456
+      "sizeBytes": 4154474
     },
     {
       "id": "com.natureglass.threejsspotlightshadowcookie",
@@ -956,6 +972,7 @@
       ],
       "permissions": [],
       "compatibility": [
+        "mobile",
         "switch",
         "web"
       ],
@@ -974,7 +991,7 @@
         "WebGL2",
         "ThreeJS"
       ],
-      "sizeBytes": 7073654
+      "sizeBytes": 7073672
     }
   ]
 }
