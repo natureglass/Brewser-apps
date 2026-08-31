@@ -1,6 +1,6 @@
 # ThreeJS Equirect Env Reflection
 
-_v1.0.1_
+_v1.0.2_
 
 **ThreeJS Equirect Env Reflection** is a glossy image-based-lighting demo in which a slowly spinning torus knot draws its colour and reflections entirely from a single wrap-around photograph of its surroundings.
 
