@@ -1,6 +1,4 @@
 {
-  "id": "com.natureglass.compass",
-  "sizeBytes": 1020750,
   "files": [
     "README.md",
     "assets/appbanner.gif",
@@ -14,5 +12,7 @@
     "pwa/icon-192.png",
     "pwa/icon-512.png",
     "pwa/icon-maskable.png"
-  ]
+  ],
+  "id": "com.natureglass.compass",
+  "sizeBytes": 1020750
 }

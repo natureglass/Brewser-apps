@@ -1,6 +1,4 @@
 {
-  "id": "com.natureglass.nxjswebgl1test",
-  "sizeBytes": 2852983,
   "files": [
     "README.md",
     "assets/appbanner.gif",
@@ -9,5 +7,7 @@
     "assets/main.js",
     "index.html",
     "manifest.json"
-  ]
+  ],
+  "id": "com.natureglass.nxjswebgl1test",
+  "sizeBytes": 2853040
 }

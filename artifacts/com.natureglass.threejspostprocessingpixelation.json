@@ -1,6 +1,4 @@
 {
-  "id": "com.natureglass.threejspostprocessingpixelation",
-  "sizeBytes": 3291339,
   "files": [
     "README.md",
     "assets/appbanner.gif",
@@ -21,5 +19,7 @@
     "main.css",
     "manifest.json",
     "textures/checker.png"
-  ]
+  ],
+  "id": "com.natureglass.threejspostprocessingpixelation",
+  "sizeBytes": 3291394
 }

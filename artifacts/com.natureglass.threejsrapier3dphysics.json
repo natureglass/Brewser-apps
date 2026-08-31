@@ -1,6 +1,4 @@
 {
-  "id": "com.natureglass.threejsrapier3dphysics",
-  "sizeBytes": 5797764,
   "files": [
     "README.md",
     "assets/appbanner.gif",
@@ -17,5 +15,7 @@
     "main.css",
     "manifest.json",
     "textures/grid.png"
-  ]
+  ],
+  "id": "com.natureglass.threejsrapier3dphysics",
+  "sizeBytes": 5797764
 }

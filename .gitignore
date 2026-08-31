@@ -6,3 +6,7 @@
 # Note: this does NOT untrack zips already committed. If a real asset happens to
 # be a .zip that must stay in the repo, force-add it with:  git add -f path.zip
 *.zip
+
+# Python bytecode from the local catalogue build scripts
+__pycache__/
+*.pyc

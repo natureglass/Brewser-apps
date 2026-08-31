@@ -1,6 +1,4 @@
 {
-  "id": "com.natureglass.matrixstudio",
-  "sizeBytes": 1723590,
   "files": [
     "README.md",
     "assets/appbanner.gif",
@@ -9,5 +7,7 @@
     "assets/screenshots/2.jpg",
     "index.html",
     "manifest.json"
-  ]
+  ],
+  "id": "com.natureglass.matrixstudio",
+  "sizeBytes": 1723590
 }

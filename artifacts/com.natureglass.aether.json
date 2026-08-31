@@ -1,11 +1,11 @@
 {
-  "id": "com.natureglass.aether",
-  "sizeBytes": 3042622,
   "files": [
     "README.md",
     "assets/appbanner.gif",
     "assets/appbanner.jpg",
     "index.html",
     "manifest.json"
-  ]
+  ],
+  "id": "com.natureglass.aether",
+  "sizeBytes": 3042622
 }

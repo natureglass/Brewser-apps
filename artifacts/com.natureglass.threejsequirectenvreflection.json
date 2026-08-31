@@ -1,6 +1,4 @@
 {
-  "id": "com.natureglass.threejsequirectenvreflection",
-  "sizeBytes": 7933034,
   "files": [
     "README.md",
     "assets/appbanner.gif",
@@ -17,5 +15,7 @@
     "manifest.json",
     "textures/equirectangular.png",
     "textures/piz_compressed.exr"
-  ]
+  ],
+  "id": "com.natureglass.threejsequirectenvreflection",
+  "sizeBytes": 7933088
 }

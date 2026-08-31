@@ -1,6 +1,4 @@
 {
-  "id": "com.natureglass.threejsdynamiccubemapreflection",
-  "sizeBytes": 6661824,
   "files": [
     "README.md",
     "assets/appbanner.gif",
@@ -15,5 +13,7 @@
     "main.css",
     "manifest.json",
     "textures/equirectangular/quarry_01_1k.hdr"
-  ]
+  ],
+  "id": "com.natureglass.threejsdynamiccubemapreflection",
+  "sizeBytes": 6661877
 }

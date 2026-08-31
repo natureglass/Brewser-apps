@@ -1,6 +1,4 @@
 {
-  "id": "com.natureglass.threejsloadercollada",
-  "sizeBytes": 5725370,
   "files": [
     "README.md",
     "assets/appbanner.gif",
@@ -20,5 +18,7 @@
     "models/collada/elf/Hair_tex_001.jpg",
     "models/collada/elf/ce.jpg",
     "models/collada/elf/elf.dae"
-  ]
+  ],
+  "id": "com.natureglass.threejsloadercollada",
+  "sizeBytes": 5725370
 }

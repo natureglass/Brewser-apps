@@ -1,6 +1,4 @@
 {
-  "id": "com.natureglass.spectraplay",
-  "sizeBytes": 1462494,
   "files": [
     "README.md",
     "assets/appbanner.gif",
@@ -18,5 +16,7 @@
     "assets/shuffle-button.png",
     "index.html",
     "manifest.json"
-  ]
+  ],
+  "id": "com.natureglass.spectraplay",
+  "sizeBytes": 1462494
 }

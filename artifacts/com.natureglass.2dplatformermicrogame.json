@@ -1,6 +1,4 @@
 {
-  "id": "com.natureglass.2dplatformermicrogame",
-  "sizeBytes": 30141015,
   "files": [
     "Build/custom_apps.data",
     "Build/custom_apps.framework.js",
@@ -22,5 +20,7 @@
     "assets/appbanner.png",
     "index.html",
     "manifest.json"
-  ]
+  ],
+  "id": "com.natureglass.2dplatformermicrogame",
+  "sizeBytes": 30141015
 }

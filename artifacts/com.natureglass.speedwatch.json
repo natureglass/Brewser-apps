@@ -1,6 +1,4 @@
 {
-  "id": "com.natureglass.speedwatch",
-  "sizeBytes": 3313983,
   "files": [
     "README.md",
     "assets/appbanner.gif",
@@ -15,5 +13,7 @@
     "pwa/icon-192.png",
     "pwa/icon-512.png",
     "pwa/icon-maskable.png"
-  ]
+  ],
+  "id": "com.natureglass.speedwatch",
+  "sizeBytes": 3314130
 }

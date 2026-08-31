@@ -1,6 +1,4 @@
 {
-  "id": "com.natureglass.midisurface",
-  "sizeBytes": 4132033,
   "files": [
     "README.md",
     "assets/appbanner.gif",
@@ -23,5 +21,7 @@
     "samples/requiem.mp3",
     "samples/rythm.mp3",
     "samples/techno.mp3"
-  ]
+  ],
+  "id": "com.natureglass.midisurface",
+  "sizeBytes": 4132033
 }

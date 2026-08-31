@@ -1,11 +1,11 @@
 {
-  "id": "com.natureglass.metaballssim",
-  "sizeBytes": 444623,
   "files": [
     "README.md",
     "assets/appbanner.gif",
     "assets/appbanner.jpg",
     "index.html",
     "manifest.json"
-  ]
+  ],
+  "id": "com.natureglass.metaballssim",
+  "sizeBytes": 444678
 }

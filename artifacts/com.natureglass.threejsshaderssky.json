@@ -1,6 +1,4 @@
 {
-  "id": "com.natureglass.threejsshaderssky",
-  "sizeBytes": 4154498,
   "files": [
     "README.md",
     "assets/appbanner.gif",
@@ -13,5 +11,7 @@
     "jsm/objects/Sky.js",
     "main.css",
     "manifest.json"
-  ]
+  ],
+  "id": "com.natureglass.threejsshaderssky",
+  "sizeBytes": 4154553
 }

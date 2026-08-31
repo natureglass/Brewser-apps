@@ -1,0 +1,7 @@
+{
+  "defaultSource": "base",
+  "local": "base",
+  "sources": {
+    "base": "https://play.brewser.io"
+  }
+}

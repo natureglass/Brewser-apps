@@ -1,6 +1,4 @@
 {
-  "id": "com.natureglass.streamcast",
-  "sizeBytes": 4413413,
   "files": [
     "README.md",
     "assets/appbanner.gif",
@@ -11,5 +9,7 @@
     "assets/streamcast_logo.png",
     "index.html",
     "manifest.json"
-  ]
+  ],
+  "id": "com.natureglass.streamcast",
+  "sizeBytes": 4413413
 }

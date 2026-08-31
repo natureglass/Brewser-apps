@@ -1,6 +1,4 @@
 {
-  "id": "com.natureglass.dusk",
-  "sizeBytes": 5933933,
   "files": [
     "README.md",
     "assets/appbanner.gif",
@@ -132,5 +130,7 @@
     "assets/three.min.js",
     "index.html",
     "manifest.json"
-  ]
+  ],
+  "id": "com.natureglass.dusk",
+  "sizeBytes": 5933933
 }

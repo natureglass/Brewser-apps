@@ -1,6 +1,4 @@
 {
-  "id": "com.natureglass.savedemo",
-  "sizeBytes": 66464,
   "files": [
     "README.md",
     "assets/appbanner.jpg",
@@ -8,5 +6,7 @@
     "brewser.js",
     "index.html",
     "manifest.json"
-  ]
+  ],
+  "id": "com.natureglass.savedemo",
+  "sizeBytes": 66464
 }

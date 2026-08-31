@@ -1,28 +1,42 @@
 name: Build catalogue
 
-# Rebuilds catalogue.json (+ artifacts/) from the flat apps/<id>/ folders.
+# Rebuilds catalogue.json (envelope v2) from the per-repo fragments — this repo's
+# own index-fragment.json + artifacts/ (from the flat apps/<id>/ folders) merged
+# with every extended storage repo's fragment listed in sources.json. See
+# docs/catalogue-v2.md ("Production pipeline"). This is the ONLY repo that emits
+# the merged catalogue.json the Switch runtime reads (play.brewser.io/catalogue.json).
 #
-# Fires whenever apps change — in particular when the Brewser WordPress plugin's
-# Approve action promotes an approved app into apps/<package-id>/ (a commit made
-# with a PAT, so it triggers this workflow). Each run is a full rebuild from the
-# current tree, so it is idempotent and self-healing: a missed event is fixed by
-# the next run.
+# Fires on:
+#   - push to apps/**, curation.json, sources.json — the plugin's promote / edit /
+#     delete (apps/**), a featured/revoked change (curation.json), or a storage
+#     source added/changed (sources.json).
+#   - repository_dispatch ext_fragment_updated — an extended repo republished its
+#     fragment and pinged us (the fast path; fired from that repo's Pages deploy).
+#   - schedule — safety-net so an ext change converges within the interval even if
+#     its ping was missed. The scripts are idempotent (they rewrite nothing when
+#     content is unchanged), so a quiet run makes no commit.
+#   - workflow_dispatch — manual "Run workflow".
 #
-# Loop-safe: the bot commit below only touches catalogue.json and artifacts/ —
-# never apps/** — so it does not re-trigger this workflow (and a GITHUB_TOKEN
-# commit wouldn't trigger workflows anyway).
-
-# Trigger scope is deliberate (C4): apps/** and curation.json ONLY.
-# stats.json is committed DAILY by the WordPress stats publisher and must
-# never rebuild/republish the catalogue — operational counters are not
-# catalogue inputs. If a new catalogue input is ever added, extend `paths`
-# here in the same change that adds its producer.
+# stats.json is committed DAILY by the WordPress stats publisher and must NEVER
+# rebuild the catalogue (operational counters are not catalogue inputs) — it is
+# deliberately absent from `paths`.
+#
+# Loop-safe: the bot commit below only touches index-fragment.json, catalogue.json
+# and artifacts/ — never apps/**, curation.json or sources.json — so it cannot
+# re-trigger this workflow (and a GITHUB_TOKEN commit wouldn't trigger workflows
+# anyway).
 on:
   push:
     branches: [ main ]
     paths:
       - 'apps/**'
       - 'curation.json'
+      - 'sources.json'
+  repository_dispatch:
+    types: [ ext_fragment_updated ]
+  schedule:
+    # Safety-net convergence for missed ext-repo pings (UTC).
+    - cron: '*/15 * * * *'
   workflow_dispatch: {}
 
 # Serialize runs so two rebuilds can't race the same fast-forward push.
@@ -49,22 +63,25 @@ jobs:
         run: |
           git config user.name  "brewser-catalogue-bot"
           git config user.email "brewser-catalogue-bot@users.noreply.github.com"
-          # catalogue.json is a pure function of apps/, so each attempt syncs to
-          # the very latest main, rebuilds, and pushes. If a concurrent writer
-          # (another run, or the plugin's promote/delete pushing straight to
-          # apps/) advanced main under us, the next iteration picks it up. This
-          # closes the cross-actor race the concurrency group can't cover, so a
-          # racing push never leaves a red failed run or a stale catalogue.
+          # catalogue.json is a pure function of the fragments + curation.json, so
+          # each attempt syncs to the very latest main, rebuilds THIS repo's
+          # fragment, re-merges (fetching every ext repo's fragment fresh), and
+          # pushes. If a concurrent writer advanced main under us, the next
+          # iteration picks it up — closing the cross-actor race the concurrency
+          # group can't cover, so a racing push never leaves a red run or a stale
+          # catalogue. merge_catalog.py fails LOUD if any configured ext fragment
+          # is unfetchable (a red run beats silently dropping an app's listing).
           for i in 1 2 3 4 5; do
             git fetch --quiet origin main
             git reset --quiet --hard origin/main
-            python scripts/build_catalog.py
-            git add -A -- catalogue.json artifacts
+            python scripts/build_fragment.py --source base
+            python scripts/merge_catalog.py
+            git add -A -- index-fragment.json catalogue.json artifacts
             if git diff --cached --quiet; then
               echo "Catalogue already up to date."
               exit 0
             fi
-            git commit -q -m "catalogue: rebuild from apps/"
+            git commit -q -m "catalogue: rebuild (v2 merge)"
             if git push origin HEAD:main; then
               echo "Pushed on attempt $i."
               exit 0

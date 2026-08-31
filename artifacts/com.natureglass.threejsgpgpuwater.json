@@ -1,6 +1,4 @@
 {
-  "id": "com.natureglass.threejsgpgpuwater",
-  "sizeBytes": 6205867,
   "files": [
     "README.md",
     "assets/appbanner.gif",
@@ -18,5 +16,7 @@
     "main.css",
     "manifest.json",
     "textures/equirectangular/blouberg_sunrise_2_1k.hdr"
-  ]
+  ],
+  "id": "com.natureglass.threejsgpgpuwater",
+  "sizeBytes": 6205923
 }

@@ -1,6 +1,4 @@
 {
-  "id": "com.natureglass.threejsloadergltf",
-  "sizeBytes": 9865752,
   "files": [
     "README.md",
     "assets/appbanner.gif",
@@ -24,5 +22,7 @@
     "models/gltf/DamagedHelmet/glTF/Default_metalRoughness.jpg",
     "models/gltf/DamagedHelmet/glTF/Default_normal.jpg",
     "textures/equirectangular/royal_esplanade_2k.hdr.jpg"
-  ]
+  ],
+  "id": "com.natureglass.threejsloadergltf",
+  "sizeBytes": 9865806
 }

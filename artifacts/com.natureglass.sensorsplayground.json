@@ -1,6 +1,4 @@
 {
-  "id": "com.natureglass.sensorsplayground",
-  "sizeBytes": 1581231,
   "files": [
     "README.md",
     "assets/appbanner.gif",
@@ -20,5 +18,7 @@
     "assets/zap.png",
     "index.html",
     "manifest.json"
-  ]
+  ],
+  "id": "com.natureglass.sensorsplayground",
+  "sizeBytes": 1581289
 }

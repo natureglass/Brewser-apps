@@ -1,42 +1,52 @@
-# Brewser apps catalogue build
+# Brewser apps catalogue build (envelope v2 — docs/catalogue-v2.md)
 #
-#   make            # scan apps/<id>/ and rewrite catalogue.json + artifacts/
-#   make catalog    # catalogue + artifacts only
-#   make check      # rebuild catalogue and diff against the previous catalogue.json
+#   make            # build this repo's fragment + merge -> catalogue.json (base-only)
+#   make fragment   # just this repo's index-fragment.json + artifacts/
+#   make catalog    # fragment + merge into catalogue.json (LOCAL-ONLY: base apps
+#                   #   only — CI does the full cross-repo merge incl. ext repos)
+#   make check      # rebuild and diff against the previous catalogue.json
 #   make help
 #
-# NOTE: the catalogue is now built in CI too — .github/workflows/catalogue.yml
-# runs `make catalog`'s script on every push to apps/**. Run `make catalog`
-# locally only when hand-editing apps; the flat apps/<id>/ layout is authoritative.
+# The catalogue is built in CI too — .github/workflows/catalogue.yml runs the
+# fragment producer + the full merge (fetching every extended repo's fragment
+# over its Pages host) on push to apps/**, curation.json or sources.json, on an
+# ext_fragment_updated dispatch, and on a schedule. Run `make catalog` locally
+# only when hand-editing base apps; the flat apps/<id>/ layout is authoritative.
 #
-# versions.json is NO LONGER produced here — it moved to the brewser-apps-staging
-# repo (served at my.brewser.io/versions.json) and is written solely by
-# brewser-v8's `make release` (a mirror of romfs/configs/current.json). The old
-# scripts/collect_versions.py generator was retired along with this target.
+# versions.json is NOT produced here — it lives in the brewser-apps-staging repo
+# (served at my.brewser.io/versions.json), written by brewser-v8's `make release`.
 
 PYTHON ?= python
-SCRIPT := scripts/build_catalog.py
+SOURCE ?= base
+FRAGMENT := scripts/build_fragment.py
+MERGE := scripts/merge_catalog.py
 CATALOG := catalogue.json
 APPS_DIR := apps
 ARTIFACTS_DIR := artifacts
 
-.PHONY: all catalog check help
+.PHONY: all fragment catalog check help
 
 all: catalog
 
-catalog:
-	@$(PYTHON) $(SCRIPT)
+fragment:
+	@$(PYTHON) $(FRAGMENT) --source $(SOURCE)
+
+catalog: fragment
+	@$(PYTHON) $(MERGE) --local-only
 
 check:
 	@cp $(CATALOG) $(CATALOG).prev 2>/dev/null || true
-	@$(PYTHON) $(SCRIPT)
+	@$(PYTHON) $(FRAGMENT) --source $(SOURCE)
+	@$(PYTHON) $(MERGE) --local-only
 	@diff -u $(CATALOG).prev $(CATALOG) || true
 	@rm -f $(CATALOG).prev
 
 help:
 	@echo "Targets:"
-	@echo "  make catalog   Scan $(APPS_DIR)/<id>/ and rewrite $(CATALOG) + $(ARTIFACTS_DIR)/<id>.json"
+	@echo "  make fragment  Build $(APPS_DIR)/<id>/ -> index-fragment.json + $(ARTIFACTS_DIR)/<id>.json"
+	@echo "  make catalog   fragment + merge into $(CATALOG) (local-only; CI merges ext repos too)"
 	@echo "  make check     Rebuild and diff against the previous $(CATALOG)"
 	@echo ""
 	@echo "Overrides:"
 	@echo "  PYTHON=py      Use the Windows 'py' launcher instead of 'python'"
+	@echo "  SOURCE=ext1    Build this repo's fragment under a different source name"

@@ -1,6 +1,4 @@
 {
-  "id": "com.natureglass.threejsspotlightshadowcookie",
-  "sizeBytes": 7073684,
   "files": [
     "README.md",
     "assets/appbanner.gif",
@@ -17,5 +15,7 @@
     "textures/colors.png",
     "textures/disturb.jpg",
     "textures/uv_grid_opengl.jpg"
-  ]
+  ],
+  "id": "com.natureglass.threejsspotlightshadowcookie",
+  "sizeBytes": 7073739
 }
