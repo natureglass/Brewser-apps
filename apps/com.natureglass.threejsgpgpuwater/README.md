@@ -1,6 +1,6 @@
 # ThreeJS GPGPU Water
 
-_v1.0.1_
+_v1.0.2_
 
 **ThreeJS GPGPU Water** is a reflective pool you can stir with a fingertip — press and drag across the surface and ripples spread out, run to the rim and slowly settle.
 
