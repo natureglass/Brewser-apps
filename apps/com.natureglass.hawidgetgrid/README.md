@@ -1,6 +1,6 @@
 # HA Widget Grid
 
-_v1.0.0_
+_v1.0.1_
 
 **HA Widget Grid** is a fast, single-canvas dashboard for **Home Assistant**. Point it at your instance with a long-lived access token and it discovers your entities, groups them by area, and paints a live grid of tiles you can tap, drag and rearrange — lights, switches, fans, dimmers, sensors and door/motion contacts, all updating in real time.
 
