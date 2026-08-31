@@ -6,9 +6,8 @@
     "com.natureglass.neuralnetworks",
     "com.natureglass.sensorsplayground",
     "com.natureglass.spectraplay",
-    "com.natureglass.streamcast",
-    "com.natureglass.threejsloadergltf"
+    "com.natureglass.streamcast"
   ],
-  "generated": "2026-08-07T07:26:22Z",
+  "generated": "2026-08-31T19:14:45Z",
   "revoked": []
 }
