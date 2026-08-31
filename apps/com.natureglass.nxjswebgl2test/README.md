@@ -1,6 +1,6 @@
 # nxjs WebGL2 Test
 
-_v1.0.1_
+_v1.0.2_
 
 **nxjs WebGL2 Test** is a WebGL2 showpiece for the nx.js runtime — a procedural sunset sea, drawn entirely inside a single shader, with the nx.js logo on a cube drifting on the tide.
 
