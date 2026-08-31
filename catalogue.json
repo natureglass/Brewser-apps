@@ -810,10 +810,11 @@
     }
   ],
   "defaultSource": "base",
-  "generated": "2026-08-31T21:33:07Z",
+  "generated": "2026-08-31T21:52:22Z",
   "revoked": [],
   "sources": {
-    "base": "https://play.brewser.io"
+    "base": "https://play.brewser.io",
+    "ext1": "https://play1.brewser.io"
   },
   "version": 2
 }
