@@ -262,6 +262,22 @@ if (DOE && typeof DOE.requestPermission === 'function') {
   attachOrientation();
 }
 
+// Lock to portrait once the app's OWN document is presented fullscreen. The web
+// player fullscreens the parent iframe (so it owns that lock); this covers the
+// case where the app itself becomes the fullscreen element. Best-effort:
+// screen.orientation.lock is absent on iOS Safari / desktop, so swallow failures.
+// The lock auto-releases on fullscreen exit.
+document.addEventListener('fullscreenchange', function () {
+  if (!document.fullscreenElement) return;
+  try {
+    var so = window.screen && screen.orientation;
+    if (so && typeof so.lock === 'function') {
+      var r = so.lock('portrait');
+      if (r && typeof r.catch === 'function') r.catch(function () {});
+    }
+  } catch (e) {}
+});
+
 /* Impulse + positional-correction solver. 20 balls → 190 pairs; at
  * 5 substeps × 8 iterations this is still trivially cheap, and the
  * iteration budget is what makes the stacks settle instead of jitter. */
