@@ -196,6 +196,39 @@
     },
     {
       "categories": [
+        "Apps"
+      ],
+      "compatibility": [
+        "switch",
+        "web"
+      ],
+      "description": "<p><strong>Hardware API Test</strong> is a developer diagnostic for Brewser's hardware Web APIs. It calls each API's <code>requestDevice()</code> and shows the device chooser + the selected device's details, so you can verify the picker, the permission gate, and the underlying enumeration on real hardware.</p>\r\n<ul>\r\n<li><strong>WebUSB</strong> — lists every device on the USB-C port and reports the chosen device's vendor/product ids and configuration count.</li>\r\n<li><strong>Web Bluetooth</strong> — scans for a service UUID you provide and lists matching BLE devices.</li>\r\n</ul>\r\n<p>Also feature-detects <code>navigator.serial</code>, <code>navigator.hid</code>, <code>requestMIDIAccess</code> and <code>NDEFReader</code> for the upcoming phases.</p>",
+      "developer": "Alex Daskalakis",
+      "entry": "index.html",
+      "features": [
+        "Web Bluetooth",
+        "Web HID",
+        "Web MIDI",
+        "Web Serial",
+        "Web USB"
+      ],
+      "id": "com.natureglass.hardwareapitest",
+      "license": "MIT",
+      "logo": "assets/appbanner.jpg",
+      "name": "Hardware API Test",
+      "permissions": [
+        "bluetooth",
+        "nfc",
+        "usb"
+      ],
+      "publishedAt": "2026-08-31T22:02:52Z",
+      "sizeBytes": 106374,
+      "source": "ext1",
+      "summary": "A developer diagnostic that verifies Brewser's WebUSB / Web Bluetooth device chooser on real hardwar",
+      "version": "1.0.0"
+    },
+    {
+      "categories": [
         "Apps",
         "Automation"
       ],
@@ -810,7 +843,7 @@
     }
   ],
   "defaultSource": "base",
-  "generated": "2026-08-31T21:52:22Z",
+  "generated": "2026-08-31T22:05:37Z",
   "revoked": [],
   "sources": {
     "base": "https://play.brewser.io",
