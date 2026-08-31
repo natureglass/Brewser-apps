@@ -12,6 +12,7 @@
     ],
     "permissions": [],
     "compatibility": [
+        "mobile",
         "switch",
         "web"
     ],
