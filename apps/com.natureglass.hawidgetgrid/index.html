@@ -1,0 +1,1805 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>HA Widget Grid</title>
+<style>
+  :root {
+    --bg: #10141a;
+    --panel: #171d26;
+    --field: #0d1116;
+    --edge: #2c3743;
+    --text: #e8edf4;
+    --dim: #7f8b9b;
+    --accent: #ffc247;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; background: var(--bg); color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif; overflow: hidden; }
+
+  .topbar {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 12px 8px 16px; background: var(--panel);
+    border-bottom: 2px solid #232c38; height: 41px;
+  }
+  .topbar h1 { font-size: 15px; font-weight: 600; letter-spacing: 0.04em; }
+  #status { font-size: 12px; color: var(--dim); overflow: hidden;
+    text-overflow: ellipsis; white-space: nowrap; }
+  #status.is-ok { color: var(--accent); }
+  #count { margin-left: auto; font-size: 12px; color: var(--dim); white-space: nowrap; }
+
+  .iconbtn {
+    background: none; border: 1px solid var(--edge); border-radius: 8px;
+    color: var(--dim); cursor: pointer; padding: 5px 9px; font-size: 14px;
+    line-height: 1; flex: none;
+  }
+  .iconbtn:hover { color: var(--text); border-color: #3c4a5a; }
+  .iconbtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .iconbtn.is-active { background: var(--accent); border-color: var(--accent); color: #191203; }
+
+  #canvas { display: block; width: 100vw; height: calc(100vh - 41px); touch-action: none; }
+
+  /* ---- modals ---- */
+  .overlay {
+    position: fixed; inset: 0; background: rgba(6, 9, 13, 0.72);
+    display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 10;
+  }
+  .overlay[hidden] { display: none; }
+
+  .sheet {
+    width: 100%; max-width: 420px; max-height: 100%; overflow-y: auto;
+    background: var(--panel); border: 1px solid var(--edge); border-radius: 12px; padding: 20px;
+  }
+  .sheet.is-tall { max-width: 460px; display: flex; flex-direction: column; overflow: hidden; }
+  .sheet h2 { font-size: 14px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--dim); margin-bottom: 16px; flex: none; }
+
+  .check { display: flex; align-items: center; gap: 9px; font-size: 14px;
+    margin-bottom: 14px; cursor: pointer; }
+  .check input { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer;
+    flex: none; }
+
+  .field { display: block; margin-bottom: 14px; }
+  .field > span { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.05em;
+    text-transform: uppercase; color: var(--dim); margin-bottom: 6px; }
+  .field > input {
+    width: 100%; background: var(--field); border: 1px solid var(--edge); border-radius: 8px;
+    color: var(--text); font: inherit; font-size: 14px; padding: 9px 11px;
+  }
+  .field > input:focus { outline: none; border-color: var(--accent); }
+  .field > input:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .hint { font-size: 12px; color: var(--dim); line-height: 1.5; margin-bottom: 14px; }
+  .note { font-size: 12px; color: var(--accent); line-height: 1.5; margin-bottom: 14px; }
+  .note.is-muted { color: var(--dim); }
+  .note[hidden] { display: none; }
+  #liveFields[hidden] { display: none; }
+
+  .actions { display: flex; align-items: center; gap: 8px; margin-top: 4px; flex: none; }
+  .actions .spacer { margin-left: auto; }
+  .actions button {
+    font: inherit; font-size: 13px; font-weight: 600; border-radius: 8px;
+    padding: 9px 14px; cursor: pointer; border: 1px solid var(--edge);
+    background: none; color: var(--dim);
+  }
+  .actions button:hover { color: var(--text); }
+  .actions button.is-primary { background: var(--accent); border-color: var(--accent); color: #191203; }
+  .actions button.is-primary:hover { color: #191203; }
+  .actions button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* ---- entity manager ---- */
+  .filter {
+    width: 100%; background: var(--field); border: 1px solid var(--edge); border-radius: 8px;
+    color: var(--text); font: inherit; font-size: 14px; padding: 9px 11px; margin-bottom: 10px;
+    flex: none;
+  }
+  .filter:focus { outline: none; border-color: var(--accent); }
+
+  .bulk { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex: none; }
+  .bulk button {
+    font: inherit; font-size: 12px; font-weight: 600; border-radius: 7px; padding: 6px 10px;
+    cursor: pointer; border: 1px solid var(--edge); background: none; color: var(--dim);
+  }
+  .bulk button:hover { color: var(--text); }
+  .bulk button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .bulk .tally { margin-left: auto; font-size: 12px; color: var(--dim); }
+
+  .entlist {
+    flex: 1 1 auto; min-height: 120px; overflow-y: auto; margin-bottom: 14px;
+    border: 1px solid var(--edge); border-radius: 8px; padding: 6px;
+    background: var(--field);
+  }
+  .entgroup { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--dim); padding: 10px 8px 5px; }
+  .entgroup:first-child { padding-top: 4px; }
+  .entrow { display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: 6px;
+    cursor: pointer; }
+  .entrow:hover { background: #151b23; }
+  .entrow input { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; flex: none; }
+  .entrow .meta { min-width: 0; }
+  .entrow .name { display: block; font-size: 13px; line-height: 1.3;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .entrow .eid { display: block; font-size: 11px; color: var(--dim); line-height: 1.3;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .entrow[hidden] { display: none; }
+  .entempty { padding: 18px 8px; font-size: 13px; color: var(--dim); text-align: center; }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<!-- brewser-pwa:start -->
+<link rel="manifest" href="pwa/app.webmanifest">
+<meta name="theme-color" content="#191e26">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="pwa/apple-touch-icon.png">
+<script src="pwa/brewser-pwa.js" defer></script>
+<!-- brewser-pwa:end -->
+</head>
+<body>
+<div class="topbar">
+  <h1>HA GRID</h1>
+  <span id="status">starting…</span>
+  <span id="count"></span>
+  <button class="iconbtn" id="editBtn" aria-pressed="false" aria-label="Edit layout" title="Edit layout">✎</button>
+  <button class="iconbtn" id="entBtn" aria-label="Manage entities" title="Manage entities">☰</button>
+  <button class="iconbtn" id="gearBtn" aria-label="Connection settings" title="Connection settings">⚙</button>
+</div>
+<canvas id="canvas"></canvas>
+
+<!-- connection ------------------------------------------------------ -->
+<div class="overlay" id="settings" hidden role="dialog" aria-modal="true" aria-labelledby="setTitle">
+  <div class="sheet">
+    <h2 id="setTitle">Connection</h2>
+
+    <label class="check">
+      <input type="checkbox" id="setMock">
+      <span>Use demo data (no Home Assistant needed)</span>
+    </label>
+
+    <div id="liveFields">
+      <label class="check">
+        <input type="checkbox" id="setSame">
+        <span>Same origin — this page is served by Home Assistant</span>
+      </label>
+
+      <label class="field">
+        <span>Host</span>
+        <input id="setHost" type="text" spellcheck="false" autocapitalize="off"
+               autocorrect="off" placeholder="homeassistant.local:8123">
+      </label>
+
+      <label class="check">
+        <input type="checkbox" id="setTls">
+        <span>Use HTTPS / WSS</span>
+      </label>
+
+      <label class="field">
+        <span>Long-lived access token</span>
+        <input id="setToken" type="password" spellcheck="false" autocomplete="off">
+      </label>
+
+      <p class="hint">
+        Create a token in Home Assistant under your profile → Security → Long-lived access tokens.
+        It is stored in this browser only. Anything that can run scripts on this page can read it,
+        so use a token you can revoke.
+      </p>
+    </div>
+
+    <p class="note" id="setNote" hidden></p>
+
+    <div class="actions">
+      <button id="setForget">Forget</button>
+      <span class="spacer"></span>
+      <button id="setCancel">Cancel</button>
+      <button id="setSave" class="is-primary">Save and connect</button>
+    </div>
+  </div>
+</div>
+
+<!-- entity manager -------------------------------------------------- -->
+<div class="overlay" id="entities" hidden role="dialog" aria-modal="true" aria-labelledby="entTitle">
+  <div class="sheet is-tall">
+    <h2 id="entTitle">Entities</h2>
+
+    <input class="filter" id="entFilter" type="search" placeholder="Filter by name or entity id"
+           spellcheck="false" autocapitalize="off" autocorrect="off">
+
+    <div class="bulk">
+      <button id="entAll">Show all</button>
+      <button id="entNone">Hide all</button>
+      <button id="entReset">Reset order</button>
+      <span class="tally" id="entTally"></span>
+    </div>
+
+    <div class="entlist" id="entList"></div>
+
+    <p class="note" id="entNote" hidden></p>
+
+    <div class="actions">
+      <span class="spacer"></span>
+      <button id="entCancel">Cancel</button>
+      <button id="entApply" class="is-primary">Apply</button>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+/* ============================================================
+ * Persistence
+ * Two independent keys: credentials and layout. Clearing your
+ * token should not wipe the arrangement, and vice versa.
+ * ============================================================ */
+const SETTINGS_KEY = "ha_grid_settings";
+const LAYOUT_KEY   = "ha_grid_layout";
+
+const DEFAULTS = {
+  mock: false,
+  sameOrigin: location.port === "8123" || location.pathname.startsWith("/local/"),
+  host: "homeassistant.local:8123",
+  token: "",
+  tls: location.protocol === "https:",
+};
+
+// localStorage with an in-memory fallback: private windows and sandboxed
+// iframes throw on access. The grid still runs there, it just forgets.
+function makeStore(key, defaults) {
+  let memory = null;
+  let usable = false;
+  try {
+    localStorage.setItem("__hagrid_probe", "1");
+    localStorage.removeItem("__hagrid_probe");
+    usable = true;
+  } catch (e) { usable = false; }
+
+  return {
+    key,
+    get usable() { return usable; },
+    load() {
+      if (usable) {
+        try {
+          const raw = localStorage.getItem(key);
+          if (raw) return defaults ? { ...defaults, ...JSON.parse(raw) } : JSON.parse(raw);
+        } catch (e) { /* fall through to memory */ }
+      }
+      if (!memory) return null;
+      return defaults ? { ...defaults, ...memory } : memory;
+    },
+    save(value) {
+      memory = JSON.parse(JSON.stringify(value));
+      if (!usable) return false;
+      try { localStorage.setItem(key, JSON.stringify(value)); return true; }
+      catch (e) { return false; }
+    },
+    clear() {
+      memory = null;
+      if (!usable) return;
+      try { localStorage.removeItem(key); } catch (e) { /* nothing to do */ }
+    },
+  };
+}
+
+const SettingsStore = makeStore(SETTINGS_KEY, DEFAULTS);
+const LayoutStore   = makeStore(LAYOUT_KEY, null);
+
+/* Which domains become tiles. Add to this to extend the grid. */
+const SUPPORTED_DOMAINS = new Set([
+  "light", "switch", "input_boolean", "fan", "sensor", "binary_sensor",
+]);
+
+/* Sort order within an area — controls first, readings after. */
+const DOMAIN_ORDER = {
+  light: 0, switch: 1, input_boolean: 2, fan: 3, sensor: 4, binary_sensor: 5,
+};
+
+/* Flat-fill palette (no gradients/shadows — software-GPU friendly) */
+const C = {
+  bg: "#10141a",
+  tile: "#1a212b",
+  tilePressed: "#232c38",
+  tileEdge: "#242e3a",
+  tileGhost: "#151b23",
+  rule: "#212a35",
+  text: "#e8edf4",
+  dim: "#7f8b9b",
+  accent: "#ffc247",     // active / on
+  accentDim: "#6b5a2b",  // pending fill
+  sensor: "#4fd8eb",     // sensor value + sparkline
+  offline: "#4a5563",
+  scrollbar: "#2c3743",
+  badge: "#e05a5a",      // remove button
+  badgeMark: "#160707",
+};
+
+/* Sensor history survives grid rebuilds (reconnects) — keyed by entity_id. */
+const HISTORY = new Map();
+
+/* ============================================================
+ * HA WebSocket client
+ * Protocol: auth_required -> auth -> auth_ok, then id'd commands.
+ * Emits: "status" (string), "ready" ()
+ * ============================================================ */
+class HAClient {
+  constructor({ host, token, tls, sameOrigin }) {
+    if (sameOrigin || !host) {
+      const scheme = location.protocol === "https:" ? "wss" : "ws";
+      this.url = `${scheme}://${location.host}/api/websocket`;
+    } else {
+      this.url = `${tls ? "wss" : "ws"}://${host}/api/websocket`;
+    }
+    this.token = token;
+    this.ws = null;
+    this.msgId = 0;
+    this.pending = new Map();       // id -> {resolve, reject}
+    this.subs = new Map();          // subscription id -> handler
+    this.handlers = { status: [], ready: [] };
+    this.backoff = 1000;
+    this.closed = false;
+  }
+
+  on(event, fn) { this.handlers[event].push(fn); }
+  emit(event, payload) { for (const fn of this.handlers[event]) fn(payload); }
+
+  connect() {
+    if (this.closed) return;
+    this.emit("status", "connecting…");
+    try {
+      this.ws = new WebSocket(this.url);
+    } catch (e) {
+      this.emit("status", "bad host — check settings");
+      return;
+    }
+    this.ws.onmessage = (e) => this.onMessage(JSON.parse(e.data));
+    this.ws.onclose = () => this.onClose();
+    this.ws.onerror = () => { /* onclose fires next */ };
+  }
+
+  // Permanent shutdown — used when settings change or the grid reconnects
+  // somewhere else. Stops retries and silences every in-flight promise.
+  close() {
+    this.closed = true;
+    clearInterval(this.pingTimer);
+    clearTimeout(this.retryTimer);
+    for (const p of this.pending.values()) p.reject(new Error("client closed"));
+    this.pending.clear();
+    this.subs.clear();
+    this.handlers = { status: [], ready: [] };
+    if (this.ws) {
+      this.ws.onclose = null;
+      this.ws.onmessage = null;
+      this.ws.onerror = null;
+      try { this.ws.close(); } catch (e) { /* already gone */ }
+      this.ws = null;
+    }
+  }
+
+  onClose() {
+    if (this.closed) return;
+    for (const p of this.pending.values()) p.reject(new Error("socket closed"));
+    this.pending.clear();
+    this.subs.clear();
+    clearInterval(this.pingTimer);
+    this.emit("status", `reconnecting in ${this.backoff / 1000}s`);
+    this.retryTimer = setTimeout(() => this.connect(), this.backoff);
+    this.backoff = Math.min(this.backoff * 2, 15000);
+  }
+
+  onMessage(msg) {
+    switch (msg.type) {
+      case "auth_required":
+        this.ws.send(JSON.stringify({ type: "auth", access_token: this.token }));
+        break;
+
+      case "auth_ok":
+        this.backoff = 1000;
+        this.emit("status", "connected");
+        this.pingTimer = setInterval(() => this.send({ type: "ping" }).catch(() => {}), 20000);
+        this.emit("ready");           // app runs discovery from here
+        break;
+
+      case "auth_invalid":
+        this.closed = true;
+        this.emit("status", "auth failed — check token");
+        break;
+
+      case "result": {
+        const p = this.pending.get(msg.id);
+        if (!p) return;
+        this.pending.delete(msg.id);
+        msg.success ? p.resolve(msg.result) : p.reject(new Error(msg.error?.message || "HA error"));
+        break;
+      }
+
+      case "event":
+        if (this.subs.has(msg.id)) this.subs.get(msg.id)(msg.event);
+        break;
+
+      case "pong":
+        break;
+    }
+  }
+
+  send(payload) {
+    return new Promise((resolve, reject) => {
+      if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return reject(new Error("not connected"));
+      const id = ++this.msgId;
+      this.pending.set(id, { resolve, reject });
+      this.ws.send(JSON.stringify({ id, ...payload }));
+    });
+  }
+
+  // subscribe_entities streams compressed state diffs — much lighter than
+  // subscribe_events(state_changed) once you are tracking dozens of entities.
+  async subscribeEntities(handler) {
+    const id = this.msgId + 1;          // id this.send() is about to allocate
+    this.subs.set(id, handler);
+    try {
+      await this.send({ type: "subscribe_entities" });
+    } catch (e) {
+      this.subs.delete(id);
+      throw e;
+    }
+  }
+
+  callService(domain, service, data) {
+    return this.send({ type: "call_service", domain, service, service_data: data });
+  }
+}
+
+/* ============================================================
+ * Mock client — same interface, fake home.
+ * ============================================================ */
+class MockClient {
+  constructor() {
+    this.handlers = { status: [], ready: [] };
+    this.subHandler = null;
+    this.closed = false;
+    this.driftTimer = null;
+    this.states = {
+      "light.living_room":           { s: "on",   a: { friendly_name: "Ceiling", brightness: 210 } },
+      "light.living_lamp":           { s: "off",  a: { friendly_name: "Corner lamp", brightness: 0 } },
+      "switch.tv_power":             { s: "on",   a: { friendly_name: "TV power" } },
+      "sensor.living_temp":          { s: "21.4", a: { friendly_name: "Temperature", unit_of_measurement: "°C", device_class: "temperature" } },
+      "light.workbench":             { s: "on",   a: { friendly_name: "Workbench", brightness: 180 } },
+      "switch.soldering_iron":       { s: "off",  a: { friendly_name: "Soldering iron" } },
+      "sensor.workshop_temp":        { s: "18.9", a: { friendly_name: "Temperature", unit_of_measurement: "°C", device_class: "temperature" } },
+      "sensor.workshop_humidity":    { s: "48",   a: { friendly_name: "Humidity", unit_of_measurement: "%", device_class: "humidity" } },
+      "binary_sensor.workshop_door": { s: "off",  a: { friendly_name: "Door", device_class: "door" } },
+      "light.hallway":               { s: "off",  a: { friendly_name: "Hallway light" } },
+      "binary_sensor.front_motion":  { s: "on",   a: { friendly_name: "Motion", device_class: "motion" } },
+      "input_boolean.guest_mode":    { s: "off",  a: { friendly_name: "Guest mode" } },
+      "fan.bedroom":                 { s: "off",  a: { friendly_name: "Bedroom fan" } },
+      "sensor.wifi_signal":          { s: "-58",  a: { friendly_name: "WiFi signal", unit_of_measurement: "dBm" } },
+      "sensor.hidden_debug":         { s: "3",    a: { friendly_name: "Debug counter" } },
+      "switch.disabled_relay":       { s: "off",  a: { friendly_name: "Old relay" } },
+      "sensor.last_boot":            { s: "2026-08-01T09:12:00+00:00", a: { friendly_name: "Last boot", device_class: "timestamp" } },
+    };
+    this.areas = [
+      { area_id: "living",   name: "Living room", floor_id: "ground" },
+      { area_id: "workshop", name: "Workshop",    floor_id: "ground" },
+      { area_id: "hall",     name: "Hallway",     floor_id: "ground" },
+    ];
+    this.devices = [
+      { id: "dev_bench", name: "Workbench controller", area_id: "workshop", manufacturer: "DIY" },
+      { id: "dev_hall",  name: "Hall node",            area_id: "hall",     manufacturer: "DIY" },
+    ];
+    this.entityReg = [
+      { entity_id: "light.living_room",           area_id: "living",   device_id: null },
+      { entity_id: "light.living_lamp",           area_id: "living",   device_id: null },
+      { entity_id: "switch.tv_power",             area_id: "living",   device_id: null },
+      { entity_id: "sensor.living_temp",          area_id: "living",   device_id: null },
+      { entity_id: "light.workbench",             area_id: null,       device_id: "dev_bench" },
+      { entity_id: "switch.soldering_iron",       area_id: null,       device_id: "dev_bench" },
+      { entity_id: "sensor.workshop_temp",        area_id: null,       device_id: "dev_bench" },
+      { entity_id: "sensor.workshop_humidity",    area_id: null,       device_id: "dev_bench" },
+      { entity_id: "binary_sensor.workshop_door", area_id: "workshop", device_id: null },
+      { entity_id: "light.hallway",               area_id: null,       device_id: "dev_hall" },
+      { entity_id: "binary_sensor.front_motion",  area_id: null,       device_id: "dev_hall" },
+      // filtered out by the rules in discover():
+      { entity_id: "sensor.wifi_signal",    area_id: null,     device_id: "dev_hall", entity_category: "diagnostic" },
+      { entity_id: "sensor.hidden_debug",   area_id: "living", device_id: null, hidden_by: "user" },
+      { entity_id: "switch.disabled_relay", area_id: "living", device_id: null, disabled_by: "user" },
+      // input_boolean.guest_mode and fan.bedroom are deliberately absent from the
+      // registry — they still appear, via states, under "Unassigned".
+    ];
+  }
+
+  on(event, fn) { this.handlers[event].push(fn); }
+  emit(event, payload) { if (!this.closed) for (const fn of this.handlers[event]) fn(payload); }
+
+  connect() {
+    this.emit("status", "demo data (not connected to Home Assistant)");
+    setTimeout(() => this.emit("ready"), 60);
+  }
+
+  close() {
+    this.closed = true;
+    clearInterval(this.driftTimer);
+    this.handlers = { status: [], ready: [] };
+    this.subHandler = null;
+  }
+
+  send({ type }) {
+    switch (type) {
+      case "get_states":
+        return Promise.resolve(Object.entries(this.states).map(([entity_id, v]) => ({
+          entity_id, state: v.s, attributes: { ...v.a },
+        })));
+      case "config/entity_registry/list":
+        return Promise.resolve(this.entityReg.map((e) => ({ ...e })));
+      case "config/device_registry/list":
+        return Promise.resolve(this.devices.map((d) => ({ ...d })));
+      case "config/area_registry/list":
+        return Promise.resolve(this.areas.map((a) => ({ ...a })));
+      default:
+        return Promise.resolve(null);
+    }
+  }
+
+  subscribeEntities(handler) {
+    this.subHandler = handler;
+    const add = {};
+    for (const [id, v] of Object.entries(this.states)) add[id] = { s: v.s, a: { ...v.a } };
+    setTimeout(() => { if (!this.closed) handler({ a: add }); }, 20);
+
+    this.driftTimer = setInterval(() => {
+      if (this.closed) return;
+      const bump = (id, lo, hi, dp) => {
+        const cur = parseFloat(this.states[id].s);
+        const next = Math.max(lo, Math.min(hi, cur + (Math.random() - 0.5) * (dp ? 0.4 : 2)));
+        this.states[id].s = dp ? next.toFixed(1) : String(Math.round(next));
+        return { "+": { s: this.states[id].s } };
+      };
+      handler({ c: {
+        "sensor.living_temp":       bump("sensor.living_temp", 17, 26, true),
+        "sensor.workshop_temp":     bump("sensor.workshop_temp", 12, 24, true),
+        "sensor.workshop_humidity": bump("sensor.workshop_humidity", 30, 70, false),
+      } });
+    }, 2000);
+    return Promise.resolve();
+  }
+
+  callService(domain, service, data) {
+    return new Promise((resolve) => setTimeout(() => {
+      const s = this.states[data.entity_id];
+      if (s && this.subHandler && !this.closed) {
+        if (service === "toggle") s.s = s.s === "on" ? "off" : "on";
+        if (service === "turn_on") { s.s = "on"; if (data.brightness != null) s.a.brightness = data.brightness; }
+        if (service === "turn_off") s.s = "off";
+        this.subHandler({ c: { [data.entity_id]: { "+": { s: s.s, a: { ...s.a } } } } });
+      }
+      resolve();
+    }, 350));
+  }
+}
+
+/* ============================================================
+ * State store — merges subscribe_entities compressed diffs.
+ *   a = added (full)   c = changed (+ set / - unset)   r = removed
+ * ============================================================ */
+class StateStore {
+  constructor(onChange) { this.map = new Map(); this.onChange = onChange; }
+
+  seed(states) {
+    this.map.clear();
+    for (const s of states) {
+      this.map.set(s.entity_id, { state: s.state, attributes: { ...s.attributes } });
+    }
+  }
+
+  get(entityId) { return this.map.get(entityId); }
+
+  applyEvent(ev) {
+    const touched = [];
+
+    if (ev.a) {
+      for (const [id, v] of Object.entries(ev.a)) {
+        this.map.set(id, { state: v.s, attributes: { ...(v.a || {}) } });
+        touched.push(id);
+      }
+    }
+
+    if (ev.c) {
+      for (const [id, delta] of Object.entries(ev.c)) {
+        const cur = this.map.get(id) || { state: "unknown", attributes: {} };
+        if (delta["-"] && delta["-"].a) {
+          for (const key of delta["-"].a) delete cur.attributes[key];
+        }
+        if (delta["+"]) {
+          if (delta["+"].s !== undefined) cur.state = delta["+"].s;
+          if (delta["+"].a) Object.assign(cur.attributes, delta["+"].a);
+        }
+        this.map.set(id, cur);
+        touched.push(id);
+      }
+    }
+
+    if (ev.r) {
+      for (const id of ev.r) { this.map.delete(id); touched.push(id); }
+    }
+
+    this.onChange(touched);
+  }
+}
+
+/* ============================================================
+ * Widgets — retained scene graph.
+ * ============================================================ */
+class Widget {
+  constructor(meta) {
+    this.entityId = meta.entityId;
+    this.label = meta.label;
+    this.unit = meta.unit;
+    this.deviceClass = meta.deviceClass;
+    this.span = 1;
+    this.rect = { x: 0, y: 0, w: 0, h: 0 };  // content coords (pre-scroll)
+    this.available = false;
+    this.pressed = false;
+    this.pending = false;
+    this.pendingTimer = null;
+    this.draggable = false;    // horizontal drag changes a value (dimmer)
+  }
+
+  applyState(state, attributes) {
+    this.available = state !== "unavailable" && state !== "unknown";
+    if (this.pendingTimer) { clearTimeout(this.pendingTimer); this.pendingTimer = null; }
+    this.pending = false;
+  }
+
+  // Optimistic: render new state now, revert if HA never confirms
+  beginPending(revertFn) {
+    this.pending = true;
+    if (this.pendingTimer) clearTimeout(this.pendingTimer);
+    this.pendingTimer = setTimeout(() => {
+      this.pending = false;
+      revertFn();
+      app.markDirty();
+    }, 5000);
+  }
+
+  dispose() { if (this.pendingTimer) clearTimeout(this.pendingTimer); }
+
+  contains(px, py) {
+    const r = this.rect;
+    return px >= r.x && px < r.x + r.w && py >= r.y && py < r.y + r.h;
+  }
+
+  // Generous touch target around the remove badge
+  hitsRemove(px, py) {
+    const r = this.rect;
+    return Math.hypot(px - (r.x + r.w - 15), py - (r.y + 15)) <= 17;
+  }
+
+  drawFrame(ctx) {
+    const r = this.rect;
+    ctx.fillStyle = this.pressed ? C.tilePressed : C.tile;
+    roundRect(ctx, r.x, r.y, r.w, r.h, 10);
+    ctx.fill();
+  }
+
+  drawLabel(ctx) {
+    const r = this.rect;
+    // leave room for the remove badge while editing
+    const room = r.w - (app.editMode ? 52 : 40);
+    ctx.fillStyle = this.available ? C.dim : C.offline;
+    ctx.font = "600 11px system-ui, sans-serif";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "top";
+    ctx.fillText(fitText(ctx, this.label.toUpperCase(), room), r.x + 14, r.y + 12);
+    if (this.pending && !app.editMode) {
+      ctx.fillStyle = C.accent;
+      ctx.textAlign = "right";
+      ctx.fillText("…", r.x + r.w - 14, r.y + 12);
+    }
+  }
+
+  drawRemoveBadge(ctx) {
+    const r = this.rect;
+    const cx = r.x + r.w - 15, cy = r.y + 15, d = 4;
+    ctx.fillStyle = C.badge;
+    ctx.beginPath();
+    ctx.arc(cx, cy, 11, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = C.badgeMark;
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(cx - d, cy - d); ctx.lineTo(cx + d, cy + d);
+    ctx.moveTo(cx + d, cy - d); ctx.lineTo(cx - d, cy + d);
+    ctx.stroke();
+  }
+
+  draw(ctx) { this.drawFrame(ctx); this.drawLabel(ctx); }
+  onTap() {}
+  onDrag() {}
+  onDragEnd() {}
+}
+
+/* --- on/off tile: light, switch, input_boolean, fan -------------- */
+class ToggleWidget extends Widget {
+  constructor(meta) { super(meta); this.on = false; }
+
+  applyState(state, attributes) {
+    super.applyState(state, attributes);
+    this.on = state === "on";
+  }
+
+  onTap() {
+    if (!this.available) return;
+    const prev = this.on;
+    this.on = !this.on;
+    this.beginPending(() => { this.on = prev; });
+    const domain = this.entityId.split(".")[0];
+    app.client.callService(domain, "toggle", { entity_id: this.entityId }).catch(() => {});
+  }
+
+  draw(ctx) {
+    this.drawFrame(ctx);
+    const r = this.rect;
+    if (this.on && this.available) {
+      ctx.fillStyle = C.accent;
+      ctx.fillRect(r.x, r.y + 8, 4, r.h - 16);
+    }
+    this.drawLabel(ctx);
+    ctx.fillStyle = !this.available ? C.offline : this.on ? C.accent : C.dim;
+    ctx.font = "700 22px system-ui, sans-serif";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
+    ctx.fillText(!this.available ? "—" : this.on ? "ON" : "OFF", r.x + 14, r.y + r.h - 16);
+  }
+}
+
+/* --- brightness slider tile: light reporting brightness ---------- */
+class DimmerWidget extends Widget {
+  constructor(meta) { super(meta); this.on = false; this.brightness = 0; this.draggable = true; }
+
+  applyState(state, attributes) {
+    super.applyState(state, attributes);
+    this.on = state === "on";
+    if (attributes && attributes.brightness != null) this.brightness = attributes.brightness;
+    else if (!this.on) this.brightness = 0;
+  }
+
+  onTap() {
+    if (!this.available) return;
+    const prev = this.on;
+    this.on = !this.on;
+    this.beginPending(() => { this.on = prev; });
+    app.client.callService("light", "toggle", { entity_id: this.entityId }).catch(() => {});
+  }
+
+  onDrag(px) {
+    if (!this.available) return;
+    const frac = Math.max(0, Math.min(1, (px - this.rect.x - 14) / (this.rect.w - 28)));
+    this.brightness = Math.round(frac * 255);
+    this.on = this.brightness > 0;
+  }
+
+  onDragEnd() {
+    if (!this.available) return;
+    this.beginPending(() => {});
+    if (this.brightness === 0) {
+      app.client.callService("light", "turn_off", { entity_id: this.entityId }).catch(() => {});
+    } else {
+      app.client.callService("light", "turn_on",
+        { entity_id: this.entityId, brightness: this.brightness }).catch(() => {});
+    }
+  }
+
+  draw(ctx) {
+    this.drawFrame(ctx);
+    const r = this.rect;
+    const tx = r.x + 14, tw = r.w - 28, ty = r.y + r.h - 32, th = 16;
+    ctx.fillStyle = C.tileEdge;
+    ctx.fillRect(tx, ty, tw, th);
+    if (this.available && this.on) {
+      ctx.fillStyle = this.pending ? C.accentDim : C.accent;
+      ctx.fillRect(tx, ty, tw * (this.brightness / 255), th);
+    }
+    this.drawLabel(ctx);
+    ctx.fillStyle = this.available ? (this.on ? C.accent : C.dim) : C.offline;
+    ctx.font = "700 18px system-ui, sans-serif";
+    ctx.textAlign = "right";
+    ctx.textBaseline = "top";
+    const pct = Math.round((this.brightness / 255) * 100);
+    ctx.fillText(!this.available ? "—" : this.on ? pct + "%" : "OFF", r.x + r.w - 14, r.y + 30);
+  }
+}
+
+/* --- numeric sensor with sparkline ------------------------------- */
+class SensorWidget extends Widget {
+  constructor(meta) {
+    super(meta);
+    this.value = null;
+    if (!HISTORY.has(this.entityId)) HISTORY.set(this.entityId, []);
+    this.history = HISTORY.get(this.entityId);
+  }
+
+  applyState(state, attributes) {
+    super.applyState(state, attributes);
+    if (attributes && attributes.unit_of_measurement) this.unit = attributes.unit_of_measurement;
+    if (isNumericState(state)) {
+      const v = parseFloat(state);
+      this.value = v;
+      this.history.push(v);
+      if (this.history.length > 60) this.history.shift();
+    }
+  }
+
+  draw(ctx) {
+    this.drawFrame(ctx);
+    this.drawLabel(ctx);
+    const r = this.rect;
+
+    if (this.history.length > 1) {
+      const pad = 14, gy = r.y + r.h - pad, gh = r.h * 0.30;
+      const min = Math.min(...this.history), max = Math.max(...this.history);
+      const range = max - min || 1;
+      ctx.strokeStyle = C.sensor;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      this.history.forEach((v, i) => {
+        const x = r.x + pad + (i / (this.history.length - 1)) * (r.w - pad * 2);
+        const y = gy - ((v - min) / range) * gh;
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+    }
+
+    ctx.fillStyle = this.available ? C.sensor : C.offline;
+    ctx.font = "700 24px system-ui, sans-serif";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "top";
+    const text = this.value == null ? "—" : this.value + (this.unit ? " " + this.unit : "");
+    ctx.fillText(fitText(ctx, text, r.w - 28), r.x + 14, r.y + 30);
+  }
+}
+
+/* --- read-only binary state -------------------------------------- */
+const BINARY_WORDS = {
+  door: ["Closed", "Open"], window: ["Closed", "Open"], garage_door: ["Closed", "Open"],
+  motion: ["Clear", "Motion"], occupancy: ["Empty", "Occupied"], presence: ["Away", "Home"],
+  moisture: ["Dry", "Wet"], smoke: ["Clear", "Smoke"], problem: ["OK", "Problem"],
+  lock: ["Locked", "Unlocked"], connectivity: ["Offline", "Online"],
+};
+
+class BinaryWidget extends Widget {
+  constructor(meta) { super(meta); this.on = false; }
+
+  applyState(state, attributes) {
+    super.applyState(state, attributes);
+    if (attributes && attributes.device_class) this.deviceClass = attributes.device_class;
+    this.on = state === "on";
+  }
+
+  draw(ctx) {
+    this.drawFrame(ctx);
+    this.drawLabel(ctx);
+    const r = this.rect;
+    const words = BINARY_WORDS[this.deviceClass] || ["Off", "On"];
+
+    ctx.fillStyle = !this.available ? C.offline : this.on ? C.accent : C.dim;
+    ctx.beginPath();
+    ctx.arc(r.x + 20, r.y + r.h - 26, 6, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.font = "600 16px system-ui, sans-serif";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+    ctx.fillText(!this.available ? "—" : words[this.on ? 1 : 0], r.x + 34, r.y + r.h - 25);
+  }
+}
+
+/* ============================================================
+ * Discovery
+ * ============================================================ */
+
+/* parseFloat is too permissive here: it happily reads "2026-08-01T09:12:00"
+ * as 2026, which turns every timestamp sensor into a bogus graph. */
+const NUMERIC_RE = /^-?\d+(\.\d+)?([eE][-+]?\d+)?$/;
+function isNumericState(state) {
+  return typeof state === "string" && NUMERIC_RE.test(state.trim());
+}
+
+const NON_NUMERIC_CLASSES = new Set(["timestamp", "date", "enum"]);
+
+function pickWidgetType(entityId, state, attrs) {
+  const domain = entityId.split(".")[0];
+  switch (domain) {
+    case "light":
+      return ("brightness" in attrs)
+        || (attrs.supported_color_modes || []).some((m) => m !== "onoff")
+        ? DimmerWidget : ToggleWidget;
+    case "switch": case "input_boolean": case "fan":
+      return ToggleWidget;
+    case "binary_sensor":
+      return BinaryWidget;
+    case "sensor":
+      if (NON_NUMERIC_CLASSES.has(attrs.device_class)) return null;
+      return (attrs.unit_of_measurement != null || isNumericState(state))
+        ? SensorWidget : null;
+    default:
+      return null;
+  }
+}
+
+// Returns every eligible entity, grouped by area. Hiding is applied later,
+// so the entity manager can still list what is currently switched off.
+async function discover(client, store) {
+  const [states, entityReg, deviceReg, areaReg] = await Promise.all([
+    client.send({ type: "get_states" }),
+    // Uses the uncompressed registry list rather than list_for_display:
+    // list_for_display returns short keys (ei/ai/di/ec) that can shift
+    // between HA releases. Fetched exactly once per connect.
+    client.send({ type: "config/entity_registry/list" }).catch(() => []),
+    client.send({ type: "config/device_registry/list" }).catch(() => []),
+    client.send({ type: "config/area_registry/list" }).catch(() => []),
+  ]);
+
+  store.seed(states);
+
+  const regByEntity = new Map((entityReg || []).map((e) => [e.entity_id, e]));
+  const deviceById  = new Map((deviceReg || []).map((d) => [d.id, d]));
+  const areaById    = new Map((areaReg   || []).map((a) => [a.area_id, a]));
+
+  const groups = new Map();   // areaId -> {name, items[]}
+
+  for (const s of states) {
+    const domain = s.entity_id.split(".")[0];
+    if (!SUPPORTED_DOMAINS.has(domain)) continue;
+
+    const attrs = s.attributes || {};
+    const reg = regByEntity.get(s.entity_id);
+    if (reg) {
+      if (reg.disabled_by || reg.hidden_by) continue;
+      if (reg.entity_category) continue;        // "config" | "diagnostic"
+    }
+
+    const Type = pickWidgetType(s.entity_id, s.state, attrs);
+    if (!Type) continue;
+
+    let areaId = reg?.area_id || null;
+    if (!areaId && reg?.device_id) areaId = deviceById.get(reg.device_id)?.area_id || null;
+
+    const key = areaId || "__none__";
+    if (!groups.has(key)) {
+      groups.set(key, { name: areaById.get(areaId)?.name || "Unassigned", items: [] });
+    }
+
+    groups.get(key).items.push(new Type({
+      entityId: s.entity_id,
+      label: reg?.name || attrs.friendly_name || s.entity_id.split(".")[1].replace(/_/g, " "),
+      unit: attrs.unit_of_measurement,
+      deviceClass: attrs.device_class,
+    }));
+  }
+
+  return [...groups.entries()]
+    .sort((a, b) => (a[0] === "__none__") - (b[0] === "__none__")
+                 || a[1].name.localeCompare(b[1].name))
+    .map(([areaId, g]) => {
+      g.items.sort((x, y) => {
+        const dx = DOMAIN_ORDER[x.entityId.split(".")[0]] ?? 9;
+        const dy = DOMAIN_ORDER[y.entityId.split(".")[0]] ?? 9;
+        return dx - dy || x.label.localeCompare(y.label);
+      });
+      return { areaId, title: g.name, widgets: g.items, headerY: 0 };
+    });
+}
+
+/* ============================================================
+ * Layout model — hidden set + per-area manual order.
+ * Order is stored per area because areas come from Home Assistant;
+ * cards move within their own section, not across sections.
+ * ============================================================ */
+const Layout = {
+  hidden: new Set(),
+  order: {},              // areaId -> [entityId, ...]
+
+  load() {
+    const saved = LayoutStore.load();
+    if (!saved) return;
+    this.hidden = new Set(Array.isArray(saved.hidden) ? saved.hidden : []);
+    this.order = (saved.order && typeof saved.order === "object") ? saved.order : {};
+  },
+
+  save() {
+    return LayoutStore.save({ hidden: [...this.hidden], order: this.order });
+  },
+
+  reset() {
+    this.order = {};
+    return this.save();
+  },
+
+  isHidden(entityId) { return this.hidden.has(entityId); },
+
+  setHidden(entityId, hide) {
+    hide ? this.hidden.add(entityId) : this.hidden.delete(entityId);
+  },
+
+  // Apply the manual order to one area's widgets. Anything the saved order
+  // does not mention (newly added, or just un-hidden) lands after the rest,
+  // keeping its discovery order.
+  sort(areaId, widgets) {
+    const saved = this.order[areaId];
+    if (!Array.isArray(saved) || !saved.length) return widgets;
+    const rank = new Map(saved.map((id, i) => [id, i]));
+    return widgets
+      .map((w, i) => ({ w, i }))
+      .sort((a, b) => {
+        const ra = rank.has(a.w.entityId) ? rank.get(a.w.entityId) : Infinity;
+        const rb = rank.has(b.w.entityId) ? rank.get(b.w.entityId) : Infinity;
+        return ra - rb || a.i - b.i;
+      })
+      .map((x) => x.w);
+  },
+
+  record(areaId, widgets) {
+    this.order[areaId] = widgets.map((w) => w.entityId);
+  },
+};
+
+/* ============================================================
+ * Helpers
+ * ============================================================ */
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+function fitText(ctx, text, maxW) {
+  if (maxW <= 0) return "";
+  if (ctx.measureText(text).width <= maxW) return text;
+  let t = text;
+  while (t.length > 1 && ctx.measureText(t + "…").width > maxW) t = t.slice(0, -1);
+  return t + "…";
+}
+
+/* ============================================================
+ * DOM handles
+ * ============================================================ */
+const els = {
+  status: document.getElementById("status"),
+  count: document.getElementById("count"),
+  edit: document.getElementById("editBtn"),
+  entBtn: document.getElementById("entBtn"),
+  gear: document.getElementById("gearBtn"),
+
+  overlay: document.getElementById("settings"),
+  live: document.getElementById("liveFields"),
+  mock: document.getElementById("setMock"),
+  same: document.getElementById("setSame"),
+  host: document.getElementById("setHost"),
+  tls: document.getElementById("setTls"),
+  token: document.getElementById("setToken"),
+  note: document.getElementById("setNote"),
+  save: document.getElementById("setSave"),
+  cancel: document.getElementById("setCancel"),
+  forget: document.getElementById("setForget"),
+
+  entOverlay: document.getElementById("entities"),
+  entFilter: document.getElementById("entFilter"),
+  entList: document.getElementById("entList"),
+  entTally: document.getElementById("entTally"),
+  entAll: document.getElementById("entAll"),
+  entNone: document.getElementById("entNone"),
+  entReset: document.getElementById("entReset"),
+  entNote: document.getElementById("entNote"),
+  entApply: document.getElementById("entApply"),
+  entCancel: document.getElementById("entCancel"),
+};
+
+/* ============================================================
+ * Connection settings panel
+ * ============================================================ */
+const Settings = {
+  open(current) {
+    els.mock.checked = current.mock;
+    els.same.checked = current.sameOrigin;
+    els.host.value = current.host || DEFAULTS.host;
+    els.tls.checked = current.tls;
+    els.token.value = current.token || "";
+    this.syncEnabled();
+    this.showStorageState();
+    els.overlay.hidden = false;
+    (els.mock.checked ? els.mock : els.host).focus();
+  },
+
+  close() { els.overlay.hidden = true; els.gear.focus(); },
+
+  // Say plainly where the settings live. Storage can be unavailable in
+  // private windows and sandboxed iframes; the grid still runs there, it
+  // just cannot remember anything past a reload.
+  showStorageState() {
+    if (!SettingsStore.usable) {
+      this.note("This browser context blocks local storage, so these settings "
+              + "last until you reload. Open the file directly, or from Home "
+              + "Assistant, to have them remembered.", false);
+    } else if (SettingsStore.load()) {
+      this.note(`Saved in this browser under "${SETTINGS_KEY}". They load `
+              + "automatically next time.", true);
+    } else {
+      this.note(`Not saved yet. Saving stores them in this browser under `
+              + `"${SETTINGS_KEY}".`, true);
+    }
+  },
+
+  note(text, muted) {
+    els.note.textContent = text;
+    els.note.className = muted ? "note is-muted" : "note";
+    els.note.hidden = false;
+  },
+
+  syncEnabled() {
+    els.live.hidden = els.mock.checked;
+    const sameOrigin = els.same.checked;
+    els.host.disabled = sameOrigin;
+    els.tls.disabled = sameOrigin;
+  },
+
+  read() {
+    return {
+      mock: els.mock.checked,
+      sameOrigin: els.same.checked,
+      host: els.host.value.trim().replace(/^\w+:\/\//, "").replace(/\/+$/, ""),
+      tls: els.tls.checked,
+      token: els.token.value,
+    };
+  },
+};
+
+els.gear.addEventListener("click", () => Settings.open(app.settings));
+els.mock.addEventListener("change", () => Settings.syncEnabled());
+els.same.addEventListener("change", () => Settings.syncEnabled());
+els.cancel.addEventListener("click", () => Settings.close());
+
+els.save.addEventListener("click", () => {
+  const next = Settings.read();
+  if (!next.mock && !next.token) {
+    Settings.note("Enter a long-lived access token to connect.", false);
+    els.token.focus();
+    return;
+  }
+  if (!next.mock && !next.sameOrigin && !next.host) {
+    Settings.note("Enter a host, or tick same origin.", false);
+    els.host.focus();
+    return;
+  }
+  const stored = SettingsStore.save(next);
+  Settings.close();
+  app.reconnect(next);
+  app.flash(stored ? "settings saved" : "settings applied (not saved)");
+});
+
+els.forget.addEventListener("click", () => {
+  SettingsStore.clear();
+  els.token.value = "";
+  els.host.value = DEFAULTS.host;
+  els.mock.checked = DEFAULTS.mock;
+  els.same.checked = DEFAULTS.sameOrigin;
+  els.tls.checked = DEFAULTS.tls;
+  Settings.syncEnabled();
+  Settings.note("Cleared. The fields are back to defaults — save to store them again.", true);
+});
+
+els.overlay.addEventListener("click", (e) => { if (e.target === els.overlay) Settings.close(); });
+
+/* ============================================================
+ * Entity manager — every discovered entity, checkbox per card.
+ * Checked means visible. Changes apply on Apply, not on click,
+ * so a mis-tap costs nothing.
+ * ============================================================ */
+const EntityManager = {
+  draft: new Set(),        // working copy of hidden ids
+
+  open() {
+    this.draft = new Set(Layout.hidden);
+    els.entFilter.value = "";
+    els.entNote.hidden = true;
+    this.render();
+    els.entOverlay.hidden = false;
+    els.entFilter.focus();
+  },
+
+  close() { els.entOverlay.hidden = true; els.entBtn.focus(); },
+
+  render() {
+    els.entList.replaceChildren();
+
+    if (!app.allSections.length) {
+      const p = document.createElement("p");
+      p.className = "entempty";
+      p.textContent = "Nothing discovered yet. Connect to Home Assistant first.";
+      els.entList.append(p);
+      this.tally();
+      return;
+    }
+
+    for (const section of app.allSections) {
+      const head = document.createElement("div");
+      head.className = "entgroup";
+      head.textContent = section.title;
+      els.entList.append(head);
+
+      for (const w of section.widgets) {
+        const row = document.createElement("label");
+        row.className = "entrow";
+        row.dataset.search = (w.label + " " + w.entityId).toLowerCase();
+
+        const box = document.createElement("input");
+        box.type = "checkbox";
+        box.checked = !this.draft.has(w.entityId);
+        box.dataset.entity = w.entityId;
+        box.addEventListener("change", () => {
+          box.checked ? this.draft.delete(w.entityId) : this.draft.add(w.entityId);
+          this.tally();
+        });
+
+        const meta = document.createElement("span");
+        meta.className = "meta";
+        const name = document.createElement("span");
+        name.className = "name";
+        name.textContent = w.label;
+        const eid = document.createElement("span");
+        eid.className = "eid";
+        eid.textContent = w.entityId;
+        meta.append(name, eid);
+
+        row.append(box, meta);
+        els.entList.append(row);
+      }
+    }
+    this.tally();
+  },
+
+  tally() {
+    const total = app.allSections.reduce((n, s) => n + s.widgets.length, 0);
+    els.entTally.textContent = total ? `${total - this.draft.size} of ${total} shown` : "";
+  },
+
+  filter(term) {
+    const q = term.trim().toLowerCase();
+    let visibleInGroup = 0;
+    const groups = [];
+    for (const node of els.entList.children) {
+      if (node.classList.contains("entgroup")) {
+        groups.push({ node, count: 0 });
+        continue;
+      }
+      if (!node.classList.contains("entrow")) continue;
+      const match = !q || node.dataset.search.includes(q);
+      node.hidden = !match;
+      if (groups.length && match) groups[groups.length - 1].count++;
+    }
+    // hide area headers whose rows all filtered out
+    for (const g of groups) g.node.hidden = g.count === 0;
+    void visibleInGroup;
+  },
+
+  setAll(hide) {
+    for (const box of els.entList.querySelectorAll("input[type=checkbox]")) {
+      if (box.closest(".entrow").hidden) continue;    // respect the active filter
+      box.checked = !hide;
+      hide ? this.draft.add(box.dataset.entity) : this.draft.delete(box.dataset.entity);
+    }
+    this.tally();
+  },
+};
+
+els.entBtn.addEventListener("click", () => EntityManager.open());
+els.entCancel.addEventListener("click", () => EntityManager.close());
+els.entFilter.addEventListener("input", () => EntityManager.filter(els.entFilter.value));
+els.entAll.addEventListener("click", () => EntityManager.setAll(false));
+els.entNone.addEventListener("click", () => EntityManager.setAll(true));
+
+els.entReset.addEventListener("click", () => {
+  Layout.reset();
+  app.rebuildVisible();
+  els.entNote.textContent = "Card order reset to the default arrangement.";
+  els.entNote.className = "note is-muted";
+  els.entNote.hidden = false;
+});
+
+els.entApply.addEventListener("click", () => {
+  Layout.hidden = new Set(EntityManager.draft);
+  const stored = Layout.save();
+  EntityManager.close();
+  app.rebuildVisible();
+  app.flash(stored ? "entities updated" : "entities updated (not saved)");
+});
+
+els.entOverlay.addEventListener("click", (e) => {
+  if (e.target === els.entOverlay) EntityManager.close();
+});
+
+document.addEventListener("keydown", (e) => {
+  if (!els.overlay.hidden) {
+    if (e.key === "Escape") Settings.close();
+    if (e.key === "Enter" && e.target.tagName === "INPUT") els.save.click();
+    return;
+  }
+  if (!els.entOverlay.hidden) {
+    if (e.key === "Escape") EntityManager.close();
+    return;
+  }
+  if (e.key === "Escape" && app.editMode) app.setEditMode(false);
+});
+
+/* ============================================================
+ * Grid app
+ * ============================================================ */
+const app = {
+  canvas: document.getElementById("canvas"),
+  ctx: null,
+  allSections: [],        // everything discovered
+  sections: [],           // what is actually on screen
+  widgets: [],
+  byEntity: new Map(),
+  client: null,
+  store: null,
+  settings: { ...DEFAULTS },
+  lastStatus: "starting…",
+  flashTimer: null,
+  editMode: false,
+  dirty: true,
+  scrollY: 0,
+  maxScroll: 0,
+  contentH: 0,
+  metrics: null,          // grid geometry, needed to map a drag to a slot
+  activeWidget: null,
+  gesture: null,          // null | "widget" | "scroll" | "reorder"
+  drag: null,             // {section, pointerX, pointerY, dx, dy}
+  pointerDown: false,
+  downX: 0, downY: 0, downScroll: 0,
+
+  init() {
+    this.ctx = this.canvas.getContext("2d");
+    this.store = new StateStore((touched) => this.onStates(touched));
+    Layout.load();
+
+    new ResizeObserver(() => this.layout()).observe(this.canvas);
+    this.bindPointer();
+    this.layout();
+    requestAnimationFrame(() => this.frame());
+
+    const saved = SettingsStore.load();
+    if (saved) {
+      this.reconnect(saved);
+    } else {
+      this.setStatus("no connection configured");
+      this.settings = { ...DEFAULTS };
+      Settings.open(this.settings);
+    }
+  },
+
+  setStatus(text, ok) {
+    if (this.flashTimer) return;          // a flash is holding the line
+    els.status.textContent = text;
+    els.status.className = ok ? "is-ok" : "";
+  },
+
+  flash(text) {
+    clearTimeout(this.flashTimer);
+    els.status.textContent = text;
+    els.status.className = "is-ok";
+    this.flashTimer = setTimeout(() => {
+      this.flashTimer = null;
+      this.setStatus(this.lastStatus, this.lastStatus === "connected");
+    }, 1800);
+  },
+
+  setEditMode(on) {
+    if (this.editMode === on) return;
+    this.editMode = on;
+    els.edit.classList.toggle("is-active", on);
+    els.edit.setAttribute("aria-pressed", String(on));
+    this.setStatus(on ? "editing — drag to reorder, × to remove" : this.lastStatus,
+                   !on && this.lastStatus === "connected");
+    this.markDirty();
+  },
+
+  // Hidden cards drop out and the manual order goes on; empty areas vanish.
+  rebuildVisible() {
+    this.sections = this.allSections
+      .map((s) => ({
+        areaId: s.areaId,
+        title: s.title,
+        headerY: 0,
+        widgets: Layout.sort(s.areaId, s.widgets.filter((w) => !Layout.isHidden(w.entityId))),
+      }))
+      .filter((s) => s.widgets.length);
+
+    this.widgets = this.sections.flatMap((s) => s.widgets);
+    this.byEntity = new Map(this.widgets.map((w) => [w.entityId, w]));
+    this.updateCount();
+    this.layout();
+  },
+
+  updateCount() {
+    const total = this.allSections.reduce((n, s) => n + s.widgets.length, 0);
+    els.count.textContent = total
+      ? `${this.widgets.length}/${total} cards · ${this.sections.length} areas`
+      : "";
+  },
+
+  hideWidget(widget) {
+    Layout.setHidden(widget.entityId, true);
+    const stored = Layout.save();
+    this.rebuildVisible();
+    this.flash(stored ? `${widget.label} hidden` : `${widget.label} hidden (not saved)`);
+  },
+
+  // Tear the old connection down completely before standing a new one up,
+  // otherwise the previous socket keeps retrying against the old host.
+  reconnect(settings) {
+    this.settings = { ...settings };
+
+    if (this.client) { this.client.close(); this.client = null; }
+    for (const w of this.widgets) w.dispose();
+    this.allSections = [];
+    this.sections = [];
+    this.widgets = [];
+    this.byEntity = new Map();
+    HISTORY.clear();                  // graphs belong to the old instance
+    this.scrollY = 0;
+    this.setEditMode(false);
+    els.count.textContent = "";
+    this.layout();
+
+    const client = settings.mock ? new MockClient() : new HAClient(settings);
+    this.client = client;
+
+    client.on("status", (s) => {
+      this.lastStatus = s;
+      this.setStatus(s, s === "connected");
+    });
+
+    // Runs on every (re)connect — the grid is rebuilt from scratch, so
+    // entities added or removed in HA show up without a page reload.
+    client.on("ready", async () => {
+      try {
+        const sections = await discover(client, this.store);
+        if (this.client !== client) return;     // superseded while awaiting
+        this.allSections = sections;
+        for (const s of sections) {
+          for (const w of s.widgets) {
+            const st = this.store.get(w.entityId);
+            if (st) w.applyState(st.state, st.attributes);
+          }
+        }
+        this.rebuildVisible();
+        await client.subscribeEntities((ev) => {
+          if (this.client === client) this.store.applyEvent(ev);
+        });
+      } catch (e) {
+        if (this.client === client) this.setStatus("discovery failed: " + e.message);
+      }
+    });
+
+    client.connect();
+  },
+
+  onStates(touched) {
+    let hit = false;
+    for (const id of touched) {
+      const w = this.byEntity.get(id);
+      if (!w) continue;                   // exists in HA but is not on the grid
+      const st = this.store.get(id);
+      if (st) { w.applyState(st.state, st.attributes); hit = true; }
+    }
+    if (hit) this.markDirty();
+  },
+
+  markDirty() { this.dirty = true; },
+
+  layout() {
+    const dpr = window.devicePixelRatio || 1;
+    const cw = this.canvas.clientWidth, ch = this.canvas.clientHeight;
+    if (!cw || !ch) return;
+    this.canvas.width = Math.round(cw * dpr);
+    this.canvas.height = Math.round(ch * dpr);
+    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const cols = cw < 480 ? 2 : cw < 760 ? 3 : cw < 1100 ? 4 : 5;
+    const gap = 12, pad = 16, headerH = 34;
+    const cellW = (cw - pad * 2 - gap * (cols - 1)) / cols;
+    const cellH = Math.max(92, Math.min(130, cellW * 0.62));
+    this.metrics = { cols, gap, pad, headerH, cellW, cellH };
+
+    let y = pad;
+    for (const section of this.sections) {
+      section.headerY = y;
+      section.gridTop = y + headerH;
+      y += headerH;
+      let col = 0;
+      for (const w of section.widgets) {
+        const span = Math.min(w.span, cols);
+        if (col + span > cols) { col = 0; y += cellH + gap; }
+        w.rect = {
+          x: pad + col * (cellW + gap),
+          y,
+          w: cellW * span + gap * (span - 1),
+          h: cellH,
+        };
+        col += span;
+      }
+      if (section.widgets.length) y += cellH;
+      y += 22;                                  // gap between areas
+    }
+
+    this.contentH = y + pad;
+    this.maxScroll = Math.max(0, this.contentH - ch);
+    this.scrollY = Math.min(this.scrollY, this.maxScroll);
+    this.markDirty();
+  },
+
+  frame() {
+    if (this.dirty) {
+      this.dirty = false;
+      const ctx = this.ctx;
+      const cw = this.canvas.clientWidth, ch = this.canvas.clientHeight;
+
+      ctx.fillStyle = C.bg;
+      ctx.fillRect(0, 0, cw, ch);
+
+      if (!this.sections.length) {
+        const total = this.allSections.reduce((n, s) => n + s.widgets.length, 0);
+        ctx.fillStyle = C.offline;
+        ctx.font = "600 13px system-ui, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(total ? "Every card is hidden — open Entities to bring some back"
+                           : "No cards yet — open settings to connect",
+                     cw / 2, ch / 2);
+      }
+
+      ctx.save();
+      ctx.translate(0, -this.scrollY);
+
+      const lifted = this.drag ? this.drag.widget : null;
+
+      for (const section of this.sections) {
+        if (section.headerY - this.scrollY > ch) break;   // below the fold
+
+        ctx.fillStyle = C.dim;
+        ctx.font = "700 11px system-ui, sans-serif";
+        ctx.textAlign = "left";
+        ctx.textBaseline = "middle";
+        const label = section.title.toUpperCase();
+        ctx.fillText(label, 16, section.headerY + 14);
+        const lw = ctx.measureText(label).width;
+        ctx.fillStyle = C.rule;
+        ctx.fillRect(16 + lw + 12, section.headerY + 13, Math.max(0, cw - 32 - lw - 12), 1);
+
+        for (const w of section.widgets) {
+          if (w.rect.y - this.scrollY > ch) break;
+          if (w.rect.y + w.rect.h - this.scrollY < 0) continue;
+          if (w === lifted) { this.drawSlot(ctx, w.rect); continue; }
+          w.draw(ctx);
+          if (this.editMode) w.drawRemoveBadge(ctx);
+        }
+      }
+
+      // the card being carried draws last so it floats over everything
+      if (lifted) {
+        const home = lifted.rect;
+        ctx.save();
+        ctx.translate(this.drag.x - home.x, this.drag.y - home.y);
+        lifted.draw(ctx);
+        ctx.strokeStyle = C.accent;
+        ctx.lineWidth = 2;
+        roundRect(ctx, home.x, home.y, home.w, home.h, 10);
+        ctx.stroke();
+        lifted.drawRemoveBadge(ctx);
+        ctx.restore();
+      }
+
+      ctx.restore();
+
+      if (this.maxScroll > 0) {
+        const trackH = ch - 8;
+        const thumbH = Math.max(30, trackH * (ch / this.contentH));
+        const t = this.scrollY / this.maxScroll;
+        ctx.fillStyle = C.scrollbar;
+        ctx.fillRect(cw - 5, 4 + t * (trackH - thumbH), 3, thumbH);
+      }
+    }
+    requestAnimationFrame(() => this.frame());
+  },
+
+  // dashed outline marking where a lifted card will land
+  drawSlot(ctx, r) {
+    ctx.fillStyle = C.tileGhost;
+    roundRect(ctx, r.x, r.y, r.w, r.h, 10);
+    ctx.fill();
+    ctx.strokeStyle = C.tileEdge;
+    ctx.lineWidth = 2;
+    ctx.setLineDash([6, 5]);
+    roundRect(ctx, r.x + 1, r.y + 1, r.w - 2, r.h - 2, 9);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  },
+
+  hitTest(px, py) {
+    const cy = py + this.scrollY;                 // screen -> content coords
+    for (let i = this.widgets.length - 1; i >= 0; i--) {
+      if (this.widgets[i].contains(px, cy)) return this.widgets[i];
+    }
+    return null;
+  },
+
+  sectionOf(widget) {
+    return this.sections.find((s) => s.widgets.includes(widget)) || null;
+  },
+
+  // Uniform grid, so a pointer position maps straight to a slot index.
+  slotIndexAt(section, px, py) {
+    const m = this.metrics;
+    if (!m) return 0;
+    const col = Math.max(0, Math.min(m.cols - 1,
+      Math.floor((px - m.pad) / (m.cellW + m.gap))));
+    const row = Math.max(0,
+      Math.floor((py - section.gridTop) / (m.cellH + m.gap)));
+    return Math.max(0, Math.min(section.widgets.length - 1, row * m.cols + col));
+  },
+
+  setScroll(v) {
+    const next = Math.max(0, Math.min(this.maxScroll, v));
+    if (next !== this.scrollY) { this.scrollY = next; this.markDirty(); }
+  },
+
+  bindPointer() {
+    const pos = (e) => {
+      const b = this.canvas.getBoundingClientRect();
+      return { x: e.clientX - b.left, y: e.clientY - b.top };
+    };
+
+    this.canvas.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      this.setScroll(this.scrollY + e.deltaY);
+    }, { passive: false });
+
+    this.canvas.addEventListener("pointerdown", (e) => {
+      this.canvas.setPointerCapture(e.pointerId);
+      const p = pos(e);
+      const cy = p.y + this.scrollY;
+      this.pointerDown = true;
+      this.downX = p.x; this.downY = p.y; this.downScroll = this.scrollY;
+      this.gesture = null;
+      this.drag = null;
+      this.activeWidget = this.hitTest(p.x, p.y);
+
+      // × takes priority over everything else on the card
+      if (this.editMode && this.activeWidget && this.activeWidget.hitsRemove(p.x, cy)) {
+        const target = this.activeWidget;
+        this.pointerDown = false;
+        this.activeWidget = null;
+        this.hideWidget(target);
+        return;
+      }
+
+      if (this.activeWidget) { this.activeWidget.pressed = true; this.markDirty(); }
+
+      // Outside edit mode, press-and-hold on a card enters edit mode and
+      // picks it up in one motion.
+      if (!this.editMode && this.activeWidget) {
+        this.holdTimer = setTimeout(() => {
+          if (!this.pointerDown || this.gesture) return;
+          this.setEditMode(true);
+          this.beginReorder(this.activeWidget, p.x, cy);
+        }, 450);
+      }
+    });
+
+    this.canvas.addEventListener("pointermove", (e) => {
+      if (!this.pointerDown) return;
+      const p = pos(e);
+      const cy = p.y + this.scrollY;
+      const dx = p.x - this.downX, dy = p.y - this.downY;
+
+      if (!this.gesture && Math.hypot(dx, dy) > 8) {
+        clearTimeout(this.holdTimer);
+        if (this.editMode && this.activeWidget) {
+          // In edit mode a card drag always means "move this card"
+          this.beginReorder(this.activeWidget, this.downX, this.downY + this.downScroll);
+        } else if (Math.abs(dy) > Math.abs(dx) || !this.activeWidget || !this.activeWidget.draggable) {
+          this.gesture = "scroll";
+          if (this.activeWidget) this.activeWidget.pressed = false;
+        } else {
+          this.gesture = "widget";
+        }
+        this.markDirty();
+      }
+
+      if (this.gesture === "reorder") {
+        this.drag.x = p.x - this.drag.grabX;
+        this.drag.y = cy - this.drag.grabY;
+        this.updateReorder(p.x, cy);
+        this.markDirty();
+      } else if (this.gesture === "scroll") {
+        this.setScroll(this.downScroll - dy);
+      } else if (this.gesture === "widget" && this.activeWidget) {
+        this.activeWidget.onDrag(p.x, cy);
+        this.markDirty();
+      }
+    });
+
+    const finish = () => {
+      if (!this.pointerDown) return;
+      this.pointerDown = false;
+      clearTimeout(this.holdTimer);
+      const w = this.activeWidget;
+
+      if (this.gesture === "reorder") {
+        this.endReorder();
+      } else if (w) {
+        w.pressed = false;
+        if (this.gesture === "widget") w.onDragEnd();
+        // No service calls while editing — a tap there would be a mis-tap
+        else if (this.gesture === null && !this.editMode) w.onTap();
+      }
+
+      this.activeWidget = null;
+      this.gesture = null;
+      this.markDirty();
+    };
+
+    this.canvas.addEventListener("pointerup", finish);
+    this.canvas.addEventListener("pointercancel", finish);
+  },
+
+  beginReorder(widget, px, cy) {
+    const section = this.sectionOf(widget);
+    if (!section) return;
+    widget.pressed = false;
+    this.gesture = "reorder";
+    this.drag = {
+      widget,
+      section,
+      grabX: px - widget.rect.x,      // keep the card under the finger
+      grabY: cy - widget.rect.y,
+      x: widget.rect.x,
+      y: widget.rect.y,
+    };
+    this.markDirty();
+  },
+
+  // Live reflow: the other cards shuffle around as you move, so the gap
+  // always shows where the card will land.
+  updateReorder(px, cy) {
+    const { widget, section } = this.drag;
+    const from = section.widgets.indexOf(widget);
+    const to = this.slotIndexAt(section, px, cy);
+    if (to === from || to < 0) return;
+    section.widgets.splice(from, 1);
+    section.widgets.splice(to, 0, widget);
+    this.layout();
+  },
+
+  endReorder() {
+    const { section } = this.drag;
+    // Persist only the visible order; a card un-hidden later rejoins at the end.
+    Layout.record(section.areaId, section.widgets);
+    const stored = Layout.save();
+    this.drag = null;
+    this.flash(stored ? "layout saved" : "layout changed (not saved)");
+    this.layout();
+  },
+};
+
+els.edit.addEventListener("click", () => app.setEditMode(!app.editMode));
+
+app.init();
+</script>
+</body>
+</html>

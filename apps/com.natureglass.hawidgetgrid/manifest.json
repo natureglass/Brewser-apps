@@ -1,0 +1,33 @@
+{
+    "id": "com.natureglass.hawidgetgrid",
+    "name": "HA Widget Grid",
+    "version": "1.0.0",
+    "description": "<p><strong>HA Widget Grid</strong> is a fast, single-canvas dashboard for <strong>Home Assistant</strong>. Point it at your instance with a long-lived access token and it discovers your entities, groups them by area, and paints a live grid of tiles you can tap, drag and rearrange — lights, switches, fans, dimmers, sensors and door/motion contacts, all updating in real time.</p>\r\n<p><strong>How it works.</strong> The whole grid is drawn on one <code>&lt;canvas&gt;</code> as a retained scene of tiles, with a flat-fill palette (no gradients or shadows) so it stays smooth even on a software GPU. It talks to Home Assistant over the native WebSocket API: it authenticates with your token, pulls the state, entity, device and area registries once to work out what each entity is and where it lives, then subscribes to compressed state diffs so dozens of entities stay current without polling. Controls are optimistic — a tap flips the tile immediately and quietly reverts if Home Assistant never confirms — and the socket reconnects on its own with backoff if the connection drops. A built-in <em>demo mode</em> runs the entire interface against a fake home, so you can try it with no server at all, and a <em>same-origin</em> mode lets it run as a page served straight from Home Assistant.</p>\r\n<p><strong>What lands on the grid:</strong></p>\r\n<ul>\r\n<li><strong>Lights &amp; switches</strong> — on/off tiles for <code>light</code>, <code>switch</code>, <code>input_boolean</code> and <code>fan</code>; tap to toggle.</li>\r\n<li><strong>Dimmers</strong> — lights that report brightness get a slider; drag across the tile to set the level.</li>\r\n<li><strong>Sensors</strong> — numeric sensors show the current value, unit, and a rolling sparkline of recent history.</li>\r\n<li><strong>Contacts</strong> — binary sensors read out in plain words (Open/Closed, Motion/Clear, Home/Away…) chosen from their device class.</li>\r\n</ul>\r\n<p><strong>How you interact:</strong></p>\r\n<ul>\r\n<li><strong>Tap</strong> — toggle a light or switch, or drag a dimmer to set brightness.</li>\r\n<li><strong>Edit</strong> — press-and-hold or hit the ✎ button to drag cards into any order (they reflow live) and remove ones you don't want with the × badge.</li>\r\n<li><strong>Entities</strong> — the ☰ manager lists everything discovered so you can show or hide cards, filter by name, and reset the order.</li>\r\n<li><strong>Connect</strong> — the ⚙ panel holds the host, HTTPS toggle and access token (stored in this browser only), plus the demo and same-origin switches.</li>\r\n</ul>\r\n<p>Your layout and hidden cards are remembered separately from your credentials, so clearing one never wipes the other. Framework-free, offline-capable in demo mode, and reconnect-safe.</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Apps",
+        "Automation"
+    ],
+    "permissions": [
+        "network"
+    ],
+    "compatibility": [
+        "mobile",
+        "switch",
+        "web"
+    ],
+    "allowed_origins": [
+        "https://brewser.io"
+    ],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "hideMouseDocked": false,
+    "hideMouseUndocked": true,
+    "freshProcessOnExit": false,
+    "publishedAt": "2026-08-31T21:23:39Z",
+    "updatedAt": "2026-08-31T21:23:39Z",
+    "summary": "A live Home Assistant dashboard that auto-discovers your entities by area and controls lights, switc"
+}
