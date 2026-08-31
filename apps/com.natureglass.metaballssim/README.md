@@ -1,6 +1,6 @@
 # Metaballs sim
 
-_v1.0.2_
+_v1.0.3_
 
 **Metaballs sim** is a relaxing fluid sandbox where dozens of soft water blobs fall, pool and merge into one gooey, rolling surface.
 
