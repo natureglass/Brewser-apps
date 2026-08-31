@@ -1,6 +1,6 @@
 # ThreeJS Postprocessing Pixelation
 
-_v1.0.0_
+_v1.0.1_
 
 **ThreeJS Postprocessing Pixelation** renders a tiny 3D diorama and then crushes the whole picture down into chunky retro pixels, like a modern scene squeezed through an old console's video output.
 
