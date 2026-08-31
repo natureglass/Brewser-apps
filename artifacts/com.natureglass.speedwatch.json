@@ -1,10 +1,11 @@
 {
   "id": "com.natureglass.speedwatch",
-  "sizeBytes": 3317402,
+  "sizeBytes": 3313983,
   "files": [
     "README.md",
     "assets/appbanner.gif",
     "assets/appbanner.jpg",
+    "assets/speedtest_logo.png",
     "brewser-sw.js",
     "index.html",
     "manifest.json",
