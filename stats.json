@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-31T12:39:44Z",
+  "generated": "2026-09-01T12:39:42Z",
   "stats": {
     "com.natureglass.2dplatformermicrogame": {
       "downloads": 0,
@@ -8,12 +8,12 @@
       "ratingScore": 4.8958
     },
     "com.natureglass.aether": {
-      "downloads": 1,
+      "downloads": 2,
       "ratingAvg": 0,
       "ratingCount": 0
     },
     "com.natureglass.compass": {
-      "downloads": 1,
+      "downloads": 2,
       "ratingAvg": 0,
       "ratingCount": 0
     },
@@ -35,10 +35,15 @@
       "ratingScore": 4.7292
     },
     "com.natureglass.gravityballs": {
-      "downloads": 1,
+      "downloads": 2,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.8958
+    },
+    "com.natureglass.hawidgetgrid": {
+      "downloads": 1,
+      "ratingAvg": 0,
+      "ratingCount": 0
     },
     "com.natureglass.matrixstudio": {
       "downloads": 10,
@@ -66,7 +71,7 @@
       "ratingCount": 0
     },
     "com.natureglass.sensorsplayground": {
-      "downloads": 2,
+      "downloads": 3,
       "ratingAvg": 0,
       "ratingCount": 0
     },
@@ -77,6 +82,11 @@
       "ratingScore": 4.8958
     },
     "com.natureglass.speedtest": {
+      "downloads": 1,
+      "ratingAvg": 0,
+      "ratingCount": 0
+    },
+    "com.natureglass.speedwatch": {
       "downloads": 1,
       "ratingAvg": 0,
       "ratingCount": 0
@@ -98,7 +108,7 @@
       "ratingScore": 4.8958
     },
     "com.natureglass.threejsloadergltf": {
-      "downloads": 1,
+      "downloads": 2,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.8958
