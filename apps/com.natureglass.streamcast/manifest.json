@@ -19,7 +19,7 @@
         "https://usher.ttvnw.net",
         "https://player.twitch.tv"
     ],
-    "developer": "Alex Daskalakis",
+    "developer": "@natureglass",
     "license": "MIT",
     "exitGame": "PLUS",
     "fullscreen": true,
