@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Directory Picker Example</title>
+</head>
+<style>
+  body { background-color: #0b1220; color: #e0e8f4; font-size: 18px; padding: 28px 48px; }
+  h2 { color: #7aa2ff; margin-top: 26px; }
+  a { color: #7eda9f; }
+</style>
+<body>
+    <button id="pickFolder">Select Folder</button>
+
+    <script>
+        async function listFiles(directoryHandle, indent = "") {
+            for await (const [name, handle] of directoryHandle.entries()) {
+                if (handle.kind === "file") {
+                    console.log(`${indent}📄 ${name}`);
+                } else if (handle.kind === "directory") {
+                    console.log(`${indent}📁 ${name}`);
+                    await listFiles(handle, indent + "  ");
+                }
+            }
+        }
+
+        document.getElementById("pickFolder").addEventListener("click", async () => {
+            try {
+                const directoryHandle = await window.showDirectoryPicker();
+
+                console.log("Selected folder:", directoryHandle.name);
+
+                await listFiles(directoryHandle);
+            } catch (err) {
+                if (err.name !== "AbortError") {
+                    console.error("Error selecting folder:", err);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

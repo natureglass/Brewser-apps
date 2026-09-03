@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Modal layer stress test</title>
+<style>
+  body { background-color: #0b1220; color: #e0e8f4; font-size: 18px; padding: 28px 48px; }
+  body {
+    background: #0b1220;
+    color: #e0e8f4;
+    font: 16px sans-serif;
+    padding: 24px 32px;
+    margin: 0;
+  }
+  h1 { color: #ffd35e; margin: 0 0 8px; font-size: 22px; }
+  h2 { color: #7aa2ff; margin: 22px 0 8px; font-size: 17px; border-bottom: 1px solid #1d2c43; padding-bottom: 4px; }
+  p.lead { color: #9bb1d6; font-size: 14px; margin: 0 0 14px; }
+  .grid { display: flex; flex-wrap: wrap; gap: 10px; margin: 8px 0 6px; }
+  button.test {
+    background: #1f3a64;
+    color: #eaf2ff;
+    border: 1px solid #2f4d80;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  button.test.primary { background: #2563eb; border-color: #3b82f6; }
+  button.test.danger  { background: #b91c1c; border-color: #ef4444; }
+  .desc { color: #9bb1d6; font-size: 13px; margin: 0 0 0 2px; }
+  #log {
+    margin-top: 22px;
+    background: #050810;
+    border: 1px solid #1d2c43;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: monospace;
+    font-size: 12px;
+    color: #cfd8e8;
+    white-space: pre-wrap;
+    /* No overflow: auto — keeps the log out of the scroll-overlay
+       cache path (which only paints children, so a text-only container
+       used to render as a hollow box). Engine fix landed today too,
+       but leaving the log in normal flow keeps it simple. */
+  }
+  .clear-btn { float: right; font-size: 11px; color: #9bb1d6; cursor: pointer; }
+
+  /* ---------- Native <dialog> styling ---------- */
+  /* UA defaults stamp position:fixed + top/left + bg white. Override
+     below to a dark themed centered card. */
+  dialog.themed {
+    top: 160px;
+    left: 360px;
+    width: 480px;
+    background: #14202d;
+    color: #eaf2ff;
+    border: 1px solid #314672;
+    border-radius: 12px;
+    padding: 20px 22px 16px;
+  }
+  dialog.themed h3 { margin: 0 0 8px; font-size: 16px; color: #ffd35e; }
+  dialog.themed p { margin: 0 0 12px; color: #cfd8e8; font-size: 14px; }
+  dialog.themed .actions { display: flex; gap: 8px; justify-content: flex-end; }
+  dialog.themed button {
+    background: #1f3a64; color: #eaf2ff;
+    border: 1px solid #2f4d80; border-radius: 6px;
+    padding: 6px 14px; font-size: 13px; cursor: pointer;
+  }
+  dialog.themed button.primary { background: #16a34a; border-color: #22c55e; }
+  dialog.themed button.danger  { background: #b91c1c; border-color: #ef4444; }
+  dialog.themed input[type="text"] {
+    width: 100%; padding: 6px 10px;
+    background: #0b1220; color: #eaf2ff;
+    border: 1px solid #2f4d80; border-radius: 6px;
+    font-size: 14px; margin: 0 0 12px;
+  }
+  dialog.themed img.logo {
+    width: 64px; height: 64px; display: block; margin: 0 auto 10px;
+  }
+  dialog.themed .loading-bar {
+    width: 100%; height: 8px; background: #ffd35e;
+    border-radius: 4px; margin: 4px 0 12px;
+    animation: pulse 1.2s linear infinite;
+  }
+  @keyframes pulse {
+    0%   { opacity: 0.35; }
+    50%  { opacity: 1; }
+    100% { opacity: 0.35; }
+  }
+
+  /* ---------- <browser-modal> styling (engine-blessed tag) ---------- */
+  .my-bm-overlay {
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(8, 13, 26, 0.78);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    /* z-index high so the modal's subtree wins hit-test over any
+       overlapping body content (the cascade tie-break in `hitTestLive`
+       is "same-z → later-document-order wins", and body content after
+       this modal in source order would otherwise steal taps inside
+       the modal's screen bbox). Native `<dialog>` gets this for free
+       via the engine UA defaults. */
+    z-index: 1000;
+  }
+  .my-bm-overlay.my-bm-overlay--open { display: flex; }
+  .my-bm-card {
+    width: 480px; max-width: 100%;
+    background: #14202d;
+    border: 1px solid #314672;
+    border-radius: 14px;
+    padding: 20px 22px 16px;
+    color: #eaf2ff;
+  }
+  .my-bm-card h3 { margin: 0 0 8px; font-size: 17px; color: #ffd35e; }
+  .my-bm-card p { margin: 0 0 12px; color: #cfd8e8; font-size: 14px; }
+  .my-bm-card .actions { display: flex; gap: 8px; justify-content: flex-end; }
+  .my-bm-card button {
+    background: #1f3a64; color: #eaf2ff;
+    border: 1px solid #2f4d80; border-radius: 6px;
+    padding: 6px 14px; font-size: 13px; cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<h1>Modal layer — stress test</h1>
+<p class="lead">Exercises native <code>&lt;dialog&gt;</code> + engine-blessed <code>&lt;browser-modal&gt;</code> + edge cases (image race, CSS animation, focus, multiple modals, stress).</p>
+
+<h2>A. Native <code>&lt;dialog&gt;</code> — basic show / close</h2>
+<p class="desc">Spec-shaped API: <code>dialog.showModal()</code> / <code>dialog.close('value')</code>. Listens for the <code>close</code> event + reads <code>returnValue</code>.</p>
+<div class="grid">
+  <button class="test primary" id="openBasic">Open basic dialog</button>
+</div>
+<dialog id="basicDialog" class="themed">
+  <h3>Basic dialog</h3>
+  <p>Press a button to close. Each emits a different <code>returnValue</code>.</p>
+  <div class="actions">
+    <button class="primary" data-close="confirm">Confirm</button>
+    <button class="danger"  data-close="cancel">Cancel</button>
+  </div>
+</dialog>
+
+<h2>B. Native <code>&lt;dialog&gt;</code> — image inside (logo race)</h2>
+<p class="desc">Opens a dialog with an <code>&lt;img&gt;</code> whose <code>src</code> is set at open time. Close before/after the image loads — the host cache must not bake the logo in (this was the original ghost bug).</p>
+<div class="grid">
+  <button class="test primary" id="openImg">Open dialog w/ image</button>
+  <button class="test" id="openImgRapid">Open / close 5× rapidly</button>
+</div>
+<dialog id="imgDialog" class="themed">
+  <h3>Image-bearing dialog</h3>
+  <img id="imgDialogLogo" class="logo" alt="App logo">
+  <p>This logo loads asynchronously. Close fast to verify there's no ghost left behind.</p>
+  <div class="actions">
+    <button class="primary" data-close="ok">OK</button>
+  </div>
+</dialog>
+
+<h2>C. Native <code>&lt;dialog&gt;</code> — CSS animation inside</h2>
+<p class="desc">Loading-bar pulse animation runs while the dialog is open. Closing should stop visible repaint of the host area (the bar may keep ticking off-screen but must not bake into the host cache).</p>
+<div class="grid">
+  <button class="test primary" id="openAnim">Open animated dialog</button>
+</div>
+<dialog id="animDialog" class="themed">
+  <h3>Animated dialog</h3>
+  <div class="loading-bar"></div>
+  <p>Pulsing yellow bar above. Close and watch the page underneath stay clean.</p>
+  <div class="actions">
+    <button class="primary" data-close="done">Close</button>
+  </div>
+</dialog>
+
+<h2>D. Native <code>&lt;dialog&gt;</code> — input + focus</h2>
+<p class="desc">Tap the input to open the on-canvas keyboard. The dialog stays alive while the keyboard is up. Confirm reads the value into the close <code>returnValue</code>.</p>
+<div class="grid">
+  <button class="test primary" id="openInput">Open input dialog</button>
+</div>
+<dialog id="inputDialog" class="themed">
+  <h3>Type something</h3>
+  <input id="inputDialogField" type="text" placeholder="Your text…">
+  <div class="actions">
+    <button class="primary" id="inputDialogConfirm">Submit</button>
+    <button class="danger"  data-close="cancel">Cancel</button>
+  </div>
+</dialog>
+
+<h2>E. <code>&lt;browser-modal&gt;</code> — engine-blessed wrapping</h2>
+<p class="desc">Uses the original <code>&lt;browser-modal&gt;</code> tag pattern. Same modal-layer cache as native <code>&lt;dialog&gt;</code>; visibility is driven by classList add / remove.</p>
+<div class="grid">
+  <button class="test primary" id="openBm">Open browser-modal</button>
+</div>
+<browser-modal id="bmOverlay" class="my-bm-overlay">
+  <div class="my-bm-card">
+    <h3>browser-modal card</h3>
+    <p>Same modal-layer paint pass — just authored via the engine tag instead of the spec API.</p>
+    <div class="actions">
+      <button id="bmCloseBtn">Close</button>
+    </div>
+  </div>
+</browser-modal>
+
+<h2>F. Multiple modals at once</h2>
+<p class="desc">Open two natives + one browser-modal at the same time. Each has its own offscreen cache; closing in any order should not affect the others.</p>
+<div class="grid">
+  <button class="test primary" id="openAll">Open all three</button>
+  <button class="test danger"  id="closeAll">Close all</button>
+</div>
+<dialog id="multiA" class="themed" style="top: 120px; left: 80px; width: 260px;">
+  <h3>Modal A</h3>
+  <p>Native dialog A.</p>
+  <div class="actions"><button data-close="a">Close A</button></div>
+</dialog>
+<dialog id="multiB" class="themed" style="top: 120px; left: 380px; width: 260px;">
+  <h3>Modal B</h3>
+  <p>Native dialog B.</p>
+  <div class="actions"><button data-close="b">Close B</button></div>
+</dialog>
+<browser-modal id="multiC" class="my-bm-overlay" style="background: rgba(8,13,26,0.4);">
+  <div class="my-bm-card" style="margin-top: 360px; width: 260px;">
+    <h3>Modal C (browser-modal)</h3>
+    <p>Engine-blessed modal C.</p>
+    <div class="actions"><button id="multiCClose">Close C</button></div>
+  </div>
+</browser-modal>
+
+<h2>G. Stress — rapid open/close cycle</h2>
+<p class="desc">Opens and closes a dialog 20 times back-to-back. Watch for ghosts, log spam, or stuck-open states.</p>
+<div class="grid">
+  <button class="test danger" id="stressBtn">Run 20× cycle</button>
+</div>
+<dialog id="stressDialog" class="themed" style="top: 220px; left: 380px; width: 360px;">
+  <h3>Stress cycle</h3>
+  <p>If you see this, the cycle paused.</p>
+</dialog>
+
+<h2>Event log <span class="clear-btn" id="clearLog">[clear]</span></h2>
+<div id="log">Ready.</div>
+
+
+<script>
+(function () {
+  var logEl = document.getElementById('log');
+  function log(msg) {
+    var ts = new Date().toLocaleTimeString();
+    logEl.textContent = '[' + ts + '] ' + msg + '\n' + logEl.textContent;
+  }
+  document.getElementById('clearLog').addEventListener('click', function () {
+    logEl.textContent = 'cleared.';
+  });
+
+  function bindClose(dialog) {
+    // Any button inside the dialog with data-close="<value>" closes it
+    // with that returnValue.
+    var btns = dialog.querySelectorAll('[data-close]');
+    for (var i = 0; i < btns.length; i++) (function (b) {
+      b.addEventListener('click', function () {
+        dialog.close(b.getAttribute('data-close'));
+      });
+    })(btns[i]);
+    dialog.addEventListener('close', function () {
+      log(dialog.id + ' closed — returnValue=' + JSON.stringify(dialog.returnValue));
+    });
+  }
+
+  // ---------- A: basic
+  var basicDialog = document.getElementById('basicDialog');
+  document.getElementById('openBasic').addEventListener('click', function () {
+    basicDialog.showModal();
+    log('basicDialog.showModal()');
+  });
+  bindClose(basicDialog);
+
+  // ---------- B: image race
+  var imgDialog = document.getElementById('imgDialog');
+  var imgDialogLogo = document.getElementById('imgDialogLogo');
+  var LOGO_URLS = [
+    'assets/domhtmlcss_logo.png',
+    'brewser://assets/download.png',
+  ];
+  var logoTurn = 0;
+  document.getElementById('openImg').addEventListener('click', function () {
+    var url = LOGO_URLS[(logoTurn++) % LOGO_URLS.length];
+    imgDialogLogo.setAttribute('src', url);
+    imgDialog.showModal();
+    log('imgDialog.showModal() src=' + url);
+  });
+  document.getElementById('openImgRapid').addEventListener('click', function () {
+    var n = 0;
+    function tick() {
+      n++;
+      if (n > 5) { log('rapid open/close x5 done'); return; }
+      var url = LOGO_URLS[n % LOGO_URLS.length];
+      imgDialogLogo.setAttribute('src', url);
+      imgDialog.showModal();
+      setTimeout(function () { imgDialog.close('rapid-' + n); setTimeout(tick, 80); }, 60);
+    }
+    tick();
+  });
+  bindClose(imgDialog);
+
+  // ---------- C: animation
+  var animDialog = document.getElementById('animDialog');
+  document.getElementById('openAnim').addEventListener('click', function () {
+    animDialog.showModal();
+    log('animDialog.showModal()');
+  });
+  bindClose(animDialog);
+
+  // ---------- D: input + focus
+  var inputDialog = document.getElementById('inputDialog');
+  var inputField = document.getElementById('inputDialogField');
+  document.getElementById('openInput').addEventListener('click', function () {
+    inputField.value = '';
+    inputDialog.showModal();
+    log('inputDialog.showModal()');
+  });
+  document.getElementById('inputDialogConfirm').addEventListener('click', function () {
+    inputDialog.close(inputField.value || '(empty)');
+  });
+  bindClose(inputDialog);
+
+  // ---------- E: browser-modal
+  var bmOverlay = document.getElementById('bmOverlay');
+  document.getElementById('openBm').addEventListener('click', function () {
+    bmOverlay.classList.add('my-bm-overlay--open');
+    log('browser-modal opened (classList add)');
+  });
+  document.getElementById('bmCloseBtn').addEventListener('click', function () {
+    bmOverlay.classList.remove('my-bm-overlay--open');
+    log('browser-modal closed');
+  });
+
+  // ---------- F: multiple
+  var multiA = document.getElementById('multiA');
+  var multiB = document.getElementById('multiB');
+  var multiC = document.getElementById('multiC');
+  document.getElementById('openAll').addEventListener('click', function () {
+    multiA.showModal();
+    multiB.showModal();
+    multiC.classList.add('my-bm-overlay--open');
+    log('opened multiA + multiB + multiC');
+  });
+  document.getElementById('closeAll').addEventListener('click', function () {
+    multiA.close('all'); multiB.close('all');
+    multiC.classList.remove('my-bm-overlay--open');
+    log('closed all three');
+  });
+  bindClose(multiA); bindClose(multiB);
+  document.getElementById('multiCClose').addEventListener('click', function () {
+    multiC.classList.remove('my-bm-overlay--open');
+    log('multiC closed');
+  });
+
+  // ---------- G: stress
+  var stressDialog = document.getElementById('stressDialog');
+  document.getElementById('stressBtn').addEventListener('click', function () {
+    var n = 0;
+    log('stress cycle: 20x start');
+    function step() {
+      n++;
+      if (n > 20) { log('stress cycle: 20x done'); return; }
+      stressDialog.showModal();
+      setTimeout(function () {
+        stressDialog.close('cycle-' + n);
+        setTimeout(step, 30);
+      }, 30);
+    }
+    step();
+  });
+})();
+</script>
+
+<p><a href="index.html">back to web experiments</a></p>
+</body>
+</html>

@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Web Experiments — brewser</title>
+<style>
+  body { background-color: #0b1220; color: #e0e8f4; font-size: 18px; padding: 28px 48px; }
+  h1 { color: #ffd35e; }
+  h2 { color: #7aa2ff; margin-top: 26px; }
+  a { color: #7eda9f; }
+  p.lead { color: #9bb1d6; }
+  ul { margin-top: 8px; }
+  li { margin-bottom: 14px; }
+  .desc { color: #9bb1d6; font-size: 15px; }
+</style>
+</head>
+<body>
+<h1>Web Experiments</h1>
+<p class="lead">Fixtures for the HTML, CSS, canvas, and WebGL paths.
+Each link below opens a self-contained page that exercises one part of
+the rendering pipeline.</p>
+
+<h2>Navigation &amp; document structure</h2>
+<ul>
+<li>
+  <strong><a href="two.html">two</a></strong>
+  <br><span class="desc">Second page for testing back / forward navigation.</span>
+</li>
+<li>
+  <strong><a href="iframe.html">iframe</a></strong>
+  <br><span class="desc">Inline <code>&lt;iframe&gt;</code> preview with scoped CSS.</span>
+</li>
+<li>
+  <strong><a href="modal-test.html">modal-test</a></strong>
+  <br><span class="desc">Modal layer stress test for <code>&lt;dialog&gt;</code> and <code>&lt;browser-modal&gt;</code>.</span>
+</li>
+</ul>
+
+<h2>Text &amp; inline content</h2>
+<ul>
+<li>
+  <strong><a href="pre.html">pre</a></strong>
+  <br><span class="desc">Whitespace preservation in <code>&lt;pre&gt;</code> and <code>&lt;code&gt;</code>.</span>
+</li>
+<li>
+  <strong><a href="typography.html">typography</a></strong>
+  <br><span class="desc">Font selection, sizing, and layout behaviors.</span>
+</li>
+<li>
+  <strong><a href="line-height.html">line-height</a></strong>
+  <br><span class="desc">Line height across mixed font sizes.</span>
+</li>
+<li>
+  <strong><a href="emojis.html">emojis</a></strong>
+  <br><span class="desc">Emoji rendering and layout.</span>
+</li>
+</ul>
+
+<h2>CSS cascade &amp; layout</h2>
+<ul>
+<li>
+  <strong><a href="css.html">css</a></strong>
+  <br><span class="desc">Cascade, specificity, inline styles, and the box model.</span>
+</li>
+<li>
+  <strong><a href="external-css.html">external-css</a></strong>
+  <br><span class="desc">Stylesheet loaded via <code>&lt;link rel="stylesheet"&gt;</code>.</span>
+</li>
+<li>
+  <strong><a href="inherit.html">inherit</a></strong>
+  <br><span class="desc">Font-size and color inheritance down the tree.</span>
+</li>
+<li>
+  <strong><a href="selectors.html">selectors</a></strong>
+  <br><span class="desc">Type, class, id, descendant, and pseudo-class matching.</span>
+</li>
+<li>
+  <strong><a href="align.html">align</a></strong>
+  <br><span class="desc">Horizontal alignment via <code>text-align</code>.</span>
+</li>
+<li>
+  <strong><a href="display-none.html">display-none</a></strong>
+  <br><span class="desc">Hiding elements with <code>display: none</code>.</span>
+</li>
+<li>
+  <strong><a href="border.html">border</a></strong>
+  <br><span class="desc">Borders with mixed widths, styles, and per-side colors.</span>
+</li>
+<li>
+  <strong><a href="rounded.html">rounded</a></strong>
+  <br><span class="desc">Rounded boxes and clipping via <code>border-radius</code>.</span>
+</li>
+<li>
+  <strong><a href="cursors.html">cursors</a></strong>
+  <br><span class="desc">Different cursor types.</span>
+</li>
+</ul>
+
+<h2>Embedded content &amp; media</h2>
+<ul>
+<li>
+  <strong><a href="images.html">images</a></strong>
+  <br><span class="desc">Block and inline <code>&lt;img&gt;</code> rendering and sizing.</span>
+</li>
+<li>
+  <strong><a href="svg.html">svg</a></strong>
+  <br><span class="desc">Inline <code>&lt;svg&gt;</code> shapes, paths, <code>transform</code>, <code>preserveAspectRatio</code>, <code>&lt;text&gt;</code>/<code>&lt;tspan&gt;</code>, linear/radial gradients, and stroke styling.</span>
+</li>
+<li>
+  <strong><a href="video.html">video</a></strong>
+  <br><span class="desc"><code>&lt;video&gt;</code> layout and placeholder paint.</span>
+</li>
+</ul>
+
+<h2>Tables, lists &amp; widgets</h2>
+<ul>
+<li>
+  <strong><a href="list-style.html">list-style</a></strong>
+  <br><span class="desc">Bullets, numbered lists, and nesting.</span>
+</li>
+<li>
+  <strong><a href="tables.html">tables</a></strong>
+  <br><span class="desc"><code>&lt;table&gt;</code> layout with head/body/foot, caption, and <code>colspan</code> / <code>rowspan</code>.</span>
+</li>
+<li>
+  <strong><a href="widgets.html">widgets</a></strong>
+  <br><span class="desc"><code>&lt;details&gt;</code>, <code>&lt;meter&gt;</code>, and <code>&lt;progress&gt;</code> rendering.</span>
+</li>
+<li>
+  <strong><a href="tabs.html">tabs</a></strong>
+  <br><span class="desc">Diagnostic ladder for CSS-only tab UIs.</span>
+</li>
+</ul>
+
+<h2>Forms &amp; input</h2>
+<ul>
+<li>
+  <strong><a href="forms.html">forms</a></strong>
+  <br><span class="desc">Form elements and their behavior.</span>
+</li>
+<li>
+  <strong><a href="validation.html">validation</a></strong>
+  <br><span class="desc">Constraint validation on submit (<code>required</code>, <code>pattern</code>, <code>type=email</code>, <code>min</code>/<code>max</code>, length) — blocks + scrolls to the first invalid field (in a scroll box).</span>
+</li>
+<li>
+  <strong><a href="post.html">post</a></strong>
+  <br><span class="desc"><code>&lt;form method="post"&gt;</code> sends a urlencoded request body (local + httpbin echo; GET for comparison).</span>
+</li>
+</ul>
+
+<h2>Canvas &amp; WebGL</h2>
+<ul>
+<li>
+  <strong><a href="canvas.html">canvas</a></strong>
+  <br><span class="desc">Placeholder paint for a script-less <code>&lt;canvas&gt;</code>.</span>
+</li>
+<li>
+  <strong><a href="canvas-script.html">canvas-script</a></strong>
+  <br><span class="desc">Inline scripts drawing 2D primitives.</span>
+</li>
+<li>
+  <strong><a href="canvas-responsive.html">canvas-responsive</a></strong>
+  <br><span class="desc">Fullscreen canvas that re-runs on resize.</span>
+</li>
+<li>
+  <strong><a href="canvas-webgl.html">canvas-webgl</a></strong>
+  <br><span class="desc">WebGL context probe with a solid-color triangle.</span>
+</li>
+</ul>
+
+<h2>Web API probes</h2>
+<ul>
+<li>
+  <strong><a href="api-probe.html">api-probe</a></strong>
+  <br><span class="desc">Detects which Web APIs the runtime exposes.</span>
+</li>
+<li>
+  <strong><a href="web-audio-tone.html">web-audio-tone</a></strong>
+  <br><span class="desc">Web Audio verification via audible test tones.</span>
+</li>
+<li>
+  <strong><a href="workers-tier0.html">workers-tier0</a></strong>
+  <br><span class="desc">Web Workers foundation test with <code>postMessage</code>.</span>
+</li>
+<li>
+  <strong><a href="wasm-probe.html">wasm-probe</a></strong>
+  <br><span class="desc">WebAssembly end-to-end probe.</span>
+</li>
+<li>
+  <strong><a href="mutation-observer-probe.html">mutation-observer-probe</a></strong>
+  <br><span class="desc">MutationObserver end-to-end probe.</span>
+</li>
+<li>
+  <strong><a href="css-vars-probe.html">css-vars-probe</a></strong>
+  <br><span class="desc">CSS variables and <code>calc()</code> probe.</span>
+</li>
+</ul>
+
+<h2>Performance audits</h2>
+<ul>
+<li>
+  <strong><a href="benchmark.html">benchmark</a></strong>
+  <br><span class="desc">Scroll-tick and repaint timings for the live DOM.</span>
+</li>
+<li>
+  <strong><a href="perf-image-stress.html">perf-image-stress</a></strong>
+  <br><span class="desc">Parallel decode timing for 30 PNGs via <code>new Image()</code>.</span>
+</li>
+<li>
+  <strong><a href="perf-latency-probe.html">perf-latency-probe</a></strong>
+  <br><span class="desc">Fixed-latency probe across load modes and counts.</span>
+</li>
+<li>
+  <strong><a href="perf-img-dom-stress.html">perf-img-dom-stress</a></strong>
+  <br><span class="desc">rAF cadence under live-DOM <code>&lt;img&gt;</code> load.</span>
+</li>
+</ul>
+
+<h2>Game demos</h2>
+<ul>
+<li>
+  <strong><a href="demo-breakout.html">demo-breakout</a></strong>
+  <br><span class="desc">Brick-breaker on the full Web API stack.</span>
+</li>
+</ul>
+
+</body>
+</html>

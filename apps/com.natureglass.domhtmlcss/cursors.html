@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cursor Demo</title>
+
+<style>
+
+    body { background-color: #0b1220; color: #e0e8f4; font-size: 18px; padding: 28px 48px; }
+    h2 { color: #7aa2ff; margin-top: 26px; }
+    a { color: #7eda9f; }
+
+    h1 {
+        margin-bottom: 10px;
+    }
+
+    #currentCursor {
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    table {
+        border-collapse: collapse;
+        width: 600px;
+        max-width: 100%;
+    }
+
+    th, td {
+        padding: 10px;
+        text-align: left;
+    }
+
+    button {
+        padding: 6px 12px;
+        cursor: pointer;
+    }
+</style>
+</head>
+<body>
+
+<h1>CSS Cursor Demo</h1>
+
+<div id="currentCursor">
+    Current Cursor: default
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Cursor Type</th>
+            <th>Preview</th>
+            <th>Activate</th>
+        </tr>
+    </thead>
+    <tbody id="cursorTable"></tbody>
+</table>
+
+<script>
+const cursors = [
+    "default",
+    "pointer",
+    "text",
+    "crosshair",
+    "move",
+    "wait",
+    "help",
+    "not-allowed",
+    "grab",
+    "grabbing",
+    "progress",
+    "cell",
+    "alias",
+    "copy",
+    "zoom-in",
+    "zoom-out",
+    "ew-resize",
+    "ns-resize",
+    "nwse-resize",
+    "nesw-resize",
+    "all-scroll",
+    "vertical-text",
+    "none"
+];
+
+const table = document.getElementById("cursorTable");
+const currentCursor = document.getElementById("currentCursor");
+
+function setCursor(cursorType) {
+    document.body.style.cursor = cursorType;
+    currentCursor.textContent = `Current Cursor: ${cursorType}`;
+}
+
+cursors.forEach(cursor => {
+    const row = document.createElement("tr");
+
+    row.innerHTML = `
+        <td>${cursor}</td>
+        <td style="cursor:${cursor}">
+            Hover here
+        </td>
+        <td>
+            <button>Use ${cursor}</button>
+        </td>
+    `;
+
+    row.querySelector("button").addEventListener("click", () => setCursor(cursor));
+    table.appendChild(row);
+});
+</script>
+
+</body>
+</html>

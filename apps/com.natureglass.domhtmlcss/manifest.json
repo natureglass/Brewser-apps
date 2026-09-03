@@ -1,0 +1,32 @@
+{
+    "id": "com.natureglass.domhtmlcss",
+    "name": "DOM HTML CSS",
+    "version": "1.0.3",
+    "description": "<p><strong>DOM HTML CSS</strong> is a suite of self-contained fixtures for the Brewser rendering engine. Each page opens on its own and exercises exactly one part of the pipeline — document structure, the CSS cascade, embedded media, canvas and WebGL, the Web API surface, or raw paint performance — so you can see precisely how the runtime handles each feature.</p>\r\n<p><strong>How it works.</strong> The landing page is a plain hyperlinked index grouped by topic; following a link loads a small, framework-free page that draws or measures one thing and reports what the engine did. Nothing needs a server or a network — every fixture, asset and sample file ships inside the app and runs offline.</p>\r\n<p><strong>What's inside:</strong></p>\r\n<ul>\r\n<li><strong>Document &amp; text</strong> — back/forward navigation, iframes, the modal layer, <code>&lt;pre&gt;</code> whitespace, typography, line-height and emoji.</li>\r\n<li><strong>CSS cascade &amp; layout</strong> — specificity, inheritance, selectors, alignment, <code>display:none</code>, borders, <code>border-radius</code> and cursors, plus external stylesheets.</li>\r\n<li><strong>Media</strong> — block and inline images, inline SVG shapes, paths and transforms, and <code>&lt;video&gt;</code> layout.</li>\r\n<li><strong>Tables, lists &amp; widgets</strong> — <code>colspan</code>/<code>rowspan</code> tables, list styles, <code>&lt;details&gt;</code>/<code>&lt;meter&gt;</code>/<code>&lt;progress&gt;</code>, and CSS-only tabs.</li>\r\n<li><strong>Forms</strong> — form controls and constraint validation that blocks navigation when input is invalid.</li>\r\n<li><strong>Canvas &amp; WebGL</strong> — script-less placeholder paint, inline 2D primitives, a responsive canvas, and a WebGL context probe.</li>\r\n<li><strong>Web API probes</strong> — feature detection, Web Audio test tones, Web Workers, WebAssembly, MutationObserver and CSS variables.</li>\r\n<li><strong>Performance audits</strong> — scroll and repaint timing, parallel image decode, latency probes and rAF cadence under live-DOM image load.</li>\r\n<li><strong>Game demo</strong> — a brick-breaker built on the full Web API stack.</li>\r\n</ul>\r\n<p>A reference and diagnostic tool for developers building and testing web apps on Brewser.</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Apps",
+        "Demos"
+    ],
+    "permissions": [
+        "storage"
+    ],
+    "compatibility": [
+        "switch"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "hideMouseDocked": false,
+    "hideMouseUndocked": false,
+    "freshProcessOnExit": false,
+    "publishedAt": "2026-09-03T13:26:26Z",
+    "updatedAt": "2026-09-03T13:26:26Z",
+    "summary": "A suite of self-contained fixtures that exercise the Brewser HTML, CSS, canvas, WebGL and Web API re",
+    "features": [
+        "Gamepad"
+    ]
+}

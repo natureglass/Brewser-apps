@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Test fixture: form validation</title>
+<style>
+  body { background-color: #1a2b3c; color: #e0e8f4; font-size: 18px; padding: 28px 48px; }
+  h1 { color: #ffd35e; margin-top: 8px; }
+  h2 { color: #7aa2ff; margin-top: 24px; }
+  a { color: #7eda9f; }
+  p { margin: 6px 0; }
+  .note { color: #9bb1d6; font-size: 15px; }
+  .expect { background-color: #20324b; padding: 10px 14px; border-left: 3px solid #ffd35e; }
+  form { margin-top: 12px; }
+  label { display: inline-block; min-width: 150px; color: #c2e0ff; }
+  input, select { margin: 4px 0; }
+  .scroll { height: 300px; overflow: auto; background-color: #14212f; border: 1px solid #4a5b7a; padding: 12px 16px; }
+  .row { margin-bottom: 18px; }
+  fieldset { margin-top: 12px; }
+  legend { color: #ffd35e; }
+  button, input[type=submit] { margin-right: 10px; }
+</style>
+</head>
+<body>
+<h1>Form validation enforcement</h1>
+<p>Constraint validation now runs when a submit button is tapped. The form
+below uses a <strong>GET</strong> action to <code>two.html</code>, so a
+<em>successful</em> submit visibly navigates to the &ldquo;two&rdquo; page,
+while a <em>blocked</em> submit stays here. The form sits in a scrollable
+box &mdash; filled inputs must scroll cleanly with no pinned &ldquo;ghost&rdquo;
+duplicates.</p>
+
+<div class="expect">
+<p><strong>Expected behaviour</strong></p>
+<p>1. Tap <strong>Submit</strong> with fields empty/invalid &rarr; navigation is
+<strong>blocked</strong> (you stay on this page) and the form scrolls to the
+first invalid field.</p>
+<p>2. Fill every field correctly, then <strong>Submit</strong> &rarr; navigates to
+<code>two.html</code> with the values in the query string.</p>
+<p>3. <strong>Skip validation</strong> (a <code>formnovalidate</code> button)
+&rarr; always navigates, even when empty.</p>
+<p>4. <strong>Reset</strong> &rarr; clears every field back to its default.</p>
+</div>
+
+<form action="two.html" method="get">
+<div class="scroll">
+  <div class="row">
+    <label for="name">Name (required):</label>
+    <input type="text" id="name" name="name" required placeholder="required">
+  </div>
+  <div class="row">
+    <label for="email">Email (type=email):</label>
+    <input type="email" id="email" name="email" required placeholder="you@example.com">
+  </div>
+  <div class="row">
+    <label for="zip">ZIP (pattern 5 digits):</label>
+    <input type="text" id="zip" name="zip" required pattern="[0-9]{5}" placeholder="12345">
+  </div>
+  <div class="row">
+    <label for="age">Age (number 18&ndash;120):</label>
+    <input type="number" id="age" name="age" required min="18" max="120" placeholder="18-120">
+  </div>
+  <div class="row">
+    <label for="user">Username (3&ndash;8 chars):</label>
+    <input type="text" id="user" name="user" required minlength="3" maxlength="8" placeholder="3 to 8">
+  </div>
+  <fieldset>
+    <legend>Plan (required radio)</legend>
+    <label><input type="radio" name="plan" value="basic" required> Basic</label>
+    <label><input type="radio" name="plan" value="pro"> Pro</label>
+  </fieldset>
+  <div class="row" style="margin-top:12px;">
+    <label><input type="checkbox" name="agree" required> I agree (required)</label>
+  </div>
+  <p class="note">The last fields sit below the fold of this scroll box on
+  purpose &mdash; an invalid one further down should scroll into view.</p>
+</div>
+
+<p style="margin-top:14px;">
+  <input type="submit" value="Submit">
+  <input type="submit" value="Skip validation" formnovalidate>
+  <button type="reset">Reset</button>
+</p>
+</form>
+
+<p><a href="index.html">back to web experiments</a></p>
+</body>
+</html>

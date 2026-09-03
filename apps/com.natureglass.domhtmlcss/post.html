@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Test fixture: POST forms</title>
+<style>
+  body { background-color: #1a2b3c; color: #e0e8f4; font-size: 18px; padding: 28px 48px; }
+  h1 { color: #ffd35e; margin-top: 8px; }
+  h2 { color: #7aa2ff; margin-top: 26px; }
+  a { color: #7eda9f; }
+  p { margin: 6px 0; }
+  code { color: #ffd35e; }
+  .note { color: #9bb1d6; font-size: 15px; }
+  .expect { background-color: #20324b; padding: 10px 14px; border-left: 3px solid #ffd35e; }
+  form { margin-top: 10px; margin-bottom: 8px; }
+  label { display: inline-block; min-width: 130px; color: #c2e0ff; }
+  .row { margin-bottom: 12px; }
+  input[type=submit] { margin-right: 10px; }
+</style>
+</head>
+<body>
+<h1>POST request bodies</h1>
+<p>A <code>&lt;form method="post"&gt;</code> submit now sends the fields as an
+<code>application/x-www-form-urlencoded</code> <strong>request body</strong>
+(previously POST navigated to the action with no body). GET is unchanged
+(fields go in the query string).</p>
+
+<div class="expect">
+<p><strong>Note on testing</strong></p>
+<p>Citron has no network, so a real echo of the body needs <strong>hardware</strong>.
+The local test below proves the whole pipeline runs and navigates with the body
+attached; a static local file just can't show it back.</p>
+<p>To confirm the exact bytes sent, enable <code>navDebug</code> in
+<code>config.json</code> and read
+<code>sdmc:/switch/brewser/logs/shell-nav-diag.log</code> — it logs
+<code>method=POST</code> and the body length.</p>
+</div>
+
+<h2>1. Local POST (works on Citron)</h2>
+<p>Posts to a local page. It navigates to the &ldquo;two&rdquo; page without
+crashing; the body is sent but the static file ignores it.</p>
+<form action="two.html" method="post">
+  <div class="row"><label for="lu">User:</label>
+    <input type="text" id="lu" name="user" value="switch"></div>
+  <div class="row"><label for="lm">Message:</label>
+    <input type="text" id="lm" name="msg" value="hello from a POST"></div>
+  <input type="hidden" name="token" value="abc123">
+  <input type="submit" value="POST to two.html">
+</form>
+
+<h2>2. Echo POST (needs internet — hardware only)</h2>
+<p>Posts to <code>httpbin.org/post</code>, which echoes the request. The JSON
+response now renders as a text page, so on hardware you should see your
+submitted fields back under <code>"form"</code> — the real end-to-end proof
+that the body was sent.</p>
+<form action="https://httpbin.org/post" method="post">
+  <div class="row"><label for="en">Name:</label>
+    <input type="text" id="en" name="name" value="brewser"></div>
+  <div class="row"><label for="ec">Comment:</label>
+    <input type="text" id="ec" name="comment" value="posted from the Switch"></div>
+  <input type="submit" value="POST to httpbin">
+</form>
+
+<h2>3. GET for comparison (unchanged)</h2>
+<p>Same fields via GET — they land in the <code>two.html?…</code> query string.</p>
+<form action="two.html" method="get">
+  <div class="row"><label for="gu">User:</label>
+    <input type="text" id="gu" name="user" value="switch"></div>
+  <input type="submit" value="GET to two.html">
+</form>
+
+<p><a href="index.html">back to web experiments</a></p>
+</body>
+</html>
