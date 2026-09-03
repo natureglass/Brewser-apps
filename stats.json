@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-02T12:40:59Z",
+  "generated": "2026-09-03T12:40:14Z",
   "stats": {
     "com.natureglass.2dplatformermicrogame": {
       "downloads": 0,
@@ -93,7 +93,7 @@
       "ratingCount": 0
     },
     "com.natureglass.streamcast": {
-      "downloads": 2,
+      "downloads": 3,
       "ratingAvg": 0,
       "ratingCount": 0
     },
@@ -107,6 +107,11 @@
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.9074
+    },
+    "com.natureglass.threejsloadercollada": {
+      "downloads": 1,
+      "ratingAvg": 0,
+      "ratingCount": 0
     },
     "com.natureglass.threejsloadergltf": {
       "downloads": 2,
