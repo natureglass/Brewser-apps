@@ -25,7 +25,7 @@
   }
   .topbar h1 { font-size: 15px; font-weight: 600; letter-spacing: 0.04em; }
   #status { font-size: 12px; color: var(--dim); overflow: hidden;
-    text-overflow: ellipsis; white-space: nowrap; }
+    text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
   #status.is-ok { color: var(--accent); }
   #count { margin-left: auto; font-size: 12px; color: var(--dim); white-space: nowrap; }
 
@@ -48,7 +48,7 @@
   .overlay[hidden] { display: none; }
 
   .sheet {
-    width: 100%; max-width: 420px; max-height: 100%; overflow-y: auto;
+    width: 420px; max-width: 100%; max-height: 90vh; overflow-y: auto;
     background: var(--panel); border: 1px solid var(--edge); border-radius: 12px; padding: 20px;
   }
   .sheet.is-tall { max-width: 460px; display: flex; flex-direction: column; overflow: hidden; }
@@ -143,8 +143,8 @@
   <h1>HA GRID</h1>
   <span id="status">starting…</span>
   <span id="count"></span>
-  <button class="iconbtn" id="editBtn" aria-pressed="false" aria-label="Edit layout" title="Edit layout">✎</button>
-  <button class="iconbtn" id="entBtn" aria-label="Manage entities" title="Manage entities">☰</button>
+  <button class="iconbtn" id="editBtn" aria-pressed="false" aria-label="Edit layout" title="Edit layout">✏️</button>
+  <button class="iconbtn" id="entBtn" aria-label="Manage entities" title="Manage entities">📋</button>
   <button class="iconbtn" id="gearBtn" aria-label="Connection settings" title="Connection settings">⚙</button>
 </div>
 <canvas id="canvas"></canvas>
@@ -1112,7 +1112,9 @@ const Settings = {
     this.syncEnabled();
     this.showStorageState();
     els.overlay.hidden = false;
-    (els.mock.checked ? els.mock : els.host).focus();
+    // No auto-focus: on a Switch/console runtime, focusing a text field
+    // pops the full-screen software keyboard, which would cover this
+    // sheet on open. The user taps a field to type; demo mode needs none.
   },
 
   close() { els.overlay.hidden = true; els.gear.focus(); },
@@ -1208,7 +1210,8 @@ const EntityManager = {
     els.entNote.hidden = true;
     this.render();
     els.entOverlay.hidden = false;
-    els.entFilter.focus();
+    // No auto-focus (see Settings.open) — avoid popping the software
+    // keyboard over the sheet; the user taps the filter to type.
   },
 
   close() { els.entOverlay.hidden = true; els.entBtn.focus(); },
