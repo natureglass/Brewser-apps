@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>DOM: selectors, closest/matches, siblings, capture — brewser</title>
+<style>
+  body { background:#0b1220; color:#e0e8f4; font:15px/1.5 system-ui, sans-serif; padding:20px 28px; }
+  h1 { color:#ffd35e; font-size:22px; }
+  h2 { color:#7aa2ff; font-size:16px; margin:20px 0 6px; }
+  #summary { font-size:18px; font-weight:700; padding:8px 14px; border-radius:8px; display:inline-block; margin:8px 0 4px; }
+  #summary.ok  { background:#123021; color:#7eda9f; border:1px solid #2f7d54; }
+  #summary.bad { background:#3a1620; color:#ff8fa3; border:1px solid #a13850; }
+  ul.results { list-style:none; padding:0; margin:6px 0; }
+  ul.results li { font-family:monospace; font-size:13px; padding:3px 8px; border-radius:4px; margin:2px 0; }
+  li.pass { color:#9fe3bb; background:#0f1f17; }
+  li.fail { color:#ffb3c0; background:#2a1119; }
+  /* Hidden test scaffold — not shown; the script reads it. */
+  #tree { display:none; }
+</style>
+</head>
+<body>
+  <h1>DOM selector engine · closest/matches · element siblings · event capture</h1>
+  <div id="summary">running…</div>
+
+  <!-- Scaffold the assertions run against. -->
+  <div id="tree">
+    <ul class="list">
+      <li class="item first" data-id="1">one</li>
+      <li class="item active" data-id="2"><span class="tag">two</span></li>
+      <li class="item" data-id="3">three</li>
+    </ul>
+    <section class="box">
+      <button id="btn" class="primary" data-action="save">Save</button>
+      <a href="#x" class="link" rel="external noopener">a link</a>
+    </section>
+  </div>
+
+  <h2>Results</h2>
+  <ul class="results" id="results"></ul>
+
+  <script>
+    (function () {
+      var pass = 0, fail = 0;
+      var out = document.getElementById('results');
+      function row(name, ok, detail) {
+        var li = document.createElement('li');
+        li.textContent = (ok ? 'PASS  ' : 'FAIL  ') + name + (detail ? '   (' + detail + ')' : '');
+        li.className = ok ? 'pass' : 'fail';
+        out.appendChild(li);
+        if (ok) { pass++; } else { fail++; }
+      }
+      function eq(name, actual, expected) {
+        row(name, actual === expected, 'got ' + actual + ', want ' + expected);
+      }
+      function ok(name, cond) { row(name, !!cond, cond ? '' : 'expected truthy'); }
+
+      var tree = document.getElementById('tree');
+      var list = tree.querySelector('.list');
+      var items = tree.querySelectorAll('.item');
+      var item1 = items[0], item2 = items[1], item3 = items[2];
+      var tag = tree.querySelector('.tag');
+      var btn = document.getElementById('btn');
+
+      // --- querySelectorAll: combinators ---
+      eq('child  .list > .item', tree.querySelectorAll('.list > .item').length, 3);
+      eq('descendant  .list .tag', tree.querySelectorAll('.list .tag').length, 1);
+      eq('adjacent  .item + .item', tree.querySelectorAll('.item + .item').length, 2);
+      eq('general sibling  .item ~ .item', tree.querySelectorAll('.item ~ .item').length, 2);
+
+      // --- compound + lists + universal ---
+      eq('compound  li.item.active', tree.querySelectorAll('li.item.active').length, 1);
+      eq('list  .tag, .link', tree.querySelectorAll('.tag, .link').length, 2);
+      eq('universal  .list > *', tree.querySelectorAll('.list > *').length, 3);
+
+      // --- attribute matchers ---
+      eq('attr =   [data-id="2"]', tree.querySelectorAll('[data-id="2"]').length, 1);
+      eq('attr ^=  [data-action^="sa"]', tree.querySelectorAll('[data-action^="sa"]').length, 1);
+      eq('attr *=  [rel*="open"]', tree.querySelectorAll('[rel*="open"]').length, 1);
+      eq('attr ~=  [rel~="external"]', tree.querySelectorAll('[rel~="external"]').length, 1);
+      eq('attr has [data-id]', tree.querySelectorAll('[data-id]').length, 3);
+
+      // --- structural pseudo-classes ---
+      eq('pseudo  .item:first-child', tree.querySelectorAll('.item:first-child').length, 1);
+      eq('pseudo  .item:nth-child(2)', tree.querySelectorAll('.item:nth-child(2)').length, 1);
+      eq('pseudo  .item:not(.active)', tree.querySelectorAll('.item:not(.active)').length, 2);
+      eq('pseudo  li:last-child', tree.querySelectorAll('li:last-child').length, 1);
+
+      // --- matches() ---
+      ok('matches  btn.matches(.primary[data-action="save"])', btn.matches('.primary[data-action="save"]'));
+      ok('matches  !btn.matches(.link)', !btn.matches('.link'));
+
+      // --- closest() ---
+      ok('closest  tag.closest(.list) === ul', tag.closest('.list') === list);
+      ok('closest  tag.closest(#tree) === tree', tag.closest('#tree') === tree);
+      ok('closest  tag.closest(.nope) === null', tag.closest('.nope') === null);
+      ok('closest  self-match  item2.closest(.item)===item2', item2.closest('.item') === item2);
+
+      // --- element-sibling accessors (skip text/comment nodes) ---
+      ok('firstElementChild', list.firstElementChild === item1);
+      ok('lastElementChild', list.lastElementChild === item3);
+      eq('childElementCount', list.childElementCount, 3);
+      ok('nextElementSibling', item2.nextElementSibling === item3);
+      ok('previousElementSibling', item2.previousElementSibling === item1);
+      ok('nextElementSibling of last === null', item3.nextElementSibling === null);
+
+      // --- event capture / target / currentTarget / bubble ordering ---
+      var order = [];
+      var capturedTarget = null, capturedCurrent = null;
+      function onCap(e) { order.push('capture'); capturedTarget = e.target; capturedCurrent = e.currentTarget; }
+      function onTgt(e) { order.push('target'); }
+      function onBub(e) { order.push('bubble'); }
+      tree.addEventListener('ping', onCap, true);   // capture on ancestor
+      tag.addEventListener('ping', onTgt);           // target
+      tree.addEventListener('ping', onBub, false);   // bubble on ancestor
+      tag.dispatchEvent({ type: 'ping', bubbles: true });
+      row('capture → target → bubble order', order.join('>') === 'capture>target>bubble', order.join('>'));
+      ok('event.target = dispatch origin (tag)', capturedTarget === tag);
+      ok('event.currentTarget = listening node (tree)', capturedCurrent === tree);
+      tree.removeEventListener('ping', onCap, true);
+      tag.removeEventListener('ping', onTgt);
+      tree.removeEventListener('ping', onBub, false);
+
+      // --- delegation: one handler, e.target.matches(...) ---
+      var delegatedHit = null;
+      function onDelegate(e) { if (e.target.matches('.tag')) delegatedHit = e.target; }
+      tree.addEventListener('click', onDelegate);
+      tag.dispatchEvent({ type: 'click', bubbles: true });
+      ok('delegation via e.target.matches(.tag)', delegatedHit === tag);
+      tree.removeEventListener('click', onDelegate);
+
+      // --- once: fires exactly once across two dispatches ---
+      var onceCount = 0;
+      btn.addEventListener('tap', function () { onceCount++; }, { once: true });
+      btn.dispatchEvent({ type: 'tap', bubbles: false });
+      btn.dispatchEvent({ type: 'tap', bubbles: false });
+      eq('once fires exactly once', onceCount, 1);
+
+      // --- stopPropagation in capture halts target + bubble ---
+      var reached = [];
+      function capStop(e) { reached.push('cap'); e.stopPropagation(); }
+      function tgtAfter() { reached.push('tgt'); }
+      function bubAfter() { reached.push('bub'); }
+      tree.addEventListener('halt', capStop, true);
+      tag.addEventListener('halt', tgtAfter);
+      tree.addEventListener('halt', bubAfter, false);
+      tag.dispatchEvent({ type: 'halt', bubbles: true });
+      row('capture stopPropagation halts target+bubble', reached.join(',') === 'cap', reached.join(','));
+
+      // --- summary ---
+      var s = document.getElementById('summary');
+      s.textContent = pass + ' passed · ' + fail + ' failed';
+      s.className = fail === 0 ? 'ok' : 'bad';
+    })();
+  </script>
+</body>
+</html>

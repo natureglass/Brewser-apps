@@ -1,24 +1,43 @@
 <!doctype html>
 <html>
-<head><title>Test fixture: pre</title>
+<head><title>Test fixture: pre / white-space</title>
 <style>
   body { background-color: #0b1220; color: #e0e8f4; font-size: 18px; padding: 28px 48px; }
+  h1 { color:#ffd35e; }
+  h2 { color:#7aa2ff; font-size:16px; margin:22px 0 8px; }
+  .desc { color:#9bb1d6; font-size:14px; max-width:640px; }
+  code { color:#ffd35e; font-family:monospace; }
+  .demo { font-family:monospace; font-size:15px; background:#101a33; border:1px solid #33507a;
+          border-radius:8px; padding:10px 12px; width:360px; color:#cfe0ff; }
 </style>
 </head>
 <body>
-<h1>Preformatted text</h1>
-<p>The block below should preserve whitespace, newlines, and indentation,
-and render in monospace:</p>
+<h1>Preformatted text &amp; white-space</h1>
+
+<h2>1 · <code>&lt;pre&gt;</code> (UA white-space: pre)</h2>
+<p class="desc">Preserves whitespace, newlines, and indentation; monospace; no wrapping.</p>
 <pre>function greet(name) {
     if (!name) {
         return "hello, friend";
     }
     return "hello, " + name + "!";
 }</pre>
-<p>End of the <code>pre</code> block. The
-<code>pre</code> tag's text node is verbatim, while
-<code>code</code> outside <code>pre</code> stays in normal flow with
-collapsed whitespace.</p>
+
+<h2>2 · <code>white-space: pre-wrap</code></h2>
+<p class="desc">Preserves the double  spaces and the explicit newline below, AND wraps the
+long line at the box edge (360px):</p>
+<div class="demo" style="white-space: pre-wrap;">col1    col2    col3
+this single physical line has no newlines but is long enough that pre-wrap must wrap it onto multiple visual lines while keeping    its    runs    of    spaces.</div>
+
+<h2>3 · <code>white-space: pre</code> on a &lt;div&gt;</h2>
+<p class="desc">Same preservation as <code>&lt;pre&gt;</code> but on a plain element; long lines do
+NOT wrap (they overflow the box):</p>
+<div class="demo" style="white-space: pre; overflow-x: hidden;">a       b       c
+    indented line
+no-wrap: this long line keeps going past the right edge instead of wrapping.</div>
+
+<p class="desc" style="margin-top:22px">The <code>code</code> tag outside a preserving context stays in normal flow with
+collapsed   whitespace   →   <code>collapsed   whitespace</code> renders as single spaces.</p>
 <p><a href="index.html">back to web experiments</a></p>
 </body>
 </html>

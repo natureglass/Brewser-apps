@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>CSS Grid depth — brewser</title>
+<style>
+  body { background:#0b1220; color:#e0e8f4; font:15px/1.5 system-ui, sans-serif; padding:22px 30px; }
+  h1 { color:#ffd35e; margin:0 0 4px; }
+  h2 { color:#7aa2ff; margin:24px 0 10px; font-size:17px; }
+  p.lead { color:#9bb1d6; font-size:14px; max-width:680px; margin:0; }
+  code { color:#ffd35e; font-family:monospace; }
+  .panel { color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; border-radius:8px; }
+
+  /* 1) App shell via grid-template-areas. */
+  .shell {
+    display:grid; height:300px; gap:10px;
+    grid-template-columns:150px 1fr;
+    grid-template-rows:52px 1fr 40px;
+    grid-template-areas:
+      "header header"
+      "side   main"
+      "footer footer";
+  }
+  .shell .hd   { grid-area:header; background:linear-gradient(90deg,#ff5f6d,#ffc371); }
+  .shell .sd   { grid-area:side;   background:#2b3a5e; }
+  .shell .mn   { grid-area:main;   background:#17233f; }
+  .shell .ft   { grid-area:footer; background:#233; color:#9bb1d6; }
+
+  /* 2) auto-fill responsive tracks. */
+  .fill { display:grid; grid-template-columns:repeat(auto-fill, minmax(96px, 1fr)); gap:10px; }
+  .fill .c { height:56px; background:#2a4a6a; }
+
+  /* 3) Per-item alignment: fixed 64x36 items in 104x78 cells (grid-auto-rows).
+     The grid items ARE the boxes; justify-self / align-self move each within
+     its cell. Default here is start/start (justify-items/align-items:start). */
+  .align {
+    display:grid; grid-template-columns:repeat(4, 104px); grid-auto-rows:78px;
+    gap:8px; justify-items:start; align-items:start;
+    background:#101a33; padding:8px; border-radius:8px;
+  }
+  .align .it {
+    width:64px; height:36px; background:#7ee0a0; color:#063; border-radius:6px;
+    display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700;
+  }
+  .a-cs  { justify-self:center; }
+  .a-es  { justify-self:end; }
+  .a-cc  { justify-self:center; align-self:center; }
+  .a-ee  { justify-self:end;    align-self:end; }
+  .a-str { justify-self:stretch; align-self:stretch; }  /* fills the cell */
+
+  /* 4) Content distribution: fixed 80px columns narrower than the box. */
+  .dist { display:grid; grid-template-columns:repeat(3, 80px); gap:8px; height:60px; background:#101a33; border-radius:8px; padding:8px; box-sizing:border-box; }
+  .dist.sb { justify-content:space-between; }
+  .dist.ce { justify-content:center; }
+  .dist .p { background:#c471f5; height:44px; }
+
+  /* 5) Independent row-gap / column-gap. */
+  .gaps { display:grid; grid-template-columns:repeat(3, 1fr); row-gap:4px; column-gap:26px; }
+  .gaps .g { height:40px; background:#36d1dc; color:#023; }
+</style>
+</head>
+<body>
+  <h1>CSS Grid depth</h1>
+  <p class="lead"><code>grid-template-areas</code>, <code>auto-fill</code> tracks,
+  per-item <code>justify-self</code>/<code>align-self</code>, track distribution via
+  <code>justify-content</code>, and independent <code>row-gap</code>/<code>column-gap</code>.</p>
+
+  <h2>1 · Named areas (app shell)</h2>
+  <div class="shell">
+    <div class="panel hd">header</div>
+    <div class="panel sd">sidebar</div>
+    <div class="panel mn">main</div>
+    <div class="panel ft">footer</div>
+  </div>
+
+  <h2>2 · auto-fill tracks</h2>
+  <div class="fill">
+    <div class="panel c">1</div><div class="panel c">2</div><div class="panel c">3</div>
+    <div class="panel c">4</div><div class="panel c">5</div><div class="panel c">6</div>
+    <div class="panel c">7</div>
+  </div>
+
+  <h2>3 · Per-item alignment (justify-self / align-self)</h2>
+  <div class="align">
+    <div class="it">start</div>
+    <div class="it a-cs">j-ctr</div>
+    <div class="it a-es">j-end</div>
+    <div class="it a-str">stretch</div>
+    <div class="it a-cc">ctr·ctr</div>
+    <div class="it a-ee">end·end</div>
+    <div class="it a-cs" style="align-self:center">j-ctr·a-ctr</div>
+    <div class="it" style="align-self:end">a-end</div>
+  </div>
+
+  <h2>4 · Track distribution (justify-content)</h2>
+  <div class="dist sb">
+    <div class="panel p">A</div><div class="panel p">B</div><div class="panel p">C</div>
+  </div>
+  <div style="height:10px"></div>
+  <div class="dist ce">
+    <div class="panel p">A</div><div class="panel p">B</div><div class="panel p">C</div>
+  </div>
+
+  <h2>5 · Independent gaps (row-gap 4 / column-gap 26)</h2>
+  <div class="gaps">
+    <div class="panel g">1</div><div class="panel g">2</div><div class="panel g">3</div>
+    <div class="panel g">4</div><div class="panel g">5</div><div class="panel g">6</div>
+  </div>
+</body>
+</html>

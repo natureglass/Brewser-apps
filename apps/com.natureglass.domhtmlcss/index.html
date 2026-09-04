@@ -39,7 +39,7 @@ the rendering pipeline.</p>
 <ul>
 <li>
   <strong><a href="pre.html">pre</a></strong>
-  <br><span class="desc">Whitespace preservation in <code>&lt;pre&gt;</code> and <code>&lt;code&gt;</code>.</span>
+  <br><span class="desc"><code>white-space</code>: <code>&lt;pre&gt;</code> preservation plus CSS <code>pre-wrap</code> (preserve + wrap) and <code>pre</code> on a plain element (preserve, no wrap).</span>
 </li>
 <li>
   <strong><a href="typography.html">typography</a></strong>
@@ -86,12 +86,40 @@ the rendering pipeline.</p>
   <br><span class="desc">Borders with mixed widths, styles, and per-side colors.</span>
 </li>
 <li>
+  <strong><a href="border-styles.html">border-styles</a></strong>
+  <br><span class="desc">Non-solid <code>border-style</code>: dashed, dotted, double, and the 3D styles (groove / ridge / inset / outset), mixed per-side, rounded non-solid borders, and <code>outline</code> (with <code>outline-offset</code>) painted outside the box.</span>
+</li>
+<li>
   <strong><a href="rounded.html">rounded</a></strong>
-  <br><span class="desc">Rounded boxes and clipping via <code>border-radius</code>.</span>
+  <br><span class="desc">Rounded boxes and clipping via <code>border-radius</code>, including per-corner radii (longhands + 1–4-value shorthand) on backgrounds and borders.</span>
 </li>
 <li>
   <strong><a href="cursors.html">cursors</a></strong>
   <br><span class="desc">Different cursor types.</span>
+</li>
+<li>
+  <strong><a href="sticky.html">sticky</a></strong>
+  <br><span class="desc"><code>position: sticky</code> — a <code>top: 0</code> bar that pins while scrolling, section headings that pin then release at their section end, and a <code>bottom: 0</code> footnote. Bar button proves hit-testing at the pinned position.</span>
+</li>
+<li>
+  <strong><a href="flex-wrap.html">flex-wrap</a></strong>
+  <br><span class="desc"><code>flex-wrap</code> multi-line flexbox: wrapping rows, <code>align-content</code>, per-item <code>align-self</code>, <code>justify-content: space-evenly</code>, and <code>flex-flow: row wrap-reverse</code>.</span>
+</li>
+<li>
+  <strong><a href="grid.html">grid</a></strong>
+  <br><span class="desc">Grid depth: <code>grid-template-areas</code> (app shell), <code>auto-fill</code> tracks, per-item <code>justify-self</code>/<code>align-self</code>, <code>grid-auto-rows</code>, track distribution via <code>justify-content</code>, and independent <code>row-gap</code>/<code>column-gap</code>.</span>
+</li>
+<li>
+  <strong><a href="transition.html">transition</a></strong>
+  <br><span class="desc"><code>transition</code> animates value changes: background-color, opacity, transform (scale), text <code>color</code>, border-color, a multi-property list with <code>cubic-bezier</code>, and a linear-vs-ease-in-out comparison. Tap-toggle driven; reverses mid-flight.</span>
+</li>
+<li>
+  <strong><a href="filter.html">filter</a></strong>
+  <br><span class="desc"><code>filter</code> on element content: blur, brightness/contrast/grayscale/sepia/invert/saturate/hue-rotate/opacity, <code>drop-shadow</code>, and combinations — computed by offscreen pixel processing (no native <code>ctx.filter</code>). Plus a dynamic tap-toggle.</span>
+</li>
+<li>
+  <strong><a href="backdrop-filter.html">backdrop-filter</a></strong>
+  <br><span class="desc"><code>backdrop-filter</code> frosted glass: a <code>sticky</code> bar and a <code>fixed</code> pill that blur the scrolling content behind them, plus normal-flow cards that frost a colourful panel. Backdrop read from the body cache (not the Skia screen), reusing the <code>filter</code> pixel core; rounded-corner clip.</span>
 </li>
 </ul>
 
@@ -188,6 +216,14 @@ the rendering pipeline.</p>
 <li>
   <strong><a href="mutation-observer-probe.html">mutation-observer-probe</a></strong>
   <br><span class="desc">MutationObserver end-to-end probe.</span>
+</li>
+<li>
+  <strong><a href="dom-selectors.html">dom-selectors</a></strong>
+  <br><span class="desc">Self-testing probe: <code>querySelectorAll</code> combinators / compound / lists / attribute matchers / pseudo-classes, <code>closest()</code> / <code>matches()</code>, element-sibling accessors, and event capture / delegation / <code>once</code> / <code>stopPropagation</code>.</span>
+</li>
+<li>
+  <strong><a href="dom-manip.html">dom-manip</a></strong>
+  <br><span class="desc">Self-testing probe: <code>before</code> / <code>after</code> / <code>replaceWith</code> / <code>replaceChildren</code> (Node + string args), <code>normalize()</code>, <code>getElementsByName</code>, and <code>target</code> / <code>currentTarget</code> retargeting when dispatching a real <code>new Event()</code> (delegation).</span>
 </li>
 <li>
   <strong><a href="css-vars-probe.html">css-vars-probe</a></strong>

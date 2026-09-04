@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Border styles & outline — brewser</title>
+<style>
+  body { background:#0b1220; color:#e0e8f4; font:15px/1.5 system-ui, sans-serif; padding:22px 30px; }
+  h1 { color:#ffd35e; margin:0 0 4px; }
+  h2 { color:#7aa2ff; margin:26px 0 10px; font-size:17px; }
+  p.lead { color:#9bb1d6; font-size:14px; max-width:680px; margin:0; }
+  code { color:#ffd35e; font-family:monospace; }
+  .grid { display:flex; flex-wrap:wrap; gap:20px 18px; }
+  .cell { display:flex; flex-direction:column; align-items:center; gap:7px; width:150px; }
+  .cap { color:#9bb1d6; font-size:12px; font-family:monospace; }
+  .box {
+    width:130px; height:70px; box-sizing:border-box;
+    display:flex; align-items:center; justify-content:center;
+    background:#182238; color:#cfe0ff; font-size:13px;
+  }
+
+  /* Each line-style, uniform. Mid-tone base so the 3D shades read. */
+  .s-solid   { border:5px solid   #8ba3e6; }
+  .s-dashed  { border:5px dashed  #7ee0a0; }
+  .s-dotted  { border:5px dotted  #ffd166; }
+  .s-double  { border:8px double  #ff8fb0; }
+  .s-groove  { border:10px groove #8ba3e6; }
+  .s-ridge   { border:10px ridge  #8ba3e6; }
+  .s-inset   { border:10px inset  #c79be6; }
+  .s-outset  { border:10px outset #c79be6; }
+
+  /* Mixed per-side styles + widths + colors. */
+  .s-mixed {
+    border-top:6px dashed #7ee0a0;
+    border-right:6px dotted #ffd166;
+    border-bottom:6px double #ff8fb0;
+    border-left:6px solid #8ba3e6;
+  }
+  /* Longhand border-style shorthand (dashed dotted → T/B dashed, R/L dotted). */
+  .s-shorthand { border-width:6px; border-color:#ff8fb0; border-style:dashed dotted; }
+
+  /* Rounded, non-solid. */
+  .r-dashed { border:5px dashed #7ee0a0; border-radius:16px; }
+  .r-dotted { border:6px dotted #ffd166; border-radius:16px; }
+  .r-double { border:9px double #8ba3e6; border-radius:18px; }
+
+  /* Outline — outside the border box, no layout effect. */
+  .o-solid  { border:2px solid #33507a; outline:4px solid #7ee0a0; }
+  .o-dashed { border:2px solid #33507a; outline:4px dashed #ffd166; }
+  .o-offset { border:2px solid #33507a; outline:4px solid #ff8fb0; outline-offset:8px; }
+  .o-round  { border:2px solid #33507a; border-radius:16px; outline:4px dotted #c79be6; outline-offset:5px; }
+</style>
+</head>
+<body>
+  <h1>Border styles &amp; outline</h1>
+  <p class="lead">Every non-solid <code>border-style</code> (dashed, dotted, double,
+  and the four 3D styles), mixed per-side styles, rounded non-solid borders, and
+  <code>outline</code> (which paints outside the border box with no layout effect).</p>
+
+  <h2>Line styles</h2>
+  <div class="grid">
+    <div class="cell"><div class="box s-solid">solid</div><div class="cap">solid</div></div>
+    <div class="cell"><div class="box s-dashed">dashed</div><div class="cap">dashed</div></div>
+    <div class="cell"><div class="box s-dotted">dotted</div><div class="cap">dotted</div></div>
+    <div class="cell"><div class="box s-double">double</div><div class="cap">double</div></div>
+    <div class="cell"><div class="box s-groove">groove</div><div class="cap">groove</div></div>
+    <div class="cell"><div class="box s-ridge">ridge</div><div class="cap">ridge</div></div>
+    <div class="cell"><div class="box s-inset">inset</div><div class="cap">inset</div></div>
+    <div class="cell"><div class="box s-outset">outset</div><div class="cap">outset</div></div>
+  </div>
+
+  <h2>Mixed per-side</h2>
+  <div class="grid">
+    <div class="cell"><div class="box s-mixed">4 sides</div><div class="cap">per-side style</div></div>
+    <div class="cell"><div class="box s-shorthand">shorthand</div><div class="cap">border-style: dashed dotted</div></div>
+  </div>
+
+  <h2>Rounded, non-solid</h2>
+  <div class="grid">
+    <div class="cell"><div class="box r-dashed">dashed</div><div class="cap">radius + dashed</div></div>
+    <div class="cell"><div class="box r-dotted">dotted</div><div class="cap">radius + dotted</div></div>
+    <div class="cell"><div class="box r-double">double</div><div class="cap">radius + double</div></div>
+  </div>
+
+  <h2>Outline</h2>
+  <div class="grid">
+    <div class="cell"><div class="box o-solid">solid</div><div class="cap">outline solid</div></div>
+    <div class="cell"><div class="box o-dashed">dashed</div><div class="cap">outline dashed</div></div>
+    <div class="cell"><div class="box o-offset">offset</div><div class="cap">outline-offset: 8px</div></div>
+    <div class="cell"><div class="box o-round">rounded</div><div class="cap">dotted + offset + radius</div></div>
+  </div>
+</body>
+</html>

@@ -34,6 +34,14 @@
     border-radius: 12px;
     border: 1px solid #3a4866;
   }
+  /* Per-corner border-radius. */
+  .pc { color:#e0e8f4; padding:14px 16px; margin:8px 8px 8px 0; display:inline-block;
+        width:190px; box-sizing:border-box; font-size:14px; }
+  .pc1 { background-color:#20324b; border:2px solid #7aa2ff; border-radius:30px 6px 30px 6px; } /* leaf */
+  .pc2 { background-color:#2a3d5a; border:2px solid #7eda9f; border-radius:16px 16px 16px 2px; } /* speech bubble */
+  .pc3 { background-color:#3a2b5a; border:2px solid #c471f5;
+         border-top-left-radius:34px; border-bottom-right-radius:34px; }                       /* diagonal (longhands) */
+  .pc4 { background-color:#5a2b3d; border:2px solid #ff8fb0; border-radius:0 24px; }            /* 2-value TL/BR=0, TR/BL=24 */
 </style>
 </head>
 <body>
@@ -59,6 +67,14 @@ image, cropped to a circle):</p>
 <img class="avatar" src="romfs:/test-images/snowflake1.png" width="64" height="64" />
 <p>Same image as a 12-px-radius thumbnail:</p>
 <img class="thumbnail" src="romfs:/test-images/snowflake2.png" width="120" height="120" />
+
+<h2>Per-corner radius</h2>
+<p>Each corner rounds independently &mdash; the background fill AND the border
+stroke both follow the per-corner shape:</p>
+<div class="pc pc1">30/6/30/6 &mdash; leaf</div>
+<div class="pc pc2">16/16/16/2 &mdash; speech bubble</div>
+<div class="pc pc3">TL + BR longhands (diagonal)</div>
+<div class="pc pc4"><code>0 24px</code> &mdash; 2-value</div>
 
 <h2>Rounded canvas placeholder</h2>
 <p>An empty <code>&lt;canvas&gt;</code> with

@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>CSS backdrop-filter — brewser</title>
+<style>
+  html, body { margin:0; }
+  body {
+    background:#0b1220; color:#e0e8f4;
+    font:15px/1.5 system-ui, sans-serif;
+  }
+  h1 { color:#ffd35e; margin:0 0 6px; }
+  p.lead { color:#9bb1d6; font-size:14px; max-width:660px; margin:0 0 4px; }
+  code { color:#ffd35e; font-family:monospace; }
+  .pad { padding:18px 26px; }
+
+  /* Sticky frosted header — pins at the top while the colourful content
+     scrolls behind it. Exercises the sticky paint pass (backdrop source =
+     body cache, offset by the pin shift) + the per-frame memo. */
+  .frost-bar {
+    position: sticky; top: 0; z-index: 5;
+    padding:14px 26px;
+    background: rgba(18,26,46,0.42);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom:1px solid rgba(255,255,255,0.14);
+    font-weight:700; color:#fff;
+  }
+  .frost-bar .tag { color:#ffd35e; font-family:monospace; font-weight:400; font-size:12px; }
+
+  /* Vivid backdrop the blur samples from. */
+  .band {
+    height:150px; display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:22px; color:rgba(255,255,255,0.9);
+  }
+  .b1 { background:linear-gradient(90deg,#ff5f6d,#ffc371); }
+  .b2 { background:linear-gradient(90deg,#36d1dc,#5b86e5); }
+  .b3 { background:linear-gradient(90deg,#c471f5,#fa71cd); }
+  .b4 { background:linear-gradient(90deg,#43e97b,#38f9d7); color:#0b3; }
+  .b5 { background:linear-gradient(90deg,#fa709a,#fee140); color:#7a2; }
+
+  /* Normal-flow frosted cards, absolutely stacked over a bright panel so the
+     blur is obvious. These bake into the static body cache (identity source
+     mapping). Translucent bg so the frosted backdrop shows through. Rounded
+     corners test the border-radius clip. */
+  .panel {
+    position:relative; height:280px; margin:0;
+    background:
+      radial-gradient(circle at 22% 30%, #ff8a00 0, rgba(255,138,0,0) 42%),
+      radial-gradient(circle at 78% 26%, #00d2ff 0, rgba(0,210,255,0) 44%),
+      radial-gradient(circle at 50% 82%, #ff2fb9 0, rgba(255,47,185,0) 46%),
+      #101a33;
+  }
+  .card {
+    position:absolute; width:190px; height:120px; border-radius:18px;
+    padding:14px; box-sizing:border-box;
+    background: rgba(255,255,255,0.14);
+    border:1px solid rgba(255,255,255,0.28);
+    color:#fff; font-weight:700; font-size:15px;
+  }
+  .card .cap { display:block; margin-top:6px; font-family:monospace; font-weight:400; font-size:11px; color:rgba(255,255,255,0.82); }
+  .c1 { left:26px;  top:30px;  backdrop-filter: blur(9px); }
+  .c2 { left:170px; top:96px;  backdrop-filter: blur(7px) brightness(1.25); }
+  .c3 { left:318px; top:44px;  backdrop-filter: blur(6px) saturate(2) contrast(1.15); }
+
+  /* Fixed frosted pill — stays anchored to the viewport while the page
+     scrolls behind it. Exercises the fixed paint pass source mapping. */
+  .frost-pill {
+    position: fixed; right:22px; bottom:22px; z-index:6;
+    padding:12px 20px; border-radius:999px;
+    background: rgba(10,16,32,0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border:1px solid rgba(255,255,255,0.22);
+    color:#fff; font-weight:700; font-size:14px;
+  }
+
+  .note { color:#9bb1d6; font-size:13px; }
+</style>
+</head>
+<body>
+  <div class="frost-bar">Frosted sticky bar <span class="tag">backdrop-filter: blur(10px)</span></div>
+
+  <div class="pad">
+    <h1>CSS backdrop-filter</h1>
+    <p class="lead">The bar above and the pill at the bottom-right stay put while
+    this page scrolls; the colours behind them blur and re-blur in real time.
+    Backdrop pixels are read from the body's offscreen cache (never the Skia
+    screen, whose read-back corrupts alpha). Moving elements use a fast
+    <code>drawImage</code>-only blur (no per-frame pixel read-back), so colour
+    functions apply on the baked cards below but not on the bar / pill.</p>
+  </div>
+
+  <div class="band b1">scroll ↓ — watch the bar frost these colours</div>
+
+  <div class="panel">
+    <div class="card c1">blur(9px)<span class="cap">normal-flow card</span></div>
+    <div class="card c2">blur + brightness<span class="cap">baked into cache</span></div>
+    <div class="card c3">blur + saturate + contrast<span class="cap">rounded clip</span></div>
+  </div>
+
+  <div class="band b2">the three cards above frost the panel behind them</div>
+  <div class="band b3">translucent bg tints the blurred backdrop</div>
+  <div class="band b4">keep scrolling — the bar stays pinned</div>
+  <div class="band b5">and the pill stays anchored bottom-right</div>
+
+  <div class="pad">
+    <p class="note">Scoped out: the backdrop does not include lower fixed /
+    modal layers or scroll-container content; colour filter functions on moving
+    (fixed / sticky) elements are skipped for speed; backdrop-filter inside a
+    modal card degrades to a plain paint.</p>
+  </div>
+
+  <div class="frost-pill">frosted fixed pill</div>
+</body>
+</html>

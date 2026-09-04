@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>CSS transitions — brewser</title>
+<style>
+  body { background:#0b1220; color:#e0e8f4; font:16px/1.5 system-ui, sans-serif; padding:22px 30px; }
+  h1 { color:#ffd35e; }
+  p.lead { color:#9bb1d6; font-size:14px; max-width:640px; }
+  code { color:#ffd35e; font-family:monospace; }
+  #toggle {
+    background:#2a4a6a; color:#fff; border:1px solid #4a80c0; border-radius:9px;
+    padding:13px 26px; font-size:17px; cursor:pointer; margin:10px 0 18px;
+  }
+  .row { display:flex; align-items:center; gap:18px; margin-bottom:8px; }
+  .label { width:250px; color:#9bb1d6; font-size:13px; font-family:monospace; }
+  .swatch {
+    width:130px; height:54px; border-radius:8px; color:#fff; font-size:13px;
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  /* 1. background-color */
+  .t-bg  { background:#334a6a; transition: background-color 0.5s; }
+  .t-bg.on { background:#e0663a; }
+
+  /* 2. opacity */
+  .t-op  { background:#3a7d5a; transition: opacity 0.6s; }
+  .t-op.on { opacity:0.15; }
+
+  /* 3. transform: scale */
+  .t-tf  { background:#7d5a9a; transition: transform 0.5s ease-out; }
+  .t-tf.on { transform: scale(1.35); }
+
+  /* 4. color (text) */
+  .t-col { background:#1a2438; color:#7aa2ff; transition: color 0.5s; }
+  .t-col.on { color:#ffd35e; }
+
+  /* 5. border-color */
+  .t-bd  { background:#1a2438; border:4px solid #33507d; transition: border-color 0.5s; }
+  .t-bd.on { border-color:#ff6f9a; }
+
+  /* 6. multi-property + cubic-bezier */
+  .t-multi { background:#42324f; transition: background-color 0.7s ease-in-out, transform 0.7s cubic-bezier(0.2,0.8,0.2,1); }
+  .t-multi.on { background:#c05a8a; transform: scale(1.22); }
+
+  /* 7. easing compare — same scaleX, different timing function */
+  .t-lin { background:#2a4a6a; transition: transform 1.1s linear; }
+  .t-lin.on { transform: scaleX(1.8); }
+  .t-eio { background:#2a4a6a; transition: transform 1.1s ease-in-out; }
+  .t-eio.on { transform: scaleX(1.8); }
+</style>
+</head>
+<body>
+  <h1>CSS transitions</h1>
+  <p class="lead">Tap <strong>Toggle</strong> to add/remove <code>.on</code> on every swatch.
+  Each animates its property over its duration; tapping again reverses it mid-flight
+  (the interruption starts from the current value, not a jump). The last two scale by
+  the same amount with different timing functions — watch the <code>linear</code> one move
+  at a steady rate while <code>ease-in-out</code> starts slow, speeds up, then eases out.</p>
+
+  <button id="toggle">Toggle animation</button>
+
+  <div id="stage">
+    <div class="row"><div class="label">background-color 0.5s</div><div class="swatch t-bg">bg</div></div>
+    <div class="row"><div class="label">opacity 0.6s</div><div class="swatch t-op">opacity</div></div>
+    <div class="row"><div class="label">transform scale 0.5s ease-out</div><div class="swatch t-tf">scale</div></div>
+    <div class="row"><div class="label">color 0.5s</div><div class="swatch t-col">text color</div></div>
+    <div class="row"><div class="label">border-color 0.5s</div><div class="swatch t-bd">border</div></div>
+    <div class="row"><div class="label">bg + transform, cubic-bezier 0.7s</div><div class="swatch t-multi">multi</div></div>
+    <div class="row"><div class="label">scaleX 1.1s linear</div><div class="swatch t-lin">linear</div></div>
+    <div class="row"><div class="label">scaleX 1.1s ease-in-out</div><div class="swatch t-eio">ease-in-out</div></div>
+  </div>
+
+  <script>
+    document.getElementById('toggle').addEventListener('click', function () {
+      var swatches = document.querySelectorAll('.swatch');
+      for (var i = 0; i < swatches.length; i++) swatches[i].classList.toggle('on');
+    });
+  </script>
+</body>
+</html>

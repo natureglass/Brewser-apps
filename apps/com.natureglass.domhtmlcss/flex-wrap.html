@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>flex-wrap — brewser</title>
+<style>
+  body { background:#0b1220; color:#e0e8f4; font:16px/1.5 system-ui, sans-serif; padding:24px 32px; }
+  h1 { color:#ffd35e; }
+  h2 { color:#7aa2ff; margin-top:26px; font-size:18px; }
+  p.desc { color:#9bb1d6; font-size:14px; margin:4px 0 10px; }
+  code { color:#ffd35e; font-family:monospace; }
+  .box { background:#131c30; border:1px solid #2a3a5c; border-radius:8px; padding:10px; }
+  .chip { background:#22304d; color:#cfe0ff; border:1px solid #35507d;
+          border-radius:6px; padding:8px 0; text-align:center; }
+
+  /* 1. Basic wrap: seven 140px chips in a 520px row → three rows. */
+  .wrap-basic { display:flex; flex-wrap:wrap; gap:10px; width:520px; }
+  .wrap-basic .chip { width:140px; }
+
+  /* 2. align-content on a fixed-HEIGHT multi-line container. */
+  .wrap-ac { display:flex; flex-wrap:wrap; gap:10px; width:520px; height:240px;
+             align-content:space-between; }
+  .wrap-ac .chip { width:150px; }
+
+  /* 3. align-self overrides align-items per item (single line). */
+  .selfrow { display:flex; gap:10px; height:120px; align-items:flex-start; width:520px; }
+  .selfrow .chip { width:110px; }
+  .selfrow .s-center  { align-self:center;    background:#2d4a34; border-color:#4c7d5a; }
+  .selfrow .s-end     { align-self:flex-end;  background:#4a3a2d; border-color:#7d5f35; }
+  .selfrow .s-stretch { align-self:stretch;   background:#3a2d4a; border-color:#5f357d; }
+
+  /* 4. justify-content: space-evenly. */
+  .evenly { display:flex; justify-content:space-evenly; width:520px; }
+  .evenly .chip { width:120px; }
+
+  /* 5. wrap-reverse via the flex-flow shorthand: lines stack bottom-up. */
+  .wrap-rev { display:flex; flex-flow:row wrap-reverse; gap:10px; width:520px; }
+  .wrap-rev .chip { width:140px; }
+</style>
+</head>
+<body>
+  <h1>flex-wrap</h1>
+  <p class="desc">Multi-line flexbox: <code>flex-wrap</code>, <code>align-content</code>,
+  <code>align-self</code>, <code>justify-content: space-evenly</code>, and the
+  <code>flex-flow</code> shorthand. Each grey box is 520px wide.</p>
+
+  <h2>1 — flex-wrap: wrap</h2>
+  <p class="desc">Seven 140px chips wrap onto three rows (3 · 3 · 1).</p>
+  <div class="box wrap-basic">
+    <div class="chip">one</div><div class="chip">two</div><div class="chip">three</div>
+    <div class="chip">four</div><div class="chip">five</div><div class="chip">six</div>
+    <div class="chip">seven</div>
+  </div>
+
+  <h2>2 — align-content: space-between</h2>
+  <p class="desc">Six chips wrap to two rows inside a fixed 240px-tall box; the rows
+  spread to the top and bottom edges.</p>
+  <div class="box wrap-ac">
+    <div class="chip">A</div><div class="chip">B</div><div class="chip">C</div>
+    <div class="chip">D</div><div class="chip">E</div><div class="chip">F</div>
+  </div>
+
+  <h2>3 — align-self</h2>
+  <p class="desc">The row is <code>align-items: flex-start</code>. Overrides:
+  green = <code>center</code>, amber = <code>flex-end</code>, purple = <code>stretch</code>.</p>
+  <div class="box selfrow">
+    <div class="chip">start</div>
+    <div class="chip s-center">center</div>
+    <div class="chip s-end">end</div>
+    <div class="chip s-stretch">stretch</div>
+  </div>
+
+  <h2>4 — justify-content: space-evenly</h2>
+  <p class="desc">Equal gaps before, between, and after the three items.</p>
+  <div class="box evenly">
+    <div class="chip">x</div><div class="chip">y</div><div class="chip">z</div>
+  </div>
+
+  <h2>5 — flex-flow: row wrap-reverse</h2>
+  <p class="desc">Five chips wrap to two lines that stack bottom-up: the first
+  line (1 · 2 · 3) sits at the bottom, the second (4 · 5) on top.</p>
+  <div class="box wrap-rev">
+    <div class="chip">1</div><div class="chip">2</div><div class="chip">3</div>
+    <div class="chip">4</div><div class="chip">5</div>
+  </div>
+</body>
+</html>

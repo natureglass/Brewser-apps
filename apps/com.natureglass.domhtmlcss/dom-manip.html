@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>DOM: before/after/replaceWith/replaceChildren/normalize + Event retarget — brewser</title>
+<style>
+  body { background:#0b1220; color:#e0e8f4; font:15px/1.5 system-ui, sans-serif; padding:20px 28px; }
+  h1 { color:#ffd35e; font-size:20px; }
+  h2 { color:#7aa2ff; font-size:16px; margin:20px 0 6px; }
+  #summary { font-size:18px; font-weight:700; padding:8px 14px; border-radius:8px; display:inline-block; margin:8px 0 4px; }
+  #summary.ok  { background:#123021; color:#7eda9f; border:1px solid #2f7d54; }
+  #summary.bad { background:#3a1620; color:#ff8fa3; border:1px solid #a13850; }
+  ul.results { list-style:none; padding:0; margin:6px 0; }
+  ul.results li { font-family:monospace; font-size:13px; padding:3px 8px; border-radius:4px; margin:2px 0; }
+  li.pass { color:#9fe3bb; background:#0f1f17; }
+  li.fail { color:#ffb3c0; background:#2a1119; }
+  #host, #evhost, #names { display:none; }
+</style>
+</head>
+<body>
+  <h1>DOM manipulation · ChildNode/ParentNode methods · normalize · Event retarget</h1>
+  <div id="summary">running…</div>
+
+  <div id="host"></div>
+  <div id="evhost"></div>
+  <div id="names"><input name="grp"><input name="grp"><input name="other"></div>
+
+  <h2>Results</h2>
+  <ul class="results" id="results"></ul>
+
+  <script>
+    (function () {
+      var pass = 0, fail = 0;
+      var out = document.getElementById('results');
+      function row(name, ok, detail) {
+        var li = document.createElement('li');
+        li.textContent = (ok ? 'PASS  ' : 'FAIL  ') + name + (detail ? '   (' + detail + ')' : '');
+        li.className = ok ? 'pass' : 'fail';
+        out.appendChild(li);
+        if (ok) { pass++; } else { fail++; }
+      }
+      function eq(name, actual, expected) { row(name, actual === expected, 'got ' + actual + ', want ' + expected); }
+      function ok(name, cond) { row(name, !!cond, cond ? '' : 'expected truthy'); }
+
+      function mk(k) { var d = document.createElement('div'); d.setAttribute('data-k', k); return d; }
+      function seq(el) {
+        var s = [], ns = el.childNodes;
+        for (var i = 0; i < ns.length; i++) {
+          var n = ns[i];
+          s.push(n.nodeType === 3 ? ('"' + n.nodeValue + '"') : n.getAttribute('data-k'));
+        }
+        return s.join(',');
+      }
+
+      try {
+        // --- ChildNode.before / after / replaceWith ---
+        var host = document.getElementById('host');
+        host.appendChild(mk('A'));
+        var b = mk('B'); host.appendChild(b);
+        host.appendChild(mk('C'));
+        eq('setup order', seq(host), 'A,B,C');
+
+        b.before(mk('X'), 'txt');
+        eq('before(el, str)', seq(host), 'A,X,"txt",B,C');
+
+        b.after('yy', mk('Y'));
+        eq('after(str, el)', seq(host), 'A,X,"txt",B,"yy",Y,C');
+
+        b.replaceWith(mk('Z'));
+        eq('replaceWith(el)', seq(host), 'A,X,"txt",Z,"yy",Y,C');
+        ok('replaceWith detaches old', !b.parentNode);
+
+        // --- ParentNode.replaceChildren ---
+        host.replaceChildren(mk('P'), 'mid', mk('Q'));
+        eq('replaceChildren(el, str, el)', seq(host), 'P,"mid",Q');
+        host.replaceChildren();
+        eq('replaceChildren() clears', seq(host), '');
+
+        // --- Node.normalize (append(str) makes one Text node each) ---
+        var nz = document.createElement('div');
+        nz.append('foo', 'bar', '', 'baz');
+        eq('pre-normalize child count', nz.childNodes.length, 4);
+        nz.normalize();
+        eq('post-normalize child count', nz.childNodes.length, 1);
+        eq('normalize merged text', nz.childNodes[0].nodeValue, 'foobarbaz');
+
+        var lead = document.createElement('div');
+        lead.append('', 'keep');
+        lead.normalize();
+        eq('normalize drops leading empty', lead.childNodes.length, 1);
+        eq('normalize leading value', lead.childNodes[0].nodeValue, 'keep');
+
+        // --- getElementsByName ---
+        var names = document.getElementById('names');
+        eq('getElementsByName count', names.getElementsByName('grp').length, 2);
+        eq('getElementsByName other', names.getElementsByName('other').length, 1);
+      } catch (err) {
+        row('DOM method suite threw', false, String(err));
+      }
+
+      // --- Real Event target / currentTarget retarget (delegation) ---
+      try {
+        var evHost = document.getElementById('evhost');
+        var evBtn = document.createElement('button');
+        evHost.appendChild(evBtn);
+        var gotTarget = 'unset', gotCurrent = 'unset', delegated = 'unset';
+        evBtn.addEventListener('ping', function (e) { gotTarget = e.target; gotCurrent = e.currentTarget; });
+        evHost.addEventListener('ping', function (e) { delegated = e.target; });
+        evBtn.dispatchEvent(new Event('ping', { bubbles: true }));
+        ok('new Event(): e.target = origin', gotTarget === evBtn);
+        ok('new Event(): e.currentTarget = handler node', gotCurrent === evBtn);
+        ok('retarget survives bubble (delegation)', delegated === evBtn);
+      } catch (err) {
+        row('Event retarget threw', false, String(err));
+      }
+
+      var sum = document.getElementById('summary');
+      sum.textContent = fail === 0
+        ? ('All ' + pass + ' assertions passed ✓')
+        : (pass + ' passed · ' + fail + ' FAILED');
+      sum.className = fail === 0 ? 'ok' : 'bad';
+    })();
+  </script>
+</body>
+</html>

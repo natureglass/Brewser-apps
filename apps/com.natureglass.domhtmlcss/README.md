@@ -1,6 +1,6 @@
 # DOM HTML CSS
 
-_v1.0.3_
+_v1.0.4_
 
 **DOM HTML CSS** is a suite of self-contained fixtures for the Brewser rendering engine. Each page opens on its own and exercises exactly one part of the pipeline — document structure, the CSS cascade, embedded media, canvas and WebGL, the Web API surface, or raw paint performance — so you can see precisely how the runtime handles each feature.
 

@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>position: sticky — brewser</title>
+<style>
+  body { background:#0b1220; color:#e0e8f4; font-size:17px; margin:0; padding:0;
+         font-family: system-ui, sans-serif; }
+  .wrap { padding: 0 24px 40px; }
+  h1 { color:#ffd35e; }
+  code { color:#ffd35e; font-family: monospace; }
+  a { color:#7eda9f; }
+  p { color:#c3d2ea; line-height:1.5; }
+
+  /* Page-level sticky top bar: pins to the very top of the viewport while
+     the whole document scrolls. Its containing block is <body>, so it stays
+     pinned until the page bottom. */
+  .topbar {
+    position: sticky; top: 0; z-index: 10;
+    height: 52px; box-sizing: border-box;
+    background:#16233c; border-bottom:2px solid #7aa2ff;
+    padding:0 24px;
+    display:flex; gap:14px; align-items:center;
+  }
+  .topbar strong { color:#ffd35e; }
+  .topbar a, .topbar button {
+    color:#7eda9f; background:#22304d; border:1px solid #35507d;
+    border-radius:6px; padding:5px 12px; font-size:15px; text-decoration:none;
+    cursor:pointer;
+  }
+  #status { color:#9bb1d6; font-size:14px; margin-left:auto; }
+
+  /* Each section is the containing block for its own sticky heading. The
+     heading pins at top:56px (just under the 52px bar) while the section is
+     in view, then RELEASES and scrolls away once the section's bottom edge
+     passes — proving the containing-block clamp. */
+  .section { margin-top: 20px; border:1px solid #2a3a5c; border-radius:8px; }
+  .section > h2 {
+    position: sticky; top: 56px;
+    margin:0; padding:12px 16px;
+    background:#1d2c48; color:#7aa2ff; border-bottom:1px solid #2a3a5c;
+    border-radius:8px 8px 0 0;
+  }
+  .section > .content { padding: 16px; }
+  .filler { height: 820px; background:
+      repeating-linear-gradient(#111a2e, #111a2e 40px, #0e1526 40px, #0e1526 80px);
+      border-radius:6px; margin:12px 0; }
+
+  /* Bottom-anchored sticky: pins B=0 above the viewport bottom until the
+     page has scrolled far enough that its natural spot is on-screen. */
+  .footnote {
+    position: sticky; bottom: 0; z-index: 9;
+    background:#2a1d3c; color:#e6b3ff; border-top:2px solid #b06fff;
+    padding:12px 24px; text-align:center; font-size:15px;
+  }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <strong>Sticky</strong>
+    <a href="index.html">home</a>
+    <button id="ping">ping (pinned tap)</button>
+    <span id="status">scroll ↓ — bar stays pinned</span>
+  </div>
+
+  <div class="wrap">
+    <h1>position: sticky</h1>
+    <p>The bar above is <code>position: sticky; top: 0</code> — it scrolls with the
+    page until it reaches the top, then pins there. Each section heading is
+    <code>position: sticky; top: 56px</code>, so it pins just under the bar, then
+    detaches and scrolls off when its own section ends. The purple footnote is
+    <code>position: sticky; bottom: 0</code>.</p>
+    <p>Tap <strong>ping</strong> in the bar after scrolling down: if the tap
+    registers while the bar is pinned, the status text on the right changes —
+    that confirms hit-testing tracks the stuck position.</p>
+
+    <div class="section">
+      <h2>Section A — pins, then releases</h2>
+      <div class="content">
+        <p>This heading pins under the top bar as you scroll…</p>
+        <div class="filler"></div>
+        <p>…and detaches here at Section A's bottom edge, scrolling up as
+        Section B's heading takes over.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Section B — independent containing block</h2>
+      <div class="content">
+        <p>Same behavior, clamped to its own section.</p>
+        <div class="filler"></div>
+        <p>End of Section B.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Section C — last section</h2>
+      <div class="content">
+        <p>Keep going to reach the bottom-sticky footnote.</p>
+        <div class="filler"></div>
+        <p>End of Section C.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="footnote">position: sticky; bottom: 0 — pinned footnote</div>
+
+  <script>
+    // Hit-test proof: the ping button lives in the pinned bar. Tapping it
+    // (no navigation) flips the status text. If sticky hit-testing were
+    // broken, a tap at the pinned on-screen position would miss the button.
+    var n = 0;
+    document.getElementById('ping').addEventListener('click', function () {
+      n += 1;
+      document.getElementById('status').textContent = 'pinned tap OK ×' + n;
+    });
+  </script>
+</body>
+</html>
