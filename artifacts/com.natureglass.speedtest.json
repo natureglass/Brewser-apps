@@ -3,9 +3,10 @@
     "README.md",
     "assets/appbanner.gif",
     "assets/appbanner.jpg",
+    "assets/speedtest_logo.png",
     "index.html",
     "manifest.json"
   ],
   "id": "com.natureglass.speedtest",
-  "sizeBytes": 1254215
+  "sizeBytes": 1250750
 }

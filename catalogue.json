@@ -571,12 +571,12 @@
       "name": "Speed Test",
       "permissions": [],
       "publishedAt": "2026-08-06T10:18:02Z",
-      "sizeBytes": 1254215,
+      "sizeBytes": 1250750,
       "summary": "Measure your internet speed against Cloudflare on an animated needle gauge.",
       "tags": [
         "Diagnostics"
       ],
-      "version": "1.0.2"
+      "version": "1.0.3"
     },
     {
       "categories": [
@@ -897,7 +897,7 @@
     }
   ],
   "defaultSource": "base",
-  "generated": "2026-09-04T14:30:00Z",
+  "generated": "2026-09-04T14:33:38Z",
   "revoked": [],
   "sources": {
     "base": "https://play.brewser.io",
