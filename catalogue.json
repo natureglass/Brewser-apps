@@ -299,7 +299,7 @@
       "name": "HA Widget Grid",
       "permissions": [],
       "publishedAt": "2026-08-31T21:23:39Z",
-      "sizeBytes": 264570,
+      "sizeBytes": 267257,
       "summary": "A live Home Assistant dashboard that auto-discovers your entities by area and controls lights, switc",
       "version": "1.0.1"
     },
@@ -897,7 +897,7 @@
     }
   ],
   "defaultSource": "base",
-  "generated": "2026-09-04T14:13:26Z",
+  "generated": "2026-09-04T14:17:36Z",
   "revoked": [],
   "sources": {
     "base": "https://play.brewser.io",
