@@ -3,7 +3,6 @@
     "README.md",
     "assets/appbanner.gif",
     "assets/appbanner.jpg",
-    "assets/speedtest_logo.png",
     "brewser-sw.js",
     "index.html",
     "manifest.json",
@@ -15,5 +14,5 @@
     "pwa/icon-maskable.png"
   ],
   "id": "com.natureglass.speedwatch",
-  "sizeBytes": 3314124
+  "sizeBytes": 3317415
 }
