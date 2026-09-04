@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-04T09:45:43Z",
+  "generated": "2026-09-04T12:40:15Z",
   "stats": {
     "com.natureglass.2dplatformermicrogame": {
       "downloads": 0,
@@ -43,7 +43,7 @@
       "ratingScore": 4.7222
     },
     "com.natureglass.fsrlab": {
-      "downloads": 0,
+      "downloads": 1,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.8889
