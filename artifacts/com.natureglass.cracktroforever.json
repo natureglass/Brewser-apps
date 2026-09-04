@@ -1,10 +1,11 @@
 {
   "files": [
     "README.md",
+    "assets/appbanner.gif",
     "assets/appbanner.jpg",
     "index.html",
     "manifest.json"
   ],
   "id": "com.natureglass.cracktroforever",
-  "sizeBytes": 71236
+  "sizeBytes": 1964730
 }

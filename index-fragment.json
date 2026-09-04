@@ -108,11 +108,11 @@
       "id": "com.natureglass.cracktroforever",
       "license": "MIT",
       "logo": "assets/appbanner.jpg",
-      "maxFileBytes": 40336,
+      "maxFileBytes": 1893494,
       "name": "Cracktro Forever",
       "permissions": [],
       "publishedAt": "2026-09-04T13:52:43Z",
-      "sizeBytes": 71236,
+      "sizeBytes": 1964730,
       "summary": "A love letter to the scene that raised us!",
       "tags": [
         "Demoscene",
@@ -922,6 +922,6 @@
       "version": "1.0.2"
     }
   ],
-  "generated": "2026-09-04T14:11:59Z",
+  "generated": "2026-09-04T14:13:25Z",
   "source": "base"
 }
