@@ -1,6 +1,6 @@
 # Cracktro Forever
 
-_v1.0.0_
+_v1.0.1_
 
 A procedural tribute to the classic Amiga cracktro and demoscene, created for the Switch homebrew community.
 

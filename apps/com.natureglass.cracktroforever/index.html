@@ -188,15 +188,19 @@ void main(){
   gl_FragColor = vec4(acc * uAlpha, 1.0);
 }`;
 
-/* Effect 3: 3D STARFIELD - seeds in a unit cube, z wraps with time. */
+/* Effect 3: 3D STARFIELD - seeds in a unit cube. Constant drift, decoupled
+   from the music: uZ is an accumulated phase (can reverse), uRot slowly
+   rotates the whole field. */
 const VS_STARS = `
 attribute vec3 aSeed;
-uniform vec2 uRes; uniform float uT, uSpeed;
+uniform vec2 uRes; uniform float uZ, uRot;
 varying float vB;
 void main(){
-  float z  = fract(aSeed.z - uT*uSpeed);
+  float z  = fract(aSeed.z - uZ);
   float zz = z*0.94 + 0.06;
-  vec2 p = aSeed.xy / zz;
+  float cs = cos(uRot), sn = sin(uRot);
+  vec2 xy = vec2(aSeed.x*cs - aSeed.y*sn, aSeed.x*sn + aSeed.y*cs);
+  vec2 p = xy / zz;
   p.x *= uRes.y / uRes.x;
   vB = 1.0 - z;
   gl_PointSize = 1.0 + 5.0*vB*vB;
@@ -231,7 +235,11 @@ void main(){
     float x = uRes.x - uScroll + (cell.x + 0.5)*uScale;
     float y = uOrigin.y + sin(x*uFreq + uT*1.8)*uAmp - (cell.y + 0.5)*uScale;
     c = vec2(x, y);
-    col = pal(x*0.0007 - uT*0.22)*1.15;
+    /* chrome: bright top fading to steel, hard seam, relit lower edge */
+    float fy = (cell.y + 0.5)/8.0;
+    float b = fy < 0.45 ? mix(1.05, 0.55, fy/0.45)
+                        : mix(0.30, 1.0, (fy - 0.45)/0.55);
+    col = vec3(b) * vec3(0.93, 0.96, 1.04);
   } else if (uMode < 1.5){                            /* logo */
     float b = abs(sin(uT*6.545))*uAmp;                /* cusp lands on every beat */
     float x = uOrigin.x + (cell.x + 0.5)*uScale + sin(uT*0.7)*uRes.x*0.012;
@@ -264,9 +272,16 @@ void main(){
   gl_FragColor = vec4(vec3(s*v*f), 1.0);
 }`;
 
+/* Darken pass - multiplies everything drawn so far, so text on top pops */
+const FS_DIM = `
+precision mediump float;
+uniform float uDim;
+void main(){ gl_FragColor = vec4(vec3(uDim), 1.0); }`;
+
 const progPlasma = program(VS_QUAD, FS_PLASMA);
 const progCopper = program(VS_QUAD, FS_COPPER);
 const progScan   = program(VS_QUAD, FS_SCAN);
+const progDim    = program(VS_QUAD, FS_DIM);
 const progStars  = program(VS_STARS, FS_STARS);
 const progGlyph  = program(VS_GLYPH, FS_GLYPH);
 
@@ -281,7 +296,7 @@ gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.ST
 /* stars: seeded LCG so even the randomness is reproducible */
 let lcg = 0xC0FFEE;
 function rnd(){ lcg = (lcg*1664525 + 1013904223) >>> 0; return lcg/4294967296; }
-const STAR_COUNT = 600;
+const STAR_COUNT = 1800;
 const starData = new Float32Array(STAR_COUNT*3);
 for (let i = 0; i < STAR_COUNT; i++){
   starData[i*3]   = (rnd()*2 - 1)*0.9;
@@ -497,7 +512,7 @@ function sceneTargets(p){
 /* ---------------------------------------------------------------------
    8. RENDER LOOP
 --------------------------------------------------------------------- */
-let started = false, lastNow = 0;
+let started = false, lastNow = 0, starZ = 0;
 
 function resize(){
   const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
@@ -572,17 +587,25 @@ function frame(now){
   });
 
   if (alphas.stars > 0.01){
+    /* mostly drifts forward, slows, occasionally reverses */
+    starZ += dt*(0.02 + 0.10*Math.sin(t*0.055));
     gl.useProgram(progStars);
     gl.bindBuffer(gl.ARRAY_BUFFER, starBuf);
     const loc = gl.getAttribLocation(progStars, "aSeed");
     gl.enableVertexAttribArray(loc);
     gl.vertexAttribPointer(loc, 3, gl.FLOAT, false, 0, 0);
     gl.uniform2f(U(progStars,"uRes"), W, H);
-    gl.uniform1f(U(progStars,"uT"), t);
-    gl.uniform1f(U(progStars,"uSpeed"), 0.09 + 0.16*beat);
+    gl.uniform1f(U(progStars,"uZ"), starZ);
+    gl.uniform1f(U(progStars,"uRot"), t*0.03);
     gl.uniform1f(U(progStars,"uAlpha"), alphas.stars);
     gl.drawArrays(gl.POINTS, 0, STAR_COUNT);
   }
+
+  /* darken the background stack; text drawn after this stays bright */
+  const BG_DIM = 0.55;
+  gl.blendFunc(gl.ZERO, gl.SRC_COLOR);
+  drawQuad(progDim, pr => { gl.uniform1f(U(pr,"uDim"), BG_DIM); });
+  gl.blendFunc(gl.ONE, gl.ONE);
 
   /* logo */
   if (alphas.logo > 0.01){
