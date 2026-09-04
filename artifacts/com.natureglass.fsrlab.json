@@ -1,10 +1,11 @@
 {
   "files": [
     "README.md",
+    "assets/appbanner.gif",
     "assets/appbanner.jpg",
     "index.html",
     "manifest.json"
   ],
   "id": "com.natureglass.fsrlab",
-  "sizeBytes": 68355
+  "sizeBytes": 1723737
 }
