@@ -1,11 +1,11 @@
 {
-  "generated": "2026-09-03T12:40:14Z",
+  "generated": "2026-09-04T09:45:43Z",
   "stats": {
     "com.natureglass.2dplatformermicrogame": {
       "downloads": 0,
       "ratingAvg": 5,
       "ratingCount": 1,
-      "ratingScore": 4.9074
+      "ratingScore": 4.8889
     },
     "com.natureglass.aether": {
       "downloads": 2,
@@ -14,32 +14,45 @@
     },
     "com.natureglass.compass": {
       "downloads": 2,
-      "ratingAvg": 0,
-      "ratingCount": 0
+      "ratingAvg": 5,
+      "ratingCount": 1,
+      "ratingScore": 4.8889
+    },
+    "com.natureglass.domhtmlcss": {
+      "downloads": 1,
+      "ratingAvg": 5,
+      "ratingCount": 1,
+      "ratingScore": 4.8889
     },
     "com.natureglass.dusk": {
       "downloads": 5,
       "ratingAvg": 5,
       "ratingCount": 1,
-      "ratingScore": 4.9074
+      "ratingScore": 4.8889
     },
     "com.natureglass.fluiddynamics": {
       "downloads": 7,
       "ratingAvg": 5,
       "ratingCount": 1,
-      "ratingScore": 4.9074
+      "ratingScore": 4.8889
     },
     "com.natureglass.fractalzoom": {
       "downloads": 2,
       "ratingAvg": 4,
       "ratingCount": 1,
-      "ratingScore": 4.7407
+      "ratingScore": 4.7222
+    },
+    "com.natureglass.fsrlab": {
+      "downloads": 0,
+      "ratingAvg": 5,
+      "ratingCount": 1,
+      "ratingScore": 4.8889
     },
     "com.natureglass.gravityballs": {
       "downloads": 2,
       "ratingAvg": 5,
       "ratingCount": 1,
-      "ratingScore": 4.9074
+      "ratingScore": 4.8889
     },
     "com.natureglass.hawidgetgrid": {
       "downloads": 1,
@@ -58,13 +71,15 @@
     },
     "com.natureglass.midisurface": {
       "downloads": 5,
-      "ratingAvg": 0,
-      "ratingCount": 0
+      "ratingAvg": 5,
+      "ratingCount": 1,
+      "ratingScore": 4.8889
     },
     "com.natureglass.neuralnetworks": {
       "downloads": 1,
-      "ratingAvg": 0,
-      "ratingCount": 0
+      "ratingAvg": 5,
+      "ratingCount": 1,
+      "ratingScore": 4.8889
     },
     "com.natureglass.nxjswebgl2test": {
       "downloads": 1,
@@ -80,7 +95,7 @@
       "downloads": 1,
       "ratingAvg": 5,
       "ratingCount": 1,
-      "ratingScore": 4.9074
+      "ratingScore": 4.8889
     },
     "com.natureglass.speedtest": {
       "downloads": 1,
@@ -94,8 +109,9 @@
     },
     "com.natureglass.streamcast": {
       "downloads": 3,
-      "ratingAvg": 0,
-      "ratingCount": 0
+      "ratingAvg": 4,
+      "ratingCount": 1,
+      "ratingScore": 4.7222
     },
     "com.natureglass.threejsdynamiccubemapreflection": {
       "downloads": 1,
@@ -106,7 +122,7 @@
       "downloads": 0,
       "ratingAvg": 5,
       "ratingCount": 1,
-      "ratingScore": 4.9074
+      "ratingScore": 4.8889
     },
     "com.natureglass.threejsloadercollada": {
       "downloads": 1,
@@ -117,7 +133,7 @@
       "downloads": 2,
       "ratingAvg": 5,
       "ratingCount": 1,
-      "ratingScore": 4.9074
+      "ratingScore": 4.8889
     },
     "com.natureglass.threejsrapier3dphysics": {
       "downloads": 1,
@@ -128,7 +144,7 @@
       "downloads": 2,
       "ratingAvg": 5,
       "ratingCount": 1,
-      "ratingScore": 4.9074
+      "ratingScore": 4.8889
     },
     "com.natureglass.threejsshaderssky": {
       "downloads": 2,
