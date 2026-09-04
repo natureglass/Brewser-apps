@@ -1,6 +1,6 @@
 # Speed Test
 
-_v1.0.1_
+_v1.0.2_
 
 **Speed Test** checks how fast your internet connection really is, measuring against Cloudflare's global network and showing the results on an animated needle gauge with live metric tiles and a diagnostics log.
 
@@ -16,7 +16,7 @@ _v1.0.1_
 
 ---
 
-- **Developer:** @natureglass
+- **Developer:** natureglass
 - **Brewser profile:** [natureglass](https://brewser.io/profile?publisher=natureglass)
 - **License:** [MIT](https://choosealicense.com/licenses/mit)
 - **Website:** [https://github.com/natureglass](https://github.com/natureglass)
