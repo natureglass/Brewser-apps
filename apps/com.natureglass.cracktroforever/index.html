@@ -1,0 +1,700 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CRACKTRO FOREVER</title>
+<style>
+  html,body{margin:0;padding:0;background:#000;height:100%;overflow:hidden}
+  canvas{display:block;width:100vw;height:100vh}
+  #start{
+    position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    background:rgba(0,0,0,.72);color:#9fe8ff;font-family:"Courier New",monospace;text-align:center;
+    letter-spacing:.25em;user-select:none;cursor:pointer;z-index:10;
+    transition:opacity .6s ease;
+  }
+  #start h1{
+    font-size:clamp(22px,5vw,54px);margin:0 0 .6em 0;font-weight:bold;
+    color:#fff;text-shadow:0 0 8px #37f,0 0 22px #63f,0 0 40px #a3f;
+  }
+  #start .blink{font-size:clamp(13px,2.2vw,20px);animation:bl 1s steps(2,start) infinite;color:#ffe066;text-shadow:0 0 10px #f80}
+  #start .sub{font-size:clamp(10px,1.5vw,13px);margin-top:2.2em;color:#5aa;letter-spacing:.35em}
+  @keyframes bl{50%{opacity:0}}
+  #err{position:fixed;inset:0;display:none;align-items:center;justify-content:center;color:#f66;font-family:monospace;background:#000;z-index:20;padding:2em;text-align:center}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="start">
+  <h1>CRACKTRO FOREVER</h1>
+  <div class="blink">CLICK / PRESS ANY KEY / PRESS FIRE</div>
+  <div class="sub">SOUND ON &nbsp;&middot;&nbsp; M MUTE &nbsp;&middot;&nbsp; F FULLSCREEN<br><br>100 PERCENT PROCEDURAL &nbsp;&middot;&nbsp; NO ASSETS &nbsp;&middot;&nbsp; ONE FILE</div>
+</div>
+<div id="err"></div>
+<script>
+"use strict";
+/* =====================================================================
+   CRACKTRO FOREVER
+   A tribute to the Amiga cracking / demo scene.
+   One file. No textures, no assets, no libraries.
+   Geometry from math, music from oscillators, WebGL1 all the way.
+   ===================================================================== */
+
+/* ---------------------------------------------------------------------
+   1. FONT ROM - 8x8 glyphs as bit patterns, exactly like chip RAM.
+      'X' = pixel on. Row 8 left blank for line spacing.
+--------------------------------------------------------------------- */
+const FONT_SRC = {
+"A":".XXXX./XX..XX/XX..XX/XXXXXX/XX..XX/XX..XX/XX..XX",
+"B":"XXXXX./XX..XX/XX..XX/XXXXX./XX..XX/XX..XX/XXXXX.",
+"C":".XXXX./XX..XX/XX..../XX..../XX..../XX..XX/.XXXX.",
+"D":"XXXXX./XX..XX/XX..XX/XX..XX/XX..XX/XX..XX/XXXXX.",
+"E":"XXXXXX/XX..../XX..../XXXXX./XX..../XX..../XXXXXX",
+"F":"XXXXXX/XX..../XX..../XXXXX./XX..../XX..../XX....",
+"G":".XXXX./XX..XX/XX..../XX.XXX/XX..XX/XX..XX/.XXXX.",
+"H":"XX..XX/XX..XX/XX..XX/XXXXXX/XX..XX/XX..XX/XX..XX",
+"I":"XXXXXX/..XX../..XX../..XX../..XX../..XX../XXXXXX",
+"J":"..XXXX/...XX./...XX./...XX./...XX./XX.XX./.XXX..",
+"K":"XX..XX/XX.XX./XXXX../XXX.../XXXX../XX.XX./XX..XX",
+"L":"XX..../XX..../XX..../XX..../XX..../XX..../XXXXXX",
+"M":"XX...XX/XXX.XXX/XXXXXXX/XX.X.XX/XX...XX/XX...XX/XX...XX",
+"N":"XX..XX/XXX.XX/XXXXXX/XX.XXX/XX..XX/XX..XX/XX..XX",
+"O":".XXXX./XX..XX/XX..XX/XX..XX/XX..XX/XX..XX/.XXXX.",
+"P":"XXXXX./XX..XX/XX..XX/XXXXX./XX..../XX..../XX....",
+"Q":".XXXX./XX..XX/XX..XX/XX..XX/XX.XXX/XX..XX/.XXXXX",
+"R":"XXXXX./XX..XX/XX..XX/XXXXX./XXXX../XX.XX./XX..XX",
+"S":".XXXXX/XX..../XX..../.XXXX./....XX/....XX/XXXXX.",
+"T":"XXXXXX/..XX../..XX../..XX../..XX../..XX../..XX..",
+"U":"XX..XX/XX..XX/XX..XX/XX..XX/XX..XX/XX..XX/.XXXX.",
+"V":"XX..XX/XX..XX/XX..XX/XX..XX/XX..XX/.XXXX./..XX..",
+"W":"XX...XX/XX...XX/XX...XX/XX.X.XX/XXXXXXX/XXX.XXX/XX...XX",
+"X":"XX..XX/XX..XX/.XXXX./..XX../.XXXX./XX..XX/XX..XX",
+"Y":"XX..XX/XX..XX/.XXXX./..XX../..XX../..XX../..XX..",
+"Z":"XXXXXX/....XX/...XX./..XX../.XX.../XX..../XXXXXX",
+"0":".XXXX./XX..XX/XX.XXX/XXX.XX/XX..XX/XX..XX/.XXXX.",
+"1":"..XX../.XXX../..XX../..XX../..XX../..XX../XXXXXX",
+"2":".XXXX./XX..XX/....XX/...XX./..XX../.XX.../XXXXXX",
+"3":".XXXX./XX..XX/....XX/..XXX./....XX/XX..XX/.XXXX.",
+"4":"...XXX/..XXXX/.XX.XX/XX..XX/XXXXXX/....XX/....XX",
+"5":"XXXXXX/XX..../XXXXX./....XX/....XX/XX..XX/.XXXX.",
+"6":".XXXX./XX..../XX..../XXXXX./XX..XX/XX..XX/.XXXX.",
+"7":"XXXXXX/....XX/...XX./..XX../..XX../..XX../..XX..",
+"8":".XXXX./XX..XX/XX..XX/.XXXX./XX..XX/XX..XX/.XXXX.",
+"9":".XXXX./XX..XX/XX..XX/.XXXXX/....XX/....XX/.XXXX.",
+".":"....../....../....../....../....../..XX../..XX..",
+",":"....../....../....../....../..XX../..XX../.XX...",
+"!":"..XX../..XX../..XX../..XX../..XX../....../..XX..",
+"?":".XXXX./XX..XX/....XX/...XX./..XX../....../..XX..",
+"-":"....../....../....../XXXXXX/....../....../......",
+"+":"....../..XX../..XX../XXXXXX/..XX../..XX../......",
+":":"....../..XX../..XX../....../..XX../..XX../......",
+"'":"..XX../..XX../.XX.../....../....../....../......",
+"/":".....X/....XX/...XX./..XX../.XX.../XX..../X.....",
+" ":"......"
+};
+const FONT = {};
+for (const k in FONT_SRC) FONT[k] = FONT_SRC[k].split("/");
+
+/* ---------------------------------------------------------------------
+   2. THE WORDS - scrolltext, logo, credit line
+--------------------------------------------------------------------- */
+const SCROLLTEXT =
+"NATUREGLASS PRESENTS ... CRACKTRO FOREVER ... A LOVE LETTER TO THE SCENE THAT RAISED US ...      " +
+"NO TEXTURES ... NO ASSETS ... NO FRAMEWORKS ... EVERY PIXEL FROM MATH, EVERY SOUND FROM OSCILLATORS, ALL IN ONE HTML FILE ...      " +
+"THE SWITCH HOMEBREW SCENE IS A CHILD OF THE CRACKING SCENE, SO GREETINGS FLY OUT TO: SCIRESM ... HEXKYZ ... TEAM ATMOSPHERE ... RESWITCHED ... SWITCHBREW ... DEVKITPRO AND WINTERMUTE ... FAIL0VERFLOW ... TOOTALLNATE AND NX.JS ... THE GBATEMP CREW ... AND EVERY TINKERER WHO EVER RAN UNSIGNED CODE ON SIGNED HARDWARE ...      " +
+"RESPECT TO THE OLD MASTERS: FAIRLIGHT ... RAZOR 1911 ... PARADOX ... SKID ROW ... KEFRENS ... PHENOMENA ... TRISTAR AND RED SECTOR ... THE SILENTS ... SANITY ... MELON DEZIGN ...      " +
+"THE CRACKTRO WAS THE FIRST DEMO MOST OF US EVER SAW: A FEW KILOBYTES OF PURE SWAGGER BOLTED ONTO SOMEBODY ELSE'S GAME, PROOF THAT THE MACHINE BELONGS TO WHOEVER UNDERSTANDS IT ...      " +
+"KEEP YOUR CONSOLES WEIRD ... KEEP YOUR CODE SMALL ... KEEP THE SCROLLERS ROLLING ...      " +
+"PRESS M TO MUTE ... PRESS NOTHING TO STAY FOREVER ...      WRAPPING IN 3 ... 2 ... 1 ...           ";
+const LOGO_LINES = ["CRACKTRO", "FOREVER"];
+const CREDIT_LINE = ["NATUREGLASS PRESENTS"];
+
+/* ---------------------------------------------------------------------
+   3. WEBGL BOILERPLATE
+--------------------------------------------------------------------- */
+const canvas = document.getElementById("c");
+const gl = canvas.getContext("webgl", {antialias:false, alpha:false, depth:false, preserveDrawingBuffer:false})
+        || canvas.getContext("experimental-webgl", {antialias:false, alpha:false});
+if (!gl) {
+  document.getElementById("err").style.display = "flex";
+  document.getElementById("err").textContent = "NO WEBGL CONTEXT ... THE GURU MEDITATES.";
+  document.getElementById("start").style.display = "none";
+  throw new Error("no webgl");
+}
+
+function compile(type, src) {
+  const s = gl.createShader(type);
+  gl.shaderSource(s, src);
+  gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS))
+    throw new Error("shader: " + gl.getShaderInfoLog(s) + "\n" + src);
+  return s;
+}
+function program(vsSrc, fsSrc) {
+  const p = gl.createProgram();
+  gl.attachShader(p, compile(gl.VERTEX_SHADER, vsSrc));
+  gl.attachShader(p, compile(gl.FRAGMENT_SHADER, fsSrc));
+  gl.linkProgram(p);
+  if (!gl.getProgramParameter(p, gl.LINK_STATUS))
+    throw new Error("link: " + gl.getProgramInfoLog(p));
+  p._u = {};
+  return p;
+}
+function U(p, name) {
+  if (!(name in p._u)) p._u[name] = gl.getUniformLocation(p, name);
+  return p._u[name];
+}
+
+/* ---------------------------------------------------------------------
+   4. SHADERS (GLSL ES 1.00, WebGL1-safe: constant loop bounds only)
+--------------------------------------------------------------------- */
+const VS_QUAD = `
+attribute vec2 aP;
+void main(){ gl_Position = vec4(aP, 0.0, 1.0); }`;
+
+/* Effect 1: PLASMA - the 30-line classic. Sum of sines -> cosine palette. */
+const FS_PLASMA = `
+precision mediump float;
+uniform vec2 uRes; uniform float uT, uAlpha, uBeat, uHue;
+void main(){
+  vec2 uv = (gl_FragCoord.xy - 0.5*uRes) / uRes.y;
+  float t = uT*0.5;
+  float v = sin(uv.x*5.0 + t)
+          + sin((uv.y*5.0 - t)*0.9)
+          + sin((uv.x+uv.y)*4.0 + t*1.4)
+          + sin(length(uv)*9.0 - t*1.8);
+  vec3 col = 0.5 + 0.5*cos(1.7*v + uHue + vec3(0.0, 2.09, 4.18) + t*0.15);
+  col *= col*1.2;
+  gl_FragColor = vec4(col * uAlpha * (0.5 + 0.25*uBeat), 1.0);
+}`;
+
+/* Effect 2: COPPER BARS - quantized horizontal rasters weaving at
+   different speeds, just like abusing the copper list per scanline. */
+const FS_COPPER = `
+precision mediump float;
+uniform vec2 uRes; uniform float uT, uAlpha, uBeat;
+void main(){
+  float y = gl_FragCoord.y / uRes.y;
+  vec3 acc = vec3(0.0);
+  for (int i = 0; i < 7; i++){
+    float fi = float(i);
+    float c = 0.5 + 0.36*sin(uT*(0.8 + fi*0.11) + fi*0.9);
+    float w = 0.045 + 0.012*uBeat;
+    float m = max(0.0, 1.0 - abs(y - c)/w);
+    m = floor(m*6.0 + 0.5)/6.0;                 /* stepped bands = raster look */
+    vec3 col = 0.5 + 0.5*cos(fi*1.05 + vec3(0.0, 2.09, 4.18));
+    acc += col * m * 0.85;
+  }
+  gl_FragColor = vec4(acc * uAlpha, 1.0);
+}`;
+
+/* Effect 3: 3D STARFIELD - seeds in a unit cube, z wraps with time. */
+const VS_STARS = `
+attribute vec3 aSeed;
+uniform vec2 uRes; uniform float uT, uSpeed;
+varying float vB;
+void main(){
+  float z  = fract(aSeed.z - uT*uSpeed);
+  float zz = z*0.94 + 0.06;
+  vec2 p = aSeed.xy / zz;
+  p.x *= uRes.y / uRes.x;
+  vB = 1.0 - z;
+  gl_PointSize = 1.0 + 5.0*vB*vB;
+  gl_Position = vec4(p, 0.0, 1.0);
+}`;
+const FS_STARS = `
+precision mediump float;
+varying float vB; uniform float uAlpha;
+void main(){
+  float d = length(gl_PointCoord - 0.5);
+  float a = smoothstep(0.5, 0.1, d);
+  vec3 c = mix(vec3(0.55, 0.7, 1.0), vec3(1.0), vB);
+  gl_FragColor = vec4(c * vB * a * uAlpha, 1.0);
+}`;
+
+/* Effects 4+5: GLYPH RENDERER - every letter pixel is a quad, positioned
+   entirely in the vertex shader.
+     uMode 0 = sine scroller  (rainbow along x)
+     uMode 1 = logo           (beat-synced bounce + raster bars per row)
+     uMode 2 = static credit  (pulsing white)                              */
+const VS_GLYPH = `
+attribute vec4 aData;            /* cell.xy = glyph pixel coords, corner.zw */
+uniform vec2 uRes, uOrigin;
+uniform float uT, uScale, uMode, uScroll, uAmp, uFreq, uFill, uBeat;
+varying vec3 vCol;
+vec3 pal(float t){ return 0.5 + 0.5*cos(6.28318*(t + vec3(0.0, 0.33, 0.67))); }
+void main(){
+  vec2 cell = aData.xy;
+  vec2 corner = aData.zw;
+  vec2 c; vec3 col;
+  if (uMode < 0.5){                                   /* scroller */
+    float x = uRes.x - uScroll + (cell.x + 0.5)*uScale;
+    float y = uOrigin.y + sin(x*uFreq + uT*1.8)*uAmp - (cell.y + 0.5)*uScale;
+    c = vec2(x, y);
+    col = pal(x*0.0007 - uT*0.22)*1.15;
+  } else if (uMode < 1.5){                            /* logo */
+    float b = abs(sin(uT*6.545))*uAmp;                /* cusp lands on every beat */
+    float x = uOrigin.x + (cell.x + 0.5)*uScale + sin(uT*0.7)*uRes.x*0.012;
+    float y = uOrigin.y + b - (cell.y + 0.5)*uScale;
+    c = vec2(x, y);
+    col = pal(cell.y*0.055 - uT*0.65) * (0.85 + 0.45*uBeat);
+  } else {                                            /* static credit */
+    c = vec2(uOrigin.x + (cell.x + 0.5)*uScale,
+             uOrigin.y - (cell.y + 0.5)*uScale);
+    col = vec3(0.9, 0.95, 1.0) * (0.65 + 0.35*(0.5 + 0.5*sin(uT*2.5)));
+  }
+  vec2 p = c + (corner - 0.5)*uScale*uFill;
+  gl_Position = vec4(p/uRes*2.0 - 1.0, 0.0, 1.0);
+  vCol = col;
+}`;
+const FS_GLYPH = `
+precision mediump float;
+varying vec3 vCol; uniform float uAlpha;
+void main(){ gl_FragColor = vec4(vCol * uAlpha, 1.0); }`;
+
+/* CRT pass - scanlines + vignette + a whisper of flicker, multiplied on top */
+const FS_SCAN = `
+precision mediump float;
+uniform vec2 uRes; uniform float uT;
+void main(){
+  float s = 0.86 + 0.14*sin(gl_FragCoord.y*3.14159);
+  vec2 q = gl_FragCoord.xy/uRes - 0.5;
+  float v = 1.0 - dot(q, q)*0.7;
+  float f = 0.985 + 0.015*sin(uT*97.0);
+  gl_FragColor = vec4(vec3(s*v*f), 1.0);
+}`;
+
+const progPlasma = program(VS_QUAD, FS_PLASMA);
+const progCopper = program(VS_QUAD, FS_COPPER);
+const progScan   = program(VS_QUAD, FS_SCAN);
+const progStars  = program(VS_STARS, FS_STARS);
+const progGlyph  = program(VS_GLYPH, FS_GLYPH);
+
+/* fullscreen quad */
+const quadBuf = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, quadBuf);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+
+/* ---------------------------------------------------------------------
+   5. GEOMETRY FROM MATH
+--------------------------------------------------------------------- */
+/* stars: seeded LCG so even the randomness is reproducible */
+let lcg = 0xC0FFEE;
+function rnd(){ lcg = (lcg*1664525 + 1013904223) >>> 0; return lcg/4294967296; }
+const STAR_COUNT = 600;
+const starData = new Float32Array(STAR_COUNT*3);
+for (let i = 0; i < STAR_COUNT; i++){
+  starData[i*3]   = (rnd()*2 - 1)*0.9;
+  starData[i*3+1] = (rnd()*2 - 1)*0.9;
+  starData[i*3+2] = rnd();
+}
+const starBuf = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, starBuf);
+gl.bufferData(gl.ARRAY_BUFFER, starData, gl.STATIC_DRAW);
+
+/* text meshes: one quad (2 tris) per lit font pixel */
+function pushQuad(v, cx, cy){
+  v.push(cx,cy,0,0,  cx,cy,1,0,  cx,cy,1,1,
+         cx,cy,0,0,  cx,cy,1,1,  cx,cy,0,1);
+}
+function buildTextMesh(lines, centered){
+  const v = [];
+  let rowOff = 0;
+  for (const line of lines){
+    const xOff = centered ? -(line.length*8)/2 : 0;
+    for (let i = 0; i < line.length; i++){
+      const g = FONT[line[i]];
+      if (!g){ if (line[i] !== " ") console.warn("missing glyph:", line[i]); continue; }
+      for (let r = 0; r < g.length; r++){
+        const row = g[r];
+        for (let c = 0; c < row.length; c++)
+          if (row[c] === "X") pushQuad(v, xOff + i*8 + c, rowOff + r);
+      }
+    }
+    rowOff += 9;
+  }
+  const vbo = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(v), gl.STATIC_DRAW);
+  return { vbo, n: v.length/4, widthCells: lines[0].length*8 };
+}
+const meshScroll = buildTextMesh([SCROLLTEXT], false);
+const meshLogo   = buildTextMesh(LOGO_LINES, true);
+const meshCredit = buildTextMesh(CREDIT_LINE, true);
+
+/* ---------------------------------------------------------------------
+   6. MUSIC - a 4 channel tracker built from oscillators.
+      125 BPM, 16th-note rows, 64-row patterns, lookahead scheduler.
+      Channels: bass square / 25Hz arpeggio chords / lead with vibrato
+      and a dotted-eighth echo / noise+sine drums.
+--------------------------------------------------------------------- */
+const ROW = 0.12;                 /* 125 BPM, 4 rows per beat */
+const PAT = 64*ROW;               /* 7.68 s per pattern       */
+const N = m => 440*Math.pow(2, (m - 69)/12);
+const BASS_ROWS = new Set([0, 3, 6, 8, 11, 14]);
+
+/* melodies: one entry per 8th note, 32 per pattern, 0 = rest, A minor */
+const MEL_A = [76,0,72,0,74,76,74,72, 69,0,72,74,72,0,69,0,
+               67,0,76,0,74,72,74,0,  76,74,71,0,74,0,71,67];
+const MEL_B = [81,0,76,0,79,81,79,76, 74,0,71,74,79,0,74,0,
+               72,74,72,69,72,0,69,0, 71,68,64,68,71,76,0,0];
+
+/* chords: [bassRoot, isMinor] per bar (4 bars per pattern) */
+const PATS = {
+  I: {chords:[[45,1],[45,1],[41,0],[43,0]], mel:null,  bass:true, drums:"sparse", arp:0.045},
+  A: {chords:[[45,1],[41,0],[48,0],[43,0]], mel:MEL_A, bass:true, drums:"full",   arp:0.07},
+  B: {chords:[[45,1],[43,0],[41,0],[40,0]], mel:MEL_B, bass:true, drums:"full",   arp:0.07},
+  C: {chords:[[41,0],[43,0],[41,0],[43,0]], mel:null,  bass:true, drums:"none",   arp:0.06}
+};
+function patCfg(p){
+  if (p === 0) return PATS.I;
+  return [PATS.A, PATS.B, PATS.A, PATS.C][(p - 1) % 4];
+}
+function arpTones(root, minor){
+  const r = root + 12;
+  return [r, r + (minor ? 3 : 4), r + 7];
+}
+
+let ac = null, bus = null, leadBus = null, masterGain = null;
+let noiseBuf = null, songStart = 0, nextRow = 0, muted = false;
+
+function envAD(g, t, peak, dur){
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.linearRampToValueAtTime(peak, t + 0.006);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+}
+function playTone(type, freq, t, dur, peak, dest, lpFreq, vibCents){
+  const o = ac.createOscillator(); o.type = type; o.frequency.value = freq;
+  const g = ac.createGain();
+  let node = o;
+  if (lpFreq){
+    const f = ac.createBiquadFilter(); f.type = "lowpass"; f.frequency.value = lpFreq;
+    o.connect(f); node = f;
+  }
+  node.connect(g); g.connect(dest);
+  envAD(g, t, peak, dur);
+  if (vibCents){
+    const l = ac.createOscillator(); l.frequency.value = 5.5;
+    const lg = ac.createGain(); lg.gain.value = vibCents;
+    l.connect(lg); lg.connect(o.detune);
+    l.start(t); l.stop(t + dur + 0.05);
+  }
+  o.start(t); o.stop(t + dur + 0.06);
+}
+function playArp(tones, t, dur, peak){
+  const o = ac.createOscillator(); o.type = "square";
+  const g = ac.createGain(); o.connect(g); g.connect(bus);
+  envAD(g, t, peak, dur);
+  const step = 0.04;                       /* 25 Hz chord flutter */
+  for (let k = 0; k*step < dur; k++)
+    o.frequency.setValueAtTime(N(tones[k % tones.length]), t + k*step);
+  o.start(t); o.stop(t + dur + 0.05);
+}
+function noiseSrc(t, dur){
+  const s = ac.createBufferSource(); s.buffer = noiseBuf;
+  s.start(t, rndAudio()*1.2, dur + 0.05);
+  return s;
+}
+let audioSeed = 12345;
+function rndAudio(){ audioSeed = (audioSeed*1103515245 + 12345) >>> 0; return audioSeed/4294967296; }
+function kick(t){
+  const o = ac.createOscillator(); o.type = "sine";
+  o.frequency.setValueAtTime(160, t);
+  o.frequency.exponentialRampToValueAtTime(42, t + 0.10);
+  const g = ac.createGain(); o.connect(g); g.connect(bus);
+  envAD(g, t, 0.5, 0.16);
+  o.start(t); o.stop(t + 0.2);
+}
+function snare(t){
+  const s = noiseSrc(t, 0.13);
+  const f = ac.createBiquadFilter(); f.type = "bandpass"; f.frequency.value = 1800; f.Q.value = 0.9;
+  const g = ac.createGain(); s.connect(f); f.connect(g); g.connect(bus);
+  envAD(g, t, 0.3, 0.13);
+  playTone("sine", 190, t, 0.08, 0.18, bus, 0, 0);
+}
+function hat(t, peak){
+  const s = noiseSrc(t, 0.04);
+  const f = ac.createBiquadFilter(); f.type = "highpass"; f.frequency.value = 6500;
+  const g = ac.createGain(); s.connect(f); f.connect(g); g.connect(bus);
+  envAD(g, t, peak, 0.035);
+}
+
+function scheduleRow(r){
+  const t = songStart + r*ROW;
+  const p = Math.floor(r/64);
+  const cfg = patCfg(p);
+  const rp = r % 64, bar = Math.floor(rp/16), rb = rp % 16;
+  const [root, minor] = cfg.chords[bar];
+
+  if (cfg.bass && BASS_ROWS.has(rb))
+    playTone("square", N(root), t, 0.13, 0.20, bus, 700, 0);
+
+  if (cfg.arp > 0)
+    playArp(arpTones(root, minor), t, ROW*0.98, cfg.arp);
+
+  if (cfg.mel && rp % 2 === 0){
+    const n = cfg.mel[rp/2];
+    if (n) playTone("square", N(n), t, 0.20, 0.16, leadBus, 2600, 14);
+  }
+
+  if (cfg.drums === "full"){
+    if (rb % 4 === 0) kick(t);
+    if (rb === 4 || rb === 12) snare(t);
+    if (rp % 2 === 1) hat(t, rb % 4 === 2 ? 0.10 : 0.05);
+  } else if (cfg.drums === "sparse"){
+    if (rb === 0 || rb === 8) kick(t);
+    if (rp % 4 === 2) hat(t, 0.05);
+  } else {
+    if (rp % 8 === 4) hat(t, 0.04);
+  }
+}
+function schedTick(){
+  const ahead = ac.currentTime + 0.20;
+  while (songStart + nextRow*ROW < ahead){
+    scheduleRow(nextRow);
+    nextRow++;
+  }
+}
+
+function startMusic(){
+  ac = new (window.AudioContext || window.webkitAudioContext)();
+  masterGain = ac.createGain(); masterGain.gain.value = 0.5;
+  const comp = ac.createDynamicsCompressor();
+  comp.threshold.value = -16; comp.ratio.value = 6;
+  comp.connect(masterGain); masterGain.connect(ac.destination);
+  bus = comp;
+
+  /* lead echo: dotted eighth, the oldest trick in the book */
+  leadBus = ac.createGain();
+  const dly = ac.createDelay(1); dly.delayTime.value = 0.36;
+  const fb  = ac.createGain(); fb.gain.value = 0.32;
+  const wet = ac.createGain(); wet.gain.value = 0.28;
+  leadBus.connect(bus);
+  leadBus.connect(dly); dly.connect(fb); fb.connect(dly); dly.connect(wet); wet.connect(bus);
+
+  noiseBuf = ac.createBuffer(1, ac.sampleRate*2, ac.sampleRate);
+  const d = noiseBuf.getChannelData(0);
+  for (let i = 0; i < d.length; i++) d[i] = rndAudio()*2 - 1;
+
+  songStart = ac.currentTime + 0.15;
+  nextRow = 0;
+  setInterval(schedTick, 60);
+}
+
+/* ---------------------------------------------------------------------
+   7. TIMELINE - scenes change on pattern boundaries, alphas crossfade
+--------------------------------------------------------------------- */
+const alphas = {plasma:0, copper:0, stars:0.55, logo:0, scroll:0, credit:0};
+function sceneTargets(p){
+  if (p === 0) return {plasma:0,    copper:0,    stars:1,   logo:1,    scroll:0, credit:1};
+  const k = (p - 1) % 4;
+  if (k === 0)  return {plasma:0,    copper:1,    stars:1,   logo:1,    scroll:1, credit:1};
+  if (k === 1)  return {plasma:1,    copper:0.55, stars:0,   logo:1,    scroll:1, credit:1};
+  if (k === 2)  return {plasma:0.45, copper:1,    stars:1,   logo:1,    scroll:1, credit:1};
+  return          {plasma:0.85, copper:0,    stars:0.8, logo:0.55, scroll:1, credit:0.4};
+}
+
+/* ---------------------------------------------------------------------
+   8. RENDER LOOP
+--------------------------------------------------------------------- */
+let started = false, lastNow = 0;
+
+function resize(){
+  const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+  const w = Math.floor(canvas.clientWidth*dpr), h = Math.floor(canvas.clientHeight*dpr);
+  if (canvas.width !== w || canvas.height !== h){
+    canvas.width = w; canvas.height = h;
+  }
+}
+
+function drawQuad(prog, set){
+  gl.useProgram(prog);
+  gl.bindBuffer(gl.ARRAY_BUFFER, quadBuf);
+  const loc = gl.getAttribLocation(prog, "aP");
+  gl.enableVertexAttribArray(loc);
+  gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+  set(prog);
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+}
+function drawText(mesh, set){
+  gl.useProgram(progGlyph);
+  gl.bindBuffer(gl.ARRAY_BUFFER, mesh.vbo);
+  const loc = gl.getAttribLocation(progGlyph, "aData");
+  gl.enableVertexAttribArray(loc);
+  gl.vertexAttribPointer(loc, 4, gl.FLOAT, false, 0, 0);
+  set(progGlyph);
+  gl.drawArrays(gl.TRIANGLES, 0, mesh.n);
+}
+
+function frame(now){
+  requestAnimationFrame(frame);
+  resize();
+  const W = gl.drawingBufferWidth, H = gl.drawingBufferHeight;
+  const dt = Math.min(0.05, (now - lastNow)/1000 || 0.016);
+  lastNow = now;
+
+  let t, beat = 0, p = 0;
+  if (started){
+    t = Math.max(0, ac.currentTime - songStart);
+    const rows = t/ROW;
+    p = Math.floor(rows/64);
+    const bp = (rows % 4)/4;
+    beat = Math.pow(Math.max(0, 1 - bp), 2.5);
+  } else {
+    t = now/1000;
+  }
+
+  const tg = started ? sceneTargets(p)
+                     : {plasma:0, copper:0, stars:0.55, logo:0, scroll:0, credit:0};
+  const k = Math.min(1, dt*1.8);
+  for (const key in alphas) alphas[key] += (tg[key] - alphas[key])*k;
+
+  gl.viewport(0, 0, W, H);
+  gl.clearColor(0, 0, 0, 1);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.disable(gl.DEPTH_TEST);
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.ONE, gl.ONE);              /* everything glows additively */
+
+  if (alphas.plasma > 0.01) drawQuad(progPlasma, pr => {
+    gl.uniform2f(U(pr,"uRes"), W, H);
+    gl.uniform1f(U(pr,"uT"), t);
+    gl.uniform1f(U(pr,"uAlpha"), alphas.plasma);
+    gl.uniform1f(U(pr,"uBeat"), beat);
+    gl.uniform1f(U(pr,"uHue"), p*0.35);
+  });
+
+  if (alphas.copper > 0.01) drawQuad(progCopper, pr => {
+    gl.uniform2f(U(pr,"uRes"), W, H);
+    gl.uniform1f(U(pr,"uT"), t);
+    gl.uniform1f(U(pr,"uAlpha"), alphas.copper);
+    gl.uniform1f(U(pr,"uBeat"), beat);
+  });
+
+  if (alphas.stars > 0.01){
+    gl.useProgram(progStars);
+    gl.bindBuffer(gl.ARRAY_BUFFER, starBuf);
+    const loc = gl.getAttribLocation(progStars, "aSeed");
+    gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(loc, 3, gl.FLOAT, false, 0, 0);
+    gl.uniform2f(U(progStars,"uRes"), W, H);
+    gl.uniform1f(U(progStars,"uT"), t);
+    gl.uniform1f(U(progStars,"uSpeed"), 0.09 + 0.16*beat);
+    gl.uniform1f(U(progStars,"uAlpha"), alphas.stars);
+    gl.drawArrays(gl.POINTS, 0, STAR_COUNT);
+  }
+
+  /* logo */
+  if (alphas.logo > 0.01){
+    const sc = Math.max(4, Math.floor(Math.min(W*0.8/64, H*0.30/17)));
+    drawText(meshLogo, pr => {
+      gl.uniform2f(U(pr,"uRes"), W, H);
+      gl.uniform2f(U(pr,"uOrigin"), W*0.5, H*0.86);
+      gl.uniform1f(U(pr,"uT"), t);
+      gl.uniform1f(U(pr,"uScale"), sc);
+      gl.uniform1f(U(pr,"uMode"), 1);
+      gl.uniform1f(U(pr,"uScroll"), 0);
+      gl.uniform1f(U(pr,"uAmp"), H*0.055);
+      gl.uniform1f(U(pr,"uFreq"), 0);
+      gl.uniform1f(U(pr,"uFill"), 0.93);
+      gl.uniform1f(U(pr,"uBeat"), beat);
+      gl.uniform1f(U(pr,"uAlpha"), alphas.logo);
+    });
+  }
+
+  /* credit line */
+  if (alphas.credit > 0.01){
+    const sc = Math.max(2, Math.floor(H/260));
+    drawText(meshCredit, pr => {
+      gl.uniform2f(U(pr,"uRes"), W, H);
+      gl.uniform2f(U(pr,"uOrigin"), W*0.5, H*0.965);
+      gl.uniform1f(U(pr,"uT"), t);
+      gl.uniform1f(U(pr,"uScale"), sc);
+      gl.uniform1f(U(pr,"uMode"), 2);
+      gl.uniform1f(U(pr,"uScroll"), 0);
+      gl.uniform1f(U(pr,"uAmp"), 0);
+      gl.uniform1f(U(pr,"uFreq"), 0);
+      gl.uniform1f(U(pr,"uFill"), 0.93);
+      gl.uniform1f(U(pr,"uBeat"), beat);
+      gl.uniform1f(U(pr,"uAlpha"), alphas.credit);
+    });
+  }
+
+  /* sine scroller */
+  if (alphas.scroll > 0.01){
+    const sc = Math.max(4, Math.round(H/96));
+    const speed = W*0.21;
+    const scrollT = Math.max(0, t - PAT);
+    const period = meshScroll.widthCells*sc + W*1.2;
+    const scroll = (scrollT*speed) % period;
+    drawText(meshScroll, pr => {
+      gl.uniform2f(U(pr,"uRes"), W, H);
+      gl.uniform2f(U(pr,"uOrigin"), 0, H*0.30);
+      gl.uniform1f(U(pr,"uT"), t);
+      gl.uniform1f(U(pr,"uScale"), sc);
+      gl.uniform1f(U(pr,"uMode"), 0);
+      gl.uniform1f(U(pr,"uScroll"), scroll);
+      gl.uniform1f(U(pr,"uAmp"), H*0.085);
+      gl.uniform1f(U(pr,"uFreq"), 6.28318/(W*0.35));
+      gl.uniform1f(U(pr,"uFill"), 0.93);
+      gl.uniform1f(U(pr,"uBeat"), beat);
+      gl.uniform1f(U(pr,"uAlpha"), alphas.scroll);
+    });
+  }
+
+  /* CRT pass on top: multiply */
+  gl.blendFunc(gl.ZERO, gl.SRC_COLOR);
+  drawQuad(progScan, pr => {
+    gl.uniform2f(U(pr,"uRes"), W, H);
+    gl.uniform1f(U(pr,"uT"), t);
+  });
+
+  /* fire buttons on gamepads start the intro too */
+  if (!started && navigator.getGamepads){
+    const pads = navigator.getGamepads();
+    for (let i = 0; i < pads.length; i++){
+      const g = pads[i];
+      if (g && g.buttons && g.buttons.some(b => b && b.pressed)){ start(); break; }
+    }
+  }
+}
+requestAnimationFrame(frame);
+
+/* ---------------------------------------------------------------------
+   9. START / INPUT
+--------------------------------------------------------------------- */
+const startEl = document.getElementById("start");
+function start(){
+  if (started) return;
+  try { startMusic(); } catch(e){ console.warn("audio unavailable:", e); }
+  if (ac && ac.state === "suspended") ac.resume();
+  started = true;
+  startEl.style.opacity = "0";
+  setTimeout(() => { startEl.style.display = "none"; }, 700);
+  canvas.style.cursor = "none";
+}
+function onKey(e){
+  if (!started){ start(); return; }
+  if (e.key === "m" || e.key === "M"){
+    muted = !muted;
+    if (masterGain) masterGain.gain.value = muted ? 0 : 0.5;
+  }
+  if (e.key === "f" || e.key === "F"){
+    if (!document.fullscreenElement && document.documentElement.requestFullscreen)
+      document.documentElement.requestFullscreen();
+    else if (document.exitFullscreen) document.exitFullscreen();
+  }
+}
+window.addEventListener("keydown", onKey);
+startEl.addEventListener("click", start);
+startEl.addEventListener("touchstart", e => { e.preventDefault(); start(); }, {passive:false});
+window.addEventListener("resize", resize);
+canvas.addEventListener("webglcontextlost", e => {
+  e.preventDefault();
+  const el = document.getElementById("err");
+  el.style.display = "flex";
+  el.textContent = "GURU MEDITATION: WEBGL CONTEXT LOST ... RELOAD TO RESURRECT.";
+});
+</script>
+</body>
+</html>

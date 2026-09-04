@@ -1,0 +1,36 @@
+{
+    "id": "com.natureglass.cracktroforever",
+    "name": "Cracktro Forever",
+    "version": "1.0.0",
+    "description": "<p>A procedural tribute to the classic Amiga cracktro and demoscene, created for the Switch homebrew community.</p>\r\n<p>The project recreates the unmistakable style of old-school intros with a sine-wave scroller, copper bars, plasma effects, a 3D starfield, a raster-bounced logo, and a synchronized chiptune soundtrack. Everything is generated procedurally at runtime—no textures, pre-rendered graphics, or external visual assets. Geometry is created from mathematics and the visual effects are built with shaders and code.</p>\r\n<p>The soundtrack is synchronized with the effects to create a complete scene-style intro, with individual effects introduced and combined through timed transitions.</p>\r\n<p>A small tribute to where today's homebrew scene came from: <strong>code, creativity, mathematics, music, and a lot of unnecessary visual effects.</strong></p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Demos"
+    ],
+    "permissions": [],
+    "compatibility": [
+        "mobile",
+        "switch",
+        "web"
+    ],
+    "allowed_origins": [],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "hideMouseDocked": true,
+    "hideMouseUndocked": true,
+    "freshProcessOnExit": false,
+    "publishedAt": "2026-09-04T13:52:43Z",
+    "updatedAt": "2026-09-04T13:43:52Z",
+    "summary": "A love letter to the scene that raised us!",
+    "features": [
+        "Gamepad"
+    ],
+    "tags": [
+        "Demoscene",
+        "Cracktro",
+        "Homebrew"
+    ]
+}
