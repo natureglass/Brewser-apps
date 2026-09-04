@@ -109,7 +109,7 @@
       "name": "Cracktro Forever",
       "permissions": [],
       "publishedAt": "2026-09-04T13:52:43Z",
-      "sizeBytes": 56343,
+      "sizeBytes": 71236,
       "summary": "A love letter to the scene that raised us!",
       "tags": [
         "Demoscene",
@@ -897,7 +897,7 @@
     }
   ],
   "defaultSource": "base",
-  "generated": "2026-09-04T13:56:20Z",
+  "generated": "2026-09-04T14:11:59Z",
   "revoked": [],
   "sources": {
     "base": "https://play.brewser.io",
