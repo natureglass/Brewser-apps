@@ -1,6 +1,7 @@
 {
   "files": [
     "README.md",
+    "assets/appbanner.gif",
     "assets/appbanner.jpg",
     "assets/appbanner.png",
     "brewser-sw.js",
@@ -14,5 +15,5 @@
     "pwa/icon-maskable.png"
   ],
   "id": "com.natureglass.hawidgetgrid",
-  "sizeBytes": 267257
+  "sizeBytes": 942566
 }

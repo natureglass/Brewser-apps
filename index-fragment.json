@@ -303,11 +303,11 @@
       "id": "com.natureglass.hawidgetgrid",
       "license": "MIT",
       "logo": "assets/appbanner.jpg",
-      "maxFileBytes": 69320,
+      "maxFileBytes": 675309,
       "name": "HA Widget Grid",
       "permissions": [],
       "publishedAt": "2026-08-31T21:23:39Z",
-      "sizeBytes": 267257,
+      "sizeBytes": 942566,
       "summary": "A live Home Assistant dashboard that auto-discovers your entities by area and controls lights, switc",
       "version": "1.0.1"
     },
@@ -922,6 +922,6 @@
       "version": "1.0.2"
     }
   ],
-  "generated": "2026-09-04T14:17:36Z",
+  "generated": "2026-09-04T14:19:00Z",
   "source": "base"
 }
