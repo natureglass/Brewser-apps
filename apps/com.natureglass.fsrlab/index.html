@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>FSR Lab</title>
+<style>
+  /* ------------------------------------------------------------------
+     FSR Lab — instrumentation overlay on a fullscreen WebGL2 scene.
+     One family (monospace, like test equipment), two side colours:
+     magenta = raw bilinear (left of the wipe), cyan = upscaled (right).
+     ------------------------------------------------------------------ */
+  :root{
+    --panel: rgba(12, 10, 28, 0.86);
+    --edge:  rgba(107, 231, 255, 0.22);
+    --text:  #dde3f8;
+    --dim:   #8d94ba;
+    --cyan:  #6be7ff;
+    --magenta: #ff5fa8;
+    --amber: #ffc46b;
+  }
+  *{ box-sizing: border-box; }
+  html, body{
+    margin: 0; height: 100%; overflow: hidden; background: #0a0818;
+    font-family: ui-monospace, "Cascadia Mono", "Roboto Mono", "DejaVu Sans Mono", monospace;
+    color: var(--text);
+    -webkit-user-select: none; user-select: none;
+  }
+  canvas#view{ position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+
+  /* Performance readout, top left */
+  #perf{
+    position: fixed; top: 14px; left: 14px;
+    background: var(--panel); border: 1px solid var(--edge); border-radius: 6px;
+    padding: 10px 14px 9px; line-height: 1.35; pointer-events: none;
+  }
+  #perf .ms{ font-size: 27px; font-weight: 700; letter-spacing: -0.5px; }
+  #perf .ms b{ color: var(--cyan); font-weight: 700; }
+  #perf .sub{ font-size: 12px; color: var(--dim); }
+  #perf .res{ font-size: 12px; margin-top: 3px; }
+  #perf .res em{ font-style: normal; color: var(--amber); }
+
+  /* Labels riding the wipe divider */
+  .side-tag{
+    position: fixed; top: 72px; font-size: 12px; padding: 3px 8px; border-radius: 4px;
+    background: var(--panel); pointer-events: none; white-space: nowrap;
+  }
+  #tagL{ color: var(--magenta); border: 1px solid rgba(255,95,168,.35); transform: translateX(-100%) translateX(-10px); }
+  #tagR{ color: var(--cyan); border: 1px solid rgba(107,231,255,.35); transform: translateX(10px); }
+
+  /* Control deck, bottom */
+  #deck{
+    position: fixed; left: 14px; right: 14px; bottom: 14px;
+    background: var(--panel); border: 1px solid var(--edge); border-radius: 8px;
+    padding: 10px 14px 8px;
+  }
+  .row{ display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 4px 0; }
+  .row + .row{ border-top: 1px solid rgba(141,148,186,.14); }
+  .lbl{ font-size: 12px; color: var(--dim); min-width: 128px; }
+  .group{ display: flex; gap: 0; border: 1px solid var(--edge); border-radius: 6px; overflow: hidden; }
+  button{
+    font: inherit; font-size: 13px; color: var(--text);
+    background: transparent; border: none; padding: 7px 13px; cursor: pointer;
+  }
+  .group button + button{ border-left: 1px solid rgba(141,148,186,.18); }
+  button.on{ background: rgba(107,231,255,.16); color: var(--cyan); }
+  button.solo{ border: 1px solid var(--edge); border-radius: 6px; }
+  button.solo.on{ border-color: rgba(107,231,255,.5); }
+  button:focus-visible{ outline: 2px solid var(--cyan); outline-offset: -2px; }
+  .row.off{ opacity: .38; }
+  .row.off button{ pointer-events: none; }
+  .spacer{ flex: 1; }
+
+  #sharp-wrap{ display: flex; align-items: center; gap: 8px; }
+  #sharp-wrap.off{ opacity: .38; pointer-events: none; }
+  input[type=range]{ width: 130px; accent-color: var(--cyan); }
+  #sharpVal{ font-size: 13px; width: 4ch; color: var(--cyan); }
+
+  #hints{ font-size: 11px; color: var(--dim); padding-top: 6px; }
+  #hints b{ color: var(--text); font-weight: 600; }
+
+  body.clean #deck, body.clean #perf, body.clean .side-tag{ display: none; }
+
+  /* Fatal error card */
+  #fatal{
+    position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
+    background: #0a0818; padding: 24px; text-align: center; line-height: 1.6;
+  }
+  #fatal.show{ display: flex; }
+</style>
+</head>
+<body>
+<canvas id="view"></canvas>
+
+<div id="perf">
+  <div class="ms"><b id="msNow">--</b> ms</div>
+  <div class="sub"><span id="fpsNow">--</span> fps, worst <span id="msWorst">--</span> ms over 60 frames</div>
+  <div class="res" id="resLine"></div>
+</div>
+
+<div class="side-tag" id="tagL">bilinear</div>
+<div class="side-tag" id="tagR">fsr 1.0 + rcas</div>
+
+<div id="deck">
+  <div class="row">
+    <span class="lbl">Output</span>
+    <div class="group" id="modeGroup">
+      <button data-mode="0">Bilinear</button>
+      <button data-mode="1">FSR 1.0</button>
+      <button data-mode="2" class="on">FSR 1.0 + RCAS</button>
+      <button data-mode="3">Native render</button>
+      <button data-mode="4">Temporal</button>
+    </div>
+    <span class="spacer"></span>
+    <button class="solo on" id="splitBtn">Split compare: on</button>
+    <button class="solo" id="zoomBtn">Zoom: 1&times;</button>
+    <button class="solo" id="freezeBtn">Freeze frame</button>
+  </div>
+  <div class="row" id="qualityRow">
+    <span class="lbl">Internal resolution</span>
+    <div class="group" id="qGroup">
+      <button data-q="0.77">Ultra quality 77%</button>
+      <button data-q="0.67" class="on">Quality 67%</button>
+      <button data-q="0.59">Balanced 59%</button>
+      <button data-q="0.50">Performance 50%</button>
+    </div>
+    <span class="spacer"></span>
+    <div id="sharp-wrap">
+      <span class="lbl" style="min-width:0">Sharpness</span>
+      <input type="range" id="sharp" min="0" max="2" step="0.05" value="0.2">
+      <span id="sharpVal">0.20</span>
+    </div>
+    <button class="solo" id="hideBtn">Hide interface</button>
+  </div>
+  <div class="row"><div id="hints">
+    <b>D-pad ←→</b> output mode &nbsp; <b>D-pad ↑↓</b> resolution &nbsp; <b>A</b> split &nbsp;
+    <b>B</b> zoom &nbsp; <b>Y</b> freeze &nbsp; <b>X</b> hide &nbsp; <b>stick / L R</b> move the wipe &nbsp;
+    <b>ZL ZR</b> sharpness &nbsp;(keyboard: arrows, <b>space</b>, <b>z</b>, <b>f</b>, <b>h</b>, <b>[ ]</b>, drag the wipe)
+  </div></div>
+</div>
+
+<div id="fatal"><div>
+  This demo needs a WebGL2 context and could not create one.<br>
+  On Brewser this usually means the runtime is out of GPU memory — close other apps and reopen FSR Lab.
+</div></div>
+
+<script>
+"use strict";
+/* =====================================================================
+   FSR Lab, a Brewser app by @natureglass
+   AMD FidelityFX Super Resolution 1.0 (EASU + RCAS), ported to
+   GLSL ES 3.00 for WebGL2. FSR 1.0 is (c) Advanced Micro Devices,
+   released under the MIT license; this port keeps its structure but
+   swaps the approximate rcp/rsqrt bit tricks for exact ops and swaps
+   textureGather (ES 3.1, unavailable in WebGL2) for 12 texelFetches.
+   ===================================================================== */
+
+// ------------------------------------------------------------------ shaders
+
+const VS = `#version 300 es
+layout(location=0) in vec2 aPos;
+void main(){ gl_Position = vec4(aPos, 0.0, 1.0); }`;
+
+// Synthwave test scene. Every detail width is calibrated in NATIVE
+// output pixels via uResRatio (renderH / outputH), so a low-res render
+// draws the SAME world content under-sampled — like real game geometry
+// at reduced resolution — instead of redrawing everything thicker.
+// Grid lines, 1px lit city windows, rim lights and striped sun edges
+// are the content a spatial upscaler visibly wins or loses on.
+const SCENE_FS = `#version 300 es
+precision highp float;
+precision highp int;
+uniform vec2  uRes;
+uniform float uTime;
+uniform float uResRatio;  // renderH / outputH; 1.0 for the native render
+uniform vec2  uJitter;    // sub-pixel offset, this-render pixels; (0,0) outside temporal mode
+out vec4 outColor;
+
+float hash21(vec2 p){
+  p = fract(p * vec2(123.34, 456.21));
+  p += dot(p, p + 45.32);
+  return fract(p.x * p.y);
+}
+float vnoise(vec2 p){
+  vec2 i = floor(p), f = fract(p);
+  f = f * f * (3.0 - 2.0 * f);
+  float a = hash21(i);
+  float b = hash21(i + vec2(1.0, 0.0));
+  float c = hash21(i + vec2(0.0, 1.0));
+  float d = hash21(i + vec2(1.0, 1.0));
+  return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+}
+float fbm(vec2 p){
+  float v = 0.0, a = 0.5;
+  for (int k = 0; k < 4; k++){ v += a * vnoise(p); p = p * 2.03 + 17.7; a *= 0.5; }
+  return v;
+}
+
+void main(){
+  vec2 uv = (gl_FragCoord.xy + uJitter - 0.5 * uRes) / uRes.y;
+  float t = uTime;
+  const float HORIZON = 0.03;
+  float fwy  = 1.0 / uRes.y;              // fwidth(uv.y), analytic
+  float aa   = fwy * uResRatio * 0.75;    // edge AA, fixed vs native
+  float rimW = fwy * uResRatio * 1.6;     // rim light thickness
+  vec3 col;
+
+  if (uv.y >= HORIZON){
+    // sky gradient
+    float sky = smoothstep(HORIZON, 0.62, uv.y);
+    col = mix(vec3(0.42, 0.07, 0.36), vec3(0.05, 0.03, 0.14), sky);
+
+    // stars: ~2 native px, jittered per sparse cell
+    vec2 sp = uv * 140.0;
+    vec2 cell = floor(sp);
+    float h = hash21(cell);
+    vec2 jit = (vec2(hash21(cell + 7.1), hash21(cell + 3.7)) - 0.5) * 0.5;
+    float rStar = 140.0 * fwy * uResRatio * 2.0;
+    float star = smoothstep(rStar, rStar * 0.3, length(fract(sp) - 0.5 - jit));
+    float tw = 0.55 + 0.45 * sin(t * 3.0 + h * 40.0);
+    star *= step(0.93, h) * tw * smoothstep(0.10, 0.35, uv.y);
+    col += vec3(0.8, 0.9, 1.0) * star;
+
+    // striped sun, hard edges
+    vec2 sd = uv - vec2(0.0, 0.16);
+    float r = length(sd);
+    float sunAA = fwy * uResRatio * 1.5;
+    float sun = smoothstep(0.182 + sunAA, 0.182 - sunAA, r);
+    float band = sin(sd.y * 140.0 - t * 1.5);
+    float w2 = 140.0 * fwy * uResRatio * 1.5;
+    float cut = clamp(smoothstep(-w2, w2, band + (sd.y + 0.10) * 16.0), 0.0, 1.0);
+    sun *= cut;
+    vec3 sunCol = mix(vec3(1.0, 0.25, 0.55), vec3(1.0, 0.85, 0.30), smoothstep(-0.02, 0.16, sd.y));
+    col = mix(col, sunCol, sun);
+    col += vec3(1.0, 0.3, 0.6) * 0.35 * exp(-r * 7.0);
+
+    // far ridge with rim light
+    float m1 = 0.05 + 0.16 * fbm(vec2(uv.x * 1.6 + 3.1, 2.0));
+    col  = mix(col, vec3(0.13, 0.06, 0.24), smoothstep(m1 + aa, m1 - aa, uv.y));
+    col += vec3(1.0, 0.35, 0.8) * 0.6 * smoothstep(rimW, 0.0, abs(uv.y - m1));
+
+    // city skyline: hard building edges, ~1px lit windows
+    float bx = uv.x * 30.0 + 40.0;
+    float bcell = floor(bx);
+    float bh = 0.012 + 0.05 * hash21(vec2(bcell, 17.0));
+    float bw = 0.55 + 0.35 * hash21(vec2(bcell, 29.0));
+    float inB = step(fract(bx), bw) * step(uv.y, HORIZON + bh);
+    col = mix(col, vec3(0.02, 0.02, 0.05), inB);
+    vec2 wc = vec2(fract(bx) * 8.0, (uv.y - HORIZON) * 260.0);
+    float lit = step(0.72, hash21(vec2(floor(wc.x) + bcell * 3.1, floor(wc.y))));
+    float wm = step(abs(fract(wc.x) - 0.5), 0.28) * step(abs(fract(wc.y) - 0.5), 0.28);
+    col += inB * lit * wm * vec3(1.0, 0.75, 0.4) * 0.9;
+
+    // near ridge with rim light
+    float m2 = 0.03 + 0.10 * fbm(vec2(uv.x * 2.6 + 9.0, 5.0));
+    col  = mix(col, vec3(0.07, 0.03, 0.15), smoothstep(m2 + aa, m2 - aa, uv.y));
+    col += vec3(0.45, 0.85, 1.0) * 0.5 * smoothstep(rimW, 0.0, abs(uv.y - m2));
+  } else {
+    // scrolling grid: line coverage fixed in native pixels
+    float d = HORIZON - uv.y;
+    float z = 0.06 / (d + 1e-4);
+    vec2 w = vec2(uv.x * z * 2.2, z + t * 1.2);
+    vec2 fw = fwidth(w);
+    vec2 distPx = abs(fract(w + 0.5) - 0.5) / fw;
+    float hwPx = 1.3 * uResRatio;
+    float cov = max(clamp(hwPx - distPx.x + 0.5, 0.0, 1.0),
+                    clamp(hwPx - distPx.y + 0.5, 0.0, 1.0));
+    vec2 dist5 = abs(fract(w * 5.0 + 0.5) - 0.5) / (fw * 5.0);
+    float hw5 = 0.9 * uResRatio;
+    float cov5 = max(clamp(hw5 - dist5.x + 0.5, 0.0, 1.0),
+                     clamp(hw5 - dist5.y + 0.5, 0.0, 1.0)) * 0.35;
+    float fog = exp(-z * 0.14);
+    vec3 base = mix(vec3(0.03, 0.02, 0.08), vec3(0.16, 0.03, 0.22), fog);
+    vec3 lineCol = mix(vec3(0.30, 0.90, 1.0), vec3(1.0, 0.35, 0.8),
+                       clamp(uv.x * 1.2 + 0.5 + 0.2 * sin(t * 0.4), 0.0, 1.0));
+    col = base + lineCol * (cov + cov5 * (1.0 - cov)) * clamp(fog * 1.3 - 0.05, 0.0, 1.0);
+    col += vec3(1.0, 0.3, 0.6) * 0.5 * exp(-d * 26.0);
+  }
+
+  col *= 1.0 - 0.35 * dot(uv, uv);   // vignette
+  outColor = vec4(col, 1.0);
+}`;
+
+// EASU: edge-adaptive spatial upsampling (FSR 1.0 pass one).
+// Non-gather fallback path: the canonical 12-texel footprint,
+//      b c
+//    e f g h
+//    i j k l
+//      n o
+// fetched individually, edge-clamped.
+const EASU_FS = `#version 300 es
+precision highp float;
+precision highp int;
+uniform sampler2D uSrc;
+uniform vec2 uInSize;   // low-res source, pixels
+uniform vec2 uOutSize;  // this target, pixels
+out vec4 outColor;
+
+vec3 fetch3(ivec2 p){
+  return texelFetch(uSrc, clamp(p, ivec2(0), ivec2(uInSize) - 1), 0).rgb;
+}
+float lum(vec3 c){ return c.g + 0.5 * (c.r + c.b); }
+
+// Accumulates edge direction and length for one of the four nearest
+// texels; w is that texel's bilinear weight for this output pixel.
+void setDir(inout vec2 dir, inout float len, float w,
+            float lA, float lB, float lC, float lD, float lE){
+  float dc = lD - lC;
+  float cb = lC - lB;
+  float lenX = 1.0 / max(max(abs(dc), abs(cb)), 1e-4);
+  float dirX = lD - lB;
+  dir.x += dirX * w;
+  lenX = clamp(abs(dirX) * lenX, 0.0, 1.0);
+  len += lenX * lenX * w;
+  float ec = lE - lC;
+  float ca = lC - lA;
+  float lenY = 1.0 / max(max(abs(ec), abs(ca)), 1e-4);
+  float dirY = lE - lA;
+  dir.y += dirY * w;
+  lenY = clamp(abs(dirY) * lenY, 0.0, 1.0);
+  len += lenY * lenY * w;
+}
+
+// One tap of the rotated, anisotropic lanczos-ish kernel.
+void tap(inout vec3 aC, inout float aW, vec2 off,
+         vec2 dir, vec2 len2, float lob, float clp, vec3 c){
+  vec2 v = vec2(off.x * dir.x + off.y * dir.y,
+                off.x * (-dir.y) + off.y * dir.x);
+  v *= len2;
+  float d2 = min(dot(v, v), clp);
+  float wB = 0.4 * d2 - 1.0;
+  float wA = lob * d2 - 1.0;
+  wB *= wB;
+  wA *= wA;
+  wB = 1.5625 * wB - 0.5625;
+  float w = wB * wA;
+  aC += c * w;
+  aW += w;
+}
+
+void main(){
+  vec2 ratio = uInSize / uOutSize;
+  vec2 pp = floor(gl_FragCoord.xy) * ratio + 0.5 * ratio - 0.5;
+  vec2 fp = floor(pp);
+  pp -= fp;
+  ivec2 F = ivec2(fp);
+
+  vec3 bC = fetch3(F + ivec2( 0,-1)), cC = fetch3(F + ivec2( 1,-1));
+  vec3 eC = fetch3(F + ivec2(-1, 0)), fC = fetch3(F);
+  vec3 gC = fetch3(F + ivec2( 1, 0)), hC = fetch3(F + ivec2( 2, 0));
+  vec3 iC = fetch3(F + ivec2(-1, 1)), jC = fetch3(F + ivec2( 0, 1));
+  vec3 kC = fetch3(F + ivec2( 1, 1)), lC = fetch3(F + ivec2( 2, 1));
+  vec3 nC = fetch3(F + ivec2( 0, 2)), oC = fetch3(F + ivec2( 1, 2));
+
+  float bL = lum(bC), cL = lum(cC), eL = lum(eC), fL = lum(fC);
+  float gL = lum(gC), hL = lum(hC), iL = lum(iC), jL = lum(jC);
+  float kL = lum(kC), lL = lum(lC), nL = lum(nC), oL = lum(oC);
+
+  vec2 dir = vec2(0.0);
+  float len = 0.0;
+  setDir(dir, len, (1.0 - pp.x) * (1.0 - pp.y), bL, eL, fL, gL, jL); // f
+  setDir(dir, len,        pp.x  * (1.0 - pp.y), cL, fL, gL, hL, kL); // g
+  setDir(dir, len, (1.0 - pp.x) *        pp.y , fL, iL, jL, kL, nL); // j
+  setDir(dir, len,        pp.x  *        pp.y , gL, jL, kL, lL, oL); // k
+
+  float dirR = dot(dir, dir);
+  bool zro = dirR < (1.0 / 32768.0);
+  dirR = inversesqrt(max(dirR, 1e-12));
+  dirR  = zro ? 1.0 : dirR;
+  dir.x = zro ? 1.0 : dir.x;
+  dir *= dirR;
+
+  len = len * 0.5;
+  len *= len;
+  float stretch = dot(dir, dir) / max(max(abs(dir.x), abs(dir.y)), 1e-5);
+  vec2 len2 = vec2(1.0 + (stretch - 1.0) * len, 1.0 - 0.5 * len);
+  float lob = 0.5 + ((1.0 / 4.0 - 0.04) - 0.5) * len;
+  float clp = 1.0 / lob;
+
+  vec3 mn4 = min(min(fC, gC), min(jC, kC));
+  vec3 mx4 = max(max(fC, gC), max(jC, kC));
+
+  vec3 aC = vec3(0.0);
+  float aW = 0.0;
+  tap(aC, aW, vec2( 0.0,-1.0) - pp, dir, len2, lob, clp, bC);
+  tap(aC, aW, vec2( 1.0,-1.0) - pp, dir, len2, lob, clp, cC);
+  tap(aC, aW, vec2(-1.0, 1.0) - pp, dir, len2, lob, clp, iC);
+  tap(aC, aW, vec2( 0.0, 1.0) - pp, dir, len2, lob, clp, jC);
+  tap(aC, aW, vec2( 0.0, 0.0) - pp, dir, len2, lob, clp, fC);
+  tap(aC, aW, vec2( 1.0, 0.0) - pp, dir, len2, lob, clp, gC);
+  tap(aC, aW, vec2( 1.0, 1.0) - pp, dir, len2, lob, clp, kC);
+  tap(aC, aW, vec2( 2.0, 1.0) - pp, dir, len2, lob, clp, lC);
+  tap(aC, aW, vec2( 2.0, 0.0) - pp, dir, len2, lob, clp, hC);
+  tap(aC, aW, vec2(-1.0, 0.0) - pp, dir, len2, lob, clp, eC);
+  tap(aC, aW, vec2( 0.0, 2.0) - pp, dir, len2, lob, clp, nC);
+  tap(aC, aW, vec2( 1.0, 2.0) - pp, dir, len2, lob, clp, oC);
+
+  // dering: clamp to the local min/max of the four nearest texels
+  vec3 pix = clamp(aC * (1.0 / aW), mn4, mx4);
+  outColor = vec4(pix, 1.0);
+}`;
+
+// Temporal upscaler (FSR 2-style, simplified). Each frame the scene is
+// rendered low-res with a sub-pixel Halton jitter; this pass rebuilds a
+// full-res image by folding the jittered samples into a reprojected
+// history. Design notes (all constants tuned against a CPU reference):
+// - Confidence-weighted accumulation with the running weight stored in
+//   the history alpha channel — not a fixed-rate EMA, which converges
+//   to a blur of all jitter phases instead of the sharp ones.
+// - EXACT reprojection: the grid scroll is inverted analytically
+//   (zPrev = zNow + 1.2 dt), valid at any speed — a luxury of a
+//   procedural scene; real engines render a motion buffer.
+// - The weight decays with speed (quadratic), with flow divergence
+//   (the floor stretches as it approaches, blurring history), and with
+//   neighbourhood-clamp violations (ghost rejection).
+// - Stochastic-rounding dither keeps the RGBA8 history from stalling
+//   at low blend rates and debands the smooth gradients.
+// When the scene is frozen, dt = 0: jitter keeps cycling, reprojection
+// is identity, the clamp relaxes, and the history converges to a
+// supersampled image in about one 8-frame jitter cycle.
+const TEMPORAL_FS = `#version 300 es
+precision highp float;
+precision highp int;
+uniform sampler2D uSrc;    // jittered low-res frame (linear filtering)
+uniform sampler2D uHist;   // previous history: rgb = colour, a = weight
+uniform vec2  uInSize;
+uniform vec2  uOutSize;
+uniform vec2  uJitter;     // jitter used for uSrc, low-res pixels
+uniform float uDt;         // scene-time advance this frame; 0 when frozen
+uniform float uReset;      // 1.0 = discard history this frame
+uniform float uSeed;       // per-frame dither seed
+out vec4 outColor;
+
+const float HORIZON = 0.03;
+const float WMAX = 16.0;
+
+float hash21(vec2 p){
+  p = fract(p * vec2(123.34, 456.21));
+  p += dot(p, p + 45.32);
+  return fract(p.x * p.y);
+}
+vec3 fetchSrc(ivec2 p){
+  return texelFetch(uSrc, clamp(p, ivec2(0), ivec2(uInSize) - 1), 0).rgb;
+}
+
+void main(){
+  vec2 ratio = uInSize / uOutSize;
+
+  // where this output pixel's scene value lives in the jittered source
+  vec2 posLR = gl_FragCoord.xy * ratio - uJitter;
+  vec3 cur = texture(uSrc, posLR / uInSize).rgb;
+
+  // confidence: distance to the nearest source sample, in output pixels
+  vec2 dOut = (posLR - 0.5 - floor(posLR)) / ratio;
+  float w = max(exp(-6.0 * dot(dOut, dOut)), 0.004);
+
+  // clamp box: 3x3 neighbourhood of the current frame
+  ivec2 ip = ivec2(floor(posLR));
+  vec3 mn = vec3(1.0), mx = vec3(0.0);
+  for (int dy = -1; dy <= 1; dy++){
+    for (int dx = -1; dx <= 1; dx++){
+      vec3 c = fetchSrc(ip + ivec2(dx, dy));
+      mn = min(mn, c);
+      mx = max(mx, c);
+    }
+  }
+  vec3 ex = (mx - mn) * 0.4 + 0.004;
+
+  // exact reprojection of the grid scroll; sky geometry is static
+  vec2 uv = (gl_FragCoord.xy - 0.5 * uOutSize) / uOutSize.y;
+  float zNow = 0.06 / (HORIZON - uv.y + 1e-4);
+  float zPrev = zNow + 1.2 * uDt;
+  vec2 prevUV = (uv.y >= HORIZON) ? uv
+              : vec2(uv.x * zNow / zPrev, HORIZON - 0.06 / zPrev);
+  vec2 prevFrag = prevUV * uOutSize.y + 0.5 * uOutSize;
+  vec4 h = texture(uHist, prevFrag / uOutSize);
+  vec3 hrgb = h.rgb;
+  float W = h.a * WMAX;
+
+  // forget with speed and with flow divergence
+  float m = length(prevFrag - gl_FragCoord.xy) * 0.25;
+  W *= exp(-m * m);
+  float stretch = (uv.y >= HORIZON) ? 0.0 : (zPrev / zNow - 1.0);
+  W *= exp(-stretch * 30.0);
+
+  // ghost rejection; relaxed entirely when frozen (scene fully static)
+  if (uDt != 0.0){
+    vec3 hc = clamp(hrgb, mn - ex, mx + ex);
+    vec3 dv = abs(hc - hrgb);
+    W *= exp(-max(dv.r, max(dv.g, dv.b)) * 8.0);
+    hrgb = hc;
+  }
+
+  float Wn = W + w;
+  vec3 rgb = (hrgb * W + cur * w) / Wn;
+
+  bool off = any(lessThan(prevFrag, vec2(0.0))) || any(greaterThan(prevFrag, uOutSize));
+  if (off || uReset > 0.5){
+    rgb = cur;
+    Wn = w;
+  }
+
+  // stochastic rounding: keeps RGBA8 history from stalling, and debands
+  rgb += (hash21(gl_FragCoord.xy + uSeed) - 0.5) / 255.0;
+  outColor = vec4(rgb, min(Wn, WMAX) / WMAX);
+}`;
+
+// Final pass: split composite, plus RCAS (FSR 1.0 pass two) applied to
+// the EASU result when mode 2 is active. Left of the wipe is always a
+// plain bilinear stretch of the low-res frame.
+const FINAL_FS = `#version 300 es
+precision highp float;
+precision highp int;
+uniform sampler2D uScene;  // low-res scene (linear filtering)
+uniform sampler2D uUp;     // full-res: EASU output, temporal history, or native render
+uniform vec2  uInSize;     // low-res scene size, pixels
+uniform vec2  uOutSize;
+uniform int   uMode;       // 0 bilinear, 1 easu, 2 easu+rcas, 3 native, 4 temporal
+uniform int   uSplit;
+uniform float uDivider;    // 0..1
+uniform float uSharpMul;   // exp2(-sharpness)
+uniform float uZoom;       // 1, 2 or 4; magnifies around screen centre
+uniform vec2  uJitterC;    // jitter applied to uScene this frame; compensated out
+out vec4 outColor;
+
+vec3 fetchU(ivec2 p){
+  return texelFetch(uUp, clamp(p, ivec2(0), ivec2(uOutSize) - 1), 0).rgb;
+}
+
+vec3 rcas(ivec2 sp){
+  vec3 b = fetchU(sp + ivec2( 0,-1));
+  vec3 d = fetchU(sp + ivec2(-1, 0));
+  vec3 e = fetchU(sp);
+  vec3 f = fetchU(sp + ivec2( 1, 0));
+  vec3 h = fetchU(sp + ivec2( 0, 1));
+  vec3 mn4 = min(min(b, d), min(f, h));
+  vec3 mx4 = max(max(b, d), max(f, h));
+  vec3 hitMin = mn4 / (4.0 * mx4 + 1e-4);
+  vec3 hitMax = (1.0 - mx4) / (4.0 * mn4 - 4.0 - 1e-4);
+  vec3 lobeRGB = max(-hitMin, hitMax);
+  float lobe = max(-0.1875, min(max(lobeRGB.r, max(lobeRGB.g, lobeRGB.b)), 0.0)) * uSharpMul;
+  return clamp((lobe * (b + d + f + h) + e) / (4.0 * lobe + 1.0), 0.0, 1.0);
+}
+
+void main(){
+  // virtual full-res coordinate this screen pixel inspects; at zoom 1
+  // it is exactly gl_FragCoord. Both sides magnify nearest-neighbour
+  // from virtual pixel centres so the comparison stays per-pixel fair.
+  vec2 vc = 0.5 * uOutSize + (gl_FragCoord.xy - 0.5 * uOutSize) / uZoom;
+  vc = clamp(vc, vec2(0.0), uOutSize - 1.0);
+  // bilinear sample position, jitter-compensated so the left side stays
+  // stable while temporal mode jitters the source render
+  vec2 suv = ((floor(vc) + 0.5) * (uInSize / uOutSize) - uJitterC) / uInSize;
+  ivec2 sp = ivec2(vc);
+  float divX = uDivider * uOutSize.x;
+  bool left = (uSplit == 1) && (gl_FragCoord.x < divX);
+
+  vec3 col;
+  if (left || uMode == 0){
+    col = texture(uScene, suv).rgb;         // bilinear stretch
+  } else if (uMode == 2 || uMode == 4){
+    col = rcas(sp);                         // sharpened EASU or temporal
+  } else {
+    col = fetchU(sp);                       // EASU or native render
+  }
+
+  if (uSplit == 1){
+    float dd = abs(gl_FragCoord.x - divX);
+    col = mix(vec3(0.92, 0.95, 1.0), col, smoothstep(0.7, 1.6, dd));
+  }
+  outColor = vec4(col, 1.0);
+}`;
+
+// ------------------------------------------------------------------ state
+
+const MODES = ["bilinear", "fsr 1.0", "fsr 1.0 + rcas", "native", "temporal (fsr 2-style)"];
+const QUALITY = [0.77, 0.67, 0.59, 0.50];
+const ZOOMS = [1, 2, 4];
+
+const S = {
+  mode: 2,
+  qIndex: 1,
+  scale: QUALITY[1],
+  split: true,
+  divider: 0.5,
+  sharpness: 0.2,
+  frozen: false,
+  hidden: false,
+  zoom: 1,
+  zIndex: 0,
+  time: 0,
+};
+
+// ------------------------------------------------------------------ gl setup
+
+const canvas = document.getElementById("view");
+const gl = canvas.getContext("webgl2", { antialias: false, alpha: false, depth: false, stencil: false });
+if (!gl){
+  document.getElementById("fatal").classList.add("show");
+  throw new Error("WebGL2 unavailable");
+}
+canvas.addEventListener("webglcontextlost", (e) => {
+  e.preventDefault();
+  document.getElementById("fatal").classList.add("show");
+});
+
+function compile(type, src){
+  const sh = gl.createShader(type);
+  gl.shaderSource(sh, src);
+  gl.compileShader(sh);
+  if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)){
+    throw new Error("shader: " + gl.getShaderInfoLog(sh));
+  }
+  return sh;
+}
+function program(fsSrc){
+  const p = gl.createProgram();
+  gl.attachShader(p, compile(gl.VERTEX_SHADER, VS));
+  gl.attachShader(p, compile(gl.FRAGMENT_SHADER, fsSrc));
+  gl.linkProgram(p);
+  if (!gl.getProgramParameter(p, gl.LINK_STATUS)){
+    throw new Error("link: " + gl.getProgramInfoLog(p));
+  }
+  return p;
+}
+
+const progScene = program(SCENE_FS);
+const progEasu  = program(EASU_FS);
+const progTemp  = program(TEMPORAL_FS);
+const progFinal = program(FINAL_FS);
+const U = {
+  scene: { res: gl.getUniformLocation(progScene, "uRes"), time: gl.getUniformLocation(progScene, "uTime"),
+           ratio: gl.getUniformLocation(progScene, "uResRatio"), jit: gl.getUniformLocation(progScene, "uJitter") },
+  easu:  { src: gl.getUniformLocation(progEasu, "uSrc"),
+           inS: gl.getUniformLocation(progEasu, "uInSize"), outS: gl.getUniformLocation(progEasu, "uOutSize") },
+  temp:  { src: gl.getUniformLocation(progTemp, "uSrc"), hist: gl.getUniformLocation(progTemp, "uHist"),
+           inS: gl.getUniformLocation(progTemp, "uInSize"), outS: gl.getUniformLocation(progTemp, "uOutSize"),
+           jit: gl.getUniformLocation(progTemp, "uJitter"), dt: gl.getUniformLocation(progTemp, "uDt"),
+           reset: gl.getUniformLocation(progTemp, "uReset"), seed: gl.getUniformLocation(progTemp, "uSeed") },
+  fin:   { scene: gl.getUniformLocation(progFinal, "uScene"), up: gl.getUniformLocation(progFinal, "uUp"),
+           inS: gl.getUniformLocation(progFinal, "uInSize"),
+           outS: gl.getUniformLocation(progFinal, "uOutSize"), mode: gl.getUniformLocation(progFinal, "uMode"),
+           split: gl.getUniformLocation(progFinal, "uSplit"), div: gl.getUniformLocation(progFinal, "uDivider"),
+           sharp: gl.getUniformLocation(progFinal, "uSharpMul"), zoom: gl.getUniformLocation(progFinal, "uZoom"),
+           jitC: gl.getUniformLocation(progFinal, "uJitterC") },
+};
+
+// fullscreen triangle
+const vbo = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+gl.enableVertexAttribArray(0);
+gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+
+function makeTarget(filter){
+  const tex = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  const fbo = gl.createFramebuffer();
+  gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+  return { tex, fbo, w: 0, h: 0 };
+}
+function sizeTarget(t, w, h){
+  if (t.w === w && t.h === h) return;
+  gl.bindTexture(gl.TEXTURE_2D, t.tex);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+  t.w = w; t.h = h;
+}
+
+const sceneT = makeTarget(gl.LINEAR);   // low-res scene, sampled bilinearly
+const upT    = makeTarget(gl.NEAREST);  // full-res EASU output / native render
+const histA  = makeTarget(gl.LINEAR);   // temporal history ping-pong,
+const histB  = makeTarget(gl.LINEAR);   // sampled bilinearly on reproject
+
+// 8-point Halton(2,3) jitter, centred, in low-res pixel units
+function halton(i, b){
+  let f = 1, r = 0;
+  while (i > 0){ f /= b; r += f * (i % b); i = Math.floor(i / b); }
+  return r;
+}
+const JITTER = Array.from({ length: 8 }, (_, k) => [halton(k + 1, 2) - 0.5, halton(k + 1, 3) - 0.5]);
+let jIdx = 0;
+let histPing = false;
+let histValid = false;
+
+let W = 0, H = 0, renderW = 0, renderH = 0;
+
+function layout(){
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const w = Math.max(1, Math.round(canvas.clientWidth * dpr));
+  const h = Math.max(1, Math.round(canvas.clientHeight * dpr));
+  const rw = Math.max(16, Math.round(w * S.scale));
+  const rh = Math.max(16, Math.round(h * S.scale));
+  if (w === W && h === H && rw === renderW && rh === renderH) return;
+  W = w; H = h; renderW = rw; renderH = rh;
+  canvas.width = W; canvas.height = H;
+  sizeTarget(sceneT, renderW, renderH);
+  sizeTarget(upT, W, H);
+  sizeTarget(histA, W, H);
+  sizeTarget(histB, W, H);
+  histValid = false;
+  refreshResLine();
+}
+window.addEventListener("resize", layout);
+
+// ------------------------------------------------------------------ render
+
+function draw(){
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+}
+
+function frame(dt){
+  layout();
+
+  const scissorOn = S.split && S.zoom === 1 && (S.mode === 1 || S.mode === 2 || S.mode === 3);
+  const sx = Math.max(0, Math.floor(S.divider * W) - 8);
+  const jit = S.mode === 4 ? JITTER[jIdx % JITTER.length] : [0, 0];
+  jIdx++;
+  const sceneDt = S.frozen ? 0 : dt;   // jitter keeps cycling while frozen,
+                                       // so the history converges in place
+
+  // pass 1: low-res scene (unneeded only for fullscreen native)
+  if (!(S.mode === 3 && !S.split)){
+    gl.bindFramebuffer(gl.FRAMEBUFFER, sceneT.fbo);
+    gl.viewport(0, 0, renderW, renderH);
+    gl.useProgram(progScene);
+    gl.uniform2f(U.scene.res, renderW, renderH);
+    gl.uniform1f(U.scene.time, S.time);
+    gl.uniform1f(U.scene.ratio, renderH / H);
+    gl.uniform2f(U.scene.jit, jit[0], jit[1]);
+    draw();
+  }
+
+  // pass 2: fill the full-res buffer
+  let upTex = upT.tex;
+  if (S.mode === 1 || S.mode === 2 || S.mode === 3){
+    gl.bindFramebuffer(gl.FRAMEBUFFER, upT.fbo);
+    gl.viewport(0, 0, W, H);
+    if (scissorOn){
+      gl.enable(gl.SCISSOR_TEST);
+      gl.scissor(sx, 0, W - sx, H);
+    }
+    if (S.mode === 3){
+      gl.useProgram(progScene);
+      gl.uniform2f(U.scene.res, W, H);
+      gl.uniform1f(U.scene.time, S.time);
+      gl.uniform1f(U.scene.ratio, 1.0);
+      gl.uniform2f(U.scene.jit, 0, 0);
+    } else {
+      gl.useProgram(progEasu);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, sceneT.tex);
+      gl.uniform1i(U.easu.src, 0);
+      gl.uniform2f(U.easu.inS, renderW, renderH);
+      gl.uniform2f(U.easu.outS, W, H);
+    }
+    draw();
+    if (scissorOn) gl.disable(gl.SCISSOR_TEST);
+  } else if (S.mode === 4){
+    // temporal accumulate: always full-frame so the history stays whole
+    const hCur = histPing ? histA : histB;
+    const hPrev = histPing ? histB : histA;
+    gl.bindFramebuffer(gl.FRAMEBUFFER, hCur.fbo);
+    gl.viewport(0, 0, W, H);
+    gl.useProgram(progTemp);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, sceneT.tex);
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, hPrev.tex);
+    gl.uniform1i(U.temp.src, 0);
+    gl.uniform1i(U.temp.hist, 1);
+    gl.uniform2f(U.temp.inS, renderW, renderH);
+    gl.uniform2f(U.temp.outS, W, H);
+    gl.uniform2f(U.temp.jit, jit[0], jit[1]);
+    gl.uniform1f(U.temp.dt, sceneDt);
+    gl.uniform1f(U.temp.reset, histValid ? 0.0 : 1.0);
+    gl.uniform1f(U.temp.seed, (jIdx % 512) * 7.13);
+    draw();
+    histValid = true;
+    histPing = !histPing;
+    upTex = hCur.tex;
+  }
+
+  // pass 3: composite to screen
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  gl.viewport(0, 0, W, H);
+  gl.useProgram(progFinal);
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, sceneT.tex);
+  gl.activeTexture(gl.TEXTURE1);
+  gl.bindTexture(gl.TEXTURE_2D, upTex);
+  gl.uniform1i(U.fin.scene, 0);
+  gl.uniform1i(U.fin.up, 1);
+  gl.uniform2f(U.fin.inS, renderW, renderH);
+  gl.uniform2f(U.fin.outS, W, H);
+  gl.uniform1i(U.fin.mode, S.mode);
+  gl.uniform1i(U.fin.split, S.split ? 1 : 0);
+  gl.uniform1f(U.fin.div, S.divider);
+  gl.uniform1f(U.fin.sharp, Math.pow(2, -S.sharpness));
+  gl.uniform1f(U.fin.zoom, S.zoom);
+  gl.uniform2f(U.fin.jitC, jit[0], jit[1]);
+  draw();
+}
+
+// ------------------------------------------------------------------ stats
+
+const el = (id) => document.getElementById(id);
+const msNow = el("msNow"), msWorst = el("msWorst"), fpsNow = el("fpsNow"), resLine = el("resLine");
+
+let emaMs = 16.7;
+const win = new Float32Array(60);
+let winI = 0;
+let lastHudAt = 0;
+
+function refreshResLine(){
+  const z = S.zoom > 1 ? `, ${S.zoom}\u00d7 zoom` : "";
+  if (S.mode === 3){
+    resLine.textContent = `${W} \u00d7 ${H} native, no upscale${z}`;
+  } else {
+    const pct = Math.round((renderW * renderH) / (W * H) * 100);
+    resLine.innerHTML = `${renderW} \u00d7 ${renderH} \u2192 ${W} \u00d7 ${H} <em>(${pct}% of the pixels)</em>${z}`;
+  }
+}
+
+function stats(now, dt){
+  emaMs += (dt - emaMs) * 0.05;
+  win[winI] = dt;
+  winI = (winI + 1) % 60;
+  if (now - lastHudAt > 250 && !S.hidden){
+    lastHudAt = now;
+    let worst = 0;
+    for (let i = 0; i < 60; i++) if (win[i] > worst) worst = win[i];
+    msNow.textContent = emaMs.toFixed(1);
+    msWorst.textContent = worst.toFixed(1);
+    fpsNow.textContent = Math.round(1000 / emaMs);
+  }
+}
+
+// ------------------------------------------------------------------ ui
+
+const modeBtns = Array.from(document.querySelectorAll("#modeGroup button"));
+const qBtns = Array.from(document.querySelectorAll("#qGroup button"));
+const splitBtn = el("splitBtn"), freezeBtn = el("freezeBtn"), hideBtn = el("hideBtn"), zoomBtn = el("zoomBtn");
+const sharp = el("sharp"), sharpVal = el("sharpVal"), sharpWrap = el("sharp-wrap");
+const qualityRow = el("qualityRow");
+const tagL = el("tagL"), tagR = el("tagR");
+
+function cycleZoom(){
+  S.zIndex = (S.zIndex + 1) % ZOOMS.length;
+  S.zoom = ZOOMS[S.zIndex];
+  zoomBtn.textContent = "Zoom: " + S.zoom + "\u00d7";
+  zoomBtn.classList.toggle("on", S.zoom > 1);
+  refreshResLine();
+}
+
+function setMode(m){
+  S.mode = (m + 5) % 5;
+  if (S.mode === 4) histValid = false;
+  modeBtns.forEach((b, i) => b.classList.toggle("on", i === S.mode));
+  qualityRow.classList.toggle("off", S.mode === 3);
+  sharpWrap.classList.toggle("off", S.mode !== 2 && S.mode !== 4);
+  tagR.textContent = MODES[S.mode];
+  refreshResLine();
+}
+function setQuality(i){
+  S.qIndex = Math.min(Math.max(i, 0), QUALITY.length - 1);
+  S.scale = QUALITY[S.qIndex];
+  qBtns.forEach((b, k) => b.classList.toggle("on", k === S.qIndex));
+  layout();
+}
+function setSplit(on){
+  S.split = on;
+  splitBtn.textContent = "Split compare: " + (on ? "on" : "off");
+  splitBtn.classList.toggle("on", on);
+  tagL.style.display = tagR.style.display = on && !S.hidden ? "" : "none";
+  placeTags();
+}
+function setFrozen(on){
+  S.frozen = on;
+  freezeBtn.textContent = on ? "Resume motion" : "Freeze frame";
+  freezeBtn.classList.toggle("on", on);
+}
+function setHidden(on){
+  S.hidden = on;
+  document.body.classList.toggle("clean", on);
+  if (!on){ lastHudAt = 0; setSplit(S.split); }
+}
+function setSharpness(v){
+  S.sharpness = Math.min(Math.max(v, 0), 2);
+  sharp.value = S.sharpness;
+  sharpVal.textContent = S.sharpness.toFixed(2);
+}
+function moveDivider(dv){
+  S.divider = Math.min(Math.max(S.divider + dv, 0.05), 0.95);
+  placeTags();
+}
+function placeTags(){
+  const x = S.divider * canvas.clientWidth;
+  tagL.style.left = x + "px";
+  tagR.style.left = x + "px";
+}
+
+modeBtns.forEach((b) => b.addEventListener("click", () => setMode(+b.dataset.mode)));
+qBtns.forEach((b, i) => b.addEventListener("click", () => setQuality(i)));
+splitBtn.addEventListener("click", () => setSplit(!S.split));
+zoomBtn.addEventListener("click", cycleZoom);
+freezeBtn.addEventListener("click", () => setFrozen(!S.frozen));
+hideBtn.addEventListener("click", () => setHidden(true));
+sharp.addEventListener("input", () => setSharpness(parseFloat(sharp.value)));
+
+// drag the wipe
+let dragging = false;
+canvas.addEventListener("pointerdown", (e) => {
+  if (S.hidden){ setHidden(false); return; }
+  dragging = true;
+  canvas.setPointerCapture(e.pointerId);
+  S.divider = Math.min(Math.max(e.clientX / canvas.clientWidth, 0.05), 0.95);
+  placeTags();
+});
+canvas.addEventListener("pointermove", (e) => {
+  if (!dragging) return;
+  S.divider = Math.min(Math.max(e.clientX / canvas.clientWidth, 0.05), 0.95);
+  placeTags();
+});
+canvas.addEventListener("pointerup", () => { dragging = false; });
+
+// keyboard
+window.addEventListener("keydown", (e) => {
+  if (S.hidden && e.key !== "h"){ setHidden(false); }
+  switch (e.key){
+    case "ArrowLeft":  setMode(S.mode - 1); break;
+    case "ArrowRight": setMode(S.mode + 1); break;
+    case "ArrowUp":    setQuality(S.qIndex - 1); break;
+    case "ArrowDown":  setQuality(S.qIndex + 1); break;
+    case " ":          setSplit(!S.split); e.preventDefault(); break;
+    case "f": case "F": setFrozen(!S.frozen); break;
+    case "z": case "Z": cycleZoom(); break;
+    case "h": case "H": setHidden(!S.hidden); break;
+    case "[": setSharpness(S.sharpness - 0.05); break;
+    case "]": setSharpness(S.sharpness + 0.05); break;
+  }
+});
+
+// gamepad: dpad 12-15, face 0-3, bumpers 4/5, triggers 6/7
+const padPrev = new Array(18).fill(false);
+function pollPad(dt){
+  const pads = navigator.getGamepads ? navigator.getGamepads() : [];
+  let pad = null;
+  for (const p of pads){ if (p && p.connected){ pad = p; break; } }
+  if (!pad) return;
+  const hit = (i) => {
+    const down = !!(pad.buttons[i] && pad.buttons[i].pressed);
+    const fresh = down && !padPrev[i];
+    padPrev[i] = down;
+    return fresh;
+  };
+  const held = (i) => !!(pad.buttons[i] && pad.buttons[i].pressed);
+
+  if (hit(14)) setMode(S.mode - 1);        // dpad left
+  if (hit(15)) setMode(S.mode + 1);        // dpad right
+  if (hit(12)) setQuality(S.qIndex - 1);   // dpad up
+  if (hit(13)) setQuality(S.qIndex + 1);   // dpad down
+  const faceB = hit(0), faceA = hit(1);    // evaluate both so edge
+  if (faceA){                              // state never desyncs
+    if (S.hidden) setHidden(false); else setSplit(!S.split);
+  }
+  if (faceB){
+    if (S.hidden) setHidden(false); else cycleZoom();
+  }
+  if (hit(2)) setFrozen(!S.frozen);        // Y
+  if (hit(3)) setHidden(!S.hidden);        // X
+  if (held(4)) moveDivider(-0.5 * dt);     // L
+  if (held(5)) moveDivider( 0.5 * dt);     // R
+  if (held(6)) setSharpness(S.sharpness - 0.8 * dt);  // ZL
+  if (held(7)) setSharpness(S.sharpness + 0.8 * dt);  // ZR
+  const ax = pad.axes && pad.axes.length ? pad.axes[0] : 0;
+  if (Math.abs(ax) > 0.25) moveDivider(ax * 0.6 * dt);
+}
+
+// ------------------------------------------------------------------ loop
+
+if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches){
+  setFrozen(true);
+}
+setMode(2);
+setQuality(1);
+setSplit(true);
+setSharpness(0.2);
+layout();
+placeTags();
+
+let prev = performance.now();
+function tick(now){
+  const dtMs = Math.min(now - prev, 100);
+  prev = now;
+  const dt = dtMs / 1000;
+  pollPad(dt);
+  if (!S.frozen) S.time += dt;
+  frame(dt);
+  stats(now, dtMs);
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>
