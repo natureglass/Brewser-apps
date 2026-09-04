@@ -24,7 +24,9 @@
     "assets/workers-pass-d.js",
     "assets/workers-pass-e.js",
     "assets/workers-pass-f.js",
+    "backdrop-filter.html",
     "benchmark.html",
+    "border-styles.html",
     "border.html",
     "canvas-responsive.html",
     "canvas-script.html",
@@ -36,9 +38,14 @@
     "demo-breakout.html",
     "directory.html",
     "display-none.html",
+    "dom-manip.html",
+    "dom-selectors.html",
     "emojis.html",
     "external-css.html",
+    "filter.html",
+    "flex-wrap.html",
     "forms.html",
+    "grid.html",
     "iframe.html",
     "images.html",
     "index.html",
@@ -55,9 +62,11 @@
     "pre.html",
     "rounded.html",
     "selectors.html",
+    "sticky.html",
     "svg.html",
     "tables.html",
     "tabs.html",
+    "transition.html",
     "two.html",
     "typography.html",
     "validation.html",
@@ -68,5 +77,5 @@
     "workers-tier0.html"
   ],
   "id": "com.natureglass.domhtmlcss",
-  "sizeBytes": 22087814
+  "sizeBytes": 22136783
 }
