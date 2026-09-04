@@ -214,7 +214,7 @@
       "name": "FSR LAB",
       "permissions": [],
       "publishedAt": "2026-09-04T09:29:51Z",
-      "sizeBytes": 1723737,
+      "sizeBytes": 1942873,
       "summary": "Render small, upscale smart. AMD FSR 1.0 and an FSR 2-style temporal upscaler, live in WebGL2",
       "tags": [
         "FSR",
@@ -867,7 +867,7 @@
     }
   ],
   "defaultSource": "base",
-  "generated": "2026-09-04T13:19:13Z",
+  "generated": "2026-09-04T13:23:15Z",
   "revoked": [],
   "sources": {
     "base": "https://play.brewser.io",
