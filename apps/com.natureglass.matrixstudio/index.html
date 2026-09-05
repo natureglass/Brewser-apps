@@ -45,6 +45,14 @@ input[type=checkbox]{width:18px;height:18px;accent-color:var(--acc)}
 input[type=range]{width:160px;accent-color:var(--acc)}
 .hint{color:var(--dim);font-size:12px;margin:4px 0 0}
 #settings .wide{width:100%}
+/* Frame-counter HUD (latency test): a plain-decimal readout of the same count the
+   top LED row encodes in binary, so you can film screen + panel and diff them.
+   z-index 8 sits above the canvas but under the settings panel (9) and bar (10). */
+#fcHud{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:8;display:none;
+  padding:6px 12px;background:rgba(11,13,20,.82);border:1px solid var(--line-hi);color:var(--ink);
+  font-size:13px;letter-spacing:.05em;white-space:nowrap;pointer-events:none}
+#fcHud.on{display:block}
+#fcHud b{color:var(--acc);font-weight:normal}
 </style>
 </head>
 <body>
@@ -64,6 +72,7 @@ input[type=range]{width:160px;accent-color:var(--acc)}
 </div>
 
 <canvas id="cv" width="1280" height="720"></canvas>
+<div id="fcHud"></div>
 
 <div id="settings">
   <h2>MATRIX LAYOUT</h2>
@@ -123,6 +132,17 @@ input[type=range]{width:160px;accent-color:var(--acc)}
     Only changed pixels are sent (delta encoding), so drawing and sparse scenes reach 60&nbsp;fps;
     full-screen animations auto-pace to ~30&nbsp;fps. Needs ESP32 firmware v2.3+.</p>
 
+  <h2>DIAGNOSTICS</h2>
+  <div class="row">
+    <label><input type="checkbox" id="sFC"> frame counter (latency test)</label>
+  </div>
+  <p class="hint">Overlays an incrementing frame number as binary along the top LED row: the leftmost
+    cell is an amber start marker, then bit&nbsp;0, bit&nbsp;1&hellip; run left&rarr;right (a lit cell = 1).
+    The <em>identical</em> pattern shows on the preview and streams to the panel, with a plain decimal
+    readout on screen. Film the screen and the panel together, step frame by frame, and the gap between
+    the two counts is the true render&rarr;shown latency. Overwrites the top row while enabled; no
+    firmware change needed. Off by default.</p>
+
   <div class="row" style="margin-top:20px">
     <button id="save" style="border-color:var(--acc);color:var(--acc)">SAVE</button>
     <button id="closeSet">CLOSE</button>
@@ -134,7 +154,7 @@ input[type=range]{width:160px;accent-color:var(--acc)}
 /* ================= state ================= */
 const MAX_LEDS=1024;      // firmware MAX_LEDS — W*H is clamped to this
 const DEF = {w:32,h:16,ph:8,axis:'v',serp:true,fx:false,fy:false,
-             pin:20,bri:40,baud:921600,fps:60,mode:'draw',demo:0,brushIdx:1,color:2,ver:3};
+             pin:20,bri:40,baud:921600,fps:60,mode:'draw',demo:0,brushIdx:1,color:2,fc:false,ver:3};
 let S = Object.assign({}, DEF);
 try{ Object.assign(S, JSON.parse(localStorage.getItem('matrixstudio')||'{}')); }catch(e){}
 const oldVer=S.ver||0;
@@ -505,6 +525,23 @@ function buildRawOrder(){
   return framePayload;
 }
 
+/* ================= frame counter (latency test) =================
+   Optional diagnostic (Settings ▸ DIAGNOSTICS). Encodes a monotonically-increasing
+   frame index as binary across the TOP ROW of the grid, so the exact same lit-pixel
+   pattern shows on the preview AND streams to the panel with no firmware change (it's
+   just pixels in the normal FRAME/DELTA path). Film both and step frame-by-frame: the
+   difference between the two counts is the real end-to-end render→shown latency (USB
+   transfer + ESP32 apply + WS2812 latch + any pacing skips). Top row, y=0:
+     x=0        amber start marker (locate bit 0, confirm this is the counter row)
+     x=1..bits  bit 0 (LSB) at x=1, rising toward the right; lit cell = 1 */
+let fcount=0;                         // rendered-frame index while the counter is on
+function drawFrameCounter(){
+  const bits=Math.min(W-1,16);        // low 16 bits fit any panel ≥17 wide; wraps visibly at 65536
+  if(bits<1) return;                  // degenerate 1-px-wide panel: nothing to show
+  setPix(0,0,255,120,0);              // amber start marker (static)
+  for(let b=0;b<bits;b++){ const on=((fcount>>b)&1)?255:0; setPix(b+1,0,on,on,on); }
+}
+
 /* ================= connectivity =================
    Protocol v2 over USB/serial (Web Serial). The rules this layer encodes — do not undo them:
      - encode each packet exactly ONCE; one seq counter, +1 per packet of any type
@@ -516,6 +553,7 @@ function buildRawOrder(){
 const PKT_FRAME=0x01, PKT_CONFIG=0x02, PKT_DELTA=0x03;
 let sink=null, sending=false, lastSend=0;
 let seq=0;
+let sentCount=0;                 // packets actually written (frame counter HUD samples this for sent-fps)
 const dot=document.getElementById('dot'), connLabel=document.getElementById('connLabel');
 function setConn(label,ok){ connLabel.textContent=label; dot.className=ok?'ok':''; }
 
@@ -669,7 +707,7 @@ async function pump(now, build=buildFrame){
   try{
     await sendPacket(type,payload);
     if(sink){
-      dot.className='ok';
+      dot.className='ok'; sentCount++;
       if(type===PKT_FRAME){
         if(!lastSentFB || lastSentFB.length!==framePayload.length) lastSentFB=new Uint8Array(framePayload.length);
         lastSentFB.set(framePayload);                 // full frame: the device now shows the whole frame
@@ -731,6 +769,7 @@ function fillSettings(){
   $('sFX').checked=S.fx; $('sFY').checked=S.fy;
   $('sPin').value=S.pin; $('sBri').value=S.bri; $('briVal').textContent=S.bri;
   $('sBaud').value=S.baud; $('sFps').value=S.fps;
+  $('sFC').checked=S.fc;
 }
 $('sBri').oninput=e=>$('briVal').textContent=e.target.value;
 $('save').onclick=async()=>{
@@ -743,6 +782,7 @@ $('save').onclick=async()=>{
   S.pin=Math.max(0,Math.min(48,+$('sPin').value|0));
   S.bri=Math.max(1,Math.min(255,+$('sBri').value|0||40));
   S.baud=+$('sBaud').value; S.fps=Math.min(60,+$('sFps').value||60);
+  S.fc=$('sFC').checked;
   saveLS(); rebuild();
   if(sink){ try{ await sendPacket(PKT_CONFIG,configPayload()); }catch(e){ disconnect(); } }
   setEl.classList.remove('open');
@@ -752,6 +792,19 @@ $('rawtest').onclick=()=>{ rawUntil=performance.now()+15000; resetDelta(); setEl
 $('connUsb').onclick=()=>{ S.baud=+$('sBaud').value; S.fps=+$('sFps').value; saveLS(); connectSerial(); };
 $('connOff').onclick=()=>disconnect();
 if(!navigator.serial) $('connUsb').disabled=true;
+
+// Frame-counter HUD: applies live (it's a harmless overlay), and persists like the rest.
+const fcHud=$('fcHud');
+let hudLastT=0, hudLastSent=0, hudFps=0;
+$('sFC').onchange=e=>{ S.fc=e.target.checked; saveLS(); if(!S.fc) fcHud.className=''; };
+function updateHud(now){
+  if(!S.fc){ if(fcHud.className) fcHud.className=''; return; }
+  if(now-hudLastT<250) return;                       // refresh the decimal ~4×/s (the top LED row is the per-frame reference)
+  hudFps=Math.round((sentCount-hudLastSent)*1000/Math.max(1,now-hudLastT));
+  hudLastT=now; hudLastSent=sentCount;
+  fcHud.className='on';
+  fcHud.innerHTML='frame <b>'+(fcount>>>0)+'</b> · sent <b>'+(sink?hudFps:0)+'</b> fps · cap <b>'+S.fps+'</b>';
+}
 
 /* ================= main loop ================= */
 let tPrev=performance.now();
@@ -772,8 +825,12 @@ function loop(now){
   if(now<identUntil) identifyFrame(t);
   else if(S.mode==='fluid') fluidStep(dt);
   else if(S.mode==='demo') DEMOS[S.demo%DEMOS.length].fn(t,dt);
+  // Frame counter overlays the top row AFTER the scene draws; skipped during IDENTIFY
+  // (RAW returns earlier) so those test patterns keep their own top-row markers.
+  if(S.fc && now>=identUntil){ fcount=(fcount+1)>>>0; drawFrameCounter(); }
   render();
   pump(now);
+  updateHud(now);
   requestAnimationFrame(loop);
 }
 window.addEventListener('resize',layoutView);
