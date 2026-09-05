@@ -224,7 +224,7 @@ void main(){
 const VS_GLYPH = `
 attribute vec4 aData;            /* cell.xy = glyph pixel coords, corner.zw */
 uniform vec2 uRes, uOrigin;
-uniform float uT, uScale, uMode, uScroll, uAmp, uFreq, uFill, uBeat;
+uniform float uT, uScale, uMode, uScroll, uAmp, uFreq, uFill, uBeat, uWav;
 varying vec3 vCol;
 vec3 pal(float t){ return 0.5 + 0.5*cos(6.28318*(t + vec3(0.0, 0.33, 0.67))); }
 void main(){
@@ -233,7 +233,7 @@ void main(){
   vec2 c; vec3 col;
   if (uMode < 0.5){                                   /* scroller */
     float x = uRes.x - uScroll + (cell.x + 0.5)*uScale;
-    float y = uOrigin.y + sin(x*uFreq + uT*1.8)*uAmp - (cell.y + 0.5)*uScale;
+    float y = uOrigin.y + sin(x*uFreq + uT*uWav)*uAmp - (cell.y + 0.5)*uScale;
     c = vec2(x, y);
     /* chrome: bright top fading to steel, hard seam, relit lower edge */
     float fy = (cell.y + 0.5)/8.0;
@@ -627,7 +627,7 @@ function frame(now){
 
   /* credit line */
   if (alphas.credit > 0.01){
-    const sc = Math.max(2, Math.floor(H/260));
+    const sc = Math.max(2, Math.floor(Math.min(W, H)/260));
     drawText(meshCredit, pr => {
       gl.uniform2f(U(pr,"uRes"), W, H);
       gl.uniform2f(U(pr,"uOrigin"), W*0.5, H*0.965);
@@ -645,8 +645,11 @@ function frame(now){
 
   /* sine scroller */
   if (alphas.scroll > 0.01){
-    const sc = Math.max(4, Math.round(H/96));
+    const sc = Math.max(4, Math.round(Math.min(W, H)/96));   /* min dim: sane in portrait */
     const speed = W*0.21;
+    const f = 6.28318/(sc*8*7);            /* one wave = 7 letters */
+    const BOB = 2.0;                       /* bobbing rate per letter, rad/s */
+    const wav = speed*f - BOB;             /* wave drift minus scroll = constant bob */
     const scrollT = Math.max(0, t - PAT);
     const period = meshScroll.widthCells*sc + W*1.2;
     const scroll = (scrollT*speed) % period;
@@ -657,8 +660,9 @@ function frame(now){
       gl.uniform1f(U(pr,"uScale"), sc);
       gl.uniform1f(U(pr,"uMode"), 0);
       gl.uniform1f(U(pr,"uScroll"), scroll);
-      gl.uniform1f(U(pr,"uAmp"), H*0.085);
-      gl.uniform1f(U(pr,"uFreq"), 6.28318/(W*0.35));
+      gl.uniform1f(U(pr,"uAmp"), Math.min(W, H)*0.085);
+      gl.uniform1f(U(pr,"uFreq"), f);
+      gl.uniform1f(U(pr,"uWav"), wav);
       gl.uniform1f(U(pr,"uFill"), 0.93);
       gl.uniform1f(U(pr,"uBeat"), beat);
       gl.uniform1f(U(pr,"uAlpha"), alphas.scroll);
