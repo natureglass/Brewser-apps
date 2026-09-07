@@ -338,7 +338,7 @@
         "storage"
       ],
       "publishedAt": "2026-09-07T12:53:12Z",
-      "sizeBytes": 558990,
+      "sizeBytes": 561147,
       "summary": "Stream your own Jellyfin media server's movies, shows and music, on Switch or in a browser.",
       "version": "1.0.7"
     },
@@ -953,6 +953,6 @@
       "version": "1.0.2"
     }
   ],
-  "generated": "2026-09-07T13:08:43Z",
+  "generated": "2026-09-07T14:01:11Z",
   "source": "base"
 }
