@@ -1,6 +1,6 @@
 # FSR LAB
 
-_v1.0.0_
+_v1.0.1_
 
 **FSR LAB** renders a scene small and upscales it smart \\u2014 the same trick commercial Switch games use, running live in a WebGL2 context. Drag the wipe across the screen and compare a plain bilinear stretch against AMD's FidelityFX Super Resolution 1.0 \\u2014 or a temporal (FSR 2-style) upscaler that accumulates sub-pixel detail across frames \\u2014 on real hardware, with a live frame-time readout.
 
@@ -24,7 +24,7 @@ _v1.0.0_
 
 ---
 
-- **Developer:** natureglass
+- **Live app:** [FSR LAB](https://brewser.io/fsr-lab/)
 - **Brewser profile:** [natureglass](https://brewser.io/profile?publisher=natureglass)
 - **License:** [MIT](https://choosealicense.com/licenses/mit)
 - **Website:** [https://github.com/natureglass](https://github.com/natureglass)
