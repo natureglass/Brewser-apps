@@ -1,6 +1,6 @@
 # Jellyfin Client
 
-_v1.0.7_
+_v1.0.8_
 
 **Jellyfin Client** connects to your own Jellyfin media server and streams your movies, shows and music. Sign in, browse your libraries with cover art, and pick up right where you left off — the same app runs on the Nintendo Switch and in an ordinary web browser.
 
@@ -19,7 +19,7 @@ _v1.0.7_
 
 ---
 
-- **Developer:** natureglass
+- **Live app:** [Jellyfin Client](https://brewser.io/jellyfin-client/)
 - **Brewser profile:** [natureglass](https://brewser.io/profile?publisher=natureglass)
 - **License:** [MIT](https://choosealicense.com/licenses/mit)
 - **Website:** [https://github.com/natureglass](https://github.com/natureglass)
