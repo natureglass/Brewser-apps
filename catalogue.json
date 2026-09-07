@@ -140,9 +140,9 @@
         "storage"
       ],
       "publishedAt": "2026-09-03T13:26:26Z",
-      "sizeBytes": 22136783,
+      "sizeBytes": 22174443,
       "summary": "A suite of self-contained fixtures that exercise the Brewser HTML, CSS, canvas, WebGL and Web API re",
-      "version": "1.0.4"
+      "version": "1.0.3"
     },
     {
       "categories": [
@@ -901,7 +901,7 @@
     }
   ],
   "defaultSource": "base",
-  "generated": "2026-09-06T14:07:24Z",
+  "generated": "2026-09-07T11:26:28Z",
   "revoked": [],
   "sources": {
     "base": "https://play.brewser.io",

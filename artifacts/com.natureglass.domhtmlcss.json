@@ -2,6 +2,7 @@
   "files": [
     "README.md",
     "align.html",
+    "animation.html",
     "api-probe.html",
     "assets/animated.gif",
     "assets/api-probe-font.ttf",
@@ -26,6 +27,7 @@
     "assets/workers-pass-f.js",
     "backdrop-filter.html",
     "benchmark.html",
+    "border-collapse.html",
     "border-styles.html",
     "border.html",
     "canvas-responsive.html",
@@ -53,6 +55,7 @@
     "line-height.html",
     "list-style.html",
     "manifest.json",
+    "margin-collapse.html",
     "modal-test.html",
     "mutation-observer-probe.html",
     "perf-image-stress.html",
@@ -66,6 +69,7 @@
     "svg.html",
     "tables.html",
     "tabs.html",
+    "transform.html",
     "transition.html",
     "two.html",
     "typography.html",
@@ -77,5 +81,5 @@
     "workers-tier0.html"
   ],
   "id": "com.natureglass.domhtmlcss",
-  "sizeBytes": 22136783
+  "sizeBytes": 22174443
 }
