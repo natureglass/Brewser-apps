@@ -506,6 +506,40 @@
   if (ctrlMute) ctrlMute.onclick = () => { video.muted = !video.muted; updateControls(); wakeOverlay(); };
   if ($('ctrl-gear')) $('ctrl-gear').onclick = () => { openSettingsModal(); wakeOverlay(); };
 
+  // Fullscreen — web only. A real browser has chrome to escape, so we offer the
+  // Fullscreen API on the player container; brewser's player already fills the
+  // screen, so the button stays hidden there. Vendor-prefixed for older Safari.
+  const ctrlFs = $('ctrl-fs');
+  const iFsEnter = $('i-fs-enter');
+  const iFsExit = $('i-fs-exit');
+  const player = $('screen-player');
+  const fsElement = () => document.fullscreenElement || document.webkitFullscreenElement || null;
+  function requestFs(el) {
+    const fn = el.requestFullscreen || el.webkitRequestFullscreen;
+    if (fn) { try { fn.call(el); } catch (_) { /* rejected (no user gesture etc.) */ } }
+  }
+  function exitFs() {
+    const fn = document.exitFullscreen || document.webkitExitFullscreen;
+    if (fn) { try { fn.call(document); } catch (_) { /* ignore */ } }
+  }
+  function updateFsIcon() {
+    const on = !!fsElement();
+    if (iFsEnter) iFsEnter.classList.toggle('hidden', on);
+    if (iFsExit) iFsExit.classList.toggle('hidden', !on);
+  }
+  // Reveal only in a real browser that supports the Fullscreen API.
+  if (ctrlFs && !isBrewser && player &&
+      (player.requestFullscreen || player.webkitRequestFullscreen)) {
+    ctrlFs.classList.remove('hidden');
+    ctrlFs.onclick = () => {
+      if (fsElement()) exitFs(); else requestFs(player);
+      wakeOverlay();
+    };
+    document.addEventListener('fullscreenchange', updateFsIcon);
+    document.addEventListener('webkitfullscreenchange', updateFsIcon);
+    updateFsIcon();
+  }
+
   // Progress seek. brewser's touch→DOM delivery during a drag is unreliable
   // (the engine has a native scrub path for its OWN drawn bar, which we don't
   // use), so we seek on every signal we might get — pointerdown, pointermove-
