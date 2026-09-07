@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jellyfin</title>
+<style>
+  :root {
+    --bg: #101010;
+    --surface: #181818;
+    --surface-2: #202020;
+    --edge: #2e2e2e;
+    --text: #e8e8e8;
+    --dim: #9a9a9a;
+    --accent: #00a4dc;   /* Jellyfin blue */
+    --accent-2: #aa5cc3; /* Jellyfin purple */
+    --err: #e05c6e;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 16px/1.5 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  }
+  button { font: inherit; cursor: pointer; border: 0; border-radius: 4px; }
+  button:focus-visible, input:focus-visible, .card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  input, select {
+    font: inherit; color: var(--text); background: var(--surface-2);
+    border: 1px solid var(--edge); border-radius: 4px; padding: 12px 14px; width: 100%;
+  }
+  /* Text inputs on the auth/connect screens should fill the column the same
+     width as the block buttons (they were rendering narrow / off-centre). */
+  #server-url, #auth-user, #auth-pass { display: block; width: 100%; }
+  .stack { width: 100%; }
+  /* A checkbox is a small square control, not a full-width bar — the global
+     `input { width: 100% }` above was stretching it across the settings row. */
+  input[type="checkbox"] {
+    width: 22px; height: 22px; flex: none; padding: 0; border-radius: 3px;
+  }
+  .hidden { display: none !important; }
+  .screen { min-height: 100vh; }
+
+  /* ---- centered auth screens (reference: webOS-style connect) ---- */
+  .center-wrap {
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; padding: 24px;
+  }
+  .center-col { width: min(460px, 92vw); }
+  .brand { display: flex; align-items: center; justify-content: center; gap: 18px; margin-bottom: 56px; }
+  .brand img { height: 96px; }
+  .brand .wordmark { font-size: 56px; font-weight: 700; letter-spacing: -1px; }
+  .field-label { font-size: 18px; margin: 0 0 10px; }
+  .btn-block {
+    display: block; width: 100%; margin-top: 14px; padding: 13px;
+    background: var(--surface-2); color: var(--text);
+    text-transform: uppercase; letter-spacing: .08em; font-size: 14px; font-weight: 600;
+  }
+  .btn-block:hover { background: #2a2a2a; }
+  .btn-block.primary { background: var(--accent); color: #06222c; }
+  .btn-block.primary:hover { filter: brightness(1.08); }
+  .form-status { min-height: 24px; margin-top: 14px; font-size: 14px; color: var(--dim); }
+  .form-status.err { color: var(--err); }
+  .divider { display: flex; align-items: center; gap: 12px; color: var(--dim); font-size: 13px; margin: 22px 0 8px; }
+  .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--edge); }
+  .qc-code { text-align: center; font-size: 52px; letter-spacing: .3em; font-variant-numeric: tabular-nums; margin: 18px 0 6px; }
+  .qc-hint { text-align: center; color: var(--dim); font-size: 14px; }
+  .linkish { background: none; color: var(--dim); margin-top: 22px; font-size: 14px; }
+  .linkish:hover { color: var(--text); }
+  .stack > * + * { margin-top: 12px; }
+
+  /* ---- app chrome ---- */
+  .topbar {
+    position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 14px;
+    padding: 12px 20px; background: rgba(16,16,16,.92); border-bottom: 1px solid #1e1e1e;
+  }
+  .topbar .title { font-size: 17px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .topbar .spacer { flex: 1; }
+  .iconbtn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 40px; height: 40px; border-radius: 50%; background: none; color: var(--dim); flex: none;
+  }
+  .iconbtn:hover { color: var(--text); background: var(--surface-2); }
+  .iconbtn .emoji { font-size: 19px; line-height: 1; }
+  .iconbtn svg { width: 22px; height: 22px; fill: currentColor; }
+  main.page { padding: 22px 20px 40px; max-width: 1400px; margin: 0 auto; }
+
+  /* ---- grids ---- */
+  .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+  .grid.wide { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+  .card { cursor: pointer; background: none; border: 0; padding: 0; text-align: left; color: var(--text); }
+  .card .thumb {
+    width: 100%; border-radius: 6px; background: var(--surface);
+    object-fit: cover; display: block; aspect-ratio: 2/3;
+  }
+  .card .thumb.landscape { aspect-ratio: 16/9; }
+  .card .thumb.square { aspect-ratio: 1/1; }
+  .card:hover .thumb { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .card .label { margin-top: 8px; font-size: 14px; line-height: 1.3; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .card .sub { color: var(--dim); font-size: 12.5px; margin-top: 2px; }
+  .loadmore { margin: 26px auto 0; display: block; padding: 11px 26px; background: var(--surface-2); color: var(--text); }
+  .empty { color: var(--dim); padding: 40px 0; text-align: center; }
+
+  /* ---- detail (reference: jellyfin-web pre-launch view) ---- */
+  .detail-hero { display: flex; gap: 26px; padding: 26px 20px; background: var(--surface); align-items: center; }
+  .detail-hero img { width: min(300px, 34vw); border-radius: 4px; display: block; }
+  .detail-headline { flex: 1; min-width: 0; }
+  .detail-headline h1 { margin: 0 0 6px; font-size: clamp(20px, 3.2vw, 30px); font-weight: 600; word-break: break-word; }
+  .detail-meta { color: var(--dim); font-size: 14.5px; display: flex; gap: 16px; flex-wrap: wrap; }
+  .detail-actions { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+  .btn-play {
+    display: inline-flex; align-items: center; gap: 10px; padding: 11px 22px;
+    background: var(--accent); color: #06222c; font-weight: 600; border-radius: 100px;
+  }
+  .btn-play.secondary { background: var(--surface-2); color: var(--text); }
+  .btn-play svg { width: 16px; height: 16px; fill: currentColor; }
+  .detail-body { max-width: 900px; padding: 26px 20px; }
+  .kv-row { display: grid; grid-template-columns: 110px 1fr; gap: 8px 18px; font-size: 15px; margin-bottom: 10px; }
+  .kv-row .k { color: var(--text); font-weight: 600; }
+  .kv-row .v { color: var(--dim); }
+  .overview { color: var(--dim); margin: 18px 0 0; max-width: 70ch; }
+  .section-h { font-size: 21px; font-weight: 500; margin: 34px 0 14px; }
+
+  /* ---- player ---- */
+  #screen-player { position: fixed; inset: 0; z-index: 50; background: #000; overflow: hidden; }
+  #player-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #000; }
+  .player-overlay {
+    position: absolute; top: 0; left: 0; right: 0; z-index: 2;
+    display: flex; align-items: center; gap: 14px; padding: 14px 18px 30px;
+    background: linear-gradient(to bottom, rgba(0,0,0,.75), rgba(0,0,0,0));
+    opacity: 1; transition: opacity .4s ease;
+  }
+  .player-overlay.faded { opacity: 0; pointer-events: none; }
+  .player-overlay .title { font-size: 17px; font-weight: 600; text-shadow: 0 1px 4px rgba(0,0,0,.8); }
+  /* "Show video stats" overlay: top-right, above the video frame (same z as
+     the top-bar so the engine's above-composite pass repaints it over the
+     blitted frame). Non-interactive; stays visible while playing. */
+  #video-stats {
+    position: absolute; top: 8px; right: 8px; z-index: 2;
+    max-width: 66%; padding: 7px 10px; border-radius: 6px;
+    background: rgba(0,0,0,.62); color: #cfe3ff;
+    font: 12px/1.5 ui-monospace, Menlo, Consolas, monospace;
+    white-space: pre; text-align: left; pointer-events: none;
+    text-shadow: 0 1px 2px rgba(0,0,0,.9);
+  }
+  #video-stats.hidden { display: none; }
+  /* Playback settings modal (over the video frame; light backdrop so aspect/
+     zoom/crop changes are previewable behind it). z:4 keeps it above the frame
+     via the engine's above-composite repaint pass. */
+  #settings-modal {
+    position: absolute; inset: 0; z-index: 4;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(0,0,0,.4);
+  }
+  #settings-modal.hidden { display: none; }
+  .settings-panel {
+    width: min(540px, 94vw); max-height: 90vh; overflow-y: auto;
+    background: var(--surface); border: 1px solid var(--edge); border-radius: 10px;
+    padding: 20px 22px; box-shadow: 0 12px 40px rgba(0,0,0,.6);
+  }
+  .settings-panel h3 { margin: 0 0 16px; font-size: 18px; font-weight: 600; }
+  .srow { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+  .srow > label { flex: none; width: 120px; color: var(--dim); font-size: 14.5px; }
+  .srow select { flex: 1; width: auto; min-width: 0; }
+  .jump-row { justify-content: center; gap: 18px; margin-top: 4px; }
+  .settings-actions { display: flex; align-items: center; gap: 10px; margin-top: 18px; }
+  .vs-spacer { flex: 1; }
+  .vs-btn { padding: 10px 16px; background: var(--surface-2); color: var(--text); border-radius: 6px; font-weight: 500; }
+  .vs-btn:hover { background: #2a2a2a; }
+  .vs-btn.primary { background: var(--accent); color: #06222c; font-weight: 600; }
+  .jump-row .vs-btn { min-width: 104px; }
+  /* Loading veil: covers the whole player (opaque black, above the video but
+     below the z:2 top-bar so Back stays visible) from tap-to-play until the
+     first frame lands. Hides the engine's placeholder + reads clearly as
+     "working, don't tap". */
+  #player-loading {
+    position: absolute; inset: 0; z-index: 1;
+    display: flex; align-items: center; justify-content: center;
+    background: #000; color: #e6ecf5;
+  }
+  #player-loading.hidden { display: none; }
+  #player-loading .msg { font-size: 19px; letter-spacing: .2px; }
+
+  /* ---- unified HTML control bar ---- */
+  /* Transparent full-frame tap target (see index.html note). */
+  #ctrl-hit { position: absolute; inset: 0; z-index: 1; background: transparent; }
+  .ctrl-bar {
+    position: absolute; left: 0; right: 0; bottom: 0; z-index: 3;
+    display: flex; align-items: center; gap: 12px; padding: 18px 20px 20px;
+    background: linear-gradient(to top, rgba(0,0,0,.85), rgba(0,0,0,0));
+    opacity: 1; transition: opacity .3s ease;
+  }
+  .ctrl-bar.faded { opacity: 0; pointer-events: none; }
+  .ctrl-btn {
+    flex: none; width: 46px; height: 46px; border-radius: 50%;
+    background: none; color: #fff; padding: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .ctrl-btn:hover { background: rgba(255,255,255,.16); }
+  .ctrl-btn svg { width: 26px; height: 26px; fill: currentColor; }
+  .ctrl-btn svg.hidden { display: none; }
+  .ctrl-time {
+    flex: none; min-width: 52px; text-align: center; color: #fff;
+    font-size: 14px; font-variant-numeric: tabular-nums;
+    text-shadow: 0 1px 3px rgba(0,0,0,.85);
+  }
+  /* Progress track: a rail + a fill + a draggable knob (a plain <input range>
+     would depend on native range rendering the engine doesn't draw). Height is
+     generous so it's an easy finger target on Switch touch. */
+  .ctrl-track { position: relative; flex: 1; min-width: 0; height: 28px; display: flex; align-items: center; cursor: pointer; }
+  .ctrl-rail { position: absolute; left: 0; right: 0; top: 50%; margin-top: -3px; height: 6px; border-radius: 3px; background: rgba(255,255,255,.3); }
+  .ctrl-fill { position: absolute; left: 0; top: 50%; margin-top: -3px; height: 6px; border-radius: 3px; background: var(--accent); width: 0%; }
+  .ctrl-knob { position: absolute; left: 0; top: 50%; margin-top: -9px; margin-left: -9px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.6); }
+
+  /* ---- settings ---- */
+  .settings-block { background: var(--surface); border: 1px solid var(--edge); border-radius: 6px; padding: 18px; margin-bottom: 18px; max-width: 760px; }
+  .settings-block h2 { margin: 0 0 12px; font-size: 15px; font-weight: 600; color: var(--dim); text-transform: uppercase; letter-spacing: .06em; }
+  .settings-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
+  .settings-row label { min-width: 130px; color: var(--dim); font-size: 14.5px; }
+  .settings-row select { width: auto; min-width: 160px; }
+  .settings-row .btn-inline { padding: 9px 16px; background: var(--surface-2); color: var(--text); }
+  #log {
+    font: 12px/1.55 ui-monospace, 'Cascadia Mono', Menlo, monospace; color: var(--dim);
+    background: var(--bg); border: 1px solid var(--edge); border-radius: 4px;
+    padding: 10px; max-height: 300px; overflow-y: auto; white-space: pre-wrap;
+  }
+  #log .e { color: var(--err); }
+</style>
+</head>
+<body>
+
+  <!-- Connect (reference layout: logo, Server Address, input, CONNECT) -->
+  <div id="screen-connect" class="screen center-wrap">
+    <div class="center-col">
+      <div class="brand">
+        <img id="logo-img" src="assets/logo.png" alt="" onerror="this.remove()">
+        <span class="wordmark" id="logo-fallback">Jellyfin</span>
+      </div>
+      <p class="field-label">Server Address</p>
+      <input id="server-url" placeholder="192.168.1.100:8096 or https://myserver.com"
+             autocapitalize="off" autocorrect="off" spellcheck="false">
+      <button id="btn-connect" class="btn-block">Connect</button>
+      <div class="form-status" id="connect-status"></div>
+    </div>
+  </div>
+
+  <!-- Sign in -->
+  <div id="screen-auth" class="screen center-wrap hidden">
+    <div class="center-col">
+      <div class="brand">
+        <img src="assets/logo.png" alt="" onerror="this.remove()">
+        <span class="wordmark">Jellyfin</span>
+      </div>
+      <p class="field-label" id="auth-server-name">Sign in</p>
+
+      <div id="auth-choices">
+        <button id="btn-qc" class="btn-block primary">Use Quick Connect</button>
+        <div class="divider">or sign in with password</div>
+        <div class="stack">
+          <input id="auth-user" placeholder="Username" autocapitalize="off">
+          <input id="auth-pass" placeholder="Password" type="password">
+        </div>
+        <button id="btn-login" class="btn-block">Sign In</button>
+      </div>
+
+      <div id="qc-panel" class="hidden">
+        <div class="qc-code" id="qc-code"></div>
+        <p class="qc-hint">Enter this code in your Jellyfin app under<br>Settings &gt; Quick Connect</p>
+        <button id="btn-qc-cancel" class="btn-block">Cancel</button>
+      </div>
+
+      <div class="form-status" id="auth-status"></div>
+      <button id="btn-change-server" class="linkish">Change server</button>
+    </div>
+  </div>
+
+  <!-- Libraries (shared folders) -->
+  <div id="screen-library" class="screen hidden">
+    <div class="topbar">
+      <span class="title" id="library-title">Libraries</span>
+      <span class="spacer"></span>
+      <button class="iconbtn" id="btn-settings" title="Settings" aria-label="Settings">
+        <span class="emoji" aria-hidden="true">⚙️</span>
+      </button>
+    </div>
+    <main class="page">
+      <div class="grid wide" id="views-grid"></div>
+    </main>
+  </div>
+
+  <!-- Browse -->
+  <div id="screen-browse" class="screen hidden">
+    <div class="topbar">
+      <button class="iconbtn" id="btn-browse-back" title="Back" aria-label="Back">
+        <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.6-5.6L12 4l-8 8 8 8 1.4-1.4-5.57-5.6H20v-2Z"/></svg>
+      </button>
+      <span class="title" id="browse-title"></span>
+      <span class="spacer"></span>
+      <button class="iconbtn" id="btn-settings-2" title="Settings" aria-label="Settings">
+        <span class="emoji" aria-hidden="true">⚙️</span>
+      </button>
+    </div>
+    <main class="page">
+      <div class="grid" id="items-grid"></div>
+      <div class="empty hidden" id="browse-empty">Nothing here</div>
+      <button id="btn-more" class="loadmore hidden">Load more</button>
+    </main>
+  </div>
+
+  <!-- Pre-launch detail -->
+  <div id="screen-detail" class="screen hidden">
+    <div class="topbar">
+      <button class="iconbtn" id="btn-detail-back" title="Back" aria-label="Back">
+        <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.6-5.6L12 4l-8 8 8 8 1.4-1.4-5.57-5.6H20v-2Z"/></svg>
+      </button>
+      <span class="spacer"></span>
+    </div>
+    <div class="detail-hero">
+      <img id="detail-thumb" alt="">
+      <div class="detail-headline">
+        <h1 id="detail-title"></h1>
+        <div class="detail-meta" id="detail-meta"></div>
+        <div class="detail-actions">
+          <button class="btn-play hidden" id="btn-resume">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><span id="resume-label">Resume</span>
+          </button>
+          <button class="btn-play" id="btn-play">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><span id="play-label">Play</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="detail-body">
+      <div id="detail-streams"></div>
+      <p class="overview" id="detail-overview"></p>
+      <h2 class="section-h" id="similar-h">More Like This</h2>
+      <div class="grid" id="similar-grid"></div>
+    </div>
+  </div>
+
+  <!-- Player -->
+  <!-- The <video> carries NO `controls` attribute: the app draws its own HTML
+       control bar (#ctrl-bar) so one control UI works on both brewser (engine-
+       blitted frame) and a real browser. `data-zoom` seeds the engine's per-
+       frame display transform on brewser (ignored on web, which uses CSS). -->
+  <div id="screen-player" class="screen hidden">
+    <video id="player-video" playsinline data-zoom="1"></video>
+    <!-- Transparent hit-catcher over the frame. Taps land on THIS (a plain div)
+         instead of the <video>, so the engine's video-input special-casing
+         (chromeless swipe-nav, frame-tap play/pause, double-tap → video-
+         fullscreen — all keyed on a controls-less <video>) never engages and
+         would-be fullscreen can't hide our HTML bar. Sits above the frame (z:1)
+         but below the chrome (z:2/3) and modal (z:4); faded chrome is
+         pointer-events:none so taps fall through to here to reveal it. -->
+    <div id="ctrl-hit"></div>
+    <div id="player-loading" class="hidden"><span class="msg" id="player-loading-msg">Loading stream, please wait…</span></div>
+    <div class="player-overlay" id="player-overlay">
+      <button class="iconbtn" id="btn-player-back" title="Back" aria-label="Back">
+        <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.6-5.6L12 4l-8 8 8 8 1.4-1.4-5.57-5.6H20v-2Z"/></svg>
+      </button>
+      <span class="title" id="player-title"></span>
+    </div>
+    <div id="video-stats" class="hidden"></div>
+
+    <!-- Unified HTML control bar. Drives the <video> element API
+         (play()/pause()/currentTime/duration/paused/muted). z:3 keeps it above
+         the engine-blitted frame via the above-composite repaint pass. Fades
+         in/out with the top overlay. -->
+    <div class="ctrl-bar faded" id="ctrl-bar">
+      <button class="ctrl-btn" id="ctrl-play" title="Play/Pause" aria-label="Play/Pause">
+        <svg id="i-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        <svg id="i-pause" class="hidden" viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+      </button>
+      <span class="ctrl-time" id="ctrl-cur">0:00</span>
+      <div class="ctrl-track" id="ctrl-track">
+        <div class="ctrl-rail"></div>
+        <div class="ctrl-fill" id="ctrl-fill"></div>
+        <div class="ctrl-knob" id="ctrl-knob"></div>
+      </div>
+      <span class="ctrl-time" id="ctrl-dur">0:00</span>
+      <button class="ctrl-btn" id="ctrl-mute" title="Mute" aria-label="Mute">
+        <svg id="i-vol" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3z"/></svg>
+        <svg id="i-mute" class="hidden" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3z"/><path d="M4.4 3 3 4.4 19.6 21 21 19.6z"/></svg>
+      </button>
+      <button class="ctrl-btn" id="ctrl-gear" title="Settings" aria-label="Settings">
+        <svg viewBox="0 0 24 24"><path d="M19.14 12.94a7.5 7.5 0 000-1.88l2.03-1.58a.5.5 0 00.12-.64l-1.92-3.32a.5.5 0 00-.6-.22l-2.39.96a7 7 0 00-1.62-.94l-.36-2.54a.5.5 0 00-.5-.42h-3.84a.5.5 0 00-.5.42l-.36 2.54c-.58.24-1.12.56-1.62.94l-2.39-.96a.5.5 0 00-.6.22L2.74 8.84a.5.5 0 00.12.64l2.03 1.58a7.5 7.5 0 000 1.88l-2.03 1.58a.5.5 0 00-.12.64l1.92 3.32a.5.5 0 00.6.22l2.39-.96c.5.38 1.04.7 1.62.94l.36 2.54a.5.5 0 00.5.42h3.84a.5.5 0 00.5-.42l.36-2.54c.58-.24 1.12-.56 1.62-.94l2.39.96a.5.5 0 00.6-.22l1.92-3.32a.5.5 0 00-.12-.64l-2.03-1.58zM12 15.5A3.5 3.5 0 1112 8.5a3.5 3.5 0 010 7z"/></svg>
+      </button>
+    </div>
+
+    <!-- Playback settings (opened by the engine control-bar gear) -->
+    <div id="settings-modal" class="hidden">
+      <div class="settings-panel">
+        <h3>Playback Settings</h3>
+        <div class="srow"><label for="vs-audio">Audio Track</label><select id="vs-audio"></select></div>
+        <div class="srow"><label for="vs-subtitle">Subtitle</label><select id="vs-subtitle"></select></div>
+        <div class="srow"><label for="vs-chapter">Chapter</label><select id="vs-chapter"></select></div>
+        <div class="srow"><label for="vs-aspect">Aspect Ratio</label><select id="vs-aspect"></select></div>
+        <div class="srow"><label for="vs-zoom">Zoom</label><select id="vs-zoom"></select></div>
+        <div class="srow"><label for="vs-crop">Crop</label><select id="vs-crop"></select></div>
+        <div class="srow jump-row">
+          <button id="vs-jump-back" class="vs-btn">« 10s</button>
+          <button id="vs-jump-fwd" class="vs-btn">10s »</button>
+        </div>
+        <div class="settings-actions">
+          <button id="vs-reset" class="vs-btn">Reset to Defaults</button>
+          <span class="vs-spacer"></span>
+          <button id="vs-cancel" class="vs-btn">Cancel</button>
+          <button id="vs-save" class="vs-btn primary">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings -->
+  <div id="screen-settings" class="screen hidden">
+    <div class="topbar">
+      <button class="iconbtn" id="btn-settings-back" title="Back" aria-label="Back">
+        <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.6-5.6L12 4l-8 8 8 8 1.4-1.4-5.57-5.6H20v-2Z"/></svg>
+      </button>
+      <span class="title">Settings</span>
+    </div>
+    <main class="page">
+      <div class="settings-block">
+        <h2>Server</h2>
+        <div class="settings-row"><label>Server</label><span id="set-server"></span></div>
+        <div class="settings-row"><label>User</label><span id="set-user"></span></div>
+        <div class="settings-row"><label>Platform</label><span id="set-platform"></span></div>
+        <div class="settings-row">
+          <button class="btn-inline" id="btn-signout">Sign out</button>
+          <button class="btn-inline" id="btn-exit">Exit app</button>
+        </div>
+      </div>
+      <div class="settings-block">
+        <h2>Playback</h2>
+        <div class="settings-row">
+          <label>Quality</label>
+          <select id="quality">
+            <option value="auto" selected>Auto</option>
+            <option value="source">Source</option>
+            <option value="1080">1080p</option>
+            <option value="720">720p</option>
+            <option value="480">480p30</option>
+          </select>
+        </div>
+        <div class="settings-row">
+          <label>Show video stats</label>
+          <input type="checkbox" id="show-stats">
+        </div>
+        <div class="settings-row">
+          <label>Bandwidth</label>
+          <span id="set-bitrate">not measured</span>
+          <button class="btn-inline" id="btn-bitrate">Measure</button>
+        </div>
+      </div>
+      <div class="settings-block">
+        <h2>App log</h2>
+        <div id="log"></div>
+      </div>
+    </main>
+  </div>
+
+  <script src="core.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
