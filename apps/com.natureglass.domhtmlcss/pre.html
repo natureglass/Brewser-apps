@@ -9,6 +9,12 @@
   code { color:#ffd35e; font-family:monospace; }
   .demo { font-family:monospace; font-size:15px; background:#101a33; border:1px solid #33507a;
           border-radius:8px; padding:10px 12px; width:360px; color:#cfe0ff; }
+  /* Stylesheet-driven white-space (NOT inline) — the parser can't see this
+     rule, so preservation relies on layout-time whitespace handling. */
+  .classpre    { white-space: pre; overflow-x: hidden; }
+  .preline     { white-space: pre-line; }
+  .breakspaces { white-space: break-spaces; }
+  .ok { color:#7eda9f; } .bad { color:#d96c6c; }
 </style>
 </head>
 <body>
@@ -35,6 +41,43 @@ NOT wrap (they overflow the box):</p>
 <div class="demo" style="white-space: pre; overflow-x: hidden;">a       b       c
     indented line
 no-wrap: this long line keeps going past the right edge instead of wrapping.</div>
+
+<h2>4 · <code>white-space: pre</code> via a STYLESHEET CLASS <span class="ok">(new)</span></h2>
+<p class="desc">Same content as §3 but the rule comes from <code>.classpre { white-space: pre }</code>
+in the page stylesheet, not an inline <code>style=</code>. Before this fix the parser
+collapsed the whitespace before the cascade was known, so class-driven preservation
+did nothing. It must now match §3 exactly:</p>
+<div class="demo classpre">a       b       c
+    indented line
+no-wrap: this long line keeps going past the right edge instead of wrapping.</div>
+
+<h2>5 · <code>white-space: pre-line</code> <span class="ok">(new)</span></h2>
+<p class="desc">Collapses runs of spaces to one, BUT keeps explicit newlines as breaks, AND
+wraps long lines. The triple spaces below collapse; the three short lines stay on
+three lines; the long paragraph wraps:</p>
+<div class="demo preline">alpha   beta   gamma
+line two
+line three
+this long physical line has no newline of its own but should still wrap at the 360px box edge because pre-line wraps like normal text.</div>
+
+<h2>6 · <code>white-space: break-spaces</code> <span class="ok">(new)</span></h2>
+<p class="desc">Like <code>pre-wrap</code>: preserves the double  spaces and the newline, and wraps:</p>
+<div class="demo breakspaces">keep    these    spaces
+and wrap this sufficiently long physical line onto multiple visual lines at the box edge.</div>
+
+<h2>7 · physical units <span class="ok">(new)</span></h2>
+<p class="desc">Absolute units now resolve (96px = 1in): <code>1in</code>=96px, <code>1cm</code>≈37.8px,
+<code>1pc</code>=16px, <code>72pt</code>=96px. Each pair below is one bar sized in a
+physical unit stacked on a px bar of the intended width — they must be the SAME length:</p>
+<div style="background:#7aa2ff; height:14px; width:1in;">&nbsp;</div>
+<div style="background:#33507a; height:6px; width:96px; margin-bottom:8px;">&nbsp;</div>
+<div style="background:#7eda9f; height:14px; width:2cm;">&nbsp;</div>
+<div style="background:#33507a; height:6px; width:75.59px; margin-bottom:8px;">&nbsp;</div>
+<div style="background:#ffd35e; height:14px; width:12pc;">&nbsp;</div>
+<div style="background:#33507a; height:6px; width:192px; margin-bottom:8px;">&nbsp;</div>
+<div style="background:#d96c6c; height:14px; width:144pt;">&nbsp;</div>
+<div style="background:#33507a; height:6px; width:192px; margin-bottom:8px;">&nbsp;</div>
+<p class="desc" style="font-size:18pt; color:#cfe0ff;">This paragraph is <code>font-size:18pt</code> (= 24px).</p>
 
 <p class="desc" style="margin-top:22px">The <code>code</code> tag outside a preserving context stays in normal flow with
 collapsed   whitespace   →   <code>collapsed   whitespace</code> renders as single spaces.</p>

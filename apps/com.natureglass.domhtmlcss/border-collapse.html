@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>CSS border-collapse — brewser</title>
+<style>
+  body { background:#0b1220; color:#e0e8f4; font:16px/1.5 system-ui, sans-serif; padding:22px 30px; }
+  h1 { color:#ffd35e; }
+  h2 { color:#7aa2ff; font-size:15px; margin:24px 0 6px; }
+  p.lead, .desc { color:#9bb1d6; font-size:14px; max-width:680px; }
+  code { color:#ffd35e; font-family:monospace; }
+  .ok { color:#7eda9f; }
+
+  .col { display:inline-block; vertical-align:top; margin-right:32px; }
+  .lbl { font-size:12px; color:#9bb1d6; font-family:monospace; margin-bottom:6px; }
+
+  /* Shared cell look. Every cell + the table has the SAME 1px border, so
+     collapse must produce a single-line grid and separate keeps the (current)
+     abutting-borders look. */
+  table { color:#e0e8f4; }
+  th, td { border:1px solid #6c86c0; padding:6px 12px; }
+  th { background:#22304d; color:#ffd35e; }
+  td { background:#141d33; }
+
+  .collapse { border:1px solid #6c86c0; border-collapse: collapse; }
+  .separate { border:1px solid #6c86c0; border-collapse: separate; }
+
+  /* Thicker border to make the collapse (single) vs separate (doubled)
+     difference obvious. */
+  .thick th, .thick td, .thick.collapse { border:3px solid #7eda9f; }
+
+  /* Header-underline pattern: only a bottom border on the header cells. */
+  .underline { border-collapse: collapse; }
+  .underline th { border:none; border-bottom:2px solid #ffd35e; background:none; }
+  .underline td { border:none; }
+</style>
+</head>
+<body>
+  <h1>CSS <code>border-collapse</code> <span class="ok">(new)</span></h1>
+  <p class="lead">Every cell + table has the same <code>1px</code> border. With
+  <code>collapse</code> adjacent cells share a <b>single</b> line; the default
+  <code>separate</code> keeps each cell's own border (they abut, so internal lines look
+  doubled). Compare the grid-line thickness between the two tables.</p>
+
+  <h2>1 · collapse vs separate (1px)</h2>
+  <div class="col">
+    <div class="lbl">border-collapse: collapse</div>
+    <table class="collapse">
+      <tr><th>A</th><th>B</th><th>C</th></tr>
+      <tr><td>1</td><td>2</td><td>3</td></tr>
+      <tr><td>4</td><td>5</td><td>6</td></tr>
+    </table>
+  </div>
+  <div class="col">
+    <div class="lbl">border-collapse: separate</div>
+    <table class="separate">
+      <tr><th>A</th><th>B</th><th>C</th></tr>
+      <tr><td>1</td><td>2</td><td>3</td></tr>
+      <tr><td>4</td><td>5</td><td>6</td></tr>
+    </table>
+  </div>
+
+  <h2>2 · thicker border makes the difference obvious (3px)</h2>
+  <p class="desc">Collapse = one 3px line between cells; separate = two 3px borders abutting (6px).</p>
+  <div class="col">
+    <div class="lbl">collapse</div>
+    <table class="thick collapse">
+      <tr><th>X</th><th>Y</th></tr>
+      <tr><td>1</td><td>2</td></tr>
+    </table>
+  </div>
+  <div class="col">
+    <div class="lbl">separate</div>
+    <table class="thick separate">
+      <tr><th>X</th><th>Y</th></tr>
+      <tr><td>1</td><td>2</td></tr>
+    </table>
+  </div>
+
+  <h2>3 · collapse with colspan / rowspan</h2>
+  <p class="desc">Spanning cells still share single borders with their neighbours.</p>
+  <table class="collapse">
+    <tr><th colspan="3">Spanning header</th></tr>
+    <tr><td rowspan="2">tall</td><td>b</td><td>c</td></tr>
+    <tr><td>e</td><td>f</td></tr>
+  </table>
+
+  <h2>4 · header-underline (bottom border only)</h2>
+  <p class="desc">A common pattern: no grid, just a rule under the header row.</p>
+  <table class="underline">
+    <tr><th>Name</th><th>Score</th></tr>
+    <tr><td>Alpha</td><td>91</td></tr>
+    <tr><td>Beta</td><td>84</td></tr>
+  </table>
+
+  <p class="desc" style="margin-top:24px"><a href="index.html">back to web experiments</a></p>
+</body>
+</html>

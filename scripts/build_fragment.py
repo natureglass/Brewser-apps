@@ -60,7 +60,13 @@ SLIM_REQUIRED = [
     "id", "name", "version", "entry", "logo", "categories", "compatibility",
     "permissions", "developer", "license",
 ]
-SLIM_OPTIONAL = ["genre", "features", "tags"]
+# `minBrewserVersion` is the optional minimum-runtime pin the WP submit form
+# stamps into the manifest (from versions.json). Carried onto the catalogue
+# entry so a NOT-installed app still exposes it — the runtime app-detail modal
+# compares it to the installed Brewser and shows a non-blocking notice when the
+# device is older (browser-toolbar.ts reads listing.minBrewserVersion; the
+# normalizer keeps it as a known field). Copied verbatim only when present.
+SLIM_OPTIONAL = ["genre", "features", "tags", "minBrewserVersion"]
 
 
 def now_z() -> str:

@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>CSS @keyframes animation — brewser</title>
+<style>
+  body { background:#0b1220; color:#e0e8f4; font:16px/1.5 system-ui, sans-serif; padding:22px 30px; }
+  h1 { color:#ffd35e; }
+  p.lead { color:#9bb1d6; font-size:14px; max-width:680px; }
+  code { color:#ffd35e; font-family:monospace; }
+  h2 { color:#7aa2ff; font-size:15px; margin:24px 0 6px; }
+  .desc { color:#9bb1d6; font-size:13px; max-width:680px; margin:0 0 10px; }
+  .ok { color:#7eda9f; }
+  /* Each demo sits in a wide track so translate motion has room and never clips. */
+  .track { position:relative; height:60px; margin:6px 0 4px; }
+  .box { width:54px; height:54px; border-radius:9px; display:flex; align-items:center;
+         justify-content:center; color:#0b1220; font:12px/1 monospace; font-weight:700; }
+  .b { background:#7aa2ff; } .g { background:#7eda9f; } .p { background:#c58aff; }
+
+  /* Control: rotate (worked before this milestone). */
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .spinner { animation: spin 1.2s linear infinite; }
+
+  /* NEW — translate (px), direction: alternate. */
+  @keyframes slidePx { from { transform: translateX(0); } to { transform: translateX(200px); } }
+  .slidepx { animation: slidePx 1.4s ease-in-out infinite alternate; }
+
+  /* NEW — translate (percent, resolves against the element's own width). */
+  @keyframes slideInPct { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+  .slidein { animation: slideInPct 1.6s ease-in-out infinite alternate; }
+
+  /* NEW — translateY bob, direction: alternate, ease-in-out. */
+  @keyframes bob { from { transform: translateY(0); } to { transform: translateY(-30px); } }
+  .bob { animation: bob 0.9s ease-in-out infinite alternate; }
+
+  /* NEW — background-color pulse (colour interpolation), alternate. */
+  @keyframes flash { from { background-color:#2a4a6a; } to { background-color:#ff6f9a; } }
+  .flash { width:120px; background:#2a4a6a; color:#fff; animation: flash 1s ease-in-out infinite alternate; }
+
+  /* NEW — animation-delay (shorthand 2nd time value): three staggered dots. */
+  @keyframes dot { 0% { opacity:0.25; transform: translateY(0); }
+                   50% { opacity:1; transform: translateY(-12px); }
+                   100% { opacity:0.25; transform: translateY(0); } }
+  .dots { display:flex; gap:14px; align-items:flex-end; height:40px; }
+  .dot { width:18px; height:18px; border-radius:50%; background:#ffd35e; }
+  .dot1 { animation: dot 1.2s ease-in-out infinite; }
+  .dot2 { animation: dot 1.2s ease-in-out 0.2s infinite; }
+  .dot3 { animation: dot 1.2s ease-in-out 0.4s infinite; }
+
+  /* Timing-function comparison on the SAME px translate: linear vs ease-in-out. */
+  @keyframes tx2 { from { transform: translateX(0); } to { transform: translateX(210px); } }
+  .lin { background:#2a4a6a; color:#fff; animation: tx2 1.8s linear infinite alternate; }
+  .eio { background:#7d5a9a; color:#fff; animation: tx2 1.8s ease-in-out infinite alternate; }
+</style>
+</head>
+<body>
+  <h1>CSS <code>@keyframes</code> animation <span class="ok">(new)</span></h1>
+  <p class="lead">All demos run automatically (no interaction — Switch has no hover). Before this
+  milestone only rotate / scale / opacity interpolated; translate, colour, <code>animation-delay</code>,
+  and <code>animation-direction</code> are new. Timing functions (ease / cubic-bezier / steps) were
+  already wired.</p>
+
+  <h2>Control · rotate (unchanged)</h2>
+  <p class="desc">Continuous spin — the pre-existing rotate path, here as a baseline.</p>
+  <div class="track"><div class="box p spinner">spin</div></div>
+
+  <h2>1 · translate X — px, <code>alternate</code></h2>
+  <p class="desc">Slides right 200px then back (direction reverses each iteration). Motion + reversal are both new.</p>
+  <div class="track"><div class="box b slidepx">px</div></div>
+
+  <h2>2 · translate X — percent (<code>translateX(-100%)</code> → 0)</h2>
+  <p class="desc">Percent translate resolves against the box's own width — slides fully out to the left and back in.</p>
+  <div class="track"><div class="box g slidein">%</div></div>
+
+  <h2>3 · translate Y bob — <code>ease-in-out alternate</code></h2>
+  <p class="desc">Bounces up 30px and settles, easing at each end.</p>
+  <div class="track"><div class="box b bob">bob</div></div>
+
+  <h2>4 · background-color pulse (colour interpolation)</h2>
+  <p class="desc">Interpolates blue ↔ pink each iteration — @keyframes colour animation is new (only transitions did colour before).</p>
+  <div class="track"><div class="box flash">flash</div></div>
+
+  <h2>5 · <code>animation-delay</code> — staggered loading dots</h2>
+  <p class="desc">Same 1.2s pulse, delays 0 / 0.2s / 0.4s — they ripple in sequence. The delay was previously dropped.</p>
+  <div class="dots"><div class="dot dot1"></div><div class="dot dot2"></div><div class="dot dot3"></div></div>
+
+  <h2>6 · timing functions on the same translate</h2>
+  <p class="desc">Both slide 210px over 1.8s: top is <code>linear</code> (constant speed), bottom is
+  <code>ease-in-out</code> (slow-fast-slow). They should visibly diverge mid-travel and meet at the ends.</p>
+  <div class="track"><div class="box lin" style="width:88px;">linear</div></div>
+  <div class="track"><div class="box eio" style="width:88px;">ease</div></div>
+
+  <p class="desc" style="margin-top:24px"><a href="index.html">back to web experiments</a></p>
+</body>
+</html>

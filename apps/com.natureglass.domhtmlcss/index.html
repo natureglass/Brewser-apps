@@ -110,8 +110,20 @@ the rendering pipeline.</p>
   <br><span class="desc">Grid depth: <code>grid-template-areas</code> (app shell), <code>auto-fill</code> tracks, per-item <code>justify-self</code>/<code>align-self</code>, <code>grid-auto-rows</code>, track distribution via <code>justify-content</code>, and independent <code>row-gap</code>/<code>column-gap</code>.</span>
 </li>
 <li>
+  <strong><a href="margin-collapse.html">margin-collapse</a></strong>
+  <br><span class="desc">Vertical margin collapsing (CSS 2.1 §8.3.1): adjacent-sibling collapse (positive max + negative sum), parent↔first-child collapse-through an open top edge, the padding/border guard that keeps margins inside, and empty-block self-collapse. Actual-vs-reference columns must render identically.</span>
+</li>
+<li>
   <strong><a href="transition.html">transition</a></strong>
   <br><span class="desc"><code>transition</code> animates value changes: background-color, opacity, transform (scale), text <code>color</code>, border-color, a multi-property list with <code>cubic-bezier</code>, and a linear-vs-ease-in-out comparison. Tap-toggle driven; reverses mid-flight.</span>
+</li>
+<li>
+  <strong><a href="animation.html">animation</a></strong>
+  <br><span class="desc"><code>@keyframes</code> animation: translate (px + percent), <code>translateY</code> bob, background-color pulse, <code>animation-delay</code> staggered loading dots, <code>animation-direction: alternate</code>, and a linear-vs-ease-in-out timing comparison. Auto-running (no interaction).</span>
+</li>
+<li>
+  <strong><a href="transform.html">transform</a></strong>
+  <br><span class="desc"><code>transform</code> — 2D translate/rotate/scale plus <code>skewX</code>/<code>skewY</code>/<code>skew</code>, <code>matrix()</code>, and 3D functions flattened to 2D (<code>rotateX</code>/<code>rotateY</code> cos-foreshorten, <code>translate3d</code>/<code>scale3d</code>, <code>matrix3d</code> affine slice). Each transformed square overlays a dashed reference of its untransformed box.</span>
 </li>
 <li>
   <strong><a href="filter.html">filter</a></strong>
@@ -148,6 +160,10 @@ the rendering pipeline.</p>
 <li>
   <strong><a href="tables.html">tables</a></strong>
   <br><span class="desc"><code>&lt;table&gt;</code> layout with head/body/foot, caption, and <code>colspan</code> / <code>rowspan</code>.</span>
+</li>
+<li>
+  <strong><a href="border-collapse.html">border-collapse</a></strong>
+  <br><span class="desc"><code>border-collapse: collapse</code> — adjacent cells share a single border instead of doubling. Collapse-vs-separate comparison at 1px and 3px, plus colspan/rowspan and a header-underline pattern.</span>
 </li>
 <li>
   <strong><a href="widgets.html">widgets</a></strong>

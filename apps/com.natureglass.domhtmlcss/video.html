@@ -15,6 +15,29 @@
                   padding: 1px 5px; border-radius: 3px; }
   a { color: #7eda9f; }
   code { color: #c2e0ff; }
+  /* Aspect/Zoom/Crop test — opened by the engine control-bar GEAR (the videos
+     carry data-settings-menu). The gear fires a `brewservideosettings` event;
+     this page shows the pop-up below and the dropdowns set the engine's per-video
+     display transform (data-aspect / data-crop = target aspect-ratio float, '' =
+     off; data-zoom = scale). The engine reads them while blitting each frame, so
+     PLAY a video, then change a dropdown to see the effect live. */
+  .vfx-modal { position: fixed; inset: 0; z-index: 100; display: flex;
+               align-items: center; justify-content: center; background: rgba(0,0,0,.5); }
+  .vfx-modal.hidden { display: none; }
+  .vfx-panel { width: min(440px, 92vw); background: #14202d; border: 1px solid #33465e;
+               border-radius: 10px; padding: 20px 22px; box-shadow: 0 12px 40px rgba(0,0,0,.6); }
+  .vfx-panel h3 { color: #ffd35e; margin: 0 0 6px; font-size: 20px; }
+  .vfx-panel .who { color: #9bb1d6; font-size: 13px; margin: 0 0 16px; }
+  .vfx-row { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+  .vfx-row .vfx-lbl { flex: none; width: 84px; color: #9bb1d6; font-size: 15px; }
+  .vfx-row select { flex: 1; height: 34px; width: auto; font-size: 14px; padding: 2px 8px;
+                    background-color: #0b1220; color: #e0e8f4; border: 1px solid #33465e;
+                    border-radius: 4px; }
+  .vfx-actions { display: flex; align-items: center; gap: 10px; margin-top: 18px; }
+  .vfx-actions .sp { flex: 1; }
+  .vfx-actions button { font-size: 14px; padding: 9px 14px; background-color: #33465e;
+                        color: #e0e8f4; border: 1px solid #47617f; border-radius: 5px;
+                        cursor: pointer; }
 </style>
 </head>
 <body>
@@ -23,39 +46,39 @@
 container + codec paths. Each block points at a different file under
 <code>sdmc:/switch/brewser/dev/assets/</code>. Tap the play / pause /
 stop buttons on a video's
-controls bar to interact with it; tap the video frame itself (above
-the bar) to enter fullscreen mode &mdash; gamepad B button exits
-fullscreen.</p>
+controls bar to interact with it; tap the video frame itself to reveal
+the controls bar.</p>
 
 <p class="note">Nothing autoplays; tap a video's <strong>&#x25B6;</strong>
-button to open its decoder and start playback. Multiple videos can
-play simultaneously (their audio mixes) &mdash; tap <strong>&#x23F8;</strong>
-on one to pause it or <strong>&#x25A0;</strong> to stop and rewind to
-the beginning.</p>
+button to open its decoder and start playback. To test the display
+transform: play a video, then tap the frame once to pause (the control
+bar appears) and tap the <strong>gear</strong> (left of the speaker)
+&mdash; a pop-up opens with Aspect / Zoom / Crop. Double-tap the frame to
+enter fullscreen (B exits).</p>
 
 <h2>1. mp4 &mdash; H.264 + AAC</h2>
 <p class="codec">Container: <code>ISO BMFF (mp4)</code> &middot;
 Video: <code>H.264</code> &middot; Audio: <code>AAC</code> &middot;
 Baseline (was the slice-2b reference fixture).</p>
-<video src="./assets/sample.mp4" width="320" height="240" controls></video>
+<video id="vid1" src="./assets/sample.mp4" width="320" height="240" controls data-settings-menu></video>
 
 <h2>2. mov &mdash; H.264 + AAC (QuickTime container)</h2>
 <p class="codec">Container: <code>QuickTime (mov)</code> &middot;
 Video: <code>H.264</code> &middot; Audio: <code>AAC</code> &middot;
 Exercises the QuickTime demuxer with the same codecs as mp4.</p>
-<video src="./assets/sample.mov" width="320" height="240" controls></video>
+<video id="vid2" src="./assets/sample.mov" width="320" height="240" controls data-settings-menu></video>
 
 <h2>3. mkv &mdash; H.264 + Vorbis (Matroska container)</h2>
 <p class="codec">Container: <code>Matroska (mkv)</code> &middot;
 Video: <code>H.264</code> &middot; Audio: <code>Vorbis</code> &middot;
 First Vorbis audio decoder + first mkv demuxer in the coverage set.</p>
-<video src="./assets/sample.mkv" width="320" height="240" controls></video>
+<video id="vid3" src="./assets/sample.mkv" width="320" height="240" controls data-settings-menu></video>
 
 <h2>4. webm &mdash; VP8 + Vorbis</h2>
 <p class="codec">Container: <code>WebM (Matroska)</code> &middot;
 Video: <code>VP8</code> &middot; Audio: <code>Vorbis</code> &middot;
 First VP8 video decoder (software-only, Tegra NVDEC is H.264-only).</p>
-<video src="./assets/sample.webm" width="320" height="240" controls></video>
+<video id="vid4" src="./assets/sample.webm" width="320" height="240" controls data-settings-menu></video>
 
 <h2>5. m4a &mdash; AAC audio only</h2>
 <p class="codec">Container: <code>ISO BMFF (M4A)</code> &middot;
@@ -97,5 +120,83 @@ isolates demuxer effects from codec effects.</p>
 <video src="./assets/sample.ogg" width="320" height="80" controls></video>
 
 <p><a href="index.html">back to web experiments</a></p>
+
+<!-- Pop-up opened by the engine control-bar gear (brewservideosettings event) -->
+<div id="vfx-modal" class="vfx-modal hidden">
+  <div class="vfx-panel">
+    <h3>Video Settings</h3>
+    <p class="who" id="vfx-who"></p>
+    <div class="vfx-row"><span class="vfx-lbl">Aspect</span><select id="vfx-aspect"></select></div>
+    <div class="vfx-row"><span class="vfx-lbl">Zoom</span><select id="vfx-zoom"></select></div>
+    <div class="vfx-row"><span class="vfx-lbl">Crop</span><select id="vfx-crop"></select></div>
+    <div class="vfx-actions">
+      <button id="vfx-reset">Reset to Defaults</button>
+      <span class="sp"></span>
+      <button id="vfx-close">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  // Label → value maps mirror the Jellyfin player's settings modal.
+  var ASPECT = [['Default', ''], ['16:9', 16 / 9], ['4:3', 4 / 3], ['1:1', 1],
+    ['16:10', 1.6], ['2.21:1', 2.21], ['2.35:1', 2.35], ['2.39:1', 2.39], ['5:4', 1.25]];
+  var ZOOM = [['1:4 Quarter', 0.25], ['1:2 Half', 0.5], ['1:1 Original', 1], ['2:1 Double', 2]];
+  var CROP = [['Default', ''], ['16:10', 1.6], ['16:9', 16 / 9], ['4:3', 4 / 3], ['1.85:1', 1.85],
+    ['2.21:1', 2.21], ['2.35:1', 2.35], ['2.39:1', 2.39], ['5:3', 5 / 3], ['5:4', 1.25], ['1:1', 1]];
+  function fill(sel, opts, val) {
+    sel.innerHTML = '';
+    for (var i = 0; i < opts.length; i++) {
+      var o = document.createElement('option');
+      o.value = String(opts[i][1]);
+      o.textContent = opts[i][0];
+      sel.appendChild(o);
+    }
+    sel.value = String(val);
+  }
+  function setRatio(v, name, val) {
+    if (val === '' || val == null) v.removeAttribute(name); else v.setAttribute(name, String(val));
+  }
+  var modal = document.getElementById('vfx-modal');
+  var who = document.getElementById('vfx-who');
+  var aSel = document.getElementById('vfx-aspect');
+  var zSel = document.getElementById('vfx-zoom');
+  var cSel = document.getElementById('vfx-crop');
+  var curVid = null;
+
+  function openFor(vid) {
+    curVid = vid;
+    who.textContent = (vid.getAttribute('src') || '').replace('./assets/', '');
+    fill(aSel, ASPECT, vid.getAttribute('data-aspect') || '');
+    fill(zSel, ZOOM, vid.getAttribute('data-zoom') || 1);
+    fill(cSel, CROP, vid.getAttribute('data-crop') || '');
+    modal.classList.remove('hidden');
+  }
+  aSel.onchange = function () { if (curVid) setRatio(curVid, 'data-aspect', aSel.value); };
+  cSel.onchange = function () { if (curVid) setRatio(curVid, 'data-crop', cSel.value); };
+  zSel.onchange = function () {
+    if (!curVid) return;
+    var z = parseFloat(zSel.value);
+    curVid.setAttribute('data-zoom', String(z > 0 ? z : 1));
+  };
+  document.getElementById('vfx-reset').onclick = function () {
+    if (!curVid) return;
+    curVid.removeAttribute('data-aspect');
+    curVid.removeAttribute('data-crop');
+    curVid.setAttribute('data-zoom', '1');
+    aSel.value = ''; cSel.value = ''; zSel.value = '1';
+  };
+  document.getElementById('vfx-close').onclick = function () { modal.classList.add('hidden'); };
+
+  // Wire each opted-in video's gear event to open the pop-up for THAT video.
+  var vids = document.querySelectorAll('video[data-settings-menu]');
+  for (var i = 0; i < vids.length; i++) {
+    (function (v) {
+      v.addEventListener('brewservideosettings', function () { openFor(v); });
+    })(vids[i]);
+  }
+})();
+</script>
 </body>
 </html>

@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+<head>
+<title>Test fixture: CSS transform (2D / skew / matrix / 3D)</title>
+<style>
+  body { background-color: #0b1220; color: #e0e8f4; font-size: 18px; padding: 28px 48px; }
+  h1 { color:#ffd35e; }
+  h2 { color:#7aa2ff; font-size:16px; margin:22px 0 6px; }
+  .desc { color:#9bb1d6; font-size:14px; max-width:720px; }
+  .row { margin: 4px 0 10px; }
+  /* Each cell overlays a solid transformed square on a faint dashed reference
+     square (same 50x50 box, no transform). transform-origin is the default
+     (centre). The solid must diverge from the dashed one as labelled. */
+  .cell { display:inline-block; width:128px; height:132px; position:relative;
+          margin:4px; vertical-align:top; background:#101a33; border:1px solid #1e2c47;
+          border-radius:6px; }
+  .ref  { position:absolute; left:39px; top:30px; width:50px; height:50px;
+          border:1px dashed #4a5b7a; box-sizing:border-box; }
+  .box  { position:absolute; left:39px; top:30px; width:50px; height:50px;
+          box-sizing:border-box; }
+  .lbl  { position:absolute; left:6px; right:6px; bottom:6px; font-size:11px;
+          font-family:monospace; color:#9bb1d6; text-align:center; }
+  .b1 { background:#7aa2ff; } .b2 { background:#7eda9f; }
+  .b3 { background:#ffd35e; } .b4 { background:#d96c6c; }
+</style>
+</head>
+<body>
+<h1>CSS <code>transform</code></h1>
+<p class="desc">Dashed square = the element's untransformed box. Solid square = the same box with
+the labelled <code>transform</code>. Before this pass only 2D translate/rotate/scale
+applied; skew, <code>matrix()</code>, and (flattened) 3D functions were ignored.</p>
+
+<h2>2D translate / rotate / scale (baseline — already worked)</h2>
+<div class="row">
+  <div class="cell"><div class="ref"></div><div class="box b1" style="transform: translate(18px,10px);"></div><div class="lbl">translate(18px,10px)</div></div>
+  <div class="cell"><div class="ref"></div><div class="box b2" style="transform: rotate(30deg);"></div><div class="lbl">rotate(30deg)</div></div>
+  <div class="cell"><div class="ref"></div><div class="box b3" style="transform: scale(1.4);"></div><div class="lbl">scale(1.4)</div></div>
+  <div class="cell"><div class="ref"></div><div class="box b4" style="transform: scale(1.5,0.6);"></div><div class="lbl">scale(1.5,0.6)</div></div>
+</div>
+
+<h2>skew (new)</h2>
+<div class="row">
+  <div class="cell"><div class="ref"></div><div class="box b1" style="transform: skewX(28deg);"></div><div class="lbl">skewX(28deg)</div></div>
+  <div class="cell"><div class="ref"></div><div class="box b2" style="transform: skewY(22deg);"></div><div class="lbl">skewY(22deg)</div></div>
+  <div class="cell"><div class="ref"></div><div class="box b3" style="transform: skew(18deg,12deg);"></div><div class="lbl">skew(18deg,12deg)</div></div>
+</div>
+
+<h2>matrix() (new)</h2>
+<div class="row">
+  <div class="cell"><div class="ref"></div><div class="box b1" style="transform: matrix(1,0,0.5,1,0,0);"></div><div class="lbl">matrix(1,0,.5,1,0,0)<br>horizontal shear</div></div>
+  <div class="cell"><div class="ref"></div><div class="box b2" style="transform: matrix(0.707,0.707,-0.707,0.707,0,0);"></div><div class="lbl">matrix &asymp; rotate 45&deg;<br>(diamond)</div></div>
+  <div class="cell"><div class="ref"></div><div class="box b3" style="transform: matrix(1.4,0,0,0.7,0,0);"></div><div class="lbl">matrix(1.4,0,0,.7,0,0)<br>non-uniform scale</div></div>
+</div>
+
+<h2>3D functions, flattened to 2D (new)</h2>
+<p class="desc">No true perspective (Canvas2D can't project): <code>rotateX</code>/<code>rotateY</code>
+foreshorten by <code>cos&nbsp;&theta;</code> (vertical / horizontal squash), <code>translate3d</code>/<code>scale3d</code>
+use their x,y, and <code>matrix3d</code> uses its 2D affine slice.</p>
+<div class="row">
+  <div class="cell"><div class="ref"></div><div class="box b1" style="transform: rotateX(55deg);"></div><div class="lbl">rotateX(55deg)<br>squash vertical</div></div>
+  <div class="cell"><div class="ref"></div><div class="box b2" style="transform: rotateY(55deg);"></div><div class="lbl">rotateY(55deg)<br>squash horizontal</div></div>
+  <div class="cell"><div class="ref"></div><div class="box b3" style="transform: translate3d(20px,12px,40px);"></div><div class="lbl">translate3d(20,12,40)<br>z ignored</div></div>
+  <div class="cell"><div class="ref"></div><div class="box b4" style="transform: matrix3d(1,0,0,0, 0.5,1,0,0, 0,0,1,0, 0,0,0,1);"></div><div class="lbl">matrix3d shear</div></div>
+</div>
+
+<h2>combined (order composes)</h2>
+<div class="row">
+  <div class="cell"><div class="ref"></div><div class="box b1" style="transform: rotate(20deg) skewX(15deg) scale(1.1);"></div><div class="lbl">rotate·skewX·scale</div></div>
+  <div class="cell"><div class="ref"></div><div class="box b2" style="transform: scale(2) rotateX(60deg);"></div><div class="lbl">scale(2)·rotateX(60)<br>=scaleY 1, scaleX 2</div></div>
+</div>
+
+<p style="margin-top:22px"><a href="index.html">back to web experiments</a></p>
+</body>
+</html>
