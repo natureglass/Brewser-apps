@@ -331,16 +331,16 @@
       "license": "MIT",
       "logo": "assets/appbanner.jpg",
       "maxFileBytes": 413952,
-      "minBrewserVersion": "0.1.119",
+      "minBrewserVersion": "0.1.120",
       "name": "Jellyfin Client",
       "permissions": [
         "local_network",
         "storage"
       ],
       "publishedAt": "2026-09-07T12:53:12Z",
-      "sizeBytes": 561147,
+      "sizeBytes": 561256,
       "summary": "Stream your own Jellyfin media server's movies, shows and music, on Switch or in a browser.",
-      "version": "1.0.7"
+      "version": "1.0.8"
     },
     {
       "categories": [
@@ -953,6 +953,6 @@
       "version": "1.0.2"
     }
   ],
-  "generated": "2026-09-07T14:01:11Z",
+  "generated": "2026-09-07T21:16:13Z",
   "source": "base"
 }
