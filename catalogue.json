@@ -246,10 +246,11 @@
       "id": "com.natureglass.fsrlab",
       "license": "MIT",
       "logo": "assets/appbanner.jpg",
+      "minBrewserVersion": "0.1.120",
       "name": "FSR LAB",
       "permissions": [],
       "publishedAt": "2026-09-04T09:29:51Z",
-      "sizeBytes": 1942873,
+      "sizeBytes": 1942948,
       "summary": "Render small, upscale smart. AMD FSR 1.0 and an FSR 2-style temporal upscaler, live in WebGL2",
       "tags": [
         "FSR",
@@ -257,7 +258,7 @@
         "Upscaling",
         "TAA"
       ],
-      "version": "1.0.0"
+      "version": "1.0.1"
     },
     {
       "categories": [
@@ -928,7 +929,7 @@
     }
   ],
   "defaultSource": "base",
-  "generated": "2026-09-07T21:21:28Z",
+  "generated": "2026-09-07T21:35:55Z",
   "revoked": [],
   "sources": {
     "base": "https://play.brewser.io",
