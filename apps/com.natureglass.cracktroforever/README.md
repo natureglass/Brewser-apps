@@ -1,6 +1,6 @@
 # Cracktro Forever
 
-_v1.0.2_
+_v1.0.3_
 
 A procedural tribute to the classic Amiga cracktro and demoscene, created for the Switch homebrew community.
 
@@ -12,7 +12,7 @@ A procedural tribute to the classic Amiga cracktro and demoscene, created for th
 
 ---
 
-- **Developer:** natureglass
+- **Live app:** [Cracktro Forever](https://brewser.io/cracktro-forever/)
 - **Brewser profile:** [natureglass](https://brewser.io/profile?publisher=natureglass)
 - **License:** [MIT](https://choosealicense.com/licenses/mit)
 - **Website:** [https://github.com/natureglass](https://github.com/natureglass)
