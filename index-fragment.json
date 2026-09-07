@@ -109,17 +109,18 @@
       "license": "MIT",
       "logo": "assets/appbanner.jpg",
       "maxFileBytes": 1893494,
+      "minBrewserVersion": "0.1.120",
       "name": "Cracktro Forever",
       "permissions": [],
       "publishedAt": "2026-09-04T13:52:43Z",
-      "sizeBytes": 1966129,
+      "sizeBytes": 1966282,
       "summary": "A love letter to the scene that raised us!",
       "tags": [
         "Demoscene",
         "Cracktro",
         "Homebrew"
       ],
-      "version": "1.0.2"
+      "version": "1.0.3"
     },
     {
       "categories": [
@@ -953,6 +954,6 @@
       "version": "1.0.2"
     }
   ],
-  "generated": "2026-09-07T21:16:13Z",
+  "generated": "2026-09-07T21:21:28Z",
   "source": "base"
 }

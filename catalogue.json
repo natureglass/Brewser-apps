@@ -106,17 +106,18 @@
       "id": "com.natureglass.cracktroforever",
       "license": "MIT",
       "logo": "assets/appbanner.jpg",
+      "minBrewserVersion": "0.1.120",
       "name": "Cracktro Forever",
       "permissions": [],
       "publishedAt": "2026-09-04T13:52:43Z",
-      "sizeBytes": 1966129,
+      "sizeBytes": 1966282,
       "summary": "A love letter to the scene that raised us!",
       "tags": [
         "Demoscene",
         "Cracktro",
         "Homebrew"
       ],
-      "version": "1.0.2"
+      "version": "1.0.3"
     },
     {
       "categories": [
@@ -927,7 +928,7 @@
     }
   ],
   "defaultSource": "base",
-  "generated": "2026-09-07T21:16:13Z",
+  "generated": "2026-09-07T21:21:28Z",
   "revoked": [],
   "sources": {
     "base": "https://play.brewser.io",
