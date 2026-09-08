@@ -6,30 +6,12 @@
 <title>CRACKTRO FOREVER</title>
 <style>
   html,body{margin:0;padding:0;background:#000;height:100%;overflow:hidden}
-  canvas{display:block;width:100vw;height:100vh}
-  #start{
-    position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    background:rgba(0,0,0,.72);color:#9fe8ff;font-family:"Courier New",monospace;text-align:center;
-    letter-spacing:.25em;user-select:none;cursor:pointer;z-index:10;
-    transition:opacity .6s ease;
-  }
-  #start h1{
-    font-size:clamp(22px,5vw,54px);margin:0 0 .6em 0;font-weight:bold;
-    color:#fff;text-shadow:0 0 8px #37f,0 0 22px #63f,0 0 40px #a3f;
-  }
-  #start .blink{font-size:clamp(13px,2.2vw,20px);animation:bl 1s steps(2,start) infinite;color:#ffe066;text-shadow:0 0 10px #f80}
-  #start .sub{font-size:clamp(10px,1.5vw,13px);margin-top:2.2em;color:#5aa;letter-spacing:.35em}
-  @keyframes bl{50%{opacity:0}}
+  canvas{display:block;width:100vw;height:100vh;cursor:none}
   #err{position:fixed;inset:0;display:none;align-items:center;justify-content:center;color:#f66;font-family:monospace;background:#000;z-index:20;padding:2em;text-align:center}
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
-<div id="start">
-  <h1>CRACKTRO FOREVER</h1>
-  <div class="blink">CLICK / PRESS ANY KEY / PRESS FIRE</div>
-  <div class="sub">SOUND ON &nbsp;&middot;&nbsp; M MUTE &nbsp;&middot;&nbsp; F FULLSCREEN<br><br>100 PERCENT PROCEDURAL &nbsp;&middot;&nbsp; NO ASSETS &nbsp;&middot;&nbsp; ONE FILE</div>
-</div>
 <div id="err"></div>
 <script>
 "use strict";
@@ -118,7 +100,6 @@ const gl = canvas.getContext("webgl", {antialias:false, alpha:false, depth:false
 if (!gl) {
   document.getElementById("err").style.display = "flex";
   document.getElementById("err").textContent = "NO WEBGL CONTEXT ... THE GURU MEDITATES.";
-  document.getElementById("start").style.display = "none";
   throw new Error("no webgl");
 }
 
@@ -549,18 +530,18 @@ function frame(now){
   lastNow = now;
 
   let t, beat = 0, p = 0;
-  if (started){
+  if (ac && ac.state === "running"){
     t = Math.max(0, ac.currentTime - songStart);
     const rows = t/ROW;
     p = Math.floor(rows/64);
     const bp = (rows % 4)/4;
     beat = Math.pow(Math.max(0, 1 - bp), 2.5);
   } else {
+    /* audio not started yet (blocked or unavailable): still run the intro */
     t = now/1000;
   }
 
-  const tg = started ? sceneTargets(p)
-                     : {plasma:0, copper:0, stars:0.55, logo:0, scroll:0, credit:0};
+  const tg = sceneTargets(p);
   const k = Math.min(1, dt*1.8);
   for (const key in alphas) alphas[key] += (tg[key] - alphas[key])*k;
 
@@ -676,32 +657,30 @@ function frame(now){
     gl.uniform1f(U(pr,"uT"), t);
   });
 
-  /* fire buttons on gamepads start the intro too */
-  if (!started && navigator.getGamepads){
+  /* if the browser suspended audio until a user gesture, any gamepad button frees it */
+  if (ac && ac.state === "suspended" && navigator.getGamepads){
     const pads = navigator.getGamepads();
     for (let i = 0; i < pads.length; i++){
       const g = pads[i];
-      if (g && g.buttons && g.buttons.some(b => b && b.pressed)){ start(); break; }
+      if (g && g.buttons && g.buttons.some(b => b && b.pressed)){ ac.resume(); break; }
     }
   }
 }
 requestAnimationFrame(frame);
 
 /* ---------------------------------------------------------------------
-   9. START / INPUT
+   9. START / INPUT - the demo runs from the first frame; no title screen.
 --------------------------------------------------------------------- */
-const startEl = document.getElementById("start");
 function start(){
   if (started) return;
   try { startMusic(); } catch(e){ console.warn("audio unavailable:", e); }
-  if (ac && ac.state === "suspended") ac.resume();
   started = true;
-  startEl.style.opacity = "0";
-  setTimeout(() => { startEl.style.display = "none"; }, 700);
   canvas.style.cursor = "none";
 }
+/* some browsers hold a fresh AudioContext suspended until a user gesture */
+function unlockAudio(){ if (ac && ac.state === "suspended") ac.resume(); }
 function onKey(e){
-  if (!started){ start(); return; }
+  unlockAudio();
   if (e.key === "m" || e.key === "M"){
     muted = !muted;
     if (masterGain) masterGain.gain.value = muted ? 0 : 0.5;
@@ -713,9 +692,10 @@ function onKey(e){
   }
 }
 window.addEventListener("keydown", onKey);
-startEl.addEventListener("click", start);
-startEl.addEventListener("touchstart", e => { e.preventDefault(); start(); }, {passive:false});
+canvas.addEventListener("click", unlockAudio);
+canvas.addEventListener("touchstart", e => { e.preventDefault(); unlockAudio(); }, {passive:false});
 window.addEventListener("resize", resize);
+start();                                        /* go straight into the demo */
 canvas.addEventListener("webglcontextlost", e => {
   e.preventDefault();
   const el = document.getElementById("err");

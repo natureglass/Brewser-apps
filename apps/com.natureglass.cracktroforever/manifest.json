@@ -1,8 +1,8 @@
 {
     "id": "com.natureglass.cracktroforever",
     "name": "Cracktro Forever",
-    "version": "1.0.3",
-    "description": "<p>A procedural tribute to the classic Amiga cracktro and demoscene, created for the Switch homebrew community.</p>\r\n<p>The project recreates the unmistakable style of old-school intros with a sine-wave scroller, copper bars, plasma effects, a 3D starfield, a raster-bounced logo, and a synchronized chiptune soundtrack. Everything is generated procedurally at runtime—no textures, pre-rendered graphics, or external visual assets. Geometry is created from mathematics and the visual effects are built with shaders and code.</p>\r\n<p>The soundtrack is synchronized with the effects to create a complete scene-style intro, with individual effects introduced and combined through timed transitions.</p>\r\n<p>A small tribute to where today's homebrew scene came from: <strong>code, creativity, mathematics, music, and a lot of unnecessary visual effects.</strong></p>",
+    "version": "1.0.2",
+    "description": "<p>A procedural tribute to the classic Amiga cracktro and demoscene, built for the Switch homebrew community.</p>\r\n<p>It has the usual old-school parts: a sine-wave scroller, copper bars, plasma, a 3D starfield, a raster-bounced logo, and a chiptune soundtrack that the effects run to. Everything is generated at runtime from code: no textures, no pre-rendered graphics, no external assets. The geometry comes from math and the visuals from shaders, all in a single HTML file.</p>\r\n<p>Effects fade in and out with the music so it plays as one continuous intro.</p>",
     "logo": "assets/appbanner.jpg",
     "entry": "index.html",
     "categories": [
