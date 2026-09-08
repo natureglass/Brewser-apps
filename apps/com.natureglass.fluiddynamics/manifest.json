@@ -16,7 +16,7 @@
         "web"
     ],
     "allowed_origins": [],
-    "developer": "@natureglass",
+    "developer": "Alex Daskalakis",
     "license": "MIT",
     "exitGame": "PLUS",
     "fullscreen": true,
