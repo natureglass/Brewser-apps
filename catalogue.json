@@ -629,7 +629,7 @@
       "name": "Speed Watch",
       "permissions": [],
       "publishedAt": "2026-08-09T12:49:28Z",
-      "sizeBytes": 3317341,
+      "sizeBytes": 3317375,
       "summary": "Free GPS speedometer with a live map and automatic speed-limit alerts",
       "tags": [
         "PWA",
@@ -929,7 +929,7 @@
     }
   ],
   "defaultSource": "base",
-  "generated": "2026-09-08T13:44:50Z",
+  "generated": "2026-09-08T13:45:56Z",
   "revoked": [],
   "sources": {
     "base": "https://play.brewser.io",
