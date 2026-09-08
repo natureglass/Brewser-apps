@@ -145,9 +145,9 @@
         "storage"
       ],
       "publishedAt": "2026-09-03T13:26:26Z",
-      "sizeBytes": 22173469,
+      "sizeBytes": 22173505,
       "summary": "A suite of self-contained fixtures that exercise the Brewser HTML, CSS, canvas, WebGL and Web API re",
-      "version": "1.0.3"
+      "version": "1.0.4"
     },
     {
       "categories": [
@@ -955,6 +955,6 @@
       "version": "1.0.2"
     }
   ],
-  "generated": "2026-09-08T13:45:56Z",
+  "generated": "2026-09-08T13:48:08Z",
   "source": "base"
 }
