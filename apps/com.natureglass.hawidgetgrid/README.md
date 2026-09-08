@@ -11,20 +11,20 @@ _v1.0.1_
  - **Lights & switches** - on/off tiles for `light`, `switch`, `input_boolean` and `fan`; tap to toggle.
 - **Dimmers** - lights that report brightness get a slider; drag across the tile to set the level.
 - **Sensors** - numeric sensors show the current value, unit, and a rolling sparkline of recent history.
-- **Contacts** - binary sensors read out in plain words (Open/Closed, Motion/Clear, Home/Away...) chosen from their device class.
+- **Contacts** - binary sensors read out in plain words (Open/Closed, Motion/Clear, Home/Away…) chosen from their device class.
 
  **How you interact:**
 
  - **Tap** - toggle a light or switch, or drag a dimmer to set brightness.
-- **Edit** - press-and-hold or hit the edit button to drag cards into any order (they reflow live) and remove ones you don't want with the × badge.
-- **Entities** - the entities manager lists everything discovered so you can show or hide cards, filter by name, and reset the order.
-- **Connect** - the settings panel holds the host, HTTPS toggle and access token (stored in this browser only), plus the demo and same-origin switches.
+- **Edit** - press-and-hold or hit the ✎ button to drag cards into any order (they reflow live) and remove ones you don't want with the × badge.
+- **Entities** - the ☰ manager lists everything discovered so you can show or hide cards, filter by name, and reset the order.
+- **Connect** - the ⚙ panel holds the host, HTTPS toggle and access token (stored in this browser only), plus the demo and same-origin switches.
 
  Your layout and hidden cards are remembered separately from your credentials, so clearing one never wipes the other. Framework-free, offline-capable in demo mode, and reconnect-safe.
 
 ---
 
-- **Developer:** natureglass
+- **Live app:** [HA Widget Grid](https://brewser.io/ha-widget-grid/)
 - **Brewser profile:** [natureglass](https://brewser.io/profile?publisher=natureglass)
 - **License:** [MIT](https://choosealicense.com/licenses/mit)
 - **Website:** [https://github.com/natureglass](https://github.com/natureglass)
