@@ -17,7 +17,7 @@ _v1.0.2_
 
 ---
 
-- **Developer:** @natureglass
+- **Live app:** [nxjs WebGL2 Test](https://brewser.io/nxjs-webgl2-test/)
 - **Brewser profile:** [natureglass](https://brewser.io/profile?publisher=natureglass)
 - **License:** [MIT](https://choosealicense.com/licenses/mit)
 - **Website:** [https://github.com/natureglass](https://github.com/natureglass)
