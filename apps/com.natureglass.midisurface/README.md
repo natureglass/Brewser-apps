@@ -19,7 +19,7 @@ _v1.0.7_
 
 ---
 
-- **Developer:** @natureglass
+- **Live app:** [MIDI Surface](https://brewser.io/midi-surface/)
 - **Brewser profile:** [natureglass](https://brewser.io/profile?publisher=natureglass)
 - **License:** [MIT](https://choosealicense.com/licenses/mit)
 - **Website:** [https://github.com/natureglass](https://github.com/natureglass)
