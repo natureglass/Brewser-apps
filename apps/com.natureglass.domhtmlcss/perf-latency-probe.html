@@ -28,7 +28,7 @@
 </style>
 </head>
 <body>
-<h1>Phase 0.5 — Latency Probe</h1>
+<h1>Phase 0.5 - Latency Probe</h1>
 <p class="lead">Investigates the ~520 ms fixed-latency tax measured in
 <a href="./perf-image-stress.html">Phase 0</a>. Runs six tests
 back-to-back varying N, load mode (Image vs fetch vs sync read), and
@@ -174,17 +174,17 @@ with interpretation hints at the end.</p>
     { name: 'smoke', n: 1, mode: 'image-parallel',
       note: 'baseline single-image cost' },
     { name: 'small-batch', n: 10, mode: 'image-parallel',
-      note: 'small parallel batch — should reveal if fixed overhead exists' },
+      note: 'small parallel batch - should reveal if fixed overhead exists' },
     { name: 'medium-batch', n: 30, mode: 'image-parallel',
       note: 'matches Phase 0 baseline' },
     { name: 'large-batch', n: 60, mode: 'image-parallel',
-      note: 'doubles N — does wall scale or plateau?' },
+      note: 'doubles N - does wall scale or plateau?' },
     { name: 'image-serial', n: 10, mode: 'image-serial',
-      note: 'await onload before firing next — isolates per-image cost' },
+      note: 'await onload before firing next - isolates per-image cost' },
     { name: 'fetch-parallel', n: 30, mode: 'fetch',
       note: 'parallel fetches via runtime fetch loader (no Image, no Cairo, no decode)' },
     { name: 'fs-serial', n: 30, mode: 'fs',
-      note: 'sync Switch.readFileSync × 30 — raw FS-only cost' },
+      note: 'sync Switch.readFileSync × 30 - raw FS-only cost' },
   ];
 
   // ----- Test runner -----
@@ -247,7 +247,7 @@ with interpretation hints at the end.</p>
 
     interpretResults();
     drawResults();
-    updateStatus('DONE — see logs/perf-latency-probe.log');
+    updateStatus('DONE - see logs/perf-latency-probe.log');
   }
 
   function interpretResults() {
@@ -296,7 +296,7 @@ with interpretation hints at the end.</p>
       log('fs-serial (N=30 sync) wall=' + Math.round(fs.wall) + 'ms, bytes=' + (fs.bytes || 0));
       log('fetch-parallel (N=30) wall=' + Math.round(fetch_.wall) + 'ms, bytes=' + (fetch_.bytes || 0));
       log('  -> if fs-serial ~ fetch-parallel, FS is the bottleneck regardless of parallel dispatch (suspect c confirmed)');
-      log('  -> if fetch-parallel << fs-serial, parallel fetch wins over serial — FS allows concurrency');
+      log('  -> if fetch-parallel << fs-serial, parallel fetch wins over serial - FS allows concurrency');
     }
 
     if (fs && medium) {
@@ -319,7 +319,7 @@ with interpretation hints at the end.</p>
     ctx.fillStyle = '#7aa2ff';
     ctx.font = '20px sans-serif';
     ctx.textBaseline = 'top';
-    ctx.fillText('Phase 0.5 — Latency Probe Results', 16, 16);
+    ctx.fillText('Phase 0.5 - Latency Probe Results', 16, 16);
 
     let y = 56;
     ctx.font = '15px sans-serif';
@@ -364,7 +364,7 @@ with interpretation hints at the end.</p>
     ctx.fillStyle = '#7aa2ff';
     ctx.font = '20px sans-serif';
     ctx.textBaseline = 'top';
-    ctx.fillText('Phase 0.5 — ' + msg, 16, 16);
+    ctx.fillText('Phase 0.5 - ' + msg, 16, 16);
   }
 </script>
 

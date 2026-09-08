@@ -1,7 +1,7 @@
 import { Timer, Vector3, Quaternion, Matrix4 } from 'three';
 
 // Vendored locally (rapier3d-compat 0.17.3, WASM inlined as base64) so the
-// example runs fully offline — no CDN fetch. Relative to this module.
+// example runs fully offline - no CDN fetch. Relative to this module.
 const RAPIER_PATH = './rapier/rapier.es.js';
 
 const frameRate = 60;

@@ -18281,7 +18281,7 @@ class BufferGeometry extends EventDispatcher {
 		 *
 		 * Use `addGroup()` and `clearGroups()` to edit groups, rather than modifying this array directly.
 		 *
-		 * Every vertex and index must belong to exactly one group — groups must not share vertices or
+		 * Every vertex and index must belong to exactly one group - groups must not share vertices or
 		 * indices, and must not leave vertices or indices unused.
 		 *
 		 * @type {Array<Object>}
@@ -38322,7 +38322,7 @@ class MeshStandardMaterial extends Material {
  *
  * - Anisotropy: Ability to represent the anisotropic property of materials
  * as observable with brushed metals.
- * - Clearcoat: Some materials — like car paints, carbon fiber, and wet surfaces — require
+ * - Clearcoat: Some materials - like car paints, carbon fiber, and wet surfaces - require
  * a clear, reflective layer on top of another layer that may be irregular or rough.
  * Clearcoat approximates this effect, without the need for a separate transparent surface.
  * - Iridescence: Allows to render the effect where hue varies  depending on the viewing
@@ -59009,7 +59009,7 @@ class ShapePath {
 				const a = polygon[ i ];
 				const b = polygon[ ( i + 1 ) % n ];
 
-				// Half-open crossing rule — counts each vertex exactly once and
+				// Half-open crossing rule - counts each vertex exactly once and
 				// skips horizontal edges.
 				if ( ( a.y > y ) !== ( b.y > y ) ) {
 

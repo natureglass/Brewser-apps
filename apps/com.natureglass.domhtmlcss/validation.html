@@ -24,21 +24,21 @@
 <h1>Form validation enforcement</h1>
 <p>Constraint validation now runs when a submit button is tapped. The form
 below uses a <strong>GET</strong> action to <code>two.html</code>, so a
-<em>successful</em> submit visibly navigates to the &ldquo;two&rdquo; page,
+<em>successful</em> submit visibly navigates to the "two" page,
 while a <em>blocked</em> submit stays here. The form sits in a scrollable
-box &mdash; filled inputs must scroll cleanly with no pinned &ldquo;ghost&rdquo;
+box - filled inputs must scroll cleanly with no pinned "ghost"
 duplicates.</p>
 
 <div class="expect">
 <p><strong>Expected behaviour</strong></p>
-<p>1. Tap <strong>Submit</strong> with fields empty/invalid &rarr; navigation is
+<p>1. Tap <strong>Submit</strong> with fields empty/invalid -&gt; navigation is
 <strong>blocked</strong> (you stay on this page) and the form scrolls to the
 first invalid field.</p>
-<p>2. Fill every field correctly, then <strong>Submit</strong> &rarr; navigates to
+<p>2. Fill every field correctly, then <strong>Submit</strong> -&gt; navigates to
 <code>two.html</code> with the values in the query string.</p>
 <p>3. <strong>Skip validation</strong> (a <code>formnovalidate</code> button)
-&rarr; always navigates, even when empty.</p>
-<p>4. <strong>Reset</strong> &rarr; clears every field back to its default.</p>
+-&gt; always navigates, even when empty.</p>
+<p>4. <strong>Reset</strong> -&gt; clears every field back to its default.</p>
 </div>
 
 <form action="two.html" method="get">
@@ -56,11 +56,11 @@ first invalid field.</p>
     <input type="text" id="zip" name="zip" required pattern="[0-9]{5}" placeholder="12345">
   </div>
   <div class="row">
-    <label for="age">Age (number 18&ndash;120):</label>
+    <label for="age">Age (number 18-120):</label>
     <input type="number" id="age" name="age" required min="18" max="120" placeholder="18-120">
   </div>
   <div class="row">
-    <label for="user">Username (3&ndash;8 chars):</label>
+    <label for="user">Username (3-8 chars):</label>
     <input type="text" id="user" name="user" required minlength="3" maxlength="8" placeholder="3 to 8">
   </div>
   <fieldset>
@@ -72,7 +72,7 @@ first invalid field.</p>
     <label><input type="checkbox" name="agree" required> I agree (required)</label>
   </div>
   <p class="note">The last fields sit below the fold of this scroll box on
-  purpose &mdash; an invalid one further down should scroll into view.</p>
+  purpose - an invalid one further down should scroll into view.</p>
 </div>
 
 <p style="margin-top:14px;">

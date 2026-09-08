@@ -22,7 +22,7 @@ empty-slot case is exercised.</p>
 <canvas width="400" height="200"></canvas>
 
 <h2>HTML defaults (300×150)</h2>
-<p>No <code>width</code> / <code>height</code> attributes — falls
+<p>No <code>width</code> / <code>height</code> attributes - falls
 back to the HTML spec's 300×150:</p>
 <canvas></canvas>
 
@@ -32,10 +32,10 @@ browsers without canvas support. We always show the placeholder, so
 the fallback children are ignored (not double-rendered):</p>
 <canvas width="500" height="100">
 This text would only show on a browser without &lt;canvas&gt; support.
-You should NOT see this line — only the placeholder above.
+You should NOT see this line - only the placeholder above.
 </canvas>
 
-<h2>Oversized — scaled down</h2>
+<h2>Oversized - scaled down</h2>
 <p>2000×500 canvas: wider than the content area, so the layout
 scales the placeholder down to fit (preserving aspect ratio) while
 the label still reports the attribute-declared size:</p>

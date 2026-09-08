@@ -97,8 +97,8 @@ input[type=range]{width:160px;accent-color:var(--acc)}
   <p class="hint">Two stacked 32&times;8 panels &rarr; width 32, height 16, panel height 8. Width &times; height is capped at 1024 LEDs.
     IDENTIFY marks the corners (red = top-left, green = top-right, blue = bottom-left)
     and sweeps left&rarr;right so you can dial in wiring/flips until the physical panel matches.
-    RAW ignores all mapping and lights physical LEDs 0,1,2&hellip; in chain order with a
-    colour band every 16 and white every 128 &mdash; use it to read how your panel is actually wired.</p>
+    RAW ignores all mapping and lights physical LEDs 0,1,2... in chain order with a
+    colour band every 16 and white every 128 - use it to read how your panel is actually wired.</p>
 
   <h2>ESP32</h2>
   <div class="row">
@@ -107,7 +107,7 @@ input[type=range]{width:160px;accent-color:var(--acc)}
       <span id="briVal" style="color:var(--ink)"></span></label>
   </div>
   <p class="hint">Pin + LED count + brightness are pushed to the ESP32 on connect and on SAVE.
-    Brightness is applied on-device (power limiting &mdash; 512 LEDs at full white pulls ~30 A).</p>
+    Brightness is applied on-device (power limiting - 512 LEDs at full white pulls ~30 A).</p>
 
   <h2>CONNECTION</h2>
   <div class="row">
@@ -137,7 +137,7 @@ input[type=range]{width:160px;accent-color:var(--acc)}
     <label><input type="checkbox" id="sFC"> frame counter (latency test)</label>
   </div>
   <p class="hint">Overlays an incrementing frame number as binary along the top LED row: the leftmost
-    cell is an amber start marker, then bit&nbsp;0, bit&nbsp;1&hellip; run left&rarr;right (a lit cell = 1).
+    cell is an amber start marker, then bit&nbsp;0, bit&nbsp;1... run left&rarr;right (a lit cell = 1).
     The <em>identical</em> pattern shows on the preview and streams to the panel, with a plain decimal
     readout on screen. Film the screen and the panel together, step frame by frame, and the gap between
     the two counts is the true render&rarr;shown latency. Overwrites the top row while enabled; no

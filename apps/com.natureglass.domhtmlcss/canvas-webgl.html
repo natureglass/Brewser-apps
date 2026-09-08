@@ -251,7 +251,7 @@ the WebGL code drew, if anything) with a <strong>status canvas</strong>
     } catch (e) {
       readErr = (e && e.message) ? e.message : String(e);
     }
-    info('clearColor → expected RGBA: ' + expected.join(', '), 14);
+    info('clearColor -> expected RGBA: ' + expected.join(', '), 14);
     if (readErr) {
       bad('readPixels threw: ' + readErr, 38);
     } else {

@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-<title>CSS @keyframes animation — brewser</title>
+<title>CSS @keyframes animation - brewser</title>
 <style>
   body { background:#0b1220; color:#e0e8f4; font:16px/1.5 system-ui, sans-serif; padding:22px 30px; }
   h1 { color:#ffd35e; }
@@ -54,33 +54,33 @@
 </head>
 <body>
   <h1>CSS <code>@keyframes</code> animation <span class="ok">(new)</span></h1>
-  <p class="lead">All demos run automatically (no interaction — Switch has no hover). Before this
+  <p class="lead">All demos run automatically (no interaction - Switch has no hover). Before this
   milestone only rotate / scale / opacity interpolated; translate, colour, <code>animation-delay</code>,
   and <code>animation-direction</code> are new. Timing functions (ease / cubic-bezier / steps) were
   already wired.</p>
 
   <h2>Control · rotate (unchanged)</h2>
-  <p class="desc">Continuous spin — the pre-existing rotate path, here as a baseline.</p>
+  <p class="desc">Continuous spin - the pre-existing rotate path, here as a baseline.</p>
   <div class="track"><div class="box p spinner">spin</div></div>
 
-  <h2>1 · translate X — px, <code>alternate</code></h2>
+  <h2>1 · translate X - px, <code>alternate</code></h2>
   <p class="desc">Slides right 200px then back (direction reverses each iteration). Motion + reversal are both new.</p>
   <div class="track"><div class="box b slidepx">px</div></div>
 
-  <h2>2 · translate X — percent (<code>translateX(-100%)</code> → 0)</h2>
-  <p class="desc">Percent translate resolves against the box's own width — slides fully out to the left and back in.</p>
+  <h2>2 · translate X - percent (<code>translateX(-100%)</code> -> 0)</h2>
+  <p class="desc">Percent translate resolves against the box's own width - slides fully out to the left and back in.</p>
   <div class="track"><div class="box g slidein">%</div></div>
 
-  <h2>3 · translate Y bob — <code>ease-in-out alternate</code></h2>
+  <h2>3 · translate Y bob - <code>ease-in-out alternate</code></h2>
   <p class="desc">Bounces up 30px and settles, easing at each end.</p>
   <div class="track"><div class="box b bob">bob</div></div>
 
   <h2>4 · background-color pulse (colour interpolation)</h2>
-  <p class="desc">Interpolates blue ↔ pink each iteration — @keyframes colour animation is new (only transitions did colour before).</p>
+  <p class="desc">Interpolates blue <-> pink each iteration - @keyframes colour animation is new (only transitions did colour before).</p>
   <div class="track"><div class="box flash">flash</div></div>
 
-  <h2>5 · <code>animation-delay</code> — staggered loading dots</h2>
-  <p class="desc">Same 1.2s pulse, delays 0 / 0.2s / 0.4s — they ripple in sequence. The delay was previously dropped.</p>
+  <h2>5 · <code>animation-delay</code> - staggered loading dots</h2>
+  <p class="desc">Same 1.2s pulse, delays 0 / 0.2s / 0.4s - they ripple in sequence. The delay was previously dropped.</p>
   <div class="dots"><div class="dot dot1"></div><div class="dot dot2"></div><div class="dot dot3"></div></div>
 
   <h2>6 · timing functions on the same translate</h2>

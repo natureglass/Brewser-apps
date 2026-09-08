@@ -209,7 +209,7 @@
 </head>
 <body>
 <header>
-  <div id="model">—<small>MIDI SURFACE</small></div>
+  <div id="model">-<small>MIDI SURFACE</small></div>
   <nav id="channels" aria-label="Channel"></nav>
   <canvas id="vizL" class="viz"></canvas>
   <button class="tool" id="btnStopAll" title="Start the beat clock / stop everything">START</button>
@@ -232,16 +232,16 @@
     <label class="swlab" id="showMapLab"><input type="checkbox" id="showMapped"> SHOW MAPPINGS</label>
   </div>
   <h2>MIDI Devices</h2>
-  <div id="midiText">MIDI: …</div>
-  <div id="midiInWrap"><span id="midiIn">—</span></div>
-  <div id="devices">—</div>
+  <div id="midiText">MIDI: ...</div>
+  <div id="midiInWrap"><span id="midiIn">-</span></div>
+  <div id="devices">-</div>
   <div class="actions">
     <button id="btnLoad">LOAD JSON</button>
     <button id="btnExport">EXPORT JSON</button>
   </div>
   <h2>Trigger Map</h2>
   <div id="rows"></div>
-  <div id="recHint"><b>REC</b> — arm a trigger, then hit a pad / turn a knob on your controller to assign its note.</div>
+  <div id="recHint"><b>REC</b> - arm a trigger, then hit a pad / turn a knob on your controller to assign its note.</div>
 </aside>
 
 <input type="file" id="filePick" accept=".json,application/json" hidden>
@@ -1042,7 +1042,7 @@ function showMidiIn(s){
   el.classList.add("hot");
   clearTimeout(midiInT);
   midiInT = setTimeout(() => {
-    el.textContent = "—";
+    el.textContent = "-";
     el.classList.remove("hot");
   }, 2000);
 }
@@ -1163,11 +1163,11 @@ if(navigator.requestMIDIAccess){
     refreshDevices();
   }, () => {
     refreshDevices();
-    showWarn("MIDI access was denied — screen controls still work.");
+    showWarn("MIDI access was denied - screen controls still work.");
   });
 } else {
   refreshDevices();
-  showWarn("Web MIDI is not supported here — screen controls still work.");
+  showWarn("Web MIDI is not supported here - screen controls still work.");
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -1438,7 +1438,7 @@ fetch("assets/controllers.json", { cache: "no-cache" })
     const e = $("#empty");
     e.textContent = "COULD NOT LOAD assets/controllers.json";
     e.style.display = "flex";
-    showWarn("Serve over http(s) — or use LOAD JSON in Settings.");
+    showWarn("Serve over http(s) - or use LOAD JSON in Settings.");
     $("#panel").classList.add("open");
     $("#btnSettings").setAttribute("aria-pressed", "true");
   });

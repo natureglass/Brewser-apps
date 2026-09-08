@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>WebGL2 Sunset Sea &mdash; Procedural ShaderToy Cube</title>
+<title>WebGL2 Sunset Sea - Procedural ShaderToy Cube</title>
 <style>
   html, body { margin: 0; padding: 0; width: 100%; height: 100%;
                background: #000 !important; overflow: hidden; }
@@ -397,7 +397,7 @@ void main() {
   // nx.js bridge maps `gl.viewport(0, 0, w, h)` to native GL rows
   // `[screenH - h, screenH]` (see [[swb-webgl-inline]]). On the inline
   // 640x360 canvas that puts gl_FragCoord.y in 360..720 instead of
-  // 0..360 — the shader's NDC math `(fragCoord * 2 - res) / res.y`
+  // 0..360 - the shader's NDC math `(fragCoord * 2 - res) / res.y`
   // then produces y in 1..3 and the camera points into nothing. vUv
   // interpolates 0..1 across the visible viewport regardless of where
   // the viewport sits in screen coords, so deriving fragCoord from vUv

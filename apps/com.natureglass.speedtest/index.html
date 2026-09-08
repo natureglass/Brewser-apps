@@ -284,15 +284,15 @@
         </div>
         <div class="metric">
           <div class="label">Ping</div>
-          <div class="value"><span id="ping">—</span><span class="unit">ms</span></div>
+          <div class="value"><span id="ping">-</span><span class="unit">ms</span></div>
         </div>
         <div class="metric">
           <div class="label">Downstream</div>
-          <div class="value"><span id="downResult">—</span><span class="unit">Mbps</span></div>
+          <div class="value"><span id="downResult">-</span><span class="unit">Mbps</span></div>
         </div>
         <div class="metric">
           <div class="label">Upstream</div>
-          <div class="value"><span id="upResult">—</span><span class="unit">Mbps</span></div>
+          <div class="value"><span id="upResult">-</span><span class="unit">Mbps</span></div>
         </div>
       </div>
 
@@ -361,13 +361,13 @@
     }
 
     function fmt(n) {
-      return Number.isFinite(n) ? n.toFixed(n < 10 ? 2 : 1) : '—';
+      return Number.isFinite(n) ? n.toFixed(n < 10 ? 2 : 1) : '-';
     }
 
     function updateDom() {
       currentSpeedEl.textContent = fmt(state.speed);
-      downResultEl.textContent = state.downstream == null ? '—' : fmt(state.downstream);
-      upResultEl.textContent = state.upstream == null ? '—' : fmt(state.upstream);
+      downResultEl.textContent = state.downstream == null ? '-' : fmt(state.downstream);
+      upResultEl.textContent = state.upstream == null ? '-' : fmt(state.upstream);
     }
 
     function bytesForSize(kind, direction) {
@@ -509,7 +509,7 @@
       updateDom();
       resetLog();
       startBtn.disabled = true;
-      startBtn.textContent = 'Testing…';
+      startBtn.textContent = 'Testing...';
       setStatus('Starting diagnostics', 'accent');
 
       const size = 'large';
@@ -689,8 +689,8 @@
       ctx.fillStyle = state.phase === 'Error' ? '#ff6b6b' : '#65d6ff';
       ctx.fillText(state.phase, w / 2, h * .74);
 
-      const down = state.downstream == null ? '—' : fmt(state.downstream);
-      const up = state.upstream == null ? '—' : fmt(state.upstream);
+      const down = state.downstream == null ? '-' : fmt(state.downstream);
+      const up = state.upstream == null ? '-' : fmt(state.upstream);
       ctx.font = '650 15px Inter, system-ui, sans-serif';
       ctx.fillStyle = '#d6e3ff';
       ctx.fillText(`Down ${down}  •  Up ${up}`, w / 2, h * .83);

@@ -1,8 +1,8 @@
 /*
- * MATRIX STUDIO — ESP32 firmware v2.2  (one binary for ESP32-C6 and classic ESP32-WROOM-32)
+ * MATRIX STUDIO - ESP32 firmware v2.2  (one binary for ESP32-C6 and classic ESP32-WROOM-32)
  * Pair with Matrix_Studio.html (protocol v2) or simple_serial_panel.html v17 (diagnostic page).
  *
- * BASE: simple_serial_panel.ino v15 — the streaming transport that was debugged on
+ * BASE: simple_serial_panel.ino v15 - the streaming transport that was debugged on
  * hardware. Matrix Studio's app features are ported ONTO that base. The transport + LED
  * driver are unchanged except for two things:
  *   (1) a type byte in the packet header so CONFIG and FRAME coexist on the wire;
@@ -17,7 +17,7 @@
  *   type 0x03 DELTA   len = 5*n (n>=1)            payload = n * [idx_lo idx_hi R G B], physical idx
  *   sum  = (type + seq + len_lo + len_hi + sum(payload)) mod 65536
  *   seq  = one 8-bit counter on the sender, +1 per packet of ANY type.
- *   Per-frame "OK <seq>\n" acks are OFF by default (ACK_AFTER_SHOW=0) — free-running USB ignores
+ *   Per-frame "OK <seq>\n" acks are OFF by default (ACK_AFTER_SHOW=0) - free-running USB ignores
  *   them and each one costs a host read-URB per frame (see the define). CONFIG still answers
  *   "CFG pin=.. count=.. bri=.. mem=.. delta=1\n" with the values actually in effect
  *   (delta=1 advertises DELTA support so an older app can stay on full FRAMEs).
@@ -26,11 +26,11 @@
  *
  * DELTA encoding (added v2.3): FRAME writes the persistent framebuffer `frameBuf` and shows
  * it; DELTA patches only the changed pixels of `frameBuf` and shows it. The whole strip is
- * still re-transmitted every show (WS2812 can't be partially updated) — DELTA only shrinks
+ * still re-transmitted every show (WS2812 can't be partially updated) - DELTA only shrinks
  * the USB bytes/frame, which is what lets the C6's USB-Serial/JTAG sustain 60 fps for sparse
  * content. The sender emits periodic full FRAMEs (keyframes) so a dropped DELTA self-heals.
  *
- * Things deliberately NOT in this file — do not re-add them:
+ * Things deliberately NOT in this file - do not re-add them:
  *   - Adafruit_NeoPixel for the strip: blocking show() starves IDLE -> task WDT.
  *   - Manual resync/rescan passes in the parser.
  *
@@ -43,8 +43,8 @@
  *   - loop() feeds the task WDT and delay(1)s so the IDLE task runs.
  *
  * One binary, no board #define:
- *   - RMT memory: the WS2812 channel auto-sizes its RMT block via a fallback ladder —
- *     96 symbols on the C6 (2x48), 64 on the classic ESP32 (1x64) — because the driver
+ *   - RMT memory: the WS2812 channel auto-sizes its RMT block via a fallback ladder -
+ *     96 symbols on the C6 (2x48), 64 on the classic ESP32 (1x64) - because the driver
  *     requires a multiple of the per-chip block size and no single value fits both.
  *   - No onboard status LED: the classic ESP32-WROOM devkit has no addressable LED, and
  *     its GPIO 8 is a SPI-flash pin, so the status indicator was dropped for portability.
@@ -64,7 +64,7 @@
 #define NVS_NAMESPACE         "matrix2"   // v1 used "matrix"; new namespace so a stale pin=5 never loads
 #define ACK_AFTER_SHOW        0       // v2.4: OFF. On free-running USB the app ignores "OK <seq>",
                                        // but every ack it sends forces a host read-URB (buffer +
-                                       // usb:hs DMA map) per frame — at 60 fps that DOUBLES the URB
+                                       // usb:hs DMA map) per frame - at 60 fps that DOUBLES the URB
                                        // rate and is what tips the C6's USB-Serial/JTAG over. The
                                        // link needs no per-frame device->host traffic; CFG/BOOT/
                                        // RMTERR still report state. Set to 1 only for diagnostics.

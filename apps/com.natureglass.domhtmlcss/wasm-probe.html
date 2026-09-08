@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>WebAssembly Probe — Switch Web Platform</title>
+<title>WebAssembly Probe - Switch Web Platform</title>
 <link rel="stylesheet" href="brewser://assets/main.css" />
 <style>
   body { background-color: #0b1220; color: #e0e8f4; font-size: 18px; padding: 28px 48px; }
@@ -213,7 +213,7 @@
   // THE path Unity / Godot / Emscripten exports use by default. If
   // this works, the heaviest itch.io content class is unblocked.
   async function instantiateStreaming() {
-    log('--- Slice 8: instantiateStreaming(fetch(...)) — Unity/Godot path ---');
+    log('--- Slice 8: instantiateStreaming(fetch(...)) - Unity/Godot path ---');
     if (typeof WebAssembly.instantiateStreaming !== 'function') {
       log('SKIP :: WebAssembly.instantiateStreaming not present (older runtime)');
       return false;
@@ -249,12 +249,12 @@
     try { mem = new WebAssembly.Memory({ initial: 1, maximum: 4 }); }
     catch (e) { log('FAIL :: new Memory threw: ' + (e && e.message || e)); return false; }
     var memOk = mem && mem.buffer instanceof ArrayBuffer && mem.buffer.byteLength === 65536;
-    log((memOk ? 'PASS' : 'FAIL') + ' :: Memory({initial:1}) → buffer.byteLength=' + (mem && mem.buffer && mem.buffer.byteLength) + ' (expected 65536)');
+    log((memOk ? 'PASS' : 'FAIL') + ' :: Memory({initial:1}) -> buffer.byteLength=' + (mem && mem.buffer && mem.buffer.byteLength) + ' (expected 65536)');
     var tbl;
     try { tbl = new WebAssembly.Table({ initial: 2, element: 'anyfunc' }); }
     catch (e) { log('FAIL :: new Table threw: ' + (e && e.message || e)); return memOk; }
     var tblOk = tbl && tbl.length === 2;
-    log((tblOk ? 'PASS' : 'FAIL') + ' :: Table({initial:2}) → length=' + (tbl && tbl.length) + ' (expected 2)');
+    log((tblOk ? 'PASS' : 'FAIL') + ' :: Table({initial:2}) -> length=' + (tbl && tbl.length) + ' (expected 2)');
     return memOk && tblOk;
   }
 

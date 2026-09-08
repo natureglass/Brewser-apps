@@ -1,5 +1,5 @@
 /*
- * MATRIX STUDIO — ESP32 firmware
+ * MATRIX STUDIO - ESP32 firmware
  * Receives LED frames from the Matrix Studio web app over USB serial or BLE (Nordic UART Service)
  * and drives WS2812B panels.
  *

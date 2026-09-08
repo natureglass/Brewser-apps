@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-<title>position: sticky — brewser</title>
+<title>position: sticky - brewser</title>
 <style>
   body { background:#0b1220; color:#e0e8f4; font-size:17px; margin:0; padding:0;
          font-family: system-ui, sans-serif; }
@@ -59,32 +59,32 @@
     <strong>Sticky</strong>
     <a href="index.html">home</a>
     <button id="ping">ping (pinned tap)</button>
-    <span id="status">scroll ↓ — bar stays pinned</span>
+    <span id="status">scroll ↓ - bar stays pinned</span>
   </div>
 
   <div class="wrap">
     <h1>position: sticky</h1>
-    <p>The bar above is <code>position: sticky; top: 0</code> — it scrolls with the
+    <p>The bar above is <code>position: sticky; top: 0</code> - it scrolls with the
     page until it reaches the top, then pins there. Each section heading is
     <code>position: sticky; top: 56px</code>, so it pins just under the bar, then
     detaches and scrolls off when its own section ends. The purple footnote is
     <code>position: sticky; bottom: 0</code>.</p>
     <p>Tap <strong>ping</strong> in the bar after scrolling down: if the tap
-    registers while the bar is pinned, the status text on the right changes —
+    registers while the bar is pinned, the status text on the right changes -
     that confirms hit-testing tracks the stuck position.</p>
 
     <div class="section">
-      <h2>Section A — pins, then releases</h2>
+      <h2>Section A - pins, then releases</h2>
       <div class="content">
-        <p>This heading pins under the top bar as you scroll…</p>
+        <p>This heading pins under the top bar as you scroll...</p>
         <div class="filler"></div>
-        <p>…and detaches here at Section A's bottom edge, scrolling up as
+        <p>...and detaches here at Section A's bottom edge, scrolling up as
         Section B's heading takes over.</p>
       </div>
     </div>
 
     <div class="section">
-      <h2>Section B — independent containing block</h2>
+      <h2>Section B - independent containing block</h2>
       <div class="content">
         <p>Same behavior, clamped to its own section.</p>
         <div class="filler"></div>
@@ -93,7 +93,7 @@
     </div>
 
     <div class="section">
-      <h2>Section C — last section</h2>
+      <h2>Section C - last section</h2>
       <div class="content">
         <p>Keep going to reach the bottom-sticky footnote.</p>
         <div class="filler"></div>
@@ -102,7 +102,7 @@
     </div>
   </div>
 
-  <div class="footnote">position: sticky; bottom: 0 — pinned footnote</div>
+  <div class="footnote">position: sticky; bottom: 0 - pinned footnote</div>
 
   <script>
     // Hit-test proof: the ping button lives in the pinned bar. Tapping it

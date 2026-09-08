@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>CSS Variables + calc() Probe — Switch Web Platform</title>
+<title>CSS Variables + calc() Probe - Switch Web Platform</title>
 <link rel="stylesheet" href="brewser://assets/main.css" />
 <style>
   body { background-color: #0b1220; color: #e0e8f4; font-size: 18px; padding: 28px 48px; }
@@ -43,7 +43,7 @@
   <p>Last item in Tier A. Verifies <code>--foo: value</code> cascade,
   <code>var(--foo)</code> resolution + fallback, <code>:root</code> +
   inherited custom props, <code>calc()</code> arithmetic, inline-style
-  <code>var()</code>, <code>el.style.setProperty('--foo', …)</code> +
+  <code>var()</code>, <code>el.style.setProperty('--foo', ...)</code> +
   <code>getPropertyValue</code>, <code>getComputedStyle(el)</code>
   reading the resolved value. Modern web UIs (every Construct 3 /
   Phaser plugin with theming) depend on these. Log:
@@ -127,12 +127,12 @@
     await waitFrames();
     var bg = readComputed(box, 'background-color') || readComputed(box, 'background');
     var ok = bg && (bg.indexOf('rgb(80') >= 0 || bg.indexOf('80, 140, 220') >= 0);
-    log((ok ? 'PASS' : 'FAIL') + ' :: var(--missing, rgb(80,140,220)) → fallback applied (bg=' + bg + ')');
+    log((ok ? 'PASS' : 'FAIL') + ' :: var(--missing, rgb(80,140,220)) -> fallback applied (bg=' + bg + ')');
   }
 
   // === Slice 4: inheritance - child reads parent's custom prop ===
   async function sliceInherit() {
-    log('--- Slice 4: parent --slice3-color → child var() ---');
+    log('--- Slice 4: parent --slice3-color -> child var() ---');
     var p = document.createElement('div');
     p.className = 'slice3-parent';
     var c = document.createElement('div');
@@ -210,7 +210,7 @@
     log('--- Slice 9: el.style.getPropertyValue(\'--probe-get\') ---');
     var box = document.createElement('div');
     if (typeof box.style.setProperty !== 'function' || typeof box.style.getPropertyValue !== 'function') {
-      log('FAIL :: setProperty/getPropertyValue missing — skipping');
+      log('FAIL :: setProperty/getPropertyValue missing - skipping');
       return;
     }
     box.style.setProperty('--probe-get', 'banana');
@@ -227,7 +227,7 @@
     labeledBox('S10 GCS', box);
     await waitFrames();
     if (typeof getComputedStyle !== 'function') {
-      log('FAIL :: getComputedStyle not present — skipping');
+      log('FAIL :: getComputedStyle not present - skipping');
       return;
     }
     var cs = getComputedStyle(box);

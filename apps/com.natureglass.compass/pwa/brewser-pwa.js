@@ -1,8 +1,8 @@
-/* Brewser PWA — injected service-worker registration (runs on the app's own origin).
+/* Brewser PWA - injected service-worker registration (runs on the app's own origin).
  *
  * Referenced from the app's index.html as <script src="pwa/brewser-pwa.js" defer>. It only
  * registers the app's own service worker so the app is installable + offline-capable. There
- * is deliberately NO in-app install button — the browser's native install control
+ * is deliberately NO in-app install button - the browser's native install control
  * (Chrome/Edge omnibox icon / menu) is the install affordance. iOS Safari has no such
  * control, so a small dismissible "Add to Home Screen" hint is shown there only. On the
  * Switch runtime there is no serviceWorker API, so every branch is inert.
@@ -22,12 +22,12 @@
 	}
 
 	// Install UX only makes sense on the TOP-LEVEL app tab; skip when embedded in the
-	// brewser.io catalogue iframe (a cross-origin frame throws on window.top — treat as embedded).
+	// brewser.io catalogue iframe (a cross-origin frame throws on window.top - treat as embedded).
 	var embedded = true;
 	try { embedded = (window.top !== window.self); } catch (e) { embedded = true; }
 	if (embedded) { return; }
 
-	// iOS Safari has no native install control, so — and ONLY there — show a small
+	// iOS Safari has no native install control, so - and ONLY there - show a small
 	// dismissible Add-to-Home hint. Not shown when already installed (standalone).
 	function isStandalone() {
 		return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||

@@ -86,52 +86,52 @@
 <body>
 <h1>API Surface Probe</h1>
 <p class="lead">Auto-runs on load. Detects which Web APIs the runtime exposes, then exercises each with a small functional sub-test. Results appended to <code>sdmc:/switch/brewser/logs/api-probe.log</code>.</p>
-<p class="lead"><strong>If statuses below look stuck on RUNNING after a few seconds, tap the Refresh button</strong> &mdash; async results may not present on idle pages until input arrives.</p>
+<p class="lead"><strong>If statuses below look stuck on RUNNING after a few seconds, tap the Refresh button</strong> - async results may not present on idle pages until input arrives.</p>
 
 <button id="refreshBtn">Refresh display</button>
 
 <h2>Detected APIs</h2>
 
 <div class="probe-row" id="row-webaudio">
-  <span class="num">1.</span><span class="name">Web Audio</span><span class="status" id="status-webaudio">PENDING</span><span class="detail" id="detail-webaudio">queued&hellip;</span>
+  <span class="num">1.</span><span class="name">Web Audio</span><span class="status" id="status-webaudio">PENDING</span><span class="detail" id="detail-webaudio">queued...</span>
 </div>
 <div class="probe-row" id="row-localstorage">
-  <span class="num">2.</span><span class="name">localStorage</span><span class="status" id="status-localstorage">PENDING</span><span class="detail" id="detail-localstorage">queued&hellip;</span>
+  <span class="num">2.</span><span class="name">localStorage</span><span class="status" id="status-localstorage">PENDING</span><span class="detail" id="detail-localstorage">queued...</span>
 </div>
 <div class="probe-row" id="row-keyframes">
-  <span class="num">3.</span><span class="name">CSS @keyframes</span><span class="status" id="status-keyframes">PENDING</span><span class="detail" id="detail-keyframes">queued&hellip;</span>
+  <span class="num">3.</span><span class="name">CSS @keyframes</span><span class="status" id="status-keyframes">PENDING</span><span class="detail" id="detail-keyframes">queued...</span>
 </div>
 <div class="probe-row" id="row-fontface">
-  <span class="num">4.</span><span class="name">@font-face</span><span class="status" id="status-fontface">PENDING</span><span class="detail" id="detail-fontface">queued&hellip;</span>
+  <span class="num">4.</span><span class="name">@font-face</span><span class="status" id="status-fontface">PENDING</span><span class="detail" id="detail-fontface">queued...</span>
 </div>
 <div class="probe-row" id="row-pointerlock">
-  <span class="num">5.</span><span class="name">Pointer Lock</span><span class="status" id="status-pointerlock">PENDING</span><span class="detail" id="detail-pointerlock">queued&hellip;</span>
+  <span class="num">5.</span><span class="name">Pointer Lock</span><span class="status" id="status-pointerlock">PENDING</span><span class="detail" id="detail-pointerlock">queued...</span>
 </div>
 <div class="probe-row" id="row-websocket">
-  <span class="num">6.</span><span class="name">WebSocket</span><span class="status" id="status-websocket">PENDING</span><span class="detail" id="detail-websocket">queued&hellip;</span>
+  <span class="num">6.</span><span class="name">WebSocket</span><span class="status" id="status-websocket">PENDING</span><span class="detail" id="detail-websocket">queued...</span>
 </div>
 <div class="probe-row" id="row-indexeddb">
-  <span class="num">7.</span><span class="name">IndexedDB</span><span class="status" id="status-indexeddb">PENDING</span><span class="detail" id="detail-indexeddb">queued&hellip;</span>
+  <span class="num">7.</span><span class="name">IndexedDB</span><span class="status" id="status-indexeddb">PENDING</span><span class="detail" id="detail-indexeddb">queued...</span>
 </div>
 <div class="probe-row" id="row-webcrypto">
-  <span class="num">8.</span><span class="name">Web Crypto</span><span class="status" id="status-webcrypto">PENDING</span><span class="detail" id="detail-webcrypto">queued&hellip;</span>
+  <span class="num">8.</span><span class="name">Web Crypto</span><span class="status" id="status-webcrypto">PENDING</span><span class="detail" id="detail-webcrypto">queued...</span>
 </div>
 <div class="probe-row" id="row-messagechannel">
-  <span class="num">9.</span><span class="name">MessageChannel</span><span class="status" id="status-messagechannel">PENDING</span><span class="detail" id="detail-messagechannel">queued&hellip;</span>
+  <span class="num">9.</span><span class="name">MessageChannel</span><span class="status" id="status-messagechannel">PENDING</span><span class="detail" id="detail-messagechannel">queued...</span>
 </div>
 <div class="probe-row" id="row-fileapi">
-  <span class="num">10.</span><span class="name">File API</span><span class="status" id="status-fileapi">PENDING</span><span class="detail" id="detail-fileapi">queued&hellip;</span>
+  <span class="num">10.</span><span class="name">File API</span><span class="status" id="status-fileapi">PENDING</span><span class="detail" id="detail-fileapi">queued...</span>
 </div>
 
 <h2>Visual probes</h2>
-<p class="lead">CSS animation &mdash; the orange square should rotate continuously:</p>
+<p class="lead">CSS animation - the orange square should rotate continuously:</p>
 <div id="spinner-box"></div>
 
-<p class="lead">@font-face &mdash; first line is system sans-serif fallback, second line should use the custom TTF (different letterforms if loaded):</p>
+<p class="lead">@font-face - first line is system sans-serif fallback, second line should use the custom TTF (different letterforms if loaded):</p>
 <span class="font-sample-fallback">Wgi The quick brown fox 0123456789</span>
 <span class="font-sample-custom">Wgi The quick brown fox 0123456789</span>
 
-<p class="lead">File API &mdash; <code>&lt;input type=file&gt;</code> rendering check (any visible widget below = engine produces something):</p>
+<p class="lead">File API - <code>&lt;input type=file&gt;</code> rendering check (any visible widget below = engine produces something):</p>
 <input type="file" id="fileInput">
 
 <canvas id="fontMeasureCanvas" width="400" height="60"></canvas>
@@ -174,7 +174,7 @@
 
   // 1. Web Audio ---------------------------------------------------------
   (function probeWebAudio() {
-    setStatus('webaudio', 'RUNNING', 'init…');
+    setStatus('webaudio', 'RUNNING', 'init...');
     try {
       const AC = (typeof AudioContext !== 'undefined') ? AudioContext
                : (typeof webkitAudioContext !== 'undefined') ? webkitAudioContext
@@ -234,7 +234,7 @@
           'Saw ' + prevCount + ' previous load(s); last on ' + prevSeen);
       } else {
         setStatus('localstorage', 'PARTIAL',
-          'First load (count now ' + newCount + ') — reload to verify persistence');
+          'First load (count now ' + newCount + ') - reload to verify persistence');
       }
     } catch (e) {
       setStatus('localstorage', 'FAIL', String(e && e.message || e));
@@ -242,7 +242,7 @@
   })();
 
   // 3. CSS @keyframes ----------------------------------------------------
-  setStatus('keyframes', 'VISUAL', 'check orange square below — should rotate');
+  setStatus('keyframes', 'VISUAL', 'check orange square below - should rotate');
 
   // 4. @font-face --------------------------------------------------------
   (function probeFontFace() {
@@ -265,7 +265,7 @@
           'widths differ (fallback ' + wFallback.toFixed(0) + 'px vs custom ' + wCustom.toFixed(0) + 'px)');
       } else {
         setStatus('fontface', 'FAIL',
-          'widths identical (' + wFallback.toFixed(0) + 'px) — @font-face not honored by canvas');
+          'widths identical (' + wFallback.toFixed(0) + 'px) - @font-face not honored by canvas');
       }
     } catch (e) {
       setStatus('fontface', 'FAIL', String(e && e.message || e));
@@ -291,7 +291,7 @@
         setStatus('pointerlock', 'MISSING', 'no Pointer Lock API surface');
       } else if (score === 3) {
         setStatus('pointerlock', 'PASS',
-          'req=Y exit=Y prop=Y (detection only — not called)');
+          'req=Y exit=Y prop=Y (detection only - not called)');
       } else {
         setStatus('pointerlock', 'PARTIAL',
           'req=' + (hasRequest ? 'Y' : 'N') + ' exit=' + (hasExit ? 'Y' : 'N') + ' prop=' + (hasProp ? 'Y' : 'N'));
@@ -314,14 +314,14 @@
       // the .events TLD has been flaky on Switch DNS - postman-echo is
       // a long-established hostname on a major CDN.
       const wsHost = 'ws.postman-echo.com';
-      setStatus('websocket', 'RUNNING', 'probing DNS via https://' + wsHost + '/ …');
+      setStatus('websocket', 'RUNNING', 'probing DNS via https://' + wsHost + '/ ...');
       try {
         const fetchRes = await fetch('https://' + wsHost + '/');
-        log('[websocket] CONTROL https GET ' + wsHost + ' → ' + fetchRes.status);
+        log('[websocket] CONTROL https GET ' + wsHost + ' -> ' + fetchRes.status);
       } catch (fe) {
         log('[websocket] CONTROL https fetch FAILED: ' + (fe && fe.message || fe));
       }
-      setStatus('websocket', 'RUNNING', 'connecting wss://' + wsHost + '/raw …');
+      setStatus('websocket', 'RUNNING', 'connecting wss://' + wsHost + '/raw ...');
       const ws = new WebSocket('wss://' + wsHost + '/raw');
       const t0 = performance.now();
       let opened = false, gotMsg = false, finalized = false;
@@ -339,7 +339,7 @@
         clearTimeout(connectTimeout);
         const dt = Math.round(performance.now() - t0);
         log('[websocket] onopen +' + dt + 'ms');
-        setStatus('websocket', 'RUNNING', 'opened +' + dt + 'ms, awaiting echo…');
+        setStatus('websocket', 'RUNNING', 'opened +' + dt + 'ms, awaiting echo...');
         try { ws.send('probe-' + Date.now()); }
         catch (e) { log('[websocket] send threw: ' + (e && e.message || e)); }
         setTimeout(function () {
@@ -370,7 +370,7 @@
       if (typeof indexedDB === 'undefined') {
         setStatus('indexeddb', 'MISSING', 'indexedDB global not present'); return;
       }
-      setStatus('indexeddb', 'RUNNING', 'opening db…');
+      setStatus('indexeddb', 'RUNNING', 'opening db...');
       const req = indexedDB.open('apiProbe', 1);
       let upgradeFired = false;
       let openHungTimer = setTimeout(function () {
@@ -442,7 +442,7 @@
       if (!hasEncoder) {
         setStatus('webcrypto', 'PARTIAL', 'subtle.digest present but no TextEncoder to feed it'); return;
       }
-      setStatus('webcrypto', 'RUNNING', 'computing SHA-256…');
+      setStatus('webcrypto', 'RUNNING', 'computing SHA-256...');
       const data = new TextEncoder().encode('probe');
       crypto.subtle.digest('SHA-256', data).then(function (buf) {
         const arr = new Uint8Array(buf);
@@ -454,7 +454,7 @@
         log('[webcrypto] SHA-256("probe") hex=' + hex);
         const allZero = /^0+$/.test(hex);
         if (hex.length === 64 && !allZero) {
-          setStatus('webcrypto', 'PASS', 'SHA-256 OK: ' + hex.slice(0, 16) + '…');
+          setStatus('webcrypto', 'PASS', 'SHA-256 OK: ' + hex.slice(0, 16) + '...');
         } else {
           setStatus('webcrypto', 'FAIL', 'unexpected hex (len=' + hex.length + ' allZero=' + allZero + ')');
         }
@@ -472,7 +472,7 @@
       if (typeof MessageChannel === 'undefined') {
         setStatus('messagechannel', 'MISSING', 'MessageChannel constructor not present'); return;
       }
-      setStatus('messagechannel', 'RUNNING', 'sending probe…');
+      setStatus('messagechannel', 'RUNNING', 'sending probe...');
       const ch = new MessageChannel();
       let received = false;
       ch.port1.onmessage = function (ev) {

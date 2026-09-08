@@ -53,69 +53,69 @@ the controls bar.</p>
 button to open its decoder and start playback. To test the display
 transform: play a video, then tap the frame once to pause (the control
 bar appears) and tap the <strong>gear</strong> (left of the speaker)
-&mdash; a pop-up opens with Aspect / Zoom / Crop. Double-tap the frame to
+- a pop-up opens with Aspect / Zoom / Crop. Double-tap the frame to
 enter fullscreen (B exits).</p>
 
-<h2>1. mp4 &mdash; H.264 + AAC</h2>
+<h2>1. mp4 - H.264 + AAC</h2>
 <p class="codec">Container: <code>ISO BMFF (mp4)</code> &middot;
 Video: <code>H.264</code> &middot; Audio: <code>AAC</code> &middot;
 Baseline (was the slice-2b reference fixture).</p>
 <video id="vid1" src="./assets/sample.mp4" width="320" height="240" controls data-settings-menu></video>
 
-<h2>2. mov &mdash; H.264 + AAC (QuickTime container)</h2>
+<h2>2. mov - H.264 + AAC (QuickTime container)</h2>
 <p class="codec">Container: <code>QuickTime (mov)</code> &middot;
 Video: <code>H.264</code> &middot; Audio: <code>AAC</code> &middot;
 Exercises the QuickTime demuxer with the same codecs as mp4.</p>
 <video id="vid2" src="./assets/sample.mov" width="320" height="240" controls data-settings-menu></video>
 
-<h2>3. mkv &mdash; H.264 + Vorbis (Matroska container)</h2>
+<h2>3. mkv - H.264 + Vorbis (Matroska container)</h2>
 <p class="codec">Container: <code>Matroska (mkv)</code> &middot;
 Video: <code>H.264</code> &middot; Audio: <code>Vorbis</code> &middot;
 First Vorbis audio decoder + first mkv demuxer in the coverage set.</p>
 <video id="vid3" src="./assets/sample.mkv" width="320" height="240" controls data-settings-menu></video>
 
-<h2>4. webm &mdash; VP8 + Vorbis</h2>
+<h2>4. webm - VP8 + Vorbis</h2>
 <p class="codec">Container: <code>WebM (Matroska)</code> &middot;
 Video: <code>VP8</code> &middot; Audio: <code>Vorbis</code> &middot;
 First VP8 video decoder (software-only, Tegra NVDEC is H.264-only).</p>
 <video id="vid4" src="./assets/sample.webm" width="320" height="240" controls data-settings-menu></video>
 
-<h2>5. m4a &mdash; AAC audio only</h2>
+<h2>5. m4a - AAC audio only</h2>
 <p class="codec">Container: <code>ISO BMFF (M4A)</code> &middot;
 Video: <em>none</em> &middot; Audio: <code>AAC</code> &middot;
-Audio-only file in a &lt;video&gt; element &mdash; uses the
+Audio-only file in a &lt;video&gt; element - uses the
 <code>usedVideo=false</code> path; placeholder stays visible while
 audio plays.</p>
 <video src="./assets/sample.m4a" width="320" height="80" controls></video>
 
-<h2>6. mp3 &mdash; MP3 audio only</h2>
+<h2>6. mp3 - MP3 audio only</h2>
 <p class="codec">Container: <code>MP3 with ID3v2 tag</code> &middot;
 Video: <em>none</em> &middot; Audio: <code>MP3</code> &middot;
 First MP3 demuxer + first MP3 decoder in the coverage set.</p>
 <video src="./assets/sample.mp3" width="320" height="80" controls></video>
 
-<h2>7. wav &mdash; PCM 16-bit stereo 48 kHz audio only</h2>
+<h2>7. wav - PCM 16-bit stereo 48 kHz audio only</h2>
 <p class="codec">Container: <code>RIFF/WAVE</code> &middot;
 Video: <em>none</em> &middot; Audio: <code>PCM s16le</code> &middot;
 Uncompressed audio through the swresample stage.</p>
 <video src="./assets/sample.wav" width="320" height="80" controls></video>
 
-<h2>8. flac &mdash; FLAC audio only</h2>
+<h2>8. flac - FLAC audio only</h2>
 <p class="codec">Container: <code>native FLAC</code> &middot;
 Video: <em>none</em> &middot; Audio: <code>FLAC</code> &middot;
 First FLAC demuxer + FLAC decoder in the coverage set.</p>
 <video src="./assets/sample.flac" width="320" height="80" controls></video>
 
-<h2>9. opus &mdash; Opus audio only</h2>
+<h2>9. opus - Opus audio only</h2>
 <p class="codec">Container: <code>Ogg</code> &middot;
 Video: <em>none</em> &middot; Audio: <code>Opus</code> &middot;
 First Opus decoder + Ogg demuxer in the coverage set.</p>
 <video src="./assets/sample.opus" width="320" height="80" controls></video>
 
-<h2>10. ogg &mdash; Vorbis audio only (Ogg container)</h2>
+<h2>10. ogg - Vorbis audio only (Ogg container)</h2>
 <p class="codec">Container: <code>Ogg</code> &middot;
 Video: <em>none</em> &middot; Audio: <code>Vorbis</code> &middot;
-Vorbis through Ogg vs. Vorbis through Matroska (block 3) &mdash;
+Vorbis through Ogg vs. Vorbis through Matroska (block 3) -
 isolates demuxer effects from codec effects.</p>
 <video src="./assets/sample.ogg" width="320" height="80" controls></video>
 

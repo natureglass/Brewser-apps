@@ -124,10 +124,10 @@
 </head>
 <body>
 
-<h1>Modal layer — stress test</h1>
+<h1>Modal layer - stress test</h1>
 <p class="lead">Exercises native <code>&lt;dialog&gt;</code> + engine-blessed <code>&lt;browser-modal&gt;</code> + edge cases (image race, CSS animation, focus, multiple modals, stress).</p>
 
-<h2>A. Native <code>&lt;dialog&gt;</code> — basic show / close</h2>
+<h2>A. Native <code>&lt;dialog&gt;</code> - basic show / close</h2>
 <p class="desc">Spec-shaped API: <code>dialog.showModal()</code> / <code>dialog.close('value')</code>. Listens for the <code>close</code> event + reads <code>returnValue</code>.</p>
 <div class="grid">
   <button class="test primary" id="openBasic">Open basic dialog</button>
@@ -141,8 +141,8 @@
   </div>
 </dialog>
 
-<h2>B. Native <code>&lt;dialog&gt;</code> — image inside (logo race)</h2>
-<p class="desc">Opens a dialog with an <code>&lt;img&gt;</code> whose <code>src</code> is set at open time. Close before/after the image loads — the host cache must not bake the logo in (this was the original ghost bug).</p>
+<h2>B. Native <code>&lt;dialog&gt;</code> - image inside (logo race)</h2>
+<p class="desc">Opens a dialog with an <code>&lt;img&gt;</code> whose <code>src</code> is set at open time. Close before/after the image loads - the host cache must not bake the logo in (this was the original ghost bug).</p>
 <div class="grid">
   <button class="test primary" id="openImg">Open dialog w/ image</button>
   <button class="test" id="openImgRapid">Open / close 5× rapidly</button>
@@ -156,7 +156,7 @@
   </div>
 </dialog>
 
-<h2>C. Native <code>&lt;dialog&gt;</code> — CSS animation inside</h2>
+<h2>C. Native <code>&lt;dialog&gt;</code> - CSS animation inside</h2>
 <p class="desc">Loading-bar pulse animation runs while the dialog is open. Closing should stop visible repaint of the host area (the bar may keep ticking off-screen but must not bake into the host cache).</p>
 <div class="grid">
   <button class="test primary" id="openAnim">Open animated dialog</button>
@@ -170,21 +170,21 @@
   </div>
 </dialog>
 
-<h2>D. Native <code>&lt;dialog&gt;</code> — input + focus</h2>
+<h2>D. Native <code>&lt;dialog&gt;</code> - input + focus</h2>
 <p class="desc">Tap the input to open the on-canvas keyboard. The dialog stays alive while the keyboard is up. Confirm reads the value into the close <code>returnValue</code>.</p>
 <div class="grid">
   <button class="test primary" id="openInput">Open input dialog</button>
 </div>
 <dialog id="inputDialog" class="themed">
   <h3>Type something</h3>
-  <input id="inputDialogField" type="text" placeholder="Your text…">
+  <input id="inputDialogField" type="text" placeholder="Your text...">
   <div class="actions">
     <button class="primary" id="inputDialogConfirm">Submit</button>
     <button class="danger"  data-close="cancel">Cancel</button>
   </div>
 </dialog>
 
-<h2>E. <code>&lt;browser-modal&gt;</code> — engine-blessed wrapping</h2>
+<h2>E. <code>&lt;browser-modal&gt;</code> - engine-blessed wrapping</h2>
 <p class="desc">Uses the original <code>&lt;browser-modal&gt;</code> tag pattern. Same modal-layer cache as native <code>&lt;dialog&gt;</code>; visibility is driven by classList add / remove.</p>
 <div class="grid">
   <button class="test primary" id="openBm">Open browser-modal</button>
@@ -192,7 +192,7 @@
 <browser-modal id="bmOverlay" class="my-bm-overlay">
   <div class="my-bm-card">
     <h3>browser-modal card</h3>
-    <p>Same modal-layer paint pass — just authored via the engine tag instead of the spec API.</p>
+    <p>Same modal-layer paint pass - just authored via the engine tag instead of the spec API.</p>
     <div class="actions">
       <button id="bmCloseBtn">Close</button>
     </div>
@@ -223,7 +223,7 @@
   </div>
 </browser-modal>
 
-<h2>G. Stress — rapid open/close cycle</h2>
+<h2>G. Stress - rapid open/close cycle</h2>
 <p class="desc">Opens and closes a dialog 20 times back-to-back. Watch for ghosts, log spam, or stuck-open states.</p>
 <div class="grid">
   <button class="test danger" id="stressBtn">Run 20× cycle</button>
@@ -258,7 +258,7 @@
       });
     })(btns[i]);
     dialog.addEventListener('close', function () {
-      log(dialog.id + ' closed — returnValue=' + JSON.stringify(dialog.returnValue));
+      log(dialog.id + ' closed - returnValue=' + JSON.stringify(dialog.returnValue));
     });
   }
 

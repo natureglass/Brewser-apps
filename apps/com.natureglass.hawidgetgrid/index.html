@@ -141,7 +141,7 @@
 <body>
 <div class="topbar">
   <h1>HA GRID</h1>
-  <span id="status">starting…</span>
+  <span id="status">starting...</span>
   <span id="count"></span>
   <button class="iconbtn" id="editBtn" aria-pressed="false" aria-label="Edit layout" title="Edit layout">✏️</button>
   <button class="iconbtn" id="entBtn" aria-label="Manage entities" title="Manage entities">📋</button>
@@ -162,7 +162,7 @@
     <div id="liveFields">
       <label class="check">
         <input type="checkbox" id="setSame">
-        <span>Same origin — this page is served by Home Assistant</span>
+        <span>Same origin - this page is served by Home Assistant</span>
       </label>
 
       <label class="field">
@@ -182,7 +182,7 @@
       </label>
 
       <p class="hint">
-        Create a token in Home Assistant under your profile → Security → Long-lived access tokens.
+        Create a token in Home Assistant under your profile -> Security -> Long-lived access tokens.
         It is stored in this browser only. Anything that can run scripts on this page can read it,
         so use a token you can revoke.
       </p>
@@ -346,11 +346,11 @@ class HAClient {
 
   connect() {
     if (this.closed) return;
-    this.emit("status", "connecting…");
+    this.emit("status", "connecting...");
     try {
       this.ws = new WebSocket(this.url);
     } catch (e) {
-      this.emit("status", "bad host — check settings");
+      this.emit("status", "bad host - check settings");
       return;
     }
     this.ws.onmessage = (e) => this.onMessage(JSON.parse(e.data));
@@ -403,7 +403,7 @@ class HAClient {
 
       case "auth_invalid":
         this.closed = true;
-        this.emit("status", "auth failed — check token");
+        this.emit("status", "auth failed - check token");
         break;
 
       case "result": {
@@ -693,7 +693,7 @@ class Widget {
     if (this.pending && !app.editMode) {
       ctx.fillStyle = C.accent;
       ctx.textAlign = "right";
-      ctx.fillText("…", r.x + r.w - 14, r.y + 12);
+      ctx.fillText("...", r.x + r.w - 14, r.y + 12);
     }
   }
 
@@ -749,7 +749,7 @@ class ToggleWidget extends Widget {
     ctx.font = "700 22px system-ui, sans-serif";
     ctx.textAlign = "left";
     ctx.textBaseline = "alphabetic";
-    ctx.fillText(!this.available ? "—" : this.on ? "ON" : "OFF", r.x + 14, r.y + r.h - 16);
+    ctx.fillText(!this.available ? "-" : this.on ? "ON" : "OFF", r.x + 14, r.y + r.h - 16);
   }
 }
 
@@ -806,7 +806,7 @@ class DimmerWidget extends Widget {
     ctx.textAlign = "right";
     ctx.textBaseline = "top";
     const pct = Math.round((this.brightness / 255) * 100);
-    ctx.fillText(!this.available ? "—" : this.on ? pct + "%" : "OFF", r.x + r.w - 14, r.y + 30);
+    ctx.fillText(!this.available ? "-" : this.on ? pct + "%" : "OFF", r.x + r.w - 14, r.y + 30);
   }
 }
 
@@ -854,7 +854,7 @@ class SensorWidget extends Widget {
     ctx.font = "700 24px system-ui, sans-serif";
     ctx.textAlign = "left";
     ctx.textBaseline = "top";
-    const text = this.value == null ? "—" : this.value + (this.unit ? " " + this.unit : "");
+    const text = this.value == null ? "-" : this.value + (this.unit ? " " + this.unit : "");
     ctx.fillText(fitText(ctx, text, r.w - 28), r.x + 14, r.y + 30);
   }
 }
@@ -890,7 +890,7 @@ class BinaryWidget extends Widget {
     ctx.font = "600 16px system-ui, sans-serif";
     ctx.textAlign = "left";
     ctx.textBaseline = "middle";
-    ctx.fillText(!this.available ? "—" : words[this.on ? 1 : 0], r.x + 34, r.y + r.h - 25);
+    ctx.fillText(!this.available ? "-" : words[this.on ? 1 : 0], r.x + 34, r.y + r.h - 25);
   }
 }
 
@@ -1061,8 +1061,8 @@ function fitText(ctx, text, maxW) {
   if (maxW <= 0) return "";
   if (ctx.measureText(text).width <= maxW) return text;
   let t = text;
-  while (t.length > 1 && ctx.measureText(t + "…").width > maxW) t = t.slice(0, -1);
-  return t + "…";
+  while (t.length > 1 && ctx.measureText(t + "...").width > maxW) t = t.slice(0, -1);
+  return t + "...";
 }
 
 /* ============================================================
@@ -1191,7 +1191,7 @@ els.forget.addEventListener("click", () => {
   els.same.checked = DEFAULTS.sameOrigin;
   els.tls.checked = DEFAULTS.tls;
   Settings.syncEnabled();
-  Settings.note("Cleared. The fields are back to defaults — save to store them again.", true);
+  Settings.note("Cleared. The fields are back to defaults - save to store them again.", true);
 });
 
 els.overlay.addEventListener("click", (e) => { if (e.target === els.overlay) Settings.close(); });
@@ -1351,7 +1351,7 @@ const app = {
   client: null,
   store: null,
   settings: { ...DEFAULTS },
-  lastStatus: "starting…",
+  lastStatus: "starting...",
   flashTimer: null,
   editMode: false,
   dirty: true,
@@ -1406,7 +1406,7 @@ const app = {
     this.editMode = on;
     els.edit.classList.toggle("is-active", on);
     els.edit.setAttribute("aria-pressed", String(on));
-    this.setStatus(on ? "editing — drag to reorder, × to remove" : this.lastStatus,
+    this.setStatus(on ? "editing - drag to reorder, × to remove" : this.lastStatus,
                    !on && this.lastStatus === "connected");
     this.markDirty();
   },
@@ -1561,8 +1561,8 @@ const app = {
         ctx.font = "600 13px system-ui, sans-serif";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillText(total ? "Every card is hidden — open Entities to bring some back"
-                           : "No cards yet — open settings to connect",
+        ctx.fillText(total ? "Every card is hidden - open Entities to bring some back"
+                           : "No cards yet - open settings to connect",
                      cw / 2, ch / 2);
       }
 

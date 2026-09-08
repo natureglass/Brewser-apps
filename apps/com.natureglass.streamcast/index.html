@@ -431,7 +431,7 @@
       <div id="sidebar-toggle" class="sidebar-toggle" role="button" tabindex="0" aria-label="Collapse sidebar" title="Collapse sidebar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polyline points="15 18 9 12 15 6"></polyline></svg></div>
       <div id="sidebar-title" class="sidebar-title hidden">Live now</div>
     </div>
-    <div id="live-status" class="live-status">Loading live streams…</div>
+    <div id="live-status" class="live-status">Loading live streams...</div>
     <div id="live-list" class="live-list"></div>
     <!-- Pinned at the sidebar bottom, outside the scrolling live-list: return to
          the login screen to type a channel by hand (the main way back on web,
@@ -466,7 +466,7 @@
     <!-- Brief loading view while a channel resolves -->
     <div id="loading-view" class="loading-view hidden">
       <div class="loading-inner">
-        <div id="status" class="status">Connecting to Twitch…</div>
+        <div id="status" class="status">Connecting to Twitch...</div>
         <div id="status-sub" class="status-sub"></div>
         <div id="meta-title" class="meta-title hidden"></div>
         <div id="meta-row" class="meta-row hidden">
@@ -702,7 +702,7 @@
     if (!tok || !tok.value || !tok.signature) {
       throw new Error('Channel offline or unknown: ' + channel);
     }
-    log('  token ok sig=' + tok.signature.slice(0, 8) + '… value chars=' + tok.value.length);
+    log('  token ok sig=' + tok.signature.slice(0, 8) + '... value chars=' + tok.value.length);
     return tok;
   }
 
@@ -787,7 +787,7 @@
   }
 
   async function pickVariant(masterUrl, quality) {
-    log('GET master m3u8…');
+    log('GET master m3u8...');
     const resp = await fetch(masterUrl);
     log('  master status ' + resp.status);
     if (!resp.ok) throw new Error('Master HTTP ' + resp.status);
@@ -961,7 +961,7 @@
     liveStatusEl.innerHTML = '';
     if (state === 'loading') {
       liveStatusEl.className = 'live-status';
-      liveStatusEl.textContent = msg || 'Loading live streams…';
+      liveStatusEl.textContent = msg || 'Loading live streams...';
       return;
     }
     // 'error' - text + Retry button
@@ -999,7 +999,7 @@
       log('  top-live fetch FAILED: ' + msg);
       // User-friendly messages for common failure modes.
       let display = 'Couldn\'t load live streams';
-      if (/abort/i.test(msg)) display = 'Live streams took too long — tap Retry';
+      if (/abort/i.test(msg)) display = 'Live streams took too long - tap Retry';
       else if (/HTTP/.test(msg)) display = 'Twitch returned an error (' + msg + ')';
       setLiveStatus('error', display);
     }
@@ -1147,7 +1147,7 @@
     document.getElementById('meta-uptime').textContent = '';
     document.getElementById('meta-game-sep').classList.add('hidden');
     document.getElementById('meta-uptime-sep').classList.add('hidden');
-    setStatus('Connecting to Twitch…');
+    setStatus('Connecting to Twitch...');
     start(channel);
   }
 
@@ -1198,16 +1198,16 @@
         return;
       }
 
-      setStatus('Requesting access token…');
+      setStatus('Requesting access token...');
       const tok = await fetchAccessToken(channel);
 
       const masterUrl = buildUsherUrl(channel, tok);
       log('master URL chars=' + masterUrl.length);
 
-      setStatus('Picking quality…');
+      setStatus('Picking quality...');
       const variant = await pickVariant(masterUrl, appConfig ? appConfig.quality : null);
 
-      setStatus('Tuning in… ' + variant.resolution);
+      setStatus('Tuning in... ' + variant.resolution);
 
       playerEl.setAttribute('src', variant.url);
       if (typeof playerEl.load === 'function') playerEl.load();

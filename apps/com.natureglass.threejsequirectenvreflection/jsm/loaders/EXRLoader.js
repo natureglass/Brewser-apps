@@ -1572,7 +1572,7 @@ class EXRLoader extends DataTextureLoader {
 			const isB44A = EXRHeader.compression === 'B44A_COMPRESSION';
 
 			// Output buffer organised as:
-			// for each scanline y: [ ch0 pixels (w×2 bytes) | ch1 pixels | … ]
+			// for each scanline y: [ ch0 pixels (w×2 bytes) | ch1 pixels | ... ]
 			const outBuffer = new Uint8Array( height * width * totalBytes );
 
 			// Reusable 4×4 block buffer
@@ -1618,7 +1618,7 @@ class EXRLoader extends DataTextureLoader {
 
 				}
 
-				// HALF channel — process 4×4 blocks at effective channel dimensions
+				// HALF channel - process 4×4 blocks at effective channel dimensions
 				const numBlocksX = Math.ceil( chanWidth / 4 );
 				const numBlocksY = Math.ceil( chanHeight / 4 );
 
@@ -1629,7 +1629,7 @@ class EXRLoader extends DataTextureLoader {
 						// B44A only: flat-block when shift ≥ 13 (byte[2] ≥ 52)
 						if ( isB44A && src[ srcOffset + 2 ] >= 52 ) {
 
-							// 3-byte flat block — all 16 pixels share one value
+							// 3-byte flat block - all 16 pixels share one value
 							const t = ( src[ srcOffset ] << 8 ) | src[ srcOffset + 1 ];
 							const h = ( t & 0x8000 ) ? ( t & 0x7fff ) : ( ( ~ t ) & 0xffff );
 							block.fill( h );

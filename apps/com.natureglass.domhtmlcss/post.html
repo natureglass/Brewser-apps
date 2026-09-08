@@ -31,12 +31,12 @@ The local test below proves the whole pipeline runs and navigates with the body
 attached; a static local file just can't show it back.</p>
 <p>To confirm the exact bytes sent, enable <code>navDebug</code> in
 <code>config.json</code> and read
-<code>sdmc:/switch/brewser/logs/shell-nav-diag.log</code> — it logs
+<code>sdmc:/switch/brewser/logs/shell-nav-diag.log</code> - it logs
 <code>method=POST</code> and the body length.</p>
 </div>
 
 <h2>1. Local POST (works on Citron)</h2>
-<p>Posts to a local page. It navigates to the &ldquo;two&rdquo; page without
+<p>Posts to a local page. It navigates to the "two" page without
 crashing; the body is sent but the static file ignores it.</p>
 <form action="two.html" method="post">
   <div class="row"><label for="lu">User:</label>
@@ -47,10 +47,10 @@ crashing; the body is sent but the static file ignores it.</p>
   <input type="submit" value="POST to two.html">
 </form>
 
-<h2>2. Echo POST (needs internet — hardware only)</h2>
+<h2>2. Echo POST (needs internet - hardware only)</h2>
 <p>Posts to <code>httpbin.org/post</code>, which echoes the request. The JSON
 response now renders as a text page, so on hardware you should see your
-submitted fields back under <code>"form"</code> — the real end-to-end proof
+submitted fields back under <code>"form"</code> - the real end-to-end proof
 that the body was sent.</p>
 <form action="https://httpbin.org/post" method="post">
   <div class="row"><label for="en">Name:</label>
@@ -61,7 +61,7 @@ that the body was sent.</p>
 </form>
 
 <h2>3. GET for comparison (unchanged)</h2>
-<p>Same fields via GET — they land in the <code>two.html?…</code> query string.</p>
+<p>Same fields via GET - they land in the <code>two.html?...</code> query string.</p>
 <form action="two.html" method="get">
   <div class="row"><label for="gu">User:</label>
     <input type="text" id="gu" name="user" value="switch"></div>

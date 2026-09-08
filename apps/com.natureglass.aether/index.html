@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>AETHER — field director</title>
+<title>AETHER - field director</title>
 <style>
   :root{
     --ae-ink:#08090d;
@@ -155,7 +155,7 @@
   <div class="field">
     <span class="caret">&rsaquo;</span>
     <input id="prompt" type="text" autocomplete="off" spellcheck="false"
-           placeholder="describe a world — stormy alien ocean at dusk">
+           placeholder="describe a world - stormy alien ocean at dusk">
   </div>
   <button id="run" class="go">Render</button>
   <button id="deal">New prompt</button>
@@ -182,9 +182,9 @@
 </div>
 
 <div id="tele" class="chrome">
-  <span>fps <b id="fps">—</b></span><span class="sep"></span>
-  <span>buffer <b id="dims">—</b></span><span class="sep"></span>
-  <span>cost <b id="cost">—</b></span>
+  <span>fps <b id="fps">-</b></span><span class="sep"></span>
+  <span>buffer <b id="dims">-</b></span><span class="sep"></span>
+  <span>cost <b id="cost">-</b></span>
   <div class="right">
     <span><kbd>P</kbd> new prompt</span>
     <span><kbd>space</kbd> surprise</span>
@@ -686,7 +686,7 @@ float hash21(vec2 p){
 
 float vnoise(vec2 p){
   vec2 i = floor(p), f = fract(p);
-  // quintic interpolant — smoother derivatives than smoothstep, less blockiness
+  // quintic interpolant - smoother derivatives than smoothstep, less blockiness
   vec2 u = f * f * f * (f * (f * 6.0 - 15.0) + 10.0);
   float a = hash21(i);
   float b = hash21(i + vec2(1.0, 0.0));
@@ -719,7 +719,7 @@ vec2 rot2(vec2 v, float a){
   return vec2(c * v.x - s * v.y, s * v.x + c * v.y);
 }
 
-// Worley / cellular — the one field shape that reads as genuinely non-fBm.
+// Worley / cellular - the one field shape that reads as genuinely non-fBm.
 // 9 cells, constant-bounded, only evaluated when the cells pattern is active.
 float worley(vec2 p){
   vec2 i = floor(p), f = fract(p);
@@ -738,18 +738,18 @@ float worley(vec2 p){
 // field drives the palette is what makes a topographic map, a wood grain and a
 // cracked cell field distinguishable from one another rather than recolours.
 float shape(float f, float rad, vec2 uv, vec2 fp){
-  if(uPattern == 1){          // bands — topographic contours
+  if(uPattern == 1){          // bands - topographic contours
     return 0.5 + 0.5 * sin(f * uPatScale * 6.28318530718);
-  } else if(uPattern == 2){   // rings — concentric ripple
+  } else if(uPattern == 2){   // rings - concentric ripple
     return 0.5 + 0.5 * sin(rad * uPatScale * 6.0 + f * 6.0);
-  } else if(uPattern == 3){   // veins — wood / marble grain
+  } else if(uPattern == 3){   // veins - wood / marble grain
     return pow(abs(sin(f * uPatScale * 3.14159265)), 0.5);
-  } else if(uPattern == 4){   // terrace — stepped plateaus
+  } else if(uPattern == 4){   // terrace - stepped plateaus
     float k = max(2.0, floor(uPatScale * 3.0));
     return (floor(f * k) + smoothstep(0.72, 1.0, fract(f * k))) / k;
-  } else if(uPattern == 5){   // streaks — directional strata
+  } else if(uPattern == 5){   // streaks - directional strata
     return 0.5 + 0.5 * sin(uv.x * uPatScale * 4.0 + f * 8.0);
-  } else if(uPattern == 6){   // cells — cracked / crystalline
+  } else if(uPattern == 6){   // cells - cracked / crystalline
     float d = worley(fp * (0.6 + uPatScale * 0.5));
     return mix(f, clamp(d * 1.6, 0.0, 1.0), 0.85);
   }
@@ -757,7 +757,7 @@ float shape(float f, float rad, vec2 uv, vec2 fp){
 }
 
 vec3 hueRot(vec3 col, float h){
-  if(h == 0.0) return col;   // no rotation — skip the cos/sin/cross/dot
+  if(h == 0.0) return col;   // no rotation - skip the cos/sin/cross/dot
   const vec3 k = vec3(0.57735027);
   float ca = cos(h);
   return col * ca + cross(k, col) * sin(h) + k * dot(k, col) * (1.0 - ca);
@@ -817,7 +817,7 @@ void main(){
   f += uPulse * 0.14 * sin(t * 1.3 + rad0 * 3.0);
 
   // The warp intermediates carry the interesting structure. Feeding them back
-  // into the palette coordinate is what turns fog into filaments — free,
+  // into the palette coordinate is what turns fog into filaments - free,
   // since q and r are already computed.
   float fil = clamp(length(q) - 0.35, 0.0, 1.0);
   float vein = clamp(r.x, 0.0, 1.0);
@@ -838,7 +838,7 @@ void main(){
   float wpx = fwidth(tc) * uPalFreq;
   col = mix(col, uDcCol, smoothstep(0.30, 0.95, wpx));
 
-  // depth from the warp magnitude — reads as shadowed troughs
+  // depth from the warp magnitude - reads as shadowed troughs
   col *= 1.0 - uStructure * 0.40 * clamp(dot(q, q) * 1.6, 0.0, 1.0);
 
   // bloom: 2.2 rather than 3.0 so mid-tones lift too, not just clipped whites
@@ -846,7 +846,7 @@ void main(){
 
   // edge fade, rotated with the palette so it can't clash (v1 left this on the
   // un-rotated base and produced warm rims on cool scenes). hueRot is linear in
-  // colour, so hueRot(uPalA*0.35, uHue) == 0.35 * uDcCol — reuse the CPU value.
+  // colour, so hueRot(uPalA*0.35, uHue) == 0.35 * uDcCol - reuse the CPU value.
   vec3 deep = uDcCol * 0.35;
   col = mix(col, deep, uFog * smoothstep(0.25, 1.5, rad0));
 

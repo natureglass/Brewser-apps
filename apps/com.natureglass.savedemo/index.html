@@ -44,16 +44,16 @@ a{color:var(--cyan)}
 <body>
 <div class="wrap">
 	<h1>Brewser Save Demo</h1>
-	<p class="tagline">Tests the two-tier save system: instant localStorage + background account sync. Package id: <code id="pkgid">—</code></p>
+	<p class="tagline">Tests the two-tier save system: instant localStorage + background account sync. Package id: <code id="pkgid">-</code></p>
 
 	<div class="auth">
-		<span class="pill" id="authpill">Checking sign-in…</span>
+		<span class="pill" id="authpill">Checking sign-in...</span>
 		<button class="btn-ghost" id="signinbtn" style="display:none">Sign in with Google</button>
 	</div>
 
 	<div class="card">
 		<h2>Your data</h2>
-		<label>Edit the JSON, then Save. (This is your app's save blob — any JSON works.)</label>
+		<label>Edit the JSON, then Save. (This is your app's save blob - any JSON works.)</label>
 		<textarea id="editor">[
   { "id": 1, "name": "Alice", "score": 1200, "level": 5 }
 ]</textarea>
@@ -83,7 +83,7 @@ a{color:var(--cyan)}
 	</div>
 
 	<div class="card">
-		<h2>Leaderboard <span style="color:var(--muted);font-weight:400;font-size:12px">(separate from saves — public, ranked scores)</span></h2>
+		<h2>Leaderboard <span style="color:var(--muted);font-weight:400;font-size:12px">(separate from saves - public, ranked scores)</span></h2>
 		<label>Direction (how this app ranks). Set once; the server remembers it per app.</label>
 		<div class="row" style="margin-top:6px">
 			<label style="display:flex;align-items:center;gap:6px;margin:0;color:var(--text)">
@@ -120,11 +120,11 @@ a{color:var(--cyan)}
 		<div class="state">
 			<div class="tier">
 				<h3>This browser (localStorage)<span class="dot off" id="localdot"></span></h3>
-				<pre id="localview">—</pre>
+				<pre id="localview">-</pre>
 			</div>
 			<div class="tier">
 				<h3>Your account (server)<span class="dot off" id="serverdot"></span></h3>
-				<pre id="serverview">—</pre>
+				<pre id="serverview">-</pre>
 			</div>
 		</div>
 	</div>
@@ -152,10 +152,10 @@ a{color:var(--cyan)}
 	brewser.configure({
 		packageId: 'com.natureglass.savedemo',
 		onSync: function (status, extra) {
-			if (status === 'pushing') log('info', 'Syncing to account…');
+			if (status === 'pushing') log('info', 'Syncing to account...');
 			else if (status === 'synced') log('ok', 'Synced to account (updatedAt ' + extra.updatedAt + ')');
-			else if (status === 'offline') log('err', 'Offline — will sync later');
-			else if (status === 'unauth') log('err', 'Not signed in — saved locally only');
+			else if (status === 'offline') log('err', 'Offline - will sync later');
+			else if (status === 'unauth') log('err', 'Not signed in - saved locally only');
 			else if (status === 'error') log('err', 'Sync error: ' + extra.error);
 			refreshServer();
 		}
@@ -247,7 +247,7 @@ a{color:var(--cyan)}
 			dot.className = 'dot off';
 			return;
 		}
-		view.textContent = 'loading…';
+		view.textContent = 'loading...';
 		brewser.pull().then(function (res) {
 			if (res.ok && res.data !== null) {
 				view.textContent = JSON.stringify(res.data, null, 2) + '\n\nupdatedAt: ' + res.updatedAt;
@@ -422,7 +422,7 @@ a{color:var(--cyan)}
 			rows.forEach(function (row) {
 				var line = document.createElement('div');
 				if (row.isMe) { line.className = 'ok'; }
-				line.textContent = '#' + row.rank + '  ' + (row.name || '(anon)') + '  —  ' + row.score + (row.isMe ? '   ← you' : '');
+				line.textContent = '#' + row.rank + '  ' + (row.name || '(anon)') + '  -  ' + row.score + (row.isMe ? '   ← you' : '');
 				box.appendChild(line);
 			});
 		}
@@ -442,9 +442,9 @@ a{color:var(--cyan)}
 		var name = document.getElementById('lbname').value.trim();
 		brewser.leaderboards.submit(score, { name: name }).then(function (res) {
 			if (res.ok) {
-				log('ok', 'Score submitted — best ' + res.best + ', rank #' + res.rank +
+				log('ok', 'Score submitted - best ' + res.best + ', rank #' + res.rank +
 					(res.updated ? ' (new best)' : ' (kept previous best)') +
-					(res.onBoard === false ? ' — not on board (below cutoff)' : ''));
+					(res.onBoard === false ? ' - not on board (below cutoff)' : ''));
 				brewser.leaderboards.list(10).then(function (r) { renderBoard(r, { title: 'Top 10' }); });
 			} else if (res.reason === 'unauth') {
 				log('err', 'Sign in to submit a score');
@@ -464,7 +464,7 @@ a{color:var(--cyan)}
 	document.getElementById('lbaround').addEventListener('click', function () {
 		brewser.leaderboards.aroundMe(3).then(function (r) {
 			if (r.ok && r.me) { renderBoard(r, { title: 'Around you', window: true }); log('ok', 'Loaded neighborhood'); }
-			else if (r.ok) { log('info', 'You have no score yet — submit one first'); }
+			else if (r.ok) { log('info', 'You have no score yet - submit one first'); }
 			else { log('err', r.reason === 'unauth' ? 'Sign in to see your neighborhood' : ('Failed: ' + (r.error || r.reason))); }
 		});
 	});

@@ -153,7 +153,7 @@
   $('btn-connect').onclick = async () => {
     const url = $('server-url').value;
     if (!url.trim()) { setStatus('connect-status', 'Enter your server address', true); return; }
-    setStatus('connect-status', 'Connecting…');
+    setStatus('connect-status', 'Connecting...');
     try {
       client = new JF.JellyfinClient({ baseUrl: url, identity: identity, storage: storage });
       const info = await JF.getPublicSystemInfo(client);
@@ -169,7 +169,7 @@
       const timedOut = e && e.name === 'TimeoutError';
       setStatus('connect-status',
         timedOut
-          ? 'No response from that address — check the port and that the server is running.'
+          ? 'No response from that address - check the port and that the server is running.'
           : 'Could not reach a Jellyfin server there. Check the address (scheme, host, port).', true);
     }
   };
@@ -178,7 +178,7 @@
   // ---- auth ----------------------------------------------------------------
   $('btn-login').onclick = async () => {
     if (!client) return;
-    setStatus('auth-status', 'Signing in…');
+    setStatus('auth-status', 'Signing in...');
     try {
       await JF.authenticateByName(client, $('auth-user').value, $('auth-pass').value);
       log('signed in as ' + client.userName);
@@ -620,7 +620,7 @@
     const streams = s && s.source && s.source.MediaStreams;
     const vs = streams ? streams.find((m) => m.Type === 'Video') : null;
     const lines = [];
-    lines.push('Play   : ' + (s ? s.playMethod + ' (' + s.protocol + ')' : '—'));
+    lines.push('Play   : ' + (s ? s.playMethod + ' (' + s.protocol + ')' : '-'));
     if (vs) {
       const fps = vs.RealFrameRate || vs.AverageFrameRate;
       lines.push('Source : ' + (vs.Width || '?') + '×' + (vs.Height || '?')
@@ -629,8 +629,8 @@
         + (vs.BitRate ? ' · ' + (vs.BitRate / 1e6).toFixed(1) + ' Mb/s' : ''));
     }
     const dw = video.videoWidth || 0, dh = video.videoHeight || 0;
-    lines.push('Decoded: ' + (dw && dh ? dw + '×' + dh : '—'));
-    lines.push('Render : ' + (statsFps || '—') + ' fps');
+    lines.push('Decoded: ' + (dw && dh ? dw + '×' + dh : '-'));
+    lines.push('Render : ' + (statsFps || '-') + ' fps');
     // Requested resolution cap - the resolution the app asked the server for.
     if (currentPlayCaps) {
       lines.push('Cap    : ' + (currentPlayCaps.maxWidth || 0) + '×'
@@ -1069,7 +1069,7 @@
     fillSelect($('vs-subtitle'), subOpts, curSub);
     // Chapters.
     const chapters = (currentPlayItem && currentPlayItem.Chapters) || [];
-    const chapOpts = [['— Jump to chapter —', -1]].concat(chapters.map((c, i) => {
+    const chapOpts = [['- Jump to chapter -', -1]].concat(chapters.map((c, i) => {
       const secs = JF.ticksToSeconds(c.StartPositionTicks || 0);
       const m = Math.floor(secs / 60), s = Math.floor(secs % 60);
       return [(c.Name || ('Chapter ' + (i + 1))) + '  ' + m + ':' + (s < 10 ? '0' : '') + s, i];
@@ -1201,7 +1201,7 @@
 
   $('btn-bitrate').onclick = async () => {
     if (!client) return;
-    $('set-bitrate').textContent = 'measuring…';
+    $('set-bitrate').textContent = 'measuring...';
     try {
       measuredBitrate = await JF.detectBitrate(client);
       $('set-bitrate').textContent = (measuredBitrate / 1e6).toFixed(1) + ' Mbps';
@@ -1239,7 +1239,7 @@
   $('quality').value = savedQuality || 'auto';
   $('show-stats').checked = storage.get('showStats') === '1';
 
-  log('platform: ' + (isBrewser ? 'Brewser/Switch' : 'browser') + ' · deviceId ' + identity.deviceId.slice(0, 8) + '…');
+  log('platform: ' + (isBrewser ? 'Brewser/Switch' : 'browser') + ' · deviceId ' + identity.deviceId.slice(0, 8) + '...');
 
   const restored = JF.restoreSession(storage, identity);
   if (restored) {

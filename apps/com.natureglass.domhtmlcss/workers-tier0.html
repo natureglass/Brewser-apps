@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Workers Tier-1 Pass A — Switch Web Platform</title>
+<title>Workers Tier-1 Pass A - Switch Web Platform</title>
 <link rel="stylesheet" href="brewser://assets/main.css" />
 <style>
   body { background-color: #0b1220; color: #e0e8f4; font-size: 18px; padding: 28px 48px; }
@@ -26,7 +26,7 @@
   <h1>Workers Tier-1 Pass A</h1>
   <p>Structured clone round-trips: primitives, Date, ArrayBuffer, TypedArrays,
   Map, Set, Array, plain Object, Error. Also: Tier-0 hardening regressions
-  (spawn/kill, parallel compute, throw → onerror).
+  (spawn/kill, parallel compute, throw -&gt; onerror).
   Logs: <code>sdmc:/switch/brewser/logs/workers-tier0.log</code> +
   <code>sdmc:/switch/brewser/logs/worker-N.log</code>.</p>
   <div class="row">
@@ -295,7 +295,7 @@
       await new Promise(function (r) { setTimeout(r, 400); });
       w.postMessage('ping');
       await expect(function (d) { return d === 'pong'; }, 2000, 'post-throw ping');
-      log((sawError ? 'PASS' : 'FAIL') + ' :: throw → onerror, worker survived');
+      log((sawError ? 'PASS' : 'FAIL') + ' :: throw -> onerror, worker survived');
     } finally { try { w.terminate(); } catch (_) {} }
   }
 
@@ -379,7 +379,7 @@
       w.postMessage({ cmd: 'ordering' });
       r = await expect(function (d) { return d && d.order; }, 3000, 'order');
       var orderOk = r.order[0] === 'sync' && r.order[1] === 'microtask' && r.order[2] === 'timer';
-      log((orderOk ? 'PASS' : 'FAIL') + ' :: ordering sync→microtask→timer (got ' + r.order.join(',') + ')');
+      log((orderOk ? 'PASS' : 'FAIL') + ' :: ordering sync->microtask->timer (got ' + r.order.join(',') + ')');
 
       // performance.now
       w.postMessage({ cmd: 'perfnow' });
@@ -392,7 +392,7 @@
       w.postMessage({ cmd: 'base64', text: sample });
       r = await expect(function (d) { return d && typeof d.enc === 'string'; }, 3000, 'base64');
       var b64Ok = r.roundTrip === sample;
-      log((b64Ok ? 'PASS' : 'FAIL') + ' :: btoa→atob round-trip preserved (enc=' + r.enc + ')');
+      log((b64Ok ? 'PASS' : 'FAIL') + ' :: btoa->atob round-trip preserved (enc=' + r.enc + ')');
 
       // importScripts - match by tagged `kind` so a leftover message
       // from an earlier test can't be claimed by the broad `d.ok` shape.
@@ -422,7 +422,7 @@
     var ctx1 = makeUrlWorker(url1, 'sdmc');
     try {
       var r = await ctx1.expect(function (d) { return d && d.ready === true; }, 3000, 'sdmc ready');
-      log((r.source === 'workers-pass-d.js' ? 'PASS' : 'FAIL') + ' :: sdmc:/ ctor → worker booted (source=' + r.source + ')');
+      log((r.source === 'workers-pass-d.js' ? 'PASS' : 'FAIL') + ' :: sdmc:/ ctor -> worker booted (source=' + r.source + ')');
       ctx1.worker.postMessage({ cmd: 'whoami', echo: 'sdmc-test' });
       r = await ctx1.expect(function (d) { return d && d.source; }, 3000, 'sdmc whoami');
       log((r.echo === 'sdmc-test' ? 'PASS' : 'FAIL') + ' :: sdmc:/ postMessage round-trip (echo=' + r.echo + ')');
@@ -442,7 +442,7 @@
       // Post immediately - should be buffered until the fetch resolves.
       ctx2.worker.postMessage({ cmd: 'whoami', echo: 'pre-spawn' });
       var r2 = await ctx2.expect(function (d) { return d && d.ready === true; }, 5000, 'url-fetch ready');
-      log('PASS :: url-fetch async fetch → worker booted (source=' + r2.source + ')');
+      log('PASS :: url-fetch async fetch -> worker booted (source=' + r2.source + ')');
       // The pre-spawn message should arrive AFTER ready, since it was
       // delivered post-spawn.
       r2 = await ctx2.expect(function (d) { return d && d.echo === 'pre-spawn'; }, 3000, 'url-fetch pre-spawn replay');

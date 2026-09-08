@@ -1881,7 +1881,7 @@ void main() {
 
       function shortenUrl(url) {
         const clean = url.split("/").pop() || url;
-        return clean.length > 34 ? `${clean.slice(0, 16)}…${clean.slice(-12)}` : clean;
+        return clean.length > 34 ? `${clean.slice(0, 16)}...${clean.slice(-12)}` : clean;
       }
 
       function loadTrack(index) {

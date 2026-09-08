@@ -115,7 +115,7 @@ try {
 
 			// Static per-cell brightness so the sky still has variation
 			// without time-driven twinkle/blink. Removed waveA/waveB sins,
-			// blinkGate, and the per-frame flash hash — those were the
+			// blinkGate, and the per-frame flash hash - those were the
 			// "blinking stars" effect and contributed several heavy math
 			// ops per pixel every frame.
 			float twinkle = 0.55 + 0.45 * hash(cell + 7.1);
@@ -125,7 +125,7 @@ try {
 
 			c += (vec3(0.92, 0.96, 1.0) * spark + vec3(0.56, 0.64, 0.92) * halo) * starMask * 1.20;
 
-			// Plane loop removed — was 20 iterations per fragment of
+			// Plane loop removed - was 20 iterations per fragment of
 			// atan(sin(...)), cos(planeLat), mod(...), several smoothstep,
 			// and per-iteration redBlink + planeTwinkle sin. At the
 			// demo's resolution × 60 fps this dominated the bg shader's

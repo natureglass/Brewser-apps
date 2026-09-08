@@ -1,4 +1,4 @@
-/* Brewser PWA — injected app service worker (runs on the app's OWN origin, e.g.
+/* Brewser PWA - injected app service worker (runs on the app's OWN origin, e.g.
  * play.brewser.io/apps/<pkg>/). Placed at the app root so its default scope is the app.
  *
  * The plugin substitutes the CACHE name, the precache list and the start URL at publish.

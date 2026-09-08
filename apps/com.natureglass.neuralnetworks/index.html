@@ -74,7 +74,7 @@
   </div>
 
   <div class="rig">
-    <section class="panel" data-tag="input · draw 0–9">
+    <section class="panel" data-tag="input · draw 0-9">
       <div class="padwrap">
         <canvas id="pad" width="280" height="280"></canvas>
         <div class="padhint" id="hint">draw a digit</div>
@@ -95,16 +95,16 @@
   </div>
 
   <div class="strip" id="strip">
-    <div class="chip">backend <b id="s-backend">…</b></div>
-    <div class="chip">device <b id="s-device">…</b></div>
-    <div class="chip">model <b id="s-model">…</b></div>
+    <div class="chip">backend <b id="s-backend">...</b></div>
+    <div class="chip">device <b id="s-device">...</b></div>
+    <div class="chip">model <b id="s-model">...</b></div>
     <div class="chip">last run <b id="s-time">–</b></div>
   </div>
 
   <p class="foot">
     Pure standard Web APIs. Uses real
     <code>navigator.ml</code> where present, otherwise a CPU shim that genuinely
-    executes the graph (<code>conv2d → relu → maxpool → conv2d → relu → gemm → softmax</code>).
+    executes the graph (<code>conv2d -> relu -> maxpool -> conv2d -> relu -> gemm -> softmax</code>).
     Weights load from <code>assets/weights.json</code>.
   </p>
 
@@ -320,7 +320,7 @@ async function benchmark(){
   if(!hasInk){for(let i=0;i<input.length;i++)input[i]=Math.random()*0.6;}
   const outputs={output:new Float32Array(10)};
   const WARMUP=3, ITERS=50;
-  btn.disabled=true;btn.textContent='Running…';
+  btn.disabled=true;btn.textContent='Running...';
   // let the label paint before the blocking loop
   await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
   for(let i=0;i<WARMUP;i++)await BACKEND.ctx.compute(GRAPH,{input},outputs);
@@ -356,7 +356,7 @@ document.getElementById('bench').addEventListener('click',benchmark);
   }catch(err){
     setGlyph('!',true,`load failed`);
     document.getElementById('s-model').textContent='error';
-    conf.innerHTML=`could not load weights — serve over http (not file://). ${err.message}`;
+    conf.innerHTML=`could not load weights - serve over http (not file://). ${err.message}`;
   }
 })();
 </script>

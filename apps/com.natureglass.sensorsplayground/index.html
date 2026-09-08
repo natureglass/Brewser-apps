@@ -173,32 +173,32 @@ body{
 
     <!-- BATTERY -->
     <div class="card">
-      <h3 class="card-title"><span class="ic">🔋</span> Battery &amp; Charging <span class="tag ok" id="batTag">…</span></h3>
+      <h3 class="card-title"><span class="ic">🔋</span> Battery &amp; Charging <span class="tag ok" id="batTag">...</span></h3>
       <div class="battviz">
         <div class="batt"><div class="fill" id="batFill" style="width:0%"></div><div class="bolt">⚡</div></div>
-        <div><div class="bigpct" id="batPct">—</div><div style="color:var(--txt-dim);font-size:12px" id="batSub">event-driven</div></div>
+        <div><div class="bigpct" id="batPct">-</div><div style="color:var(--txt-dim);font-size:12px" id="batSub">event-driven</div></div>
       </div>
-      <div class="row"><span class="k">State</span><span class="v good" id="batState">—</span></div>
-      <div class="row"><span class="k">Time to full</span><span class="v" id="batFull">—</span></div>
-      <div class="row"><span class="k">Time to empty</span><span class="v" id="batEmpty">—</span></div>
-      <div class="row"><span class="k">API</span><span class="v dim" id="batApi">—</span></div>
+      <div class="row"><span class="k">State</span><span class="v good" id="batState">-</span></div>
+      <div class="row"><span class="k">Time to full</span><span class="v" id="batFull">-</span></div>
+      <div class="row"><span class="k">Time to empty</span><span class="v" id="batEmpty">-</span></div>
+      <div class="row"><span class="k">API</span><span class="v dim" id="batApi">-</span></div>
     </div>
 
     <!-- GYRO / ACCEL -->
     <div class="card" id="gyroCard" style="cursor:pointer;touch-action:manipulation">
-      <h3 class="card-title"><span class="ic">🧭</span> Gyro &amp; Accelerometer <span class="tag ok" id="gyroTag">…</span></h3>
+      <h3 class="card-title"><span class="ic">🧭</span> Gyro &amp; Accelerometer <span class="tag ok" id="gyroTag">...</span></h3>
       <div class="cube-scene"><canvas id="gyroCube" width="320" height="120"></canvas></div>
       <div class="axisrow">
-        <div class="axis"><small>PITCH</small><span id="gPitch">—</span></div>
-        <div class="axis"><small>ROLL</small><span id="gRoll">—</span></div>
-        <div class="axis"><small>YAW</small><span id="gYaw">—</span></div>
+        <div class="axis"><small>PITCH</small><span id="gPitch">-</span></div>
+        <div class="axis"><small>ROLL</small><span id="gRoll">-</span></div>
+        <div class="axis"><small>YAW</small><span id="gYaw">-</span></div>
       </div>
-      <div class="row" style="margin-top:8px"><span class="k">Accel (g)</span><span class="v" id="accelText">—</span></div>
+      <div class="row" style="margin-top:8px"><span class="k">Accel (g)</span><span class="v" id="accelText">-</span></div>
     </div>
 
     <!-- VIBRATION -->
     <div class="card">
-      <h3 class="card-title"><span class="ic">📳</span> Vibration <span class="tag ok" id="rumbleTag">…</span></h3>
+      <h3 class="card-title"><span class="ic">📳</span> Vibration <span class="tag ok" id="rumbleTag">...</span></h3>
       <div class="rumble-btns" id="rumbleBtns">
         <button type="button" class="chip rumble-chip" data-r="light">Light</button>
         <button type="button" class="chip rumble-chip" data-r="pulse">Pulse</button>
@@ -210,38 +210,38 @@ body{
       </div></div>
       <div class="rumble-status" id="rumbleStatus">Idle</div>
       <div class="row"><span class="k">Intensity</span><span class="v blue" id="rumbleInt">0%</span></div>
-      <div class="row"><span class="k">Pattern</span><span class="v" id="rumblePat">—</span></div>
+      <div class="row"><span class="k">Pattern</span><span class="v" id="rumblePat">-</span></div>
     </div>
 
     <!-- DISPLAY / ORIENTATION -->
     <div class="card">
-      <h3 class="card-title"><span class="ic">📱</span> Display &amp; Orientation <span class="tag ok" id="modeTag">…</span></h3>
-      <div class="row"><span class="k">Orientation</span><span class="v blue" id="modeName">—</span></div>
-      <div class="row"><span class="k">Rotation angle</span><span class="v" id="modeAngle">—</span></div>
-      <div class="row"><span class="k">Display mode</span><span class="v" id="modeDisplay">—</span></div>
-      <div class="row"><span class="k">Viewport</span><span class="v" id="modeViewport">—</span></div>
-      <div class="row"><span class="k">Screen</span><span class="v" id="modeScreen">—</span></div>
+      <h3 class="card-title"><span class="ic">📱</span> Display &amp; Orientation <span class="tag ok" id="modeTag">...</span></h3>
+      <div class="row"><span class="k">Orientation</span><span class="v blue" id="modeName">-</span></div>
+      <div class="row"><span class="k">Rotation angle</span><span class="v" id="modeAngle">-</span></div>
+      <div class="row"><span class="k">Display mode</span><span class="v" id="modeDisplay">-</span></div>
+      <div class="row"><span class="k">Viewport</span><span class="v" id="modeViewport">-</span></div>
+      <div class="row"><span class="k">Screen</span><span class="v" id="modeScreen">-</span></div>
     </div>
 
     <!-- NETWORK -->
     <div class="card">
-      <h3 class="card-title"><span class="ic">📶</span> Network Status <span class="tag ok" id="netTag">…</span></h3>
-      <div class="row"><span class="k">Effective type</span><span class="v blue" id="netEff">—</span></div>
-      <div class="row"><span class="k">Connection type</span><span class="v" id="netType">—</span></div>
-      <div class="row"><span class="k">Downlink</span><span class="v" id="netDown">—</span></div>
-      <div class="row"><span class="k">Round-trip</span><span class="v" id="netRtt">—</span></div>
-      <div class="row"><span class="k">Save-Data</span><span class="v dim" id="netSave">—</span></div>
+      <h3 class="card-title"><span class="ic">📶</span> Network Status <span class="tag ok" id="netTag">...</span></h3>
+      <div class="row"><span class="k">Effective type</span><span class="v blue" id="netEff">-</span></div>
+      <div class="row"><span class="k">Connection type</span><span class="v" id="netType">-</span></div>
+      <div class="row"><span class="k">Downlink</span><span class="v" id="netDown">-</span></div>
+      <div class="row"><span class="k">Round-trip</span><span class="v" id="netRtt">-</span></div>
+      <div class="row"><span class="k">Save-Data</span><span class="v dim" id="netSave">-</span></div>
     </div>
 
     <!-- STORAGE -->
     <div class="card">
-      <h3 class="card-title"><span class="ic">💾</span> Device Storage <span class="tag ok" id="sdTag">…</span></h3>
-      <div class="barlabel"><span>Origin quota used</span><span id="sdUsedTotal">—</span></div>
+      <h3 class="card-title"><span class="ic">💾</span> Device Storage <span class="tag ok" id="sdTag">...</span></h3>
+      <div class="barlabel"><span>Origin quota used</span><span id="sdUsedTotal">-</span></div>
       <div class="bar"><i id="sdBar" style="width:0%"></i></div>
-      <div class="row" style="margin-top:8px"><span class="k">Free</span><span class="v good" id="sdFree">—</span></div>
-      <div class="row"><span class="k">Quota</span><span class="v" id="sdTotal">—</span></div>
-      <div class="row"><span class="k">Used</span><span class="v" id="sdUsed">—</span></div>
-      <div class="row"><span class="k">Persisted</span><span class="v dim" id="sdPersist">—</span></div>
+      <div class="row" style="margin-top:8px"><span class="k">Free</span><span class="v good" id="sdFree">-</span></div>
+      <div class="row"><span class="k">Quota</span><span class="v" id="sdTotal">-</span></div>
+      <div class="row"><span class="k">Used</span><span class="v" id="sdUsed">-</span></div>
+      <div class="row"><span class="k">Persisted</span><span class="v dim" id="sdPersist">-</span></div>
     </div>
 
 </div>
@@ -303,7 +303,7 @@ function setW(id, pct) {
  * them; the API exposes level, charging state and the two time estimates.
  * iOS Safari has no navigator.getBattery at all -> the card tags NO API. */
 function fmtSecs(s) {
-  if (!Number.isFinite(s) || s <= 0) return '—'; // Infinity = "unknown" per spec
+  if (!Number.isFinite(s) || s <= 0) return '-'; // Infinity = "unknown" per spec
   const m = Math.round(s / 60);
   if (m < 60) return m + ' min';
   return (s / 3600).toFixed(1) + ' h';
@@ -316,13 +316,13 @@ async function pollBattery() {
     setT('batPct', pct + '%');
     setT('batState', bm.charging ? 'Charging' : 'Discharging');
     setW('batFill', pct);
-    setT('batFull', bm.charging ? (bm.chargingTime === 0 ? 'Full' : fmtSecs(bm.chargingTime)) : '—');
-    setT('batEmpty', bm.charging ? '—' : fmtSecs(bm.dischargingTime));
+    setT('batFull', bm.charging ? (bm.chargingTime === 0 ? 'Full' : fmtSecs(bm.chargingTime)) : '-');
+    setT('batEmpty', bm.charging ? '-' : fmtSecs(bm.dischargingTime));
     setT('batApi', 'Battery Status');
     setT('batTag', bm.charging ? 'CHARGING' : 'ON BATTERY');
   } catch (e) {
     setT('batPct', 'n/a'); setT('batState', 'unavailable');
-    setT('batFull', '—'); setT('batEmpty', '—');
+    setT('batFull', '-'); setT('batEmpty', '-');
     setT('batApi', 'unsupported');
     setT('batTag', 'NO API');
     log('battery err: ' + (e && e.message || e));
@@ -375,10 +375,10 @@ function pollNetwork() {
     setT('netTag', online ? 'ONLINE' : 'OFFLINE');
     const c = navigator.connection || navigator.webkitConnection || navigator.mozConnection;
     if (c) {
-      setT('netEff', c.effectiveType ? c.effectiveType.toUpperCase() : '—');
-      setT('netType', c.type || '—'); // often undefined even on Android
-      setT('netDown', Number.isFinite(c.downlink) ? c.downlink + ' Mbps' : '—');
-      setT('netRtt', Number.isFinite(c.rtt) ? c.rtt + ' ms' : '—');
+      setT('netEff', c.effectiveType ? c.effectiveType.toUpperCase() : '-');
+      setT('netType', c.type || '-'); // often undefined even on Android
+      setT('netDown', Number.isFinite(c.downlink) ? c.downlink + ' Mbps' : '-');
+      setT('netRtt', Number.isFinite(c.rtt) ? c.rtt + ' ms' : '-');
       setT('netSave', c.saveData ? 'On' : 'Off');
       log('network: ' + JSON.stringify({ eff: c.effectiveType, down: c.downlink, rtt: c.rtt, save: c.saveData, online }));
     } else {
@@ -424,7 +424,7 @@ async function pollStorage() {
       const p = await navigator.storage.persisted();
       setT('sdPersist', p ? 'Yes' : 'No (best-effort)');
     } else {
-      setT('sdPersist', '—');
+      setT('sdPersist', '-');
     }
     log('storage: used=' + used + ' quota=' + total);
   } catch (e) {
@@ -786,8 +786,8 @@ async function startSixAxis(fromGesture) {
   // Motion sensors are secure-context-only on every mobile browser.
   if (!window.isSecureContext) {
     setT('gyroTag', 'NEEDS HTTPS');
-    setT('gPitch', '—'); setT('gRoll', '—'); setT('gYaw', '—');
-    log('sixAxis: blocked — motion sensors require https:// or localhost');
+    setT('gPitch', '-'); setT('gRoll', '-'); setT('gYaw', '-');
+    log('sixAxis: blocked - motion sensors require https:// or localhost');
     return;
   }
   if (typeof DeviceOrientationEvent === 'undefined') {
@@ -802,7 +802,7 @@ async function startSixAxis(fromGesture) {
   if (needsPerm) {
     if (!fromGesture) {
       setT('gyroTag', 'TAP TO START');
-      log('sixAxis: iOS permission model — waiting for card tap');
+      log('sixAxis: iOS permission model - waiting for card tap');
       return;
     }
     try {
@@ -828,7 +828,7 @@ async function startSixAxis(fromGesture) {
   window.addEventListener('devicemotion', onMotion);
   sixAxisActive = true;
   sixAxisSawData = false;
-  setT('gyroTag', 'WAITING…');
+  setT('gyroTag', 'WAITING...');
   log('sixAxis started (listeners attached' + (needsPerm ? ', permission granted' : '') + ')');
   // Desktops attach fine but never fire events - flag it so the tag isn't a
   // lie. Listeners stay attached; if data shows up later the tick's

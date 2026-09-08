@@ -30,7 +30,7 @@
       <div id="loading">
         <div id="loading-title">2D Platformer Microgame</div>
         <div id="loading-track"><div id="loading-fill"></div></div>
-        <div id="loading-pct">Loading&hellip; 0%</div>
+        <div id="loading-pct">Loading... 0%</div>
       </div>
       <div id="unity-warning"></div>
     </div>
@@ -73,8 +73,8 @@
         createUnityInstance(canvas, config, (progress) => {
           var p = Math.round(100 * progress);
           loadingFill.style.width = p + "%";
-          loadingPct.textContent = p < 100 ? ("Loading… " + p + "%")
-                                           : "Starting engine… (first launch is slow)";
+          loadingPct.textContent = p < 100 ? ("Loading... " + p + "%")
+                                           : "Starting engine... (first launch is slow)";
         }).then((unityInstance) => {
           loading.style.display = "none";
         }).catch((message) => {

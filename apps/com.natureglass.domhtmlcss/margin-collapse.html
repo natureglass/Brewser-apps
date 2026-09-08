@@ -29,14 +29,14 @@
 <p class="desc">CSS 2.1 §8.3.1. Each case shows the <b>actual</b> collapsing structure beside a
 <b>reference</b> built to the already-collapsed result. <b>PASS = the two columns look identical</b>
 (same gaps, same slate bands). The slate background reveals gaps; the thin outline marks each
-parent box. This engine uses a <i>contained</i> model — a collapsed child margin does not become
+parent box. This engine uses a <i>contained</i> model - a collapsed child margin does not become
 the parent's own outer margin.</p>
 
-<h2>1 · Adjacent siblings — positive (parent padded, edges closed)</h2>
+<h2>1 · Adjacent siblings - positive (parent padded, edges closed)</h2>
 <p class="desc"><code>margin-bottom:40</code> then <code>margin-top:20</code> collapse to <b>40</b> (the max),
 not 60. Parent padding closes the top/bottom edges so only the sibling gap is under test.</p>
 <div class="col">
-  <div class="lbl">actual · mb:40 + mt:20 → 40</div>
+  <div class="lbl">actual · mb:40 + mt:20 -> 40</div>
   <div class="par pad">
     <div class="bx b" style="margin-bottom:40px;">A</div>
     <div class="bx g" style="margin-top:20px;">B</div>
@@ -50,11 +50,11 @@ not 60. Parent padding closes the top/bottom edges so only the sibling gap is un
   </div>
 </div>
 
-<h2>2 · Adjacent siblings — negative (max positive + min negative)</h2>
+<h2>2 · Adjacent siblings - negative (max positive + min negative)</h2>
 <p class="desc"><code>margin-bottom:30</code> then <code>margin-top:-10</code> collapse to <b>20</b>
 (30 + −10). Old positive-only <code>Math.max</code> would wrongly give 30.</p>
 <div class="col">
-  <div class="lbl">actual · mb:30 + mt:-10 → 20</div>
+  <div class="lbl">actual · mb:30 + mt:-10 -> 20</div>
   <div class="par pad">
     <div class="bx b" style="margin-bottom:30px;">A</div>
     <div class="bx g" style="margin-top:-10px;">B</div>
@@ -68,7 +68,7 @@ not 60. Parent padding closes the top/bottom edges so only the sibling gap is un
   </div>
 </div>
 
-<h2>3 · Parent ↔ first-child collapse-through (open top edge)</h2>
+<h2>3 · Parent <-> first-child collapse-through (open top edge)</h2>
 <p class="desc">Parent has no top border/padding, so the first child's <code>margin-top:35</code>
 collapses through the top edge and leaves <b>no</b> slate band above the blue box. If it were
 broken, the actual column would show a 35px slate band above A.</p>
@@ -89,7 +89,7 @@ broken, the actual column would show a 35px slate band above A.</p>
 
 <h2>4 · Guard: top padding <span class="bad">closes</span> the edge (contrast, not a match)</h2>
 <p class="desc">Same child <code>margin-top:30</code> in an <b>open</b> parent (collapses away, C at the
-top) vs a parent with <code>padding-top:12</code> (edge closed → the 30px margin is <b>kept</b>,
+top) vs a parent with <code>padding-top:12</code> (edge closed -> the 30px margin is <b>kept</b>,
 showing a slate band below the padding). This is the guard that keeps padded/bordered containers
 byte-identical.</p>
 <div class="col">
@@ -110,7 +110,7 @@ byte-identical.</p>
 content) between A (<code>mb:20</code>) and B (<code>mt:5</code>) folds all margins into a
 <b>single 20px</b> gap and takes no height. Reference reproduces the 20px directly.</p>
 <div class="col">
-  <div class="lbl">actual · A(mb20) · empty(10/15) · B(mt5) → 20</div>
+  <div class="lbl">actual · A(mb20) · empty(10/15) · B(mt5) -> 20</div>
   <div class="par pad">
     <div class="bx b" style="margin-bottom:20px;">A</div>
     <div style="margin-top:10px;margin-bottom:15px;"></div>

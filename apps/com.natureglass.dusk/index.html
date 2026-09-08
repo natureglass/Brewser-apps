@@ -95,7 +95,7 @@
 
 <div id="hud">
   <div id="brand">dusk<small>sky atlas</small></div>
-  <button id="chip" aria-label="Location and time">locating…</button>
+  <button id="chip" aria-label="Location and time">locating...</button>
 </div>
 
 <div id="plate" aria-live="polite">
@@ -111,7 +111,7 @@
   <button class="rb on" id="bLines" aria-label="Constellation lines">📐</button>
   <button class="rb on" id="bMW" aria-label="Milky Way">🌌</button>
   <button class="rb on" id="bDSO" aria-label="Deep-sky objects">🌀</button>
-  <button class="rb" id="bNight" aria-label="Night mode — remove ground, look anywhere">🌙</button>
+  <button class="rb" id="bNight" aria-label="Night mode - remove ground, look anywhere">🌙</button>
   <span class="div"></span>
   <button class="rb" id="bGyro" aria-label="Point device at the sky">🧭</button>
   <button class="rb" id="bFocus" aria-label="Cycle notable objects">🎯</button>
@@ -120,7 +120,7 @@
 <div id="veil">
   <div class="b">dusk</div>
   <div class="s">pocket planetarium</div>
-  <div id="vstat">charting the dusk sky…</div>
+  <div id="vstat">charting the dusk sky...</div>
   <button id="vretry">retry</button>
 </div>
 
@@ -872,15 +872,15 @@ setInterval(updateChip, 5000);
 function locate(fromTap){
   if (state.fixed){ if(fromTap) toast('Location pinned by URL'); return; }
   if (!navigator.geolocation || !navigator.geolocation.getCurrentPosition){
-    if (fromTap) toast('No positioning on this device — using '+fmtLoc());
+    if (fromTap) toast('No positioning on this device - using '+fmtLoc());
     return;
   }
-  if (fromTap) toast('Finding your position…');
+  if (fromTap) toast('Finding your position...');
   navigator.geolocation.getCurrentPosition(function(r){
     state.lat=r.coords.latitude; state.lon=r.coords.longitude; state.locLabel='gps';
     savePrefs(); updateChip(); toast('Position updated');
   }, function(){
-    if (fromTap) toast('Positioning unavailable — using '+fmtLoc());
+    if (fromTap) toast('Positioning unavailable - using '+fmtLoc());
   }, {timeout:8000, maximumAge:600000, enableHighAccuracy:false});
 }
 chip.addEventListener('click', function(){ locate(true); });
@@ -1167,7 +1167,7 @@ function frame(t){
   } else {
     if (state.gyro && !dor && performance.now()-gyroWaitT>2200){
       reallySetGyro(false);
-      toast('No orientation sensor found — drag to look around');
+      toast('No orientation sensor found - drag to look around');
     }
     camera.rotation.set(state.pitch, -state.yaw, 0);
   }
@@ -1211,13 +1211,13 @@ function fetchJSON(name){
             constellations:'constellations.lines.json', mw:'mw.json', dsos:'dsos.bright.json',
             images:'dso-images.json'}[name];
   return fetch(DATA_BASE+file).then(function(r){
-    if (!r.ok) throw new Error(file+' → '+r.status);
+    if (!r.ok) throw new Error(file+' -> '+r.status);
     return r.json();
   });
 }
 function boot(){
   vretry.style.display='none';
-  vstat.textContent='charting the dusk sky…';
+  vstat.textContent='charting the dusk sky...';
   Promise.allSettled([
     fetchJSON('stars'), fetchJSON('starnames'),
     fetchJSON('constellations'), fetchJSON('mw'), fetchJSON('dsos'),

@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-<title>DOM: selectors, closest/matches, siblings, capture — brewser</title>
+<title>DOM: selectors, closest/matches, siblings, capture - brewser</title>
 <style>
   body { background:#0b1220; color:#e0e8f4; font:15px/1.5 system-ui, sans-serif; padding:20px 28px; }
   h1 { color:#ffd35e; font-size:22px; }
@@ -19,7 +19,7 @@
 </head>
 <body>
   <h1>DOM selector engine · closest/matches · element siblings · event capture</h1>
-  <div id="summary">running…</div>
+  <div id="summary">running...</div>
 
   <!-- Scaffold the assertions run against. -->
   <div id="tree">
@@ -112,7 +112,7 @@
       tag.addEventListener('ping', onTgt);           // target
       tree.addEventListener('ping', onBub, false);   // bubble on ancestor
       tag.dispatchEvent({ type: 'ping', bubbles: true });
-      row('capture → target → bubble order', order.join('>') === 'capture>target>bubble', order.join('>'));
+      row('capture -> target -> bubble order', order.join('>') === 'capture>target>bubble', order.join('>'));
       ok('event.target = dispatch origin (tag)', capturedTarget === tag);
       ok('event.currentTarget = listening node (tree)', capturedCurrent === tree);
       tree.removeEventListener('ping', onCap, true);

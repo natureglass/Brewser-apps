@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Breakout — Switch Web Platform Demo</title>
+<title>Breakout - Switch Web Platform Demo</title>
 <style>
   body { background-color: #0b1220; color: #e0e8f4; font-size: 18px; padding: 28px 48px; }
   @font-face {
@@ -188,7 +188,7 @@
       try {
         if (audio.state !== 'running' && typeof audio.resume === 'function') {
           audio.resume();
-          log('audio.resume()→state=' + audio.state);
+          log('audio.resume()->state=' + audio.state);
         }
       } catch (e) { log('!! audio.resume: ' + (e && e.message || e)); }
       return true;
@@ -389,7 +389,7 @@
       __loopsActive = false;
       try { if (audio && typeof audio.close === 'function') audio.close(); } catch (_) {}
       try { if (htmlAudio && typeof htmlAudio.pause === 'function') htmlAudio.pause(); } catch (_) {}
-      log('beforeunload → loops cancelled, audio closed');
+      log('beforeunload -> loops cancelled, audio closed');
     });
   } catch (_) {}
 
@@ -487,9 +487,9 @@
       if (lives <= 0) {
         log('GAME OVER final=' + score + ' hi=' + hiScore); saveHiScore();
         score = 0; lives = 3; level = 1; buildLevel(); updateHud();
-        setOverlay('Game Over — touch or A to play again');
+        setOverlay('Game Over - touch or A to play again');
       } else {
-        setOverlay('Lost a ball — touch or A for next');
+        setOverlay('Lost a ball - touch or A for next');
       }
       resetBall();
     }
@@ -498,7 +498,7 @@
     for (let i = 0; i < bricks.length; i++) { if (bricks[i].alive) { allDead = false; break; } }
     if (allDead) {
       level++; log('LEVEL ' + level); sfxWin(); saveHiScore();
-      buildLevel(); resetBall(); setOverlay('Level ' + level + ' — touch or A to launch');
+      buildLevel(); resetBall(); setOverlay('Level ' + level + ' - touch or A to launch');
     }
   }
 
@@ -589,7 +589,7 @@
         if (paddle.targetX > VIEW_W - PADDLE_W / 2) paddle.targetX = VIEW_W - PADDLE_W / 2;
         const now = performance.now();
         if (now - lastGamepadLogTime > 1500) {
-          log('gp lx=' + x.toFixed(2) + ' → targetX=' + Math.round(paddle.targetX));
+          log('gp lx=' + x.toFixed(2) + ' -> targetX=' + Math.round(paddle.targetX));
           lastGamepadLogTime = now;
         }
       }

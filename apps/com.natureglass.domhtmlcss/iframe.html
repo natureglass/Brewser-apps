@@ -13,22 +13,22 @@
 </style>
 </head>
 <body>
-<h1>&lt;iframe&gt; — Tier 1B inline preview</h1>
+<h1>&lt;iframe&gt; - Tier 1B inline preview</h1>
 <p class="lead">Each iframe below fetches its <code>src</code>, parses the
 response HTML, and grafts the body as the iframe's subtree. Scripts inside
 the iframe are skipped. Internal <code>&lt;style&gt;</code> blocks are
-selector-scoped so they only match descendants of their iframe — embedded
+selector-scoped so they only match descendants of their iframe - embedded
 CSS won't leak into this parent page's cascade.</p>
 
 <h2>1. Same-origin local fixture</h2>
 <p class="lead">Loads a sibling fixture via a page-relative <code>./align.html</code>
-src — resolved against this page's directory the same way <code>&lt;img&gt;</code>
+src - resolved against this page's directory the same way <code>&lt;img&gt;</code>
 and <code>&lt;link rel="stylesheet"&gt;</code> relative URLs are. Absolute
 URLs also work.</p>
 <iframe src="./align.html" width="640" height="200"></iframe>
 
 <h2>2. Custom size</h2>
-<p class="lead">No <code>width</code> / <code>height</code> attrs — falls
+<p class="lead">No <code>width</code> / <code>height</code> attrs - falls
 back to the HTML spec defaults (300&times;150) so you can see the frame
 without any sizing hints.</p>
 <iframe src="./two.html"></iframe>
@@ -43,7 +43,7 @@ and the line continues after it (or wraps, depending on width).</p>
 <h2>4. External https page</h2>
 <p class="lead">Fetches a real external page over HTTPS. Caveat: many
 real pages depend on scripts or external CSS we don't run inside the
-iframe — content will look stripped-down. The page below is small and
+iframe - content will look stripped-down. The page below is small and
 mostly markup.</p>
 <iframe src="https://example.com/" width="700" height="240"></iframe>
 
