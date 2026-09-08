@@ -62,14 +62,14 @@ try {
 	gl.useProgram(program);
 
 	// gl_VertexID drives a const-array fullscreen triangle in the vertex
-	// shader — no attribute data needed. A VAO is still required by GLSL ES
+	// shader - no attribute data needed. A VAO is still required by GLSL ES
 	// 3.00 even when there are no enabled attribs.
 	const vao = gl.createVertexArray();
 	gl.bindVertexArray(vao);
 
 	// nx.js's drawArrays gate (webgl.c:7304-7314) requires attribute 0 to
 	// be enabled with type FLOAT and size >= 2 BEFORE try_draw_passthrough
-	// gets a chance — the gate was designed for the bridge's hardcoded
+	// gets a chance - the gate was designed for the bridge's hardcoded
 	// `a_position`-bound color/texture programs. Our raw-passthrough
 	// shader uses `gl_VertexID` + a const-array triangle and never reads
 	// from a vertex attribute, but the gate doesn't know that and would
@@ -111,11 +111,11 @@ try {
 
 	let logoReady = false;
 	// Allocate the persistent native texture handle BEFORE the async PNG
-	// arrives (see [[bridge-fbo-support]] / nxjs-webgl-demo notes — without
+	// arrives (see [[bridge-fbo-support]] / nxjs-webgl-demo notes - without
 	// the NULL-data allocation the later upload only populates nx.js's
 	// CPU-side cache and `gl.bindTexture` doesn't forward to native).
 	//
-	// DIAGNOSTIC PROBES (TEMP) — verify the path resolution + track load.
+	// DIAGNOSTIC PROBES (TEMP) - verify the path resolution + track load.
 	try {
 		console.debug('[logo-probe webgl2demo] location.href=' +
 			((typeof globalThis !== 'undefined' && globalThis.location)
@@ -178,7 +178,7 @@ try {
 	let targetYaw = 0.0;
 	let targetPitch = -0.035;
 	let fov = 1.06;
-	const targetFov = 1.06; // wheel zoom dropped — fov stays fixed.
+	const targetFov = 1.06; // wheel zoom dropped - fov stays fixed.
 	const mood = 1.0;
 	const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
 
@@ -247,7 +247,7 @@ try {
 
 	// Gamepad right-stick = orbit, mirroring nxjs-webgl-demo. Exit-to-
 	// launcher is driven by the engine via manifest.json's `buttonMapping`
-	// (B → exit), so no page-side button polling is needed here.
+	// (B -> exit), so no page-side button polling is needed here.
 	function pollGamepad(dt) {
 		const pads = (typeof navigator !== 'undefined' && navigator.getGamepads)
 			? navigator.getGamepads() : null;

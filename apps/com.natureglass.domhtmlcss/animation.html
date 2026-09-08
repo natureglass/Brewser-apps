@@ -20,23 +20,23 @@
   @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   .spinner { animation: spin 1.2s linear infinite; }
 
-  /* NEW — translate (px), direction: alternate. */
+  /* NEW - translate (px), direction: alternate. */
   @keyframes slidePx { from { transform: translateX(0); } to { transform: translateX(200px); } }
   .slidepx { animation: slidePx 1.4s ease-in-out infinite alternate; }
 
-  /* NEW — translate (percent, resolves against the element's own width). */
+  /* NEW - translate (percent, resolves against the element's own width). */
   @keyframes slideInPct { from { transform: translateX(-100%); } to { transform: translateX(0); } }
   .slidein { animation: slideInPct 1.6s ease-in-out infinite alternate; }
 
-  /* NEW — translateY bob, direction: alternate, ease-in-out. */
+  /* NEW - translateY bob, direction: alternate, ease-in-out. */
   @keyframes bob { from { transform: translateY(0); } to { transform: translateY(-30px); } }
   .bob { animation: bob 0.9s ease-in-out infinite alternate; }
 
-  /* NEW — background-color pulse (colour interpolation), alternate. */
+  /* NEW - background-color pulse (colour interpolation), alternate. */
   @keyframes flash { from { background-color:#2a4a6a; } to { background-color:#ff6f9a; } }
   .flash { width:120px; background:#2a4a6a; color:#fff; animation: flash 1s ease-in-out infinite alternate; }
 
-  /* NEW — animation-delay (shorthand 2nd time value): three staggered dots. */
+  /* NEW - animation-delay (shorthand 2nd time value): three staggered dots. */
   @keyframes dot { 0% { opacity:0.25; transform: translateY(0); }
                    50% { opacity:1; transform: translateY(-12px); }
                    100% { opacity:0.25; transform: translateY(0); } }

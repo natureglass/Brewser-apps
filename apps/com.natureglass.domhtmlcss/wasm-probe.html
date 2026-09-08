@@ -75,7 +75,7 @@
   }
 
   // === Slice 2: fetch the .wasm bytes ===
-  // Most games use instantiateStreaming(fetch(...)) — but the bytes
+  // Most games use instantiateStreaming(fetch(...)) - but the bytes
   // path is the universal fallback that has to work. Verify the URL
   // resolves + Response.arrayBuffer() returns the 78-byte module.
   async function fetchBytes() {
@@ -147,7 +147,7 @@
   }
 
   // === Slice 5: WebAssembly.instantiate(module, importObject) + call ===
-  // Heart of the test — proves JS↔WASM bridge works: imported callback
+  // Heart of the test - proves JS<->WASM bridge works: imported callback
   // fires with arg=42 when exported_func() is invoked.
   async function instantiateAndCall(mod) {
     log('--- Slice 5: instantiate(module) + exported_func() roundtrip ---');
@@ -173,7 +173,7 @@
   }
 
   // === Slice 6: WebAssembly.instantiate(bytes, importObject) ===
-  // Returns { module, instance } shape — the all-in-one async path
+  // Returns { module, instance } shape - the all-in-one async path
   // older code commonly uses (pre-Streaming).
   async function instantiateFromBytes(ab) {
     log('--- Slice 6: instantiate(bytes) returns {module,instance} ---');
@@ -194,7 +194,7 @@
   }
 
   // === Slice 7: WebAssembly.compileStreaming ===
-  // Compile from a Response stream without instantiating — used by
+  // Compile from a Response stream without instantiating - used by
   // some code that compiles once + instantiates multiple copies.
   async function compileStreaming() {
     log('--- Slice 7: compileStreaming(fetch(...)) ---');

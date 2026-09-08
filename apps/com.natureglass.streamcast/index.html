@@ -14,7 +14,7 @@
   }
 
   /* Layout: sidebar (left, "Live now" ONLY) + stage (right, swaps
-     login-area ↔ video). Sidebar stays visible across both phases so
+     login-area <-> video). Sidebar stays visible across both phases so
      the user can switch channels via live pills at any time. */
   .layout {
     position: absolute;
@@ -92,7 +92,7 @@
     gap: 4px;
     width: 100%;
     /* Per-container overflow so the list scrolls independently of
-       the rest of the sidebar — survives animated-page paint mode
+       the rest of the sidebar - survives animated-page paint mode
        better than sidebar-level overflow ([[reference-swb-live-dom-inner-scroll]]).
        Solid bg so the scroll-cache redraw fully overwrites any
        lingering pixels (otherwise faint gray ghost lines appear). */
@@ -103,7 +103,7 @@
     scrollbar-width: thin;
     scrollbar-color: #3a2566 #16101f;
   }
-  /* Custom scrollbar (WebKit/Blink) — themed to the app's purple palette: a slim
+  /* Custom scrollbar (WebKit/Blink) - themed to the app's purple palette: a slim
      track that blends into the sidebar with a purple thumb (the "selected" tint)
      that brightens toward Twitch-purple on hover/drag. */
   .live-list::-webkit-scrollbar {
@@ -124,7 +124,7 @@
   .live-list::-webkit-scrollbar-thumb:active {
     background: #9147ff;
   }
-  /* "Custom Channel" — pinned at the sidebar bottom (outside the scrolling
+  /* "Custom Channel" - pinned at the sidebar bottom (outside the scrolling
      live-list, so it never scrolls away). Returns to the login screen to type
      a channel by hand; the main way back on web, where there is no B button. */
   .custom-channel-btn {
@@ -170,12 +170,12 @@
   .live-item {
     /* Explicit min-height because the engine doesn't always inflate
        a flex-column child to (padding-top + content + padding-bottom)
-       — using min-height forces a known size that's finger-tap-friendly. */
+       - using min-height forces a known size that's finger-tap-friendly. */
     min-height: 64px;
     padding: 8px 22px 8px 12px;
     border-radius: 8px;
     /* Solid (not translucent) bg so scroll-cache redraws fully cover
-       the previous frame — no ghost lines after scrolling. */
+       the previous frame - no ghost lines after scrolling. */
     background: #1d1729;
     width: 100%;
     display: flex;
@@ -185,7 +185,7 @@
     outline: none;
   }
   .live-item:active { background: #2a2138; }
-  /* Currently-watching channel — Twitch-purple tinted highlight. */
+  /* Currently-watching channel - Twitch-purple tinted highlight. */
   .live-item.selected {
     background: #3a2566;
   }
@@ -195,7 +195,7 @@
   .live-item.selected .live-viewers {
     color: rgba(199, 166, 255, 0.7);
   }
-  /* "Show more" — a tappable row at the BOTTOM of the scrolling live-list
+  /* "Show more" - a tappable row at the BOTTOM of the scrolling live-list
      (inside it, so it scrolls with the channels) that loads the next page. */
   .live-show-more {
     width: 100%;
@@ -254,7 +254,7 @@
     width: 100%; height: 100%;
   }
 
-  /* Login area — the original full design (big logo, heading, input
+  /* Login area - the original full design (big logo, heading, input
      pill, Watch button, recent pills), centered in the stage area
      when no channel is active. Hides when a channel is selected. */
   .login-area {
@@ -277,7 +277,7 @@
   .header-logo {
     width: 96px;
     height: 96px;
-    /* No background / radius — show the raw logo PNG. Adjust sizing
+    /* No background / radius - show the raw logo PNG. Adjust sizing
        here if the asset's intrinsic aspect ratio changes. */
   }
   .heading {
@@ -289,7 +289,7 @@
     text-align: center;
   }
 
-  /* Input pill. Inner <input> needs explicit non-transparent bg —
+  /* Input pill. Inner <input> needs explicit non-transparent bg -
      memory swb-input-transparent-bg-trap. */
   .input-row {
     display: flex;
@@ -372,7 +372,7 @@
     text-align: center;
   }
 
-  /* Loading view — covers stage briefly while a channel resolves. */
+  /* Loading view - covers stage briefly while a channel resolves. */
   .loading-view {
     position: absolute;
     top: 0; left: 0;
@@ -439,7 +439,7 @@
     <div id="custom-channel-btn" class="custom-channel-btn">Custom Channel</div>
   </aside>
 
-  <!-- ============================== STAGE (LOGIN ↔ VIDEO) ============================== -->
+  <!-- ============================== STAGE (LOGIN <-> VIDEO) ============================== -->
   <main id="stage" class="stage">
     <video id="player" class="player"></video>
 
@@ -537,8 +537,8 @@
   let recents = [];
   let appConfig = null;
   // Tracks whether a stream is active (loading or playing). Drives the
-  // multi-stage B-button behavior: in stream → B returns to login;
-  // at login → B exits the app (engine default goBack).
+  // multi-stage B-button behavior: in stream -> B returns to login;
+  // at login -> B exits the app (engine default goBack).
   let isStreamActive = false;
 
   // Web vs Switch. The nx.js/brewser engine exposes globalThis.Switch; a desktop
@@ -648,7 +648,7 @@
         signal: controller.signal,
       });
     } finally {
-      // Don't cancel the timeout yet — body read can still hang.
+      // Don't cancel the timeout yet - body read can still hang.
     }
     log('  top-live status ' + resp.status);
     if (!resp.ok) {
@@ -950,7 +950,7 @@
 
   // ---------- live-now (sidebar) ----------
   // Status panel rendered in the sidebar before live-list populates.
-  // State machine: 'loading' (default) → 'hidden' (success) or
+  // State machine: 'loading' (default) -> 'hidden' (success) or
   // 'error' (failure, with a Retry button).
   function setLiveStatus(state, msg) {
     if (state === 'hidden') {
@@ -964,7 +964,7 @@
       liveStatusEl.textContent = msg || 'Loading live streams…';
       return;
     }
-    // 'error' — text + Retry button
+    // 'error' - text + Retry button
     liveStatusEl.className = 'live-status live-status-error';
     const text = document.createElement('div');
     text.textContent = msg || 'Couldn\'t load live streams';
@@ -1006,7 +1006,7 @@
   }
 
   // Re-apply the .selected class to whichever item matches the
-  // currently-watching channel. Cheap walk — fine for 20 items.
+  // currently-watching channel. Cheap walk - fine for 20 items.
   function updateLiveSelection() {
     const norm = currentChannel ? currentChannel.toLowerCase() : null;
     for (const item of liveListEl.children) {
@@ -1153,10 +1153,10 @@
 
   // ---------- back-button handling ----------
   // The shell dispatches a synthetic `Escape` keydown when the user
-  // presses B (outside fullscreen mode — fullscreen-B exits fullscreen
+  // presses B (outside fullscreen mode - fullscreen-B exits fullscreen
   // first, handled engine-side). If we're streaming, swallow the
   // event and return to login. If we're at login, do NOT preventDefault
-  // so the shell falls through to history goBack → exits the app.
+  // so the shell falls through to history goBack -> exits the app.
   function returnToLogin() {
     log('returnToLogin: stopping stream + showing login-area');
     isStreamActive = false;
@@ -1322,7 +1322,7 @@
 
     // Multi-stage Back: shell dispatches synthetic 'Escape' keydown
     // when B is pressed outside fullscreen. Consume only if we're
-    // streaming — bounce back to login. At login, let the shell goBack
+    // streaming - bounce back to login. At login, let the shell goBack
     // (exits the app to the apps page).
     document.addEventListener('keydown', function (e) {
       if (e.key !== 'Escape') return;

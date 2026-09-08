@@ -32,7 +32,7 @@
      width as the block buttons (they were rendering narrow / off-centre). */
   #server-url, #auth-user, #auth-pass { display: block; width: 100%; }
   .stack { width: 100%; }
-  /* A checkbox is a small square control, not a full-width bar — the global
+  /* A checkbox is a small square control, not a full-width bar - the global
      `input { width: 100% }` above was stretching it across the settings row. */
   input[type="checkbox"] {
     width: 22px; height: 22px; flex: none; padding: 0; border-radius: 3px;
@@ -346,8 +346,8 @@
     <video id="player-video" playsinline data-zoom="1"></video>
     <!-- Transparent hit-catcher over the frame. Taps land on THIS (a plain div)
          instead of the <video>, so the engine's video-input special-casing
-         (chromeless swipe-nav, frame-tap play/pause, double-tap → video-
-         fullscreen — all keyed on a controls-less <video>) never engages and
+         (chromeless swipe-nav, frame-tap play/pause, double-tap -> video-
+         fullscreen - all keyed on a controls-less <video>) never engages and
          would-be fullscreen can't hide our HTML bar. Sits above the frame (z:1)
          but below the chrome (z:2/3) and modal (z:4); faded chrome is
          pointer-events:none so taps fall through to here to reveal it. -->

@@ -148,7 +148,7 @@ with interpretation hints at the end.</p>
     return { results: results, wall: performance.now() - start };
   }
 
-  // Switch.readFileSync — synchronous SDMC read, no decode, no Cairo,
+  // Switch.readFileSync - synchronous SDMC read, no decode, no Cairo,
   // no async dispatch. Pure file-I/O cost. If this takes ~500 ms for
   // 30 files, suspect-c (FS serial) is the answer.
   function readFsSerial(urls) {
@@ -221,7 +221,7 @@ with interpretation hints at the end.</p>
       s.mode = t.mode;
       summaries.push(s);
 
-      // Total bytes for fs/fetch modes — useful for throughput math.
+      // Total bytes for fs/fetch modes - useful for throughput math.
       let bytesTotal = 0;
       for (let j = 0; j < res.results.length; j++) {
         if (res.results[j] && typeof res.results[j].bytes === 'number') {

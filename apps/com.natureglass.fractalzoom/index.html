@@ -232,7 +232,7 @@ gl.enableVertexAttribArray(0);
 gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
 
 // streaming point buffer
-const MAX_PTS = 1 << 16;                       // 65536 — one fern batch (2048 chains x 32 steps)
+const MAX_PTS = 1 << 16;                       // 65536 - one fern batch (2048 chains x 32 steps)
 const ptData = new Float32Array(MAX_PTS * 3);
 const ptVAO = gl.createVertexArray();
 gl.bindVertexArray(ptVAO);

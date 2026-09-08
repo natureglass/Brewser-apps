@@ -214,7 +214,7 @@
 <script>
 "use strict";
 /* =====================================================================
-   SpeedWatch — canvas speedometer + limit alerts + canvas OSM map.
+   SpeedWatch - canvas speedometer + limit alerts + canvas OSM map.
    Single file, no libraries, no API keys.
    Map tiles + speed limits: OpenStreetMap (tile server + Overpass).
    ===================================================================== */
@@ -308,7 +308,7 @@ function bearing(a,b,c,d){
 }
 
 /* =====================================================================
-   Speed limits — OSM Overpass (no key needed)
+   Speed limits - OSM Overpass (no key needed)
    ===================================================================== */
 const OVERPASS = ["https://overpass-api.de/api/interpreter",
                   "https://overpass.kumi.systems/api/interpreter"];
@@ -381,7 +381,7 @@ function currentLimit(){                              // stale after 2.5 min wit
 }
 
 /* =====================================================================
-   Alerts — hysteresis + repeating beeps (the "speed robot")
+   Alerts - hysteresis + repeating beeps (the "speed robot")
    ===================================================================== */
 let audioCtx=null, lastBeep=0;
 function ensureAudio(){
@@ -423,7 +423,7 @@ setInterval(()=>{                                     // nag while still speedin
 }, 400);
 
 /* =====================================================================
-   Gauge — canvas speedometer (the hero)
+   Gauge - canvas speedometer (the hero)
    ===================================================================== */
 function sizeGauge(){
   const box=$("panel").getBoundingClientRect();
@@ -518,7 +518,7 @@ function drawGauge(){
   ctx.fillStyle=cDim;
   ctx.fillText(unitLbl(), cx, cy+R*0.50);
 
-  /* the limit roundel — European speed sign */
+  /* the limit roundel - European speed sign */
   const ry=cy+R*0.74, rr=R*0.135;
   ctx.beginPath(); ctx.arc(cx,ry,rr,0,7);
   ctx.fillStyle="#fff"; ctx.fill();
@@ -554,7 +554,7 @@ function loop(){
 }
 
 /* =====================================================================
-   Map — minimal OSM slippy-tile renderer on canvas (no library, no key)
+   Map - minimal OSM slippy-tile renderer on canvas (no library, no key)
    ===================================================================== */
 const TILE_URL = (z,x,y)=>`https://tile.openstreetmap.org/${z}/${x}/${y}.png`;
 const view = { lat:52.3702, lon:4.8952, z:16 };       // dragged/zoomed viewpoint
@@ -739,7 +739,7 @@ function saveSettings(){
 }
 
 /* =====================================================================
-   Demo drive — loops a small circuit and ramps speed, for desk testing
+   Demo drive - loops a small circuit and ramps speed, for desk testing
    ===================================================================== */
 let demoTimer=null;
 function startDemo(){

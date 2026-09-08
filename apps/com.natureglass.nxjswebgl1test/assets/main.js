@@ -1,4 +1,4 @@
-// Silence console early — per [[console-error-switches-render-mode]],
+// Silence console early - per [[console-error-switches-render-mode]],
 // console.* on the engine can flip nxjs into text-render mode mid-frame.
 try {
 	console.warn = () => {};
@@ -452,7 +452,7 @@ try {
 		}
 	`;
 
-	// Note: removed `1.0 - vUv.y` flip from texture lookup — nx.js's
+	// Note: removed `1.0 - vUv.y` flip from texture lookup - nx.js's
 	// UNPACK_FLIP_Y_WEBGL is a no-op, so the cube UV scheme (v=0 at
 	// face top) already maps row 0 of the source PNG to face top.
 	const cubeFS = `#pragma raw_passthrough
@@ -517,7 +517,7 @@ try {
 
 	// Resolve every uniform + attribute location ONCE per program. The
 	// draw loop used to call `gl.getUniformLocation` ~25× and
-	// `gl.getAttribLocation` ~6× per frame — each is a JS→native FFI
+	// `gl.getAttribLocation` ~6× per frame - each is a JS->native FFI
 	// hop into nx.js that walks the linked program's active-uniform /
 	// active-attrib list to match the name string. At 60 fps the
 	// constant lookup cost adds up to several ms/frame on hardware. The
@@ -570,7 +570,7 @@ try {
 			aUv: gl.getAttribLocation(cubeProg, 'aUv'),
 		},
 	};
-	// Scratch buffers for vec3 uniform uploads — preallocating these
+	// Scratch buffers for vec3 uniform uploads - preallocating these
 	// eliminates ~10 `new Float32Array(...)` allocations per frame and
 	// the QuickJS GC pressure they cause.
 	const scratchVec3A = new Float32Array(3);
@@ -667,10 +667,10 @@ try {
 		return new Float32Array(data);
 	}
 
-	// 220-segment grid → 220*220*2 = 96,800 triangles. Heavy for the
+	// 220-segment grid -> 220*220*2 = 96,800 triangles. Heavy for the
 	// bridge but the demo intentionally pushes through it via passthrough
 	// (the CPU-side perspective divide cost the bridge would otherwise
-	// pay is gone — the user shader runs natively).
+	// pay is gone - the user shader runs natively).
 	const grid = makeGrid(220, 170);
 	const waterVbo = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, waterVbo);
@@ -705,7 +705,7 @@ try {
 	// CPU-side cache path AND `gl.bindTexture(cubeTex)` doesn't forward
 	// to native GL (forwarding is gated on `gles_handle != 0`). The
 	// raw-shader passthrough samples whatever was last bound at native
-	// GL_TEXTURE0 — which is the bridge FBO's color attachment, causing
+	// GL_TEXTURE0 - which is the bridge FBO's color attachment, causing
 	// each cube face to mirror the rendered scene.
 	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, TEX_SIZE, TEX_SIZE, 0,
 	              gl.RGBA, gl.UNSIGNED_BYTE, null);
@@ -714,7 +714,7 @@ try {
 	// (2026-06-10 engine fix), `Image.src` resolves relative paths against
 	// the current `brewser://` page URL and uses the swb fetch wrapper.
 	//
-	// DIAGNOSTIC PROBES (TEMP) — verify the path resolution + track load.
+	// DIAGNOSTIC PROBES (TEMP) - verify the path resolution + track load.
 	try {
 		console.debug('[logo-probe webgl1demo] location.href=' +
 			((typeof globalThis !== 'undefined' && globalThis.location)
@@ -790,7 +790,7 @@ try {
 
 	// Switch gamepad polling. Right stick orbits the camera (yaw + pitch),
 	// left-stick Y zooms in / out. Exit-to-launcher is driven by the
-	// engine — manifest.json's `"buttonMapping": { "exit": "B" }` binds B
+	// engine - manifest.json's `"buttonMapping": { "exit": "B" }` binds B
 	// to the app-exit action, no page-side polling needed. Mouse + wheel
 	// kept as a fallback for desktop browsers.
 	function pollGamepad(dt) {
@@ -809,7 +809,7 @@ try {
 			cam.pitch = Math.max(-0.75, Math.min(-0.05, cam.pitch + ry * dt * 0.9));
 		}
 		// Left stick Y = zoom. Push UP (negative Y per gamepad convention)
-		// → zoom in (decrease dist). Push DOWN → zoom out (increase dist).
+		// -> zoom in (decrease dist). Push DOWN -> zoom out (increase dist).
 		const ly = gp.axes[1] || 0;
 		if (Math.abs(ly) > dead) {
 			cam.dist = Math.max(9, Math.min(28, cam.dist + ly * dt * 12));
@@ -929,7 +929,7 @@ try {
 
 	// Projection matrix is constant (fov, aspect, near, far never
 	// change during the demo). Compute once at boot instead of every
-	// frame — `perspective()` allocates a fresh Float32Array(16) each
+	// frame - `perspective()` allocates a fresh Float32Array(16) each
 	// call, so this also saves a per-frame GC nibble.
 	const proj = perspective(45 * Math.PI / 180, W / H, 0.1, 500.0);
 

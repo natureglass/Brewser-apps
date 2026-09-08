@@ -57,14 +57,14 @@ so the multi-core gain in Phase 2 can be quantified, not guessed.</p>
   };
 
   // 10 distinct seeded toolbar / brand assets x 3 repeats = 30
-  // independent decode jobs. URLs use the `sdmc:/` scheme directly —
+  // independent decode jobs. URLs use the `sdmc:/` scheme directly -
   // page-side `new Image()` skips the live-DOM resource resolver that
   // `<img>` tags get, so the file read + decode work measured is
   // representative of the real-world per-page navigation case.
   //
   // Cache-buster query strings ensure each Image instance triggers a
   // fresh fetch + decode rather than reusing a previous decoded
-  // surface — each Image() owns its own cairo surface so a re-decode
+  // surface - each Image() owns its own cairo surface so a re-decode
   // happens regardless, but the buster also defeats any potential
   // file-level cache the runtime might add.
   const ASSET_DIR = 'sdmc:/switch/brewser/shell/assets/';
@@ -85,7 +85,7 @@ so the multi-core gain in Phase 2 can be quantified, not guessed.</p>
   // Drop the `?r=N` cache-buster: sdmc:/ paths go through fopen which
   // does NOT strip query strings, so a buster would break the file
   // open. Each Image() instance still gets its own cairo surface and
-  // re-decodes from bytes — identical URLs don't share decoded state
+  // re-decodes from bytes - identical URLs don't share decoded state
   // across Image instances.
   for (let r = 0; r < REPEAT; r++) {
     for (const u of BASE_URLS) URLS.push(u);
@@ -100,7 +100,7 @@ so the multi-core gain in Phase 2 can be quantified, not guessed.</p>
 
   // Diag: confirm globals exist in this page-script context. Memory
   // [[feedback-swb-page-input-limits]] notes page scripts have a
-  // narrower API surface than the shell — verify Image is one of the
+  // narrower API surface than the shell - verify Image is one of the
   // available constructors here BEFORE assuming new Image() works.
   log('diag: typeof Image=' + typeof Image
     + ' typeof requestAnimationFrame=' + typeof requestAnimationFrame
@@ -154,7 +154,7 @@ so the multi-core gain in Phase 2 can be quantified, not guessed.</p>
   function kickOffMain() {
     log('seq\turl\tstartMs\tendMs\ttotalMs\tw\th');
 
-    // rAF heartbeat — records every native-frame callback so we can
+    // rAF heartbeat - records every native-frame callback so we can
     // measure paint cadence under load. While JS is busy (e.g. inside
     // a synchronous decode chunk), rAF callbacks queue but don't fire.
     // Long gaps in `rafTimes` indicate engine-side serialization.

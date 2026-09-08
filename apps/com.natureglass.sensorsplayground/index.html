@@ -33,10 +33,10 @@ body{
     var(--bg-0);
   color:var(--txt);
 }
-/* No scanline overlay — dropped in the Switch build for per-frame paint cost,
+/* No scanline overlay - dropped in the Switch build for per-frame paint cost,
  * kept out here so the two builds stay visually identical. */
 
-/* Fullscreen 3×2 dashboard grid on wide screens — mediaplayer pattern. The
+/* Fullscreen 3×2 dashboard grid on wide screens - mediaplayer pattern. The
  * wrap IS the grid container; cards drop into auto-flow cells filling the
  * viewport, no body scroll. Phones/tablets get the responsive overrides at
  * the bottom of this stylesheet instead. */
@@ -61,7 +61,7 @@ body{
 .tag.ok{background:rgba(61,220,132,.14);color:var(--good)}
 .tag.na{background:rgba(138,147,166,.14);color:var(--txt-dim)}
 /* Icons are native emoji now (the Switch build shipped rendered PNGs because
- * the engine has no emoji font) — flex-center them in the same 34px chip. */
+ * the engine has no emoji font) - flex-center them in the same 34px chip. */
 .ic{width:34px;height:34px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;border-radius:9px;background:rgba(0,195,227,.12);color:var(--neon-blue);font-size:19px}
 
 /* generic rows */
@@ -108,11 +108,11 @@ body{
 .rumble-bars{display:flex;align-items:center;width:320px;max-width:100%;height:60px;background:#151c29;border-radius:8px;padding:0 6px;gap:3px}
 .rumble-bars i{flex:1;display:block;height:100%;background:linear-gradient(180deg,#00c3e3,#ff3c41);border-radius:3px;transform:scaleY(0.2)}
 .rumble-bars--active i{background:linear-gradient(180deg,#ffc83d,#ff3c41)}
-/* 4 phase-shifted scaleY keyframes per intensity — stops 0.5% apart (~4.5ms
+/* 4 phase-shifted scaleY keyframes per intensity - stops 0.5% apart (~4.5ms
  * at 900ms) read as instant snaps, holds are flat by duplicating the same
  * scaleY at both ends of the range. Peak scaleY per pattern is
  * 0.2 + (heavy_peak − 0.2) × F with F: light=0.35, pulse=0.55, wave=0.75,
- * heavy=1.0. All keyframes end at scaleY(1)→settle handled by class removal. */
+ * heavy=1.0. All keyframes end at scaleY(1)->settle handled by class removal. */
 @keyframes rumble-light-p0 { 0%,7%{transform:scaleY(0.20)} 7.5%,18%{transform:scaleY(0.43)} 18.5%,29%{transform:scaleY(0.17)} 29.5%,40%{transform:scaleY(0.39)} 40.5%,51%{transform:scaleY(0.20)} 51.5%,62%{transform:scaleY(0.46)} 62.5%,73%{transform:scaleY(0.17)} 73.5%,84%{transform:scaleY(0.38)} 84.5%,95%{transform:scaleY(0.19)} 95.5%,100%{transform:scaleY(0.20)} }
 @keyframes rumble-light-p1 { 0%,7%{transform:scaleY(0.20)} 7.5%,18%{transform:scaleY(0.17)} 18.5%,29%{transform:scaleY(0.41)} 29.5%,40%{transform:scaleY(0.18)} 40.5%,51%{transform:scaleY(0.45)} 51.5%,62%{transform:scaleY(0.20)} 62.5%,73%{transform:scaleY(0.36)} 73.5%,84%{transform:scaleY(0.17)} 84.5%,95%{transform:scaleY(0.32)} 95.5%,100%{transform:scaleY(0.20)} }
 @keyframes rumble-light-p2 { 0%,7%{transform:scaleY(0.20)} 7.5%,18%{transform:scaleY(0.34)} 18.5%,29%{transform:scaleY(0.46)} 29.5%,40%{transform:scaleY(0.17)} 40.5%,51%{transform:scaleY(0.38)} 51.5%,62%{transform:scaleY(0.17)} 62.5%,73%{transform:scaleY(0.29)} 73.5%,84%{transform:scaleY(0.43)} 84.5%,95%{transform:scaleY(0.18)} 95.5%,100%{transform:scaleY(0.20)} }
@@ -251,13 +251,13 @@ body{
  *
  * Every Switch.* native call is replaced with a standard web platform API:
  *
- *   Switch.diagnostics.sixAxis   → deviceorientation + devicemotion events
- *   Switch.diagnostics.battery() → navigator.getBattery() (Battery Status API)
- *   navigator.vibrate            → unchanged (already standard)
- *   Switch.operationMode()       → screen.orientation + display-mode media query
- *   Switch.networkInfo()         → navigator.connection (Network Information API)
- *   Switch.FileSystem (sdmc)     → navigator.storage.estimate() (Storage API)
- *   Switch.appendFileSync log    → console + in-memory ring buffer (window.__diagLog)
+ *   Switch.diagnostics.sixAxis   -> deviceorientation + devicemotion events
+ *   Switch.diagnostics.battery() -> navigator.getBattery() (Battery Status API)
+ *   navigator.vibrate            -> unchanged (already standard)
+ *   Switch.operationMode()       -> screen.orientation + display-mode media query
+ *   Switch.networkInfo()         -> navigator.connection (Network Information API)
+ *   Switch.FileSystem (sdmc)     -> navigator.storage.estimate() (Storage API)
+ *   Switch.appendFileSync log    -> console + in-memory ring buffer (window.__diagLog)
  *
  * Support matrix (why some cards degrade to n/a instead of erroring):
  *   - Battery Status API: Chromium/Android yes; iOS Safari no.
@@ -265,7 +265,7 @@ body{
  *   - navigator.connection: Chromium yes; Safari/Firefox no.
  *   - Motion/orientation: needs a secure context (https:// or localhost)
  *     everywhere, and on iOS ≥13 a permission prompt that must come from a
- *     user gesture — the gyro card tap is that gesture. On Android the
+ *     user gesture - the gyro card tap is that gesture. On Android the
  *     listeners attach on load with no prompt.
  *
  * The Switch build's 2s live-poll interval is gone: every one of these
@@ -299,9 +299,9 @@ function setW(id, pct) {
 }
 
 /* ---- Battery (Battery Status API) ----
- * Voltage / temperature / cell health have no web equivalent — the OS keeps
+ * Voltage / temperature / cell health have no web equivalent - the OS keeps
  * them; the API exposes level, charging state and the two time estimates.
- * iOS Safari has no navigator.getBattery at all → the card tags NO API. */
+ * iOS Safari has no navigator.getBattery at all -> the card tags NO API. */
 function fmtSecs(s) {
   if (!Number.isFinite(s) || s <= 0) return '—'; // Infinity = "unknown" per spec
   const m = Math.round(s / 60);
@@ -367,7 +367,7 @@ function pollDisplay() {
  * The web deliberately exposes no local IP / subnet / DNS. The honest mobile
  * equivalent is the Network Information API: effective type, downlink (note:
  * Chrome caps the reported value at 10 Mbps for fingerprinting resistance),
- * RTT and Save-Data. Safari/Firefox don't implement it → n/a rows, but the
+ * RTT and Save-Data. Safari/Firefox don't implement it -> n/a rows, but the
  * ONLINE/OFFLINE tag works everywhere via navigator.onLine. */
 function pollNetwork() {
   try {
@@ -394,7 +394,7 @@ function pollNetwork() {
 
 /* ---- Storage (was: Switch.FileSystem.openSdmc) ----
  * navigator.storage.estimate() reports the ORIGIN's quota, not the device's
- * physical storage (there is no web API for that) — Chrome grants roughly
+ * physical storage (there is no web API for that) - Chrome grants roughly
  * a fraction of free disk per origin, so the numbers are still a useful
  * free-space proxy. `persisted` = whether the browser may evict this
  * origin's data under storage pressure. */
@@ -434,10 +434,10 @@ async function pollStorage() {
   }
 }
 
-/* ---- WebGL gyro cube — raw WebGL 1 cube driven by device orientation.
+/* ---- WebGL gyro cube - raw WebGL 1 cube driven by device orientation.
  *      Ported from the Switch build minus the nx.js bridge plumbing
  *      (enableGpuBridgePrototype / setBridgeAutoFlush / #pragma
- *      raw_passthrough) — standard mobile GL needs none of it. Interleaved
+ *      raw_passthrough) - standard mobile GL needs none of it. Interleaved
  *      pos+normal+uv vertices, no indices, no CULL_FACE. The backing store
  *      is scaled by devicePixelRatio (capped at 2) so the cube is crisp on
  *      3x phone panels while CSS keeps the 320×120 layout slot. */
@@ -499,7 +499,7 @@ function initGyroCube() {
         mat3 r = rotX(uRot.x) * rotY(uRot.y) * rotZ(uRot.z);
         vec3 p = r * aPos;
         vNormal = normalize(r * aNormal);
-        // Original (model-space) face normal — used for letter selection so
+        // Original (model-space) face normal - used for letter selection so
         // the X/Y/Z glyph stays bound to its geometric face as the cube
         // rotates. vNormal would otherwise swap letters across faces.
         vFaceNormal = aNormal;
@@ -518,7 +518,7 @@ function initGyroCube() {
         float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
         return length(pa - ba * h);
       }
-      // Each letter = a min() of its strokes' SDFs → a single distance field
+      // Each letter = a min() of its strokes' SDFs -> a single distance field
       // for the whole glyph. smoothstep gives an anti-aliased mask.
       float letterX(vec2 p){
         float d = min(seg(p, vec2(0.25,0.25), vec2(0.75,0.75)),
@@ -542,11 +542,11 @@ function initGyroCube() {
         // distinguishable as the cube rotates.
         vec3 light = normalize(vec3(0.4, 0.7, 0.5));
         float l = max(dot(normalize(vNormal), light), 0.0) * 0.65 + 0.35;
-        // --neon-blue (#00c3e3) — matches the rest of the page's cyan accents.
+        // --neon-blue (#00c3e3) - matches the rest of the page's cyan accents.
         vec3 base = vec3(0.0, 0.765, 0.890);
         vec3 color = base * l;
         // Pick the letter from the ORIGINAL (model-space) face normal so
-        // each face's letter is glued to its geometric identity — the
+        // each face's letter is glued to its geometric identity - the
         // rotated vNormal would swap letters as faces rotate past the axes.
         vec3 an = abs(vFaceNormal);
         float mask;
@@ -625,15 +625,15 @@ function initGyroCube() {
     // 0.6-alpha faces look 40% transparent against the background.
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    // No CULL_FACE — every triangle draws regardless of winding.
+    // No CULL_FACE - every triangle draws regardless of winding.
     // Match the card's gradient at the canvas's vertical position (mid-card,
-    // ~41% between --bg-2 #161d2b and --panel #141a26 → #151c29) so the
+    // ~41% between --bg-2 #161d2b and --panel #141a26 -> #151c29) so the
     // opaque canvas blends in and the cube looks like it floats on the card.
     gl.clearColor(0x15 / 255, 0x1c / 255, 0x29 / 255, 1);
-    // Bind the static GL state ONCE — program, buffer, attribs, the two
+    // Bind the static GL state ONCE - program, buffer, attribs, the two
     // static matrices. The per-frame path is then just clear +
     // uniform3fv(uRot) + drawArrays. (Habit inherited from the nx.js bridge
-    // where each GL call was a JS↔C crossing; it's still the right shape on
+    // where each GL call was a JS<->C crossing; it's still the right shape on
     // a normal browser, just less critical.)
     gl.useProgram(prog);
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
@@ -678,10 +678,10 @@ function renderGyroCube() {
   } catch (e) { log('cube render err: ' + (e && e.message || e)); }
 }
 
-/* ---- Six-axis (device orientation + motion) — opt-in via card tap ----
+/* ---- Six-axis (device orientation + motion) - opt-in via card tap ----
  * The Switch build pulled Switch.diagnostics.sixAxis.read() per frame; the
  * web pushes events instead. The event handlers only stash the latest
- * sample, and the rAF tick below stays the single consumer — same
+ * sample, and the rAF tick below stays the single consumer - same
  * architecture, so the 10Hz text throttle and the stale-sample fallback to
  * the idle auto-rotate carry over unchanged. */
 let cubeLoopRaf = null;
@@ -689,12 +689,12 @@ let sixAxisActive = false;
 let sixAxisSawData = false;
 let cubeAutoStartT = Date.now();
 const D2R = Math.PI / 180;
-const SAMPLE_FRESH_MS = 500; // no orientation event for this long → idle auto-rotate
+const SAMPLE_FRESH_MS = 500; // no orientation event for this long -> idle auto-rotate
 const orient = { alpha: 0, beta: 0, gamma: 0, ts: 0 }; // degrees
 const motion = { x: 0, y: 0, z: 0, ts: 0 };            // g
 
 function onOrient(e) {
-  // alpha can be null on iOS in some states — webkitCompassHeading is the
+  // alpha can be null on iOS in some states - webkitCompassHeading is the
   // fallback (inverted sense: compass heading vs. rotation around z).
   orient.alpha = e.alpha != null ? e.alpha
     : (e.webkitCompassHeading != null ? 360 - e.webkitCompassHeading : 0);
@@ -725,7 +725,7 @@ function applyCubeAutoRotation() {
 function startCubeLoop() {
   if (cubeLoopRaf) return;
   cubeAutoStartT = Date.now();
-  // Throttle the 4 sensor-text setT()s to 10Hz — 60Hz text churn is
+  // Throttle the 4 sensor-text setT()s to 10Hz - 60Hz text churn is
   // pointless layout work on any engine. The cube pose still updates per
   // frame so motion stays smooth.
   let lastSensorTextMs = 0;
@@ -746,7 +746,7 @@ function startCubeLoop() {
           setT('gYaw', orient.alpha.toFixed(1) + '°');
           setT('accelText', 'X ' + motion.x.toFixed(2) + ' · Y ' + motion.y.toFixed(2) + ' · Z ' + motion.z.toFixed(2));
         }
-        // deviceorientation angles are degrees — convert and feed the cube's
+        // deviceorientation angles are degrees - convert and feed the cube's
         // rotX(pitch)·rotY(yaw)·rotZ(roll) builder. Gamma is negated so a
         // rightward tilt reads as a rightward roll on screen; flip signs to
         // taste if the tracking feels mirrored on a given device.
@@ -758,7 +758,7 @@ function startCubeLoop() {
         // picks up at the right time instead of jumping back to t=0.
         cubeAutoStartT = nowMs;
       } else {
-        // No fresh sample — idle auto-rotate so the cube isn't dead. Covers
+        // No fresh sample - idle auto-rotate so the cube isn't dead. Covers
         // desktops with no IMU and any transient stall between events.
         applyCubeAutoRotation();
       }
@@ -830,7 +830,7 @@ async function startSixAxis(fromGesture) {
   sixAxisSawData = false;
   setT('gyroTag', 'WAITING…');
   log('sixAxis started (listeners attached' + (needsPerm ? ', permission granted' : '') + ')');
-  // Desktops attach fine but never fire events — flag it so the tag isn't a
+  // Desktops attach fine but never fire events - flag it so the tag isn't a
   // lie. Listeners stay attached; if data shows up later the tick's
   // first-sample path flips the tag to LIVE.
   setTimeout(() => {
@@ -853,12 +853,12 @@ function stopSixAxis() {
   log('sixAxis stopped');
 }
 
-/* ---- Vibration (navigator.vibrate) — chip click fires the haptic + flips
+/* ---- Vibration (navigator.vibrate) - chip click fires the haptic + flips
  *      `.rumble-bars--active` on the bar row and `.rumble-status--active` on
  *      the status text, then a setTimeout reverts them after p.holdMs.
  *      navigator.vibrate is Android-only; on iOS the visual half of the demo
  *      still runs and the tag says NO API. Chrome requires a user activation
- *      for vibrate — a chip click qualifies. */
+ *      for vibrate - a chip click qualifies. */
 const rInt = document.getElementById('rumbleInt');
 const rPat = document.getElementById('rumblePat');
 const rBars = document.getElementById('rumbleBars');
@@ -866,7 +866,7 @@ const rStatus = document.getElementById('rumbleStatus');
 let rumbleClearTimer;
 const rumbleSupported = typeof navigator.vibrate === 'function';
 setT('rumbleTag', rumbleSupported ? 'VIBRATION API' : 'NO API');
-// holdMs MUST stay below the CSS animation duration (900ms) — see the
+// holdMs MUST stay below the CSS animation duration (900ms) - see the
 // comment on the @keyframes block.
 const patterns = {
   light: { int: 25,  vib: [30],                  holdMs: 600 },
@@ -875,7 +875,7 @@ const patterns = {
   heavy: { int: 100, vib: [200],                 holdMs: 750 },
 };
 // Per-pattern class on the bar row picks which @keyframes set animates the
-// bars. Removing the previous one matters — two pattern classes at once
+// bars. Removing the previous one matters - two pattern classes at once
 // would have an undefined cascade winner.
 const RUMBLE_PATTERN_CLASSES = ['rumble-bars--light', 'rumble-bars--pulse', 'rumble-bars--wave', 'rumble-bars--heavy'];
 const rumbleChips = document.querySelectorAll('.rumble-chip');
@@ -925,7 +925,7 @@ async function refreshAll(reason) {
     + ' store=' + (tEnd - tStore) + 'ms] ===');
 }
 
-/* Change-event wiring — replaces the Switch build's 2s live-poll interval. */
+/* Change-event wiring - replaces the Switch build's 2s live-poll interval. */
 window.addEventListener('resize', pollDisplay);
 if (screen.orientation && screen.orientation.addEventListener) {
   screen.orientation.addEventListener('change', pollDisplay);
@@ -942,7 +942,7 @@ if (gyroCard) gyroCard.addEventListener('click', () => {
   if (sixAxisActive) stopSixAxis(); else startSixAxis(true);
 });
 
-/* Cleanup — pagehide, not unload: unload is unreliable on mobile (bfcache,
+/* Cleanup - pagehide, not unload: unload is unreliable on mobile (bfcache,
  * app-switch kills). */
 window.addEventListener('pagehide', () => {
   stopSixAxis();

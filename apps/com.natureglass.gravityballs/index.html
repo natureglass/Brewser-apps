@@ -20,7 +20,7 @@
     pointer-events: none;
   }
   #hud b { color: #e8edf2; font-weight: 600; }
-  /* iOS motion-permission button — revealed by JS only when the browser gates
+  /* iOS motion-permission button - revealed by JS only when the browser gates
      DeviceOrientation behind a user gesture. Flat: solid fill + solid border. */
   #perm {
     position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
@@ -55,7 +55,7 @@ if (!gl) {
   throw new Error('webgl2 unavailable');
 }
 
-// DPR capped at 2 — crisp on 3x panels without paying the fill cost.
+// DPR capped at 2 - crisp on 3x panels without paying the fill cost.
 const DPR = Math.min(window.devicePixelRatio || 1, 2);
 const D2R = Math.PI / 180;
 
@@ -191,7 +191,7 @@ let sensorLive = false;
 let lastSensorMs = 0;
 
 function onOrient(e) {
-  // Desktop Chrome fires one all-null event — treat as no IMU.
+  // Desktop Chrome fires one all-null event - treat as no IMU.
   if (e.beta == null || e.gamma == null) return;
   // While the user is actively dragging, the pointer owns gravity.
   // Skip the IMU update so it doesn't fight the drag at the pump rate.
@@ -204,7 +204,7 @@ function onOrient(e) {
   const dx = Math.sin(g) * Math.cos(b);
   const dy = Math.sin(b);
 
-  // Remap device → screen for the current screen rotation. If landscape
+  // Remap device -> screen for the current screen rotation. If landscape
   // tracking feels mirrored on a given device, flip the sign of `s`.
   const angDeg = (screen.orientation && screen.orientation.angle != null)
     ? screen.orientation.angle
@@ -218,7 +218,7 @@ function onOrient(e) {
   lastSensorMs = performance.now();
 }
 
-// Drag on the canvas to point gravity — always available, IMU-live or
+// Drag on the canvas to point gravity - always available, IMU-live or
 // not. When a drag is active the `onOrient` handler above skips its
 // update so the two sources don't fight at 30 Hz.
 let dragging = false;
@@ -234,7 +234,7 @@ window.addEventListener('pointerup', () => { dragging = false; });
 window.addEventListener('pointercancel', () => { dragging = false; });
 
 // Attach the IMU listener. `window.addEventListener` (explicit receiver), NOT
-// bare `addEventListener()` — under `"use strict"` a bare call passes
+// bare `addEventListener()` - under `"use strict"` a bare call passes
 // `this === undefined` to the Switch runtime's LiveWindow.prototype
 // .addEventListener wrap, which then fails to register the underlying listener;
 // `window.addEventListener(...)` sets `this === window` and works correctly.
@@ -242,10 +242,10 @@ function attachOrientation() {
   window.addEventListener('deviceorientation', onOrient);
 }
 
-// Motion permission. iOS 13+ (Safari — the only place this gate exists) requires
+// Motion permission. iOS 13+ (Safari - the only place this gate exists) requires
 // DeviceOrientationEvent.requestPermission() to be called from a USER GESTURE, so
 // reveal a one-tap "ENABLE TILT" button and only attach once granted. Everywhere
-// else — Android, and the Switch runtime whose polyfill auto-grants — there is no
+// else - Android, and the Switch runtime whose polyfill auto-grants - there is no
 // gate, so attach immediately. The pointer-drag fallback above keeps the app
 // playable if permission is denied or absent.
 const DOE = window.DeviceOrientationEvent;
@@ -278,12 +278,12 @@ document.addEventListener('fullscreenchange', function () {
   } catch (e) {}
 });
 
-/* Impulse + positional-correction solver. 20 balls → 190 pairs; at
+/* Impulse + positional-correction solver. 20 balls -> 190 pairs; at
  * 5 substeps × 8 iterations this is still trivially cheap, and the
  * iteration budget is what makes the stacks settle instead of jitter. */
 const SUBSTEPS = 5;
 const ITER = 8;
-const REST = 0.22;          // ball-ball restitution (low → stable stacking)
+const REST = 0.22;          // ball-ball restitution (low -> stable stacking)
 const WREST = 0.30;         // wall restitution
 const MU = 0.05;            // Coulomb friction vs. normal impulse
 const WFR = 0.02;           // wall tangential drag per contact pass
@@ -328,7 +328,7 @@ function step(h) {
         else { nx /= d; ny /= d; }
         const invSum = A.invM + B.invM;
 
-        // Positional correction (with slop) — de-penetrate by inverse mass.
+        // Positional correction (with slop) - de-penetrate by inverse mass.
         const corr = Math.max(rr - d - SLOP, 0) / invSum * PCT;
         A.x -= nx * corr * A.invM; A.y -= ny * corr * A.invM;
         B.x += nx * corr * B.invM; B.y += ny * corr * B.invM;
@@ -341,7 +341,7 @@ function step(h) {
           A.vx -= nx * jn * A.invM; A.vy -= ny * jn * A.invM;
           B.vx += nx * jn * B.invM; B.vy += ny * jn * B.invM;
 
-          // Coulomb-clamped tangential friction — helps stacks stop creeping.
+          // Coulomb-clamped tangential friction - helps stacks stop creeping.
           const tvx = rvx - vn * nx, tvy = rvy - vn * ny;
           const tl = Math.hypot(tvx, tvy);
           if (tl > 1e-4) {

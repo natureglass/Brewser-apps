@@ -96,7 +96,7 @@
 
 <script>
   // =========================================================================
-  // Heavy logging — paste this when reporting any issue.
+  // Heavy logging - paste this when reporting any issue.
   // =========================================================================
   const LOG_PATH = 'sdmc:/switch/brewser/logs/demo-breakout.log';
   const startMs = performance.now();
@@ -115,7 +115,7 @@
     + ' requestAnimationFrame=' + typeof requestAnimationFrame
     + ' navigator=' + typeof navigator
     + ' globalThis.screen=' + (typeof globalThis !== 'undefined' && typeof globalThis.screen));
-  // Web-audio-stubs polyfill diagnostic — read every flag the polyfill
+  // Web-audio-stubs polyfill diagnostic - read every flag the polyfill
   // sets so we can pinpoint exactly where install short-circuited (or
   // whether it ran at all). Mediaplayer's TypeError-not-a-function on
   // createMediaElementSource keeps recurring; need to know if the patch
@@ -131,7 +131,7 @@
       + ' afterMediaSource=' + g.__stubsAfterMediaSource
       + ' afterAnalyser=' + g.__stubsAfterAnalyser
       + ' applied=' + g.__webAudioStubsApplied);
-    // Direct probe — does THIS page see the patched prototype?
+    // Direct probe - does THIS page see the patched prototype?
     if (typeof AudioContext !== 'undefined' && AudioContext.prototype) {
       log('AC.prototype.createMediaElementSource as page-script sees it: '
         + typeof AudioContext.prototype.createMediaElementSource
@@ -165,13 +165,13 @@
   }
 
   // =========================================================================
-  // Audio paths — TWO parallel implementations so we can diagnose which
+  // Audio paths - TWO parallel implementations so we can diagnose which
   // (if either) actually produces audible sound on real HW.
   //
-  //   1. Web Audio (AudioContext + Oscillator) — verified working in
+  //   1. Web Audio (AudioContext + Oscillator) - verified working in
   //      api-probe + web-audio-tone tests; allegedly broken here.
   //   2. HTMLAudioElement playing romfs:/shell/assets/click.wav
-  //      — same asset the mediaplayer uses; known-good.
+  //      - same asset the mediaplayer uses; known-good.
   //
   // On first user input both fire. Log records audio.state + voice
   // allocation + setTimeout-callback firing so we can see exactly which
@@ -227,7 +227,7 @@
     setTimeout(function () { beep(784, 260, 'triangle', 0.55); }, 340);
   }
 
-  // HTMLAudioElement diagnostic — same path mediaplayer uses. If THIS
+  // HTMLAudioElement diagnostic - same path mediaplayer uses. If THIS
   // produces sound but Web Audio doesn't, the issue is Web Audio path
   // specifically and we know to switch sfx to wav playback.
   let htmlAudio = null;
@@ -256,7 +256,7 @@
     } catch (e) { log('!! HTMLAudio.play threw: ' + (e && e.message || e)); }
   }
 
-  // Test tone — fires Web Audio + HTMLAudio side-by-side on first input.
+  // Test tone - fires Web Audio + HTMLAudio side-by-side on first input.
   let testTonePlayed = false;
   function playTestTone() {
     if (testTonePlayed) return;
@@ -290,10 +290,10 @@
   const BRICK_LEFT = (VIEW_W - (BRICK_W * BRICK_COLS + BRICK_PAD * (BRICK_COLS - 1))) / 2;
   const ROW_COLORS = ['#ff6b6b', '#ffa861', '#ffd35e', '#7eda9f', '#7aa2ff', '#c77dff'];
 
-  // Physics tick — the engine throttles BOTH setInterval AND rAF to ~25-30Hz
+  // Physics tick - the engine throttles BOTH setInterval AND rAF to ~25-30Hz
   // for page scripts. So we tune per-step deltas for that observed cap, not
   // the 90Hz target I had before (got us 75px/sec slow-motion).
-  // 25Hz × 14 px/step = 350 px/s — comfortable for a 1200-wide play area.
+  // 25Hz × 14 px/step = 350 px/s - comfortable for a 1200-wide play area.
   const PHYSICS_HZ = 30;
   const PHYSICS_DT_MS = 1000 / PHYSICS_HZ;
   const BALL_VX_INIT = 8;
@@ -356,7 +356,7 @@
   updateHud();
 
   // =========================================================================
-  // Render — runs from rAF, paints current state, never advances physics.
+  // Render - runs from rAF, paints current state, never advances physics.
   // =========================================================================
   const cnv = document.getElementById('gameCanvas');
   const ctx2d = cnv ? cnv.getContext('2d') : null;
@@ -377,7 +377,7 @@
     ctx2d.beginPath(); ctx2d.arc(ball.x, ball.y, BALL_R, 0, Math.PI * 2); ctx2d.fill();
   }
 
-  // Global cancellation flag — checked by both loops so they STOP on
+  // Global cancellation flag - checked by both loops so they STOP on
   // page-unload. Without this the setTimeout chain runs forever in
   // the global timer queue (page scripts share the runtime's
   // setTimeout) and starves audrv update + everything else
@@ -408,7 +408,7 @@
   }
 
   // =========================================================================
-  // Physics — fixed-rate substeps via setInterval. Each call advances the
+  // Physics - fixed-rate substeps via setInterval. Each call advances the
   // simulation by one (1) discrete step at PHYSICS_HZ. Render reads the
   // current state. This decouples motion smoothness from rAF cadence.
   // =========================================================================
@@ -503,7 +503,7 @@
   }
 
   // =========================================================================
-  // Input — touch + gamepad. Buttons removed per user feedback.
+  // Input - touch + gamepad. Buttons removed per user feedback.
   // =========================================================================
   let canvasLeftPage = 40;
   function refreshCanvasLeft() {
@@ -569,7 +569,7 @@
   attachAll('touchend', onTouchEnd);
   attachAll('touchcancel', onTouchEnd);
 
-  // Gamepad polling — left stick X moves paddle, A launches/restarts.
+  // Gamepad polling - left stick X moves paddle, A launches/restarts.
   let lastButtonState = false;
   let lastGamepadLogTime = 0;
   function pollGamepadOnce() {
@@ -582,7 +582,7 @@
       const x = gp.axes[0] || 0;
       const dead = 0.18;
       if (Math.abs(x) > dead) {
-        // 14 px/step at full deflection × 30Hz physics = ~420 px/s — about
+        // 14 px/step at full deflection × 30Hz physics = ~420 px/s - about
         // 1/3 of play area per second, responsive without overshooting.
         paddle.targetX += x * 14;
         if (paddle.targetX < PADDLE_W / 2) paddle.targetX = PADDLE_W / 2;

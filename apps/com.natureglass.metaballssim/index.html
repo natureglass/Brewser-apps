@@ -163,9 +163,9 @@
   // rotating hue). Holding the Cycle button advances `paletteHue`
   // continuously so the water smoothly rolls through the rainbow;
   // release stops it wherever it lands. The three tones are the same
-  // hue at ascending brightness — matches the original blue palette's
-  // dark → mid → bright banding, just rotatable.
-  const DEFAULT_HUE = 0.60;    // blue — the demo's original look
+  // hue at ascending brightness - matches the original blue palette's
+  // dark -> mid -> bright banding, just rotatable.
+  const DEFAULT_HUE = 0.60;    // blue - the demo's original look
   let paletteHue = DEFAULT_HUE;
   let cycling = false;
   const CYCLE_RATE = 0.15;     // hue units per second while held (~6.7s / full loop)
@@ -203,7 +203,7 @@
   const px = new Float32Array(MAX_N), py = new Float32Array(MAX_N);
   const vx = new Float32Array(MAX_N), vy = new Float32Array(MAX_N);
   // Per-ball physics + render radius. Small balls need a smaller
-  // collision footprint too — otherwise their field (~rr wide) never
+  // collision footprint too - otherwise their field (~rr wide) never
   // touches a neighbor's field (pair centers can't approach closer
   // than pr[i] + pr[j]), and the small ball renders as an isolated
   // dot instead of merging into the water. Physics loops read pr[i]/
@@ -220,7 +220,7 @@
   let GRAV = 2200;
   // Multiplier applied to a newly-spawned ball's RENDER radius (RR).
   // 1.0 = default, up to ~2.5 or down to ~0.5 via the HUD buttons. Only
-  // affects balls spawned AFTER the button click — existing balls keep
+  // affects balls spawned AFTER the button click - existing balls keep
   // whatever rr they were seeded/spawned with.
   let spawnSizeMul = 1.0;
   const SIZE_STEP = 1.18;    // per click
@@ -372,7 +372,7 @@
   canvas.addEventListener('pointerup', ptrEnd);
   canvas.addEventListener('pointercancel', ptrEnd);
 
-  // Gravity direction — pure downward, no tilt sensor input.
+  // Gravity direction - pure downward, no tilt sensor input.
   const gx = 0, gy = 1;
 
   // ---------- Simulation ----------
@@ -407,7 +407,7 @@
     }
 
     // Pairwise viscosity + cohesion (velocity pass). Per-pair distances
-    // are (pr[i] + pr[j]) — matches the seed-time uniform-radius math
+    // are (pr[i] + pr[j]) - matches the seed-time uniform-radius math
     // (minDist = 2*PR, reach = 3.2*PR) but scales per-ball so a small
     // ball can approach a bigger neighbor close enough for their fields
     // to overlap and render as merged water.
@@ -466,7 +466,7 @@
       }
     }
 
-    // Walls — each ball clamps against the viewport with its OWN
+    // Walls - each ball clamps against the viewport with its OWN
     // physics radius so tiny balls can still settle right against the
     // floor without a chromeHeight-sized gap.
     for (let i = 0; i < count; i++) {

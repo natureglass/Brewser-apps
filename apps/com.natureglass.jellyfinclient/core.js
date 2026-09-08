@@ -1,8 +1,8 @@
 /**
- * jellyfin-core — plain JavaScript, no build step.
+ * jellyfin-core - plain JavaScript, no build step.
  * Classic script: include with <script src="core.js"></script>, everything is
  * exposed on the global `JF` namespace. Assumes fetch, URL, localStorage and
- * a <video> element — nothing else.
+ * a <video> element - nothing else.
  *
  * Endpoint paths, methods, auth header format and field names verified
  * against @jellyfin/sdk 0.13.0 (Jellyfin 10.11 OpenAPI). Targets Jellyfin
@@ -13,7 +13,7 @@
 
   // ---- fetch with timeout --------------------------------------------------
   // A wrong host/port makes fetch() hang on the TCP connect (the UI just sat on
-  // "Connecting…" forever). Bound every request so failures surface as an error
+  // "Connecting..." forever). Bound every request so failures surface as an error
   // instead of hanging. Aborts the socket when AbortController is available;
   // otherwise a Promise.race still rejects so the UI can react (the orphaned
   // fetch finishes in the background).
@@ -123,7 +123,7 @@
 
     /**
      * URL for endpoints consumed by <video>/<audio>/<img>, where we can't
-     * send headers — the token rides along as api_key instead (same
+     * send headers - the token rides along as api_key instead (same
      * mechanism jellyfin-web uses for media elements).
      */
     mediaUrl(path, query) {
@@ -133,7 +133,7 @@
     }
 
     /**
-     * opts: { method?, query?, body?, empty?, timeoutMs? } — empty for
+     * opts: { method?, query?, body?, empty?, timeoutMs? } - empty for
      * 204/report endpoints; timeoutMs overrides the default request timeout.
      */
     async request(path, opts) {
@@ -179,7 +179,7 @@
 
   /**
    * Rebuild a client from a persisted session, or null. The token may have
-   * been revoked server-side — treat the first 401 as "session expired".
+   * been revoked server-side - treat the first 401 as "session expired".
    */
   function restoreSession(storage, identity) {
     const raw = storage.get(SESSION_KEY);
@@ -218,7 +218,7 @@
 
   // ---- auth ----------------------------------------------------------------
 
-  /** Unauthenticated ping — verifies the URL points at a Jellyfin server. Uses
+  /** Unauthenticated ping - verifies the URL points at a Jellyfin server. Uses
    * a shorter timeout than normal requests so a wrong host/port reports back
    * quickly at the interactive connect step. */
   function getPublicSystemInfo(client, opts) {
@@ -233,7 +233,7 @@
     return res;
   }
 
-  // Quick Connect — the controller-friendly flow:
+  // Quick Connect - the controller-friendly flow:
   //   1. initiateQuickConnect() -> { Code, Secret }; show Code on screen
   //   2. user enters Code in their phone/web Jellyfin under Quick Connect
   //   3. waitForQuickConnect(secret) polls until approved, then exchanges the
@@ -276,7 +276,7 @@
     try {
       await client.request('/Sessions/Logout', { method: 'POST', empty: true });
     } catch (e) {
-      // Token already invalid is fine — we're logging out anyway.
+      // Token already invalid is fine - we're logging out anyway.
       if (!(e instanceof JellyfinError && (e.status === 401 || e.status === 403))) throw e;
     } finally {
       client.clearSession();
@@ -296,13 +296,13 @@
 
   const BROWSE_FIELDS = 'PrimaryImageAspectRatio,Overview';
 
-  /** GET /UserViews — the user's top-level libraries. */
+  /** GET /UserViews - the user's top-level libraries. */
   function getViews(client) {
     return client.request('/UserViews', { query: { userId: client.userId || undefined } });
   }
 
   /**
-   * GET /Items — the workhorse browse/search endpoint, paged.
+   * GET /Items - the workhorse browse/search endpoint, paged.
    * q: { parentId?, startIndex?, limit?, sortBy?, sortOrder?, includeItemTypes?, recursive?, searchTerm? }
    */
   function getItems(client, q) {
@@ -323,7 +323,7 @@
     });
   }
 
-  /** GET /UserItems/Resume — the "Continue watching" row. */
+  /** GET /UserItems/Resume - the "Continue watching" row. */
   function getResumeItems(client, opts) {
     opts = opts || {};
     return client.request('/UserItems/Resume', {
@@ -336,7 +336,7 @@
     });
   }
 
-  /** GET /Items/{id} — full detail (UserData for resume position + Chapters for
+  /** GET /Items/{id} - full detail (UserData for resume position + Chapters for
    * the player's chapter menu). */
   function getItem(client, itemId) {
     return client.request('/Items/' + itemId, {
@@ -344,7 +344,7 @@
     });
   }
 
-  /** GET /Items/{id}/Similar — the "More Like This" row. */
+  /** GET /Items/{id}/Similar - the "More Like This" row. */
   function getSimilarItems(client, itemId, limit) {
     return client.request('/Items/' + itemId + '/Similar', {
       query: { userId: client.userId || undefined, limit: limit || 8, fields: BROWSE_FIELDS },
@@ -354,7 +354,7 @@
   /**
    * Server-resized artwork URL, or null if the item has no such image.
    * opts: { type?: 'Primary'|'Backdrop'|'Thumb'|'Logo', fillWidth?, fillHeight?, quality? }
-   * Request exactly the pixels you render — the server does the resizing.
+   * Request exactly the pixels you render - the server does the resizing.
    */
   function imageUrl(client, item, opts) {
     opts = opts || {};
@@ -372,7 +372,7 @@
   // The StreamCast pattern, translated to Jellyfin. StreamCast picks from
   // Twitch's variant ladder after the fact ('auto' = highest bandwidth with
   // fps <= 30 on Switch, or an explicit '480p30'-style override). Jellyfin
-  // publishes no ladder — the client declares caps up front via
+  // publishes no ladder - the client declares caps up front via
   // DeviceProfile + PlaybackInfo, and the server produces one stream that
   // fits. Same policy, applied one step earlier.
 
@@ -403,7 +403,7 @@
     // 'auto': never ask for more pixels than the screen shows. Allow 60fps,
     // but only within the Switch's software-decode budget: 720p60 is HW-proven
     // smooth, whereas higher-res 60fps (1080p/4K) is decode-bound on the
-    // A57 (no hw decode on Tegra X1) and plays in slow motion — so cap those to
+    // A57 (no hw decode on Tegra X1) and plays in slow motion - so cap those to
     // 30fps. brewser renders at 720p, so a 60fps source plays at 720p60 while
     // 30fps sources stay 30 (the engine keys the 60 Hz present off content fps).
     return {
@@ -436,10 +436,10 @@
   /**
    * Brewser profile: the <video> element is libavformat/libavcodec underneath
    * (proven by StreamCast playing Twitch HLS H.264/AAC), so container/codec
-   * support is broad — the real constraint is software-decode budget on
+   * support is broad - the real constraint is software-decode budget on
    * 4x Cortex-A57, expressed as CodecProfile conditions from the caps.
    * Sources exceeding a condition get transcoded down instead of
-   * direct-played. Transcode target is HLS/ts H.264+AAC — the exact shape
+   * direct-played. Transcode target is HLS/ts H.264+AAC - the exact shape
    * Twitch serves, i.e. known-good on the Switch. The DirectPlay list is
    * deliberately optimistic; measure on device and trim (HEVC especially).
    */
@@ -501,13 +501,13 @@
       CodecProfiles: [
         { Type: 'Video', Conditions: videoConditions(caps) },
       ],
-      // A real browser renders WebVTT via native <track> — far cheaper than
+      // A real browser renders WebVTT via native <track> - far cheaper than
       // burning subtitles into the video. Deliver text subs externally as vtt
       // (Jellyfin converts subrip/ass/ssa on the fly); the app adds a <track>
       // per external stream and toggles it in the settings modal. Image-based
       // subs (PGS/DVD) can't be text/vtt, so those still burn in.
       // (Brewser has no text-subtitle renderer and uses buildBrewserDeviceProfile,
-      // which keeps Encode — see that profile above.)
+      // which keeps Encode - see that profile above.)
       SubtitleProfiles: [
         { Format: 'vtt', Method: 'External' },
         { Format: 'pgssub', Method: 'Encode' },
@@ -521,7 +521,7 @@
     // for direct-play/-stream eligibility: an over-cap source (e.g. a 4K source
     // under this 720p profile) MUST be transcoded down, never direct-played.
     // Without this the server was direct-streaming full 4K to the device, which
-    // the A57 can't software-decode in real time (~27fps → slow motion).
+    // the A57 can't software-decode in real time (~27fps -> slow motion).
     const conds = [
       { Condition: 'LessThanEqual', Property: 'Width', Value: String(caps.maxWidth), IsRequired: true },
       { Condition: 'LessThanEqual', Property: 'Height', Value: String(caps.maxHeight), IsRequired: true },
@@ -535,7 +535,7 @@
   // ---- playback ------------------------------------------------------------
 
   /**
-   * POST /Items/{id}/PlaybackInfo — the negotiation step. Server inspects the
+   * POST /Items/{id}/PlaybackInfo - the negotiation step. Server inspects the
    * item against our DeviceProfile and answers with MediaSources carrying
    * SupportsDirectPlay / a ready TranscodingUrl, plus the PlaySessionId used
    * in all progress reports.
@@ -602,7 +602,7 @@
       }
       // Force the transcode to DOWNSCALE. The DeviceProfile's CodecProfile
       // Width/Height conditions gate direct-play eligibility but did NOT cap the
-      // transcode OUTPUT — the server cut bitrate but kept full 4K, which the
+      // transcode OUTPUT - the server cut bitrate but kept full 4K, which the
       // A57 can't decode in real time (slow motion). Overriding maxWidth/
       // maxHeight (+ a bitrate ceiling) directly on the transcode URL makes the
       // server scale down; case-insensitive params, honored by the HLS endpoint.
@@ -650,7 +650,7 @@
 
   /**
    * Absolute URL for an external subtitle track, from a Subtitle MediaStream's
-   * server-relative DeliveryUrl. api_key is appended if missing — a <track>
+   * server-relative DeliveryUrl. api_key is appended if missing - a <track>
    * element can't send an Authorization header. Used only by the web target
    * (native WebVTT <track>); brewser burns subtitles in server-side.
    */
@@ -664,7 +664,7 @@
     return u.toString();
   }
 
-  // Progress reporting — what lights up "Continue watching" and resume
+  // Progress reporting - what lights up "Continue watching" and resume
   // points. Cadence used by official clients: start once, progress every
   // ~10s and on pause/seek, stopped on exit (stopped persists resume).
   // ctx: { itemId, mediaSourceId, playSessionId, playMethod }

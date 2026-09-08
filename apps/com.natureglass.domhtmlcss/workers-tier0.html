@@ -129,7 +129,7 @@
   }
 
   // Shared matcher pattern. Buffers unmatched inbound messages so
-  // expect() can drain retroactively — guards against the race where
+  // expect() can drain retroactively - guards against the race where
   // a fast worker posts BEFORE the test body has registered its
   // pending expectations. Hits on real HW where the worker reaches
   // self.postMessage before the test's `await expect(...)` microtask
@@ -394,7 +394,7 @@
       var b64Ok = r.roundTrip === sample;
       log((b64Ok ? 'PASS' : 'FAIL') + ' :: btoa→atob round-trip preserved (enc=' + r.enc + ')');
 
-      // importScripts — match by tagged `kind` so a leftover message
+      // importScripts - match by tagged `kind` so a leftover message
       // from an earlier test can't be claimed by the broad `d.ok` shape.
       w.postMessage({ cmd: 'importScripts', url: 'sdmc:/switch/brewser/apps/experimental/com.natureglass.domhtmlcss/assets/workers-helper.js' });
       r = await expect(function (d) { return d && d.kind === 'importScriptsResult'; }, 3000, 'importScripts');
@@ -415,7 +415,7 @@
       return { worker: w, expect: expect };
     }
 
-    // (1) Sync sdmc:/ URL — already worked since Tier-0 but now goes
+    // (1) Sync sdmc:/ URL - already worked since Tier-0 but now goes
     // through the new resolveWorkerSource scheme path. Validate spawn +
     // the worker's own first-message "ready" + a round-trip.
     var url1 = 'sdmc:/switch/brewser/apps/experimental/com.natureglass.domhtmlcss/assets/workers-pass-d.js';
@@ -439,7 +439,7 @@
     try { ctx2 = makeUrlWorker(url2, 'brewser'); }
     catch (e) { log('FAIL :: url-fetch ctor threw synchronously: ' + (e && e.message || e)); return; }
     try {
-      // Post immediately — should be buffered until the fetch resolves.
+      // Post immediately - should be buffered until the fetch resolves.
       ctx2.worker.postMessage({ cmd: 'whoami', echo: 'pre-spawn' });
       var r2 = await ctx2.expect(function (d) { return d && d.ready === true; }, 5000, 'url-fetch ready');
       log('PASS :: url-fetch async fetch → worker booted (source=' + r2.source + ')');
@@ -477,7 +477,7 @@
       log((ok1 ? 'PASS' : 'FAIL') + ' :: fetch(workers-helper.js) ok=' + r.ok
           + ' status=' + r.status + ' ct=' + r.contentType + ' bodyLen=' + r.bodyLen);
 
-      // (2) Local fetch of a larger HTML file — check content-length-ish
+      // (2) Local fetch of a larger HTML file - check content-length-ish
       // metadata round-trips. Some loaders set content-length, others
       // don't; treat presence as nice-to-have, not pass criterion.
       w.postMessage({ cmd: 'fetch', url: 'brewser://apps/experimental/com.natureglass.domhtmlcss/workers-tier0.html' });
@@ -487,7 +487,7 @@
       log((ok2 ? 'PASS' : 'FAIL') + ' :: fetch(tier0.html) ok=' + r.ok
           + ' status=' + r.status + ' bodyLen=' + r.bodyLen + ' cl=' + r.contentLength);
 
-      // (3) Invalid URL — verify .catch reached with a meaningful error.
+      // (3) Invalid URL - verify .catch reached with a meaningful error.
       w.postMessage({ cmd: 'fetch', url: 'https://nonexistent.invalid.tld/' });
       r = await expect(function (d) { return d && d.kind === 'fetchResult'; }, 10000, 'fetch bad-url');
       var ok3 = r.ok === false && typeof r.error === 'string' && r.error.length > 0;
@@ -554,7 +554,7 @@
       await expect(function (d) { return d && d.ready === true; }, 5000, 'pass-f ready');
       log('PASS :: Pass F worker booted');
 
-      // (1) Single 1 MB AB transferred main→worker. Verify worker sees
+      // (1) Single 1 MB AB transferred main->worker. Verify worker sees
       // exact bytes AND main's source AB byteLength is now 0.
       var ab1 = new ArrayBuffer(1 * 1024 * 1024);
       var u1 = new Uint8Array(ab1);
@@ -593,8 +593,8 @@
       log((ok2b ? 'PASS' : 'FAIL') + ' :: mixed: only transferred detached on main (transferredLen=' + abT.byteLength + ')');
       log((ok2c ? 'PASS' : 'FAIL') + ' :: mixed: copied AB still alive + readable on main (copiedLen=' + abK.byteLength + ')');
 
-      // (3) Round-trip with transfer in both directions. Send → worker
-      // mutates byte 0 → transfers BACK to main. Verify main receives
+      // (3) Round-trip with transfer in both directions. Send -> worker
+      // mutates byte 0 -> transfers BACK to main. Verify main receives
       // the mutated bytes AND worker's source AB was detached after its
       // own postMessage.
       var ab3 = new ArrayBuffer(8 * 1024);
@@ -632,7 +632,7 @@
         abs.push(a);
       }
       // Take a snapshot of the abs array now because the user-payload
-      // also references them — both reads see the same identity.
+      // also references them - both reads see the same identity.
       w.postMessage({ cmd: 'multi', payload: abs }, abs.slice());
       r = await expect(function (d) { return d && d.kind === 'multiResult'; }, 5000, 'multi');
       var ok4a = r.summaries.length === sizes.length;
@@ -647,7 +647,7 @@
       var allDetached = abs.every(function (a) { return a.byteLength === 0; });
       log((allDetached ? 'PASS' : 'FAIL') + ' :: multi: all 4 sources detached on main (lens=' + abs.map(function (a) { return a.byteLength; }).join(',') + ')');
 
-      // (5) Empty transfer list — should behave like no transfer.
+      // (5) Empty transfer list - should behave like no transfer.
       var ab5 = new ArrayBuffer(256);
       var u5 = new Uint8Array(ab5);
       fillPattern(u5, 99);

@@ -57,7 +57,7 @@
     display:flex;flex-direction:column;transition:transform .3s cubic-bezier(.4,0,.2,1)}
   #rail.away{transform:translateX(calc(-100% - 12px))}
 
-  /* drawer handle — nested inside the rail so it travels with it and is still
+  /* drawer handle - nested inside the rail so it travels with it and is still
      reachable when the rail is parked off-screen */
   #railTab{position:absolute;right:-31px;top:50%;margin-top:-64px;
     width:30px;height:128px;padding:0;
@@ -211,7 +211,7 @@
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
-   1. PALETTES — IQ cosine palettes: col = a + b*cos(2pi*(c*t + d))
+   1. PALETTES - IQ cosine palettes: col = a + b*cos(2pi*(c*t + d))
    -------------------------------------------------------------------------- */
 const PALETTES = {
   ember:   {a:[.52,.32,.18], b:[.48,.30,.16], c:[1,1,.6],    d:[.02,.14,.28]},
@@ -232,7 +232,7 @@ const PALETTES = {
 const PAL_KEYS = Object.keys(PALETTES);
 
 /* --------------------------------------------------------------------------
-   2. SCHEMA — the DSL a model would be trained to emit.
+   2. SCHEMA - the DSL a model would be trained to emit.
    -------------------------------------------------------------------------- */
 const PATTERNS = ["smooth","bands","rings","veins","terrace","streaks","cells"];
 
@@ -434,7 +434,7 @@ Object.keys(TAGS).forEach(k => {
    3b. PROMPT BANK
    Written against the tag vocabulary, so every line lands on at least two or
    three known words. They also spread deliberately across the parameter space
-   — folded and unfolded, fast and still, saturated and near-monochrome — so
+   - folded and unfolded, fast and still, saturated and near-monochrome - so
    cycling the deck is a tour of what the DSL can do rather than fifty
    variations on one look.
    -------------------------------------------------------------------------- */
@@ -513,7 +513,7 @@ function dealPrompt(){
 shuffleDeck();
 
 /* --------------------------------------------------------------------------
-   4. DIRECTOR — prompt -> params.
+   4. DIRECTOR - prompt -> params.
 
    *** SWAP POINT ***  An LLM director implements the same signature:
        direct(prompt) -> { params, matched, unmatched }
@@ -535,7 +535,7 @@ function clampRow(r, v){
   return v;
 }
 
-// per-key jitter as a fraction of range. Deliberate axes get little or none —
+// per-key jitter as a fraction of range. Deliberate axes get little or none -
 // v1 jittered hue by +/-0.5rad and turned every chosen palette to mud.
 const JITTER = {
   scale:.10, warpStrength:.12, gain:.10, palFreq:.12, palPhase:.5,
@@ -589,7 +589,7 @@ function direct(promptText){
   p.rotate = rand()*6.28;
   p.flowAngle = (acc.flowAngle === undefined) ? rand()*6.28 : p.flowAngle;
 
-  // pan must not push the kaleidoscope origin off screen — v1's biggest
+  // pan must not push the kaleidoscope origin off screen - v1's biggest
   // visible failure: you asked for symmetry and got none.
   const panRange = p.fold > 0 ? 0.18 : (known ? 0.9 : 1.8);
   p.panX = clampRow(ROW_BY_KEY.panX, (rand()-.5) * panRange);
@@ -648,7 +648,7 @@ function randomParams(){
 }
 
 /* --------------------------------------------------------------------------
-   5. RENDERER — single fullscreen pass, GLSL ES 3.00.
+   5. RENDERER - single fullscreen pass, GLSL ES 3.00.
    No float targets, no extensions, no FBOs, constant-bounded loops.
    -------------------------------------------------------------------------- */
 const VERT = `#version 300 es
@@ -918,7 +918,7 @@ function loc(n){ if(!(n in U)) U[n] = gl.getUniformLocation(prog, n); return U[n
 
 /* --------------------------------------------------------------------------
    6b. UPSCALE BLIT
-   This runtime presents the WebGL drawing buffer 1:1 — a smaller canvas backing
+   This runtime presents the WebGL drawing buffer 1:1 - a smaller canvas backing
    store is NOT stretched to fill the element, it just draws into a corner of a
    fixed full-screen surface. So dynamic resolution can't shrink the canvas.
    Instead the heavy field renders into an offscreen texture at reduced size,
@@ -945,7 +945,7 @@ gl.linkProgram(blitProg);
 if(!gl.getProgramParameter(blitProg, gl.LINK_STATUS))
   throw new Error(gl.getProgramInfoLog(blitProg));
 const blitTexLoc = gl.getUniformLocation(blitProg, "uTex");
-// The blit always samples texture unit 0 — bind that once instead of per frame.
+// The blit always samples texture unit 0 - bind that once instead of per frame.
 gl.useProgram(blitProg);
 gl.uniform1i(blitTexLoc, 0);
 gl.activeTexture(gl.TEXTURE0);
@@ -956,7 +956,7 @@ let fbo = null, fboTex = null, loW = 0, loH = 0;
 function ensureFbo(w, h){
   if(!fbo){ fbo = gl.createFramebuffer(); fboTex = gl.createTexture(); }
   gl.bindTexture(gl.TEXTURE_2D, fboTex);
-  // null-alloc render target (no CPU pixel upload — safe on this bridge)
+  // null-alloc render target (no CPU pixel upload - safe on this bridge)
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -1025,20 +1025,20 @@ let uDirty = true;        // re-upload the full uniform set only when something 
 /* Two-lever quality ladder. On this hardware the field pass stays ALU-bound even
    at the resolution floor, so one knob isn't enough. Each rung trades a little
    more quality for speed, ordered so the least visible cuts come first: trim the
-   domain-warp's high-frequency octaves (nearly invisible — the warp is only used
+   domain-warp's high-frequency octaves (nearly invisible - the warp is only used
    as displacement), THEN drop resolution, and only at the very bottom trim the
    final field's octaves. warpCap/fieldCap cap fBm octaves; res scales the buffer. */
 const LADDER = [
   // warpCap, res,  fieldCap
-  [   8,     1.00,   8 ],   // 0 — full quality
-  [   5,     1.00,   8 ],   // 1 — trim warp octaves (imperceptible)
+  [   8,     1.00,   8 ],   // 0 - full quality
+  [   5,     1.00,   8 ],   // 1 - trim warp octaves (imperceptible)
   [   4,     0.85,   8 ],   // 2
   [   4,     0.70,   8 ],   // 3
   [   3,     0.60,   8 ],   // 4
   [   3,     0.50,   8 ],   // 5
   [   2,     0.42,   8 ],   // 6
-  [   2,     0.36,   6 ],   // 7 — start trimming field detail
-  [   2,     0.30,   5 ]    // 8 — floor
+  [   2,     0.36,   6 ],   // 7 - start trimming field detail
+  [   2,     0.30,   5 ]    // 8 - floor
 ];
 let perf = 2;                 // start mildly conservative for a smooth boot, then converge
 let autoScale, curWarpCap, curFieldCap;
@@ -1050,10 +1050,10 @@ function applyPerf(){
 applyPerf();
 function adaptScale(fps){
   const MAX = LADDER.length - 1, prev = perf;
-  if(fps < 30 && perf < MAX)      perf += 2;   // severely slow — jump two rungs to converge fast
-  else if(fps < 50 && perf < MAX) perf += 1;   // under target — ease down one rung
-  else if(fps >= 58 && perf > 0)  perf -= 1;   // headroom — reclaim quality
-  // 50–58 is a dead zone so the ladder doesn't oscillate.
+  if(fps < 30 && perf < MAX)      perf += 2;   // severely slow - jump two rungs to converge fast
+  else if(fps < 50 && perf < MAX) perf += 1;   // under target - ease down one rung
+  else if(fps >= 58 && perf > 0)  perf -= 1;   // headroom - reclaim quality
+  // 50-58 is a dead zone so the ladder doesn't oscillate.
   perf = Math.max(0, Math.min(MAX, perf));
   if(perf !== prev){ applyPerf(); uDirty = true; }   // octave caps / resolution changed
 }
@@ -1093,15 +1093,15 @@ function hueRotJS(c, h){
 }
 function upload(){
   // uTime advances every frame, so upload it unconditionally. Everything else
-  // only changes on a new render, a slider move, a morph step or a ladder step —
-  // all of which set uDirty — so a settled scene skips ~40 GL calls per frame,
+  // only changes on a new render, a slider move, a morph step or a ladder step -
+  // all of which set uDirty - so a settled scene skips ~40 GL calls per frame,
   // which is what actually caps framerate on this emulated bridge.
   gl.uniform1f(loc("uTime"), state.time);
   if(!uDirty) return;
   uDirty = false;
 
   const pal = currentPalette();
-  // gl_FragCoord is in the render target's pixel space — the offscreen buffer
+  // gl_FragCoord is in the render target's pixel space - the offscreen buffer
   // when downscaling, the full screen otherwise.
   gl.uniform2f(loc("uRes"), useFbo ? loW : bufW, useFbo ? loH : bufH);
   gl.uniform1f(loc("uSeed"), P.seed);
@@ -1183,7 +1183,7 @@ function frame(now){
     gl.bindTexture(gl.TEXTURE_2D, fboTex);   // unit 0 + sampler set once at init
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   } else {
-    // full resolution — render straight to the screen, no blit
+    // full resolution - render straight to the screen, no blit
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.viewport(0, 0, bufW, bufH);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
@@ -1204,7 +1204,7 @@ function frame(now){
 }
 
 /* --------------------------------------------------------------------------
-   9. CONSOLE UI — generated from SCHEMA
+   9. CONSOLE UI - generated from SCHEMA
    -------------------------------------------------------------------------- */
 const el = {
   rail: document.getElementById("rail"),
@@ -1446,7 +1446,7 @@ window.addEventListener("keydown", e=>{
 // runtime routes the joy-cons as a screen cursor (left stick moves the
 // pointer, A = primary click), driven by reading the SAME
 // navigator.getGamepads() state. Polling it here too meant every press of
-// the click button ALSO fired one of these actions (e.g. A → click a button
+// the click button ALSO fired one of these actions (e.g. A -> click a button
 // AND surprise()), so "New prompt" always resolved to "unprompted". The
 // buttons, keyboard shortcuts (P / space / H / F / S) and touch already
 // cover every action, so on-device control is complete without this.
@@ -1482,7 +1482,7 @@ buildUI();
 el.prompt.value = dealPrompt();
 (function(){
   const res = direct(el.prompt.value);
-  // mutate in place — P aliases state.params and upload() reads through it
+  // mutate in place - P aliases state.params and upload() reads through it
   Object.keys(res.params).forEach(k => state.params[k] = res.params[k]);
   state.morphT = 1;
   syncUI();

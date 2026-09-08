@@ -229,7 +229,7 @@
     .play-btn.playing .icon-play { display: none; }
     .play-btn.playing .icon-pause { display: block; }
 
-    /* PNG icons for the prev/next, volume, and visualizer-arrow buttons —
+    /* PNG icons for the prev/next, volume, and visualizer-arrow buttons -
        same approach as the play/pause button: real <img> elements (the
        live-DOM painter decodes <img> but not CSS background-image). */
     .btn-icon {
@@ -363,7 +363,7 @@
       /* `flex: 1; min-height: 0;` is the standard CSS pattern for an
        * `overflow:auto` scroll container that sits inside a flex column
        * parent. Without it, the flex item defaults to `flex: 0 1 auto`
-       * — its size is its content's natural size — which the engine's
+       * - its size is its content's natural size - which the engine's
        * layout pass resolves to 0 here (the children aren't measured
        * when the container has no assigned height), leaving the scroll
        * overlay sized 336×0 and rendering nothing. `min-height: 0`
@@ -661,7 +661,7 @@
 
       const AUDIO_EXTENSIONS = [".mp3", ".m4a", ".aac", ".flac", ".wav", ".ogg", ".oga", ".opus"];
 
-      // Inlined app settings (was assets/config.json — now deleted). These are
+      // Inlined app settings (was assets/config.json - now deleted). These are
       // the static defaults: the `visualizer` tunables and the initial
       // `audioFilesPath`. `audioFilesPath` is only a default: when the user
       // picks a folder on Switch we remember it in localStorage instead, so
@@ -688,18 +688,18 @@
       };
 
       // ---- Persist the chosen folder across launches (Switch) ----
-      // On Switch the picked folder is a real filesystem path — a plain
-      // string — so we remember it in localStorage. No file writes, and it
+      // On Switch the picked folder is a real filesystem path - a plain
+      // string - so we remember it in localStorage. No file writes, and it
       // replaces the old assets/config.json persistence store. (Web can't
       // reopen an arbitrary path, so it persists a FileSystemDirectoryHandle
-      // in IndexedDB instead — see idbSaveHandle below.)
+      // in IndexedDB instead - see idbSaveHandle below.)
       const AUDIO_DIR_STORE_KEY = "spectraplay.audioDir";
 
       function loadStoredAudioPath() {
         try {
           const v = globalThis.localStorage ? localStorage.getItem(AUDIO_DIR_STORE_KEY) : null;
           if (typeof v === "string" && v.trim()) return v.trim();
-        } catch (_) { /* localStorage unavailable — fall back to defaults */ }
+        } catch (_) { /* localStorage unavailable - fall back to defaults */ }
         return "";
       }
 
@@ -765,7 +765,7 @@
 
       // Web-only: build a session playlist from a <input webkitdirectory> FileList.
       // Each audio file becomes an object URL (blob:) the <audio> element can play.
-      // There's no SD card here, so nothing is persisted — the choice lasts for the
+      // There's no SD card here, so nothing is persisted - the choice lasts for the
       // session (re-pick after a reload). Titles come from the filename (no ID3).
       function loadPlaylistFromFileList(fileList) {
         revokeBlobPlaylist();          // free the previous folder's object URLs
@@ -776,7 +776,7 @@
           const name = file && file.name ? file.name : "";
           const lower = name.toLowerCase();
           if (!AUDIO_EXTENSIONS.some((ext) => lower.endsWith(ext))) continue;
-          // webkitRelativePath is "<folder>/…/<file>"; grab the top folder for the label.
+          // webkitRelativePath is "<folder>/.../<file>"; grab the top folder for the label.
           if (!folderName && file.webkitRelativePath) {
             const seg = file.webkitRelativePath.split("/");
             if (seg.length > 1 && seg[0]) folderName = seg[0];
@@ -797,7 +797,7 @@
 
       // Chromium, TOP-LEVEL page only: pick a folder via the File System Access
       // API. Unlike <input webkitdirectory>, this asks to *view* the folder (no
-      // "upload N files" prompt) and reads each file lazily through its handle —
+      // "upload N files" prompt) and reads each file lazily through its handle -
       // nothing is uploaded. Browsers block it in cross-origin iframes (the embedded
       // card), so the caller only reaches here when the app is its own top page.
       async function pickFolderViaFSAccess() {
@@ -881,7 +881,7 @@
 
       // On boot: if a folder was remembered and read permission is still granted,
       // restore it silently. If it's in the 'prompt' state (typical on a fresh
-      // session), show the remembered name — the next folder-tile click resumes it
+      // session), show the remembered name - the next folder-tile click resumes it
       // (browsers require a user gesture to re-grant file permission).
       async function tryRestoreSavedFolder() {
         if (!((window.self === window.top) && typeof window.showDirectoryPicker === "function")) return;
@@ -932,7 +932,7 @@
 
       // ----- ID3v2 tag extraction (MP3 Title / Artist) -----
       // Read only the head of the file (the ID3v2 tag lives at the start) via
-      // Switch.readFileSync's byte-range option — parsed from absolute offset
+      // Switch.readFileSync's byte-range option - parsed from absolute offset
       // 0 so it's correct even if the runtime ignores the range and returns
       // the whole file. Lazy: parsed once per track on first play, cached.
       function decodeLatin1(bytes) {
@@ -1103,7 +1103,7 @@
       let endedHandled = false;
       // Whether playback is INTENDED to be running (set from markTransport).
       // End-detection only auto-advances when this is true, so a manual
-      // pause — which also freezes currentTime — never advances the track.
+      // pause - which also freezes currentTime - never advances the track.
       let expectPlaying = false;
       // Index whose "now playing" toast has been shown for the current load,
       // so resuming after a pause doesn't re-announce. Reset by loadTrack.
@@ -1147,7 +1147,7 @@
       //     uniform (the bridge FBO orientation differs from desktop).
       //   - Audio is sampled uniformly (sampleAudioData): the nx.js decoder's
       //     native play-head spectrum/waveform (audio.getFrequencyData/getWaveform)
-      //     when the runtime exposes it, else the Web Audio AnalyserNode — both
+      //     when the runtime exposes it, else the Web Audio AnalyserNode - both
       //     downsampled into the same Float32 specData/waveData the builders read.
       const SAMPLES = 1024;       // wave sample count the builders iterate
       const SPEC_BINS = 128;      // native spectrum length
@@ -1156,7 +1156,7 @@
       const waveData = new Float32Array(WAVE_LEN);
       let haveFreq = false, haveWave = false;
 
-      // Tunables — defaults here, overridable via the inlined APP_CONFIG
+      // Tunables - defaults here, overridable via the inlined APP_CONFIG
       // "visualizer" block (edit APP_CONFIG at the top of this script):
       //   visualizer: { gain: 30, waveGain: 1.4, flipY: false,
       //                 bgAlpha: 0, vividness: 0.5,
@@ -1174,7 +1174,7 @@
       // toward 1 (mains go near-solid, glow layers stay proportionally dimmer).
       let vizVividness = 0.5;
       // Per-visual geometry counts. Each visual exposes ONE exact count as a
-      // key directly in APP_CONFIG's "visualizer" block — it's the real number of
+      // key directly in APP_CONFIG's "visualizer" block - it's the real number of
       // samples/segments built per frame (e.g. "bars": 7 draws 7 frequency
       // bars and reads 7 spectrum samples), so lowering it cuts CPU work and
       // raises FPS; it is not a cosmetic trim. The secondary "glow"/"alt"
@@ -1230,7 +1230,7 @@
       }
 
       function loadVisualizerConfig() {
-        // Visualizer tunables are static — read from the inlined APP_CONFIG
+        // Visualizer tunables are static - read from the inlined APP_CONFIG
         // (was config.json's "visualizer" block).
         const v = APP_CONFIG.visualizer;
         const num = (x, lo, hi, dflt) =>
@@ -1757,7 +1757,7 @@ void main() {
         const bgPulse = 0.5 + 0.5 * Math.sin(now * 0.00045);
         const bgPulse2 = 0.5 + 0.5 * Math.cos(now * 0.00031);
         const bg = VIZ_BACKGROUNDS[currentVisualizerStyle] || VIZ_BACKGROUNDS[0];
-        // Clear to the bg color with alpha = bgAlpha (straight, not premul —
+        // Clear to the bg color with alpha = bgAlpha (straight, not premul -
         // gl.clear writes straight RGBA and the bridge composite reads it as
         // straight). bgAlpha 0 => (.,.,.,0): the card grid shows fully; higher
         // bgAlpha lays a proportional dark wash over the grid.
@@ -1951,13 +1951,13 @@ void main() {
           return true;
         } catch (error) {
           // console.error flips nx.js into text-render mode and freezes
-          // the canvas — use console.debug. Analysis is optional; keep quiet.
+          // the canvas - use console.debug. Analysis is optional; keep quiet.
           console.debug("audio graph init failed; analysis disabled:", error);
           return false;
         }
       }
 
-      // Unified audio sampling — NO platform branch. Fills specData/waveData from
+      // Unified audio sampling - NO platform branch. Fills specData/waveData from
       // whichever source the runtime provides: the nx.js decoder's native play-head
       // spectrum/waveform first (Switch), else the Web Audio AnalyserNode (browsers),
       // downsampled into the same Float32 layout the visualizer builders read. Leaves
@@ -2200,7 +2200,7 @@ void main() {
       // "Choose audio folder" tile. The file picker resolves in
       // path-only mode (see `data-path-only` on #folderPicker + the
       // runtime's webkitdirectoryPathOnly branch) with a single entry
-      // whose `path` is the chosen directory — no recursive walk. We
+      // whose `path` is the chosen directory - no recursive walk. We
       // persist it to localStorage so the next launch sees it, then refresh
       // the playlist silently (no auto-play; whatever was playing keeps
       // playing until the user picks a new track).
@@ -2261,8 +2261,8 @@ void main() {
         }
       });
 
-      // (These never fire on Citron — the engine doesn't dispatch media
-      // events — but keep them consistent with the style-only transport UI.)
+      // (These never fire on Citron - the engine doesn't dispatch media
+      // events - but keep them consistent with the style-only transport UI.)
       audio.addEventListener("play", () => markTransport(true));
       audio.addEventListener("pause", () => markTransport(false));
 
@@ -2382,7 +2382,7 @@ void main() {
           startVisualizer();
           plog("[swp] init end (visualizer started)");
         } catch (e) {
-          // console.debug only — console.error flips nx.js to text mode.
+          // console.debug only - console.error flips nx.js to text mode.
           const msg = e && e.message ? e.message : String(e);
           console.debug("[swp] init threw:", msg);
           plog("[swp] init THREW: " + msg + " @ " + (e && e.stack ? e.stack.slice(0, 200) : "?"));

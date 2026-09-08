@@ -152,7 +152,7 @@ input[type=range]{width:160px;accent-color:var(--acc)}
 <script>
 'use strict';
 /* ================= state ================= */
-const MAX_LEDS=1024;      // firmware MAX_LEDS — W*H is clamped to this
+const MAX_LEDS=1024;      // firmware MAX_LEDS - W*H is clamped to this
 const DEF = {w:32,h:16,ph:8,axis:'v',serp:true,fx:false,fy:false,
              pin:20,bri:40,baud:921600,fps:60,mode:'draw',demo:0,brushIdx:1,color:2,fc:false,ver:3};
 let S = Object.assign({}, DEF);
@@ -165,7 +165,7 @@ if(S.fps>60||S.fps<1) S.fps=60;        // sanitize any out-of-range stored value
 const saveLS = () => { try{ localStorage.setItem('matrixstudio', JSON.stringify(S)); }catch(e){} };
 
 let W=S.w, H=S.h, N=W*H;
-let fb;                 // Uint8Array W*H*3, row-major from top-left — single source of truth
+let fb;                 // Uint8Array W*H*3, row-major from top-left - single source of truth
 let lut;               // logical index -> strip index
 let framePayload;      // Uint8Array N*3 in PHYSICAL strip order; encode() wraps it per packet
 const BRUSHES=[1,2,3];
@@ -194,7 +194,7 @@ function rebuild(){
   }
   framePayload=new Uint8Array(N*3);
   deltaBuf=new Uint8Array(N*5);   // worst-case delta: idx16+RGB per LED
-  resetDelta();                    // layout changed → the device's framebuffer meaning changed → keyframe
+  resetDelta();                    // layout changed -> the device's framebuffer meaning changed -> keyframe
   fluidAlloc(); fireAlloc(); rainAlloc(); buildGeom(); layoutView();
 }
 
@@ -206,13 +206,13 @@ function rebuild(){
    shaders, and a present that binds the default framebuffer, sets a full-screen
    viewport, then draws.
 
-   IMPORTANT — no data textures. On this device (Mesa-Nouveau NV120, jitless V8)
+   IMPORTANT - no data textures. On this device (Mesa-Nouveau NV120, jitless V8)
    uploading CPU pixel data into a texture (texImage2D / texSubImage2D with a
    typed array, any format) hard-crashes the shared bridge context; only null-
-   allocated textures survive. fluiddynamics never uploads CPU texels either — it
+   allocated textures survive. fluiddynamics never uploads CPU texels either - it
    renders into FBOs. So the grid is drawn WITHOUT a texture: one quad (2 tris, 6
    verts) per cell, cell color delivered through a per-vertex attribute updated
-   each frame with bufferSubData (the vertex-buffer path IS proven — fluiddynamics
+   each frame with bufferSubData (the vertex-buffer path IS proven - fluiddynamics
    uploads its geometry the same way). The cell quads tile the grid rect with no
    gaps, so a flat per-quad substrate reads as one continuous field and the round
    core+glow (identical smoothstep math to the original LED shader, using the
@@ -299,7 +299,7 @@ function buildGeom(){
   gl.bindVertexArray(null);
 }
 function layoutView(){
-  // Canvas stays 1280x720 (born that size, never resized in JS — matches
+  // Canvas stays 1280x720 (born that size, never resized in JS - matches
   // fluiddynamics). `view` is CSS-px for pointer hit-testing; render() feeds the
   // shader the same rect converted to drawing-buffer px.
   const cw=window.innerWidth, ch=window.innerHeight;
@@ -530,7 +530,7 @@ function buildRawOrder(){
    frame index as binary across the TOP ROW of the grid, so the exact same lit-pixel
    pattern shows on the preview AND streams to the panel with no firmware change (it's
    just pixels in the normal FRAME/DELTA path). Film both and step frame-by-frame: the
-   difference between the two counts is the real end-to-end render→shown latency (USB
+   difference between the two counts is the real end-to-end render->shown latency (USB
    transfer + ESP32 apply + WS2812 latch + any pacing skips). Top row, y=0:
      x=0        amber start marker (locate bit 0, confirm this is the counter row)
      x=1..bits  bit 0 (LSB) at x=1, rising toward the right; lit cell = 1 */
@@ -543,7 +543,7 @@ function drawFrameCounter(){
 }
 
 /* ================= connectivity =================
-   Protocol v2 over USB/serial (Web Serial). The rules this layer encodes — do not undo them:
+   Protocol v2 over USB/serial (Web Serial). The rules this layer encodes - do not undo them:
      - encode each packet exactly ONCE; one seq counter, +1 per packet of any type
      - hand a whole packet to one write
    Packet: A5 5A | type | seq | len16 | payload | sum16
@@ -561,7 +561,7 @@ function setConn(label,ok){ connLabel.textContent=label; dot.className=ok?'ok':'
    A full FRAME is 3 B per LED; a DELTA is 5 B per CHANGED LED, so a delta is smaller whenever
    fewer than ~60% of the panel changes (drawing, sparse fluid, rain, sparkles...). Each frame we
    send whichever is smaller, and we pace by BYTES rather than frames: sparse content reaches
-   60 fps while a full-field animation (plasma/rainbow/fire) auto-throttles to ~30 fps — both
+   60 fps while a full-field animation (plasma/rainbow/fire) auto-throttles to ~30 fps - both
    staying under the throughput that was rebooting the C6's USB-Serial/JTAG. A dropped delta is
    healed by the periodic full keyframe, so brief USB corruption never sticks. */
 let deltaSupported=false;        // true once the firmware CFG line reports delta=1
@@ -570,18 +570,18 @@ let framesSinceKey=0;
 let deltaBuf=null;               // scratch for delta entries, sized in rebuild()
 const KEYFRAME_EVERY=30;         // force a full FRAME at least this often (~0.5 s at 60 fps)
 const DELTA_THRESH=4;            // min per-channel change to emit a pixel (sparsifies slow fades)
-const TARGET_BPS=46000;          // byte-rate ceiling — the 30fps-full rate proven stable on HW
+const TARGET_BPS=46000;          // byte-rate ceiling - the 30fps-full rate proven stable on HW
 const BUCKET_MAX=3000;           // largest send burst (~2 full frames)
 let byteBucket=0, lastBudgetT=0;
 function resetDelta(){ lastSentFB=null; framesSinceKey=0; byteBucket=0; }
-function encodeDelta(){          // diff framePayload against lastSentFB → deltaBuf; return bytes used
+function encodeDelta(){          // diff framePayload against lastSentFB -> deltaBuf; return bytes used
   let p=0;
   for(let phys=0; phys<N; phys++){
     const s=phys*3;
     const r=framePayload[s], g=framePayload[s+1], b=framePayload[s+2];
     const or=lastSentFB[s], og=lastSentFB[s+1], ob=lastSentFB[s+2];
     // Emit on a meaningful change, and ALWAYS emit the moment a pixel reaches full black even if
-    // that last step is sub-threshold — otherwise a fading LED sticks a hair above 0 (visible pop).
+    // that last step is sub-threshold - otherwise a fading LED sticks a hair above 0 (visible pop).
     const changed = Math.abs(r-or)>DELTA_THRESH || Math.abs(g-og)>DELTA_THRESH || Math.abs(b-ob)>DELTA_THRESH;
     const wentBlack = (r|g|b)===0 && (or|og|ob)!==0;
     if(changed || wentBlack){
@@ -690,18 +690,18 @@ async function pump(now, build=buildFrame){
   if(now-lastSend < 1000/S.fps) return;             // fps upper cap
   build();                                           // fill framePayload (physical strip order)
   // Pick full vs delta. Delta only when the firmware supports it, we have a reference frame, a
-  // keyframe isn't due, and it's actually smaller. RAW test bypasses the lut → always a full frame.
+  // keyframe isn't due, and it's actually smaller. RAW test bypasses the lut -> always a full frame.
   let type=PKT_FRAME, payload=framePayload;
   if(deltaSupported && build===buildFrame && lastSentFB && framesSinceKey<KEYFRAME_EVERY){
     const dn=encodeDelta();
-    if(dn===0){ framesSinceKey++; return; }          // nothing changed → skip; keyframe cadence still advances
+    if(dn===0){ framesSinceKey++; return; }          // nothing changed -> skip; keyframe cadence still advances
     if(dn < framePayload.length){ type=PKT_DELTA; payload=deltaBuf.subarray(0,dn); }
   }
   // Byte-budget token bucket: skip this frame if we'd exceed the safe throughput.
   const dtB=Math.min(0.25,(now-lastBudgetT)/1000); lastBudgetT=now;
   byteBucket=Math.min(BUCKET_MAX, byteBucket + TARGET_BPS*dtB);
   const cost=payload.length+8;                       // A5 5A|type|seq|len16|payload|sum16
-  if(byteBucket<cost) return;                         // not enough budget → drop (next frame supersedes)
+  if(byteBucket<cost) return;                         // not enough budget -> drop (next frame supersedes)
   byteBucket-=cost;
   lastSend=now; sending=true; dot.className='busy';
   try{
@@ -810,7 +810,7 @@ function updateHud(now){
 let tPrev=performance.now();
 function loop(now){
   // The Settings overlay is opaque and covers the whole canvas, so while it's
-  // open there's nothing to see — skip the WebGL render AND the fluid/demo sim
+  // open there's nothing to see - skip the WebGL render AND the fluid/demo sim
   // instead of burning a full frame on a hidden canvas (which, stacked with the
   // engine compositing the settings panel, is what tanked the FPS). Keep the
   // rAF loop alive and tPrev fresh so animation resumes cleanly on close.

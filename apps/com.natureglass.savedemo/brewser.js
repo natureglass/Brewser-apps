@@ -1,12 +1,12 @@
 /*!
- * brewser.js — tiny save/load SDK for Brewser apps.
+ * brewser.js - tiny save/load SDK for Brewser apps.
  *
  * Whole-save (one blob):
  *     brewser.save(anything);            // overwrite the save, instant
  *     const data = brewser.load();       // your data back, or null
  *
  * Records (convenience CRUD over a blob that is an array of records; the SDK
- * assigns each record a unique `id` plus `createdAt` / `updatedAt` — you never
+ * assigns each record a unique `id` plus `createdAt` / `updatedAt` - you never
  * set those):
  *     const id = brewser.put({ name: "Alice", score: 1200 });  // -> new id
  *     brewser.get(id);                    // one record, or null
@@ -26,7 +26,7 @@
  *     the push just happens later.
  *   - load() returns this browser's copy instantly. localStorage always wins
  *     (you might have saved offline, or a device clock might be wrong).
- *   - To pull a save made on another device, call brewser.pull() — e.g. when
+ *   - To pull a save made on another device, call brewser.pull() - e.g. when
  *     the user returns and localStorage is empty.
  *
  * Identity: cross-device sync needs the user signed in (Brewser Auth). Signed
@@ -47,7 +47,7 @@
 		nsPrefix: 'brewser_save_',
 		// Debounce for background server pushes (ms).
 		pushDebounceMs: 1500,
-		// Optional: called with (status) on sync events — 'pushing','synced','offline','unauth','error'.
+		// Optional: called with (status) on sync events - 'pushing','synced','offline','unauth','error'.
 		onSync: null
 	};
 
@@ -251,7 +251,7 @@
 
 		/**
 		 * Pull the account copy from the server (other devices / Switch).
-		 * Does NOT overwrite local automatically — returns the server copy so
+		 * Does NOT overwrite local automatically - returns the server copy so
 		 * the app decides. Pass { adopt: true } to also write it to this
 		 * browser (use when local is empty or the user chose "load from cloud").
 		 * @returns {Promise<{ok, data, updatedAt, reason?}>}
@@ -290,7 +290,7 @@
 		 *
 		 * These treat the save blob as an array of records. Each record gets an
 		 * auto-assigned unique `id` (short random string) plus `createdAt` and
-		 * `updatedAt` timestamps (epoch ms) — you never set these yourself.
+		 * `updatedAt` timestamps (epoch ms) - you never set these yourself.
 		 * All of them go through save(), so the instant-local + background-sync
 		 * behavior applies automatically.
 		 * ------------------------------------------------------------------ */
@@ -387,7 +387,7 @@
 		canSync: function () { return !!authToken(); },
 
 		/* ------------------------------------------------------------------ *
-		 * Leaderboards — a SEPARATE entity from saves.
+		 * Leaderboards - a SEPARATE entity from saves.
 		 *
 		 * Saves are private (one blob per user, only you can read yours).
 		 * A leaderboard is a public, ranked, cross-user list of scores that
@@ -399,12 +399,12 @@
 		 *     brewser.leaderboards.submit(1200, { name: "Alice" })
 		 *         .then(function (r) { r.rank; r.best; r.updated; });
 		 *
-		 *     brewser.leaderboards.list(10)        // -> { order, count, top:[…] }
-		 *     brewser.leaderboards.aroundMe(3)     // -> { …, me, window:[…] }
+		 *     brewser.leaderboards.list(10)        // -> { order, count, top:[...] }
+		 *     brewser.leaderboards.aroundMe(3)     // -> { ..., me, window:[...] }
 		 *     brewser.leaderboards.me()            // -> { rank, score } or null
 		 *     brewser.leaderboards.remove()        // delete YOUR own entry
 		 *
-		 * Best-kept: submitting a worse score never lowers your standing — the
+		 * Best-kept: submitting a worse score never lowers your standing - the
 		 * server keeps your best. Submit needs the user signed in (a score must
 		 * be attributable). list() is public and works signed-out; it just
 		 * can't flag which row is "you".

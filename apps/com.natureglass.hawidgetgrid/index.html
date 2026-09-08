@@ -291,12 +291,12 @@ const SUPPORTED_DOMAINS = new Set([
   "light", "switch", "input_boolean", "fan", "sensor", "binary_sensor",
 ]);
 
-/* Sort order within an area — controls first, readings after. */
+/* Sort order within an area - controls first, readings after. */
 const DOMAIN_ORDER = {
   light: 0, switch: 1, input_boolean: 2, fan: 3, sensor: 4, binary_sensor: 5,
 };
 
-/* Flat-fill palette (no gradients/shadows — software-GPU friendly) */
+/* Flat-fill palette (no gradients/shadows - software-GPU friendly) */
 const C = {
   bg: "#10141a",
   tile: "#1a212b",
@@ -315,7 +315,7 @@ const C = {
   badgeMark: "#160707",
 };
 
-/* Sensor history survives grid rebuilds (reconnects) — keyed by entity_id. */
+/* Sensor history survives grid rebuilds (reconnects) - keyed by entity_id. */
 const HISTORY = new Map();
 
 /* ============================================================
@@ -358,7 +358,7 @@ class HAClient {
     this.ws.onerror = () => { /* onclose fires next */ };
   }
 
-  // Permanent shutdown — used when settings change or the grid reconnects
+  // Permanent shutdown - used when settings change or the grid reconnects
   // somewhere else. Stops retries and silences every in-flight promise.
   close() {
     this.closed = true;
@@ -432,7 +432,7 @@ class HAClient {
     });
   }
 
-  // subscribe_entities streams compressed state diffs — much lighter than
+  // subscribe_entities streams compressed state diffs - much lighter than
   // subscribe_events(state_changed) once you are tracking dozens of entities.
   async subscribeEntities(handler) {
     const id = this.msgId + 1;          // id this.send() is about to allocate
@@ -451,7 +451,7 @@ class HAClient {
 }
 
 /* ============================================================
- * Mock client — same interface, fake home.
+ * Mock client - same interface, fake home.
  * ============================================================ */
 class MockClient {
   constructor() {
@@ -504,7 +504,7 @@ class MockClient {
       { entity_id: "sensor.hidden_debug",   area_id: "living", device_id: null, hidden_by: "user" },
       { entity_id: "switch.disabled_relay", area_id: "living", device_id: null, disabled_by: "user" },
       // input_boolean.guest_mode and fan.bedroom are deliberately absent from the
-      // registry — they still appear, via states, under "Unassigned".
+      // registry - they still appear, via states, under "Unassigned".
     ];
   }
 
@@ -578,7 +578,7 @@ class MockClient {
 }
 
 /* ============================================================
- * State store — merges subscribe_entities compressed diffs.
+ * State store - merges subscribe_entities compressed diffs.
  *   a = added (full)   c = changed (+ set / - unset)   r = removed
  * ============================================================ */
 class StateStore {
@@ -627,7 +627,7 @@ class StateStore {
 }
 
 /* ============================================================
- * Widgets — retained scene graph.
+ * Widgets - retained scene graph.
  * ============================================================ */
 class Widget {
   constructor(meta) {
@@ -992,7 +992,7 @@ async function discover(client, store) {
 }
 
 /* ============================================================
- * Layout model — hidden set + per-area manual order.
+ * Layout model - hidden set + per-area manual order.
  * Order is stored per area because areas come from Home Assistant;
  * cards move within their own section, not across sections.
  * ============================================================ */
@@ -1197,7 +1197,7 @@ els.forget.addEventListener("click", () => {
 els.overlay.addEventListener("click", (e) => { if (e.target === els.overlay) Settings.close(); });
 
 /* ============================================================
- * Entity manager — every discovered entity, checkbox per card.
+ * Entity manager - every discovered entity, checkbox per card.
  * Checked means visible. Changes apply on Apply, not on click,
  * so a mis-tap costs nothing.
  * ============================================================ */
@@ -1210,7 +1210,7 @@ const EntityManager = {
     els.entNote.hidden = true;
     this.render();
     els.entOverlay.hidden = false;
-    // No auto-focus (see Settings.open) — avoid popping the software
+    // No auto-focus (see Settings.open) - avoid popping the software
     // keyboard over the sheet; the user taps the filter to type.
   },
 
@@ -1467,7 +1467,7 @@ const app = {
       this.setStatus(s, s === "connected");
     });
 
-    // Runs on every (re)connect — the grid is rebuilt from scratch, so
+    // Runs on every (re)connect - the grid is rebuilt from scratch, so
     // entities added or removed in HA show up without a page reload.
     client.on("ready", async () => {
       try {
@@ -1748,7 +1748,7 @@ const app = {
       } else if (w) {
         w.pressed = false;
         if (this.gesture === "widget") w.onDragEnd();
-        // No service calls while editing — a tap there would be a mis-tap
+        // No service calls while editing - a tap there would be a mis-tap
         else if (this.gesture === null && !this.editMode) w.onTap();
       }
 

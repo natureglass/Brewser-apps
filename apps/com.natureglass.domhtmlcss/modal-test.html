@@ -37,7 +37,7 @@
     font-size: 12px;
     color: #cfd8e8;
     white-space: pre-wrap;
-    /* No overflow: auto — keeps the log out of the scroll-overlay
+    /* No overflow: auto - keeps the log out of the scroll-overlay
        cache path (which only paints children, so a text-only container
        used to render as a hollow box). Engine fix landed today too,
        but leaving the log in normal flow keeps it simple. */
@@ -97,7 +97,7 @@
     padding: 24px;
     /* z-index high so the modal's subtree wins hit-test over any
        overlapping body content (the cascade tie-break in `hitTestLive`
-       is "same-z → later-document-order wins", and body content after
+       is "same-z -> later-document-order wins", and body content after
        this modal in source order would otherwise steal taps inside
        the modal's screen bbox). Native `<dialog>` gets this for free
        via the engine UA defaults. */

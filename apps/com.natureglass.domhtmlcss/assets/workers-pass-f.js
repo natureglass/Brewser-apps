@@ -46,7 +46,7 @@ self.onmessage = function (e) {
     var sentLen = ab2.byteLength;
     self.postMessage({ kind: 'echoBack', payload: ab2, originalLen: sentLen }, [ab2]);
     // After transfer, ab2.byteLength should be 0. Report that as a
-    // separate user-message — used to verify detach on the WORKER side too.
+    // separate user-message - used to verify detach on the WORKER side too.
     self.postMessage({ kind: 'workerSideDetach', afterLen: ab2.byteLength });
   } else if (c.cmd === 'multi') {
     // Multiple transferred ABs in one postMessage. Report sizes + a

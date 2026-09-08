@@ -25,7 +25,7 @@
   }
 
   /* ==================================================================
-     Variation A — Bare radio + label, NO sibling-combinator panel
+     Variation A - Bare radio + label, NO sibling-combinator panel
      switching. Just verifies:
        (1) clicking a label flips `:checked` to that radio,
        (2) the previously-checked radio loses `:checked`,
@@ -50,7 +50,7 @@
   }
 
   /* ==================================================================
-     Variation B — Hidden radio + label-driven tab via `~` (general
+     Variation B - Hidden radio + label-driven tab via `~` (general
      sibling) combinator. The radios live as DIRECT siblings of the
      panels container. CSS-only tab switching.
      If B doesn't work, the bug is in the `~` matcher or its cascade
@@ -92,7 +92,7 @@
   }
 
   /* ==================================================================
-     Variation C — Same as B, but the radio sits as the IMMEDIATE prior
+     Variation C - Same as B, but the radio sits as the IMMEDIATE prior
      sibling of EACH panel (instead of a single container holding all
      panels). Tests `+` (adjacent sibling) instead of `~`.
      If C works but B doesn't, the issue is in `~` walk-back logic.
@@ -126,7 +126,7 @@
   }
 
   /* ==================================================================
-     Variation D — Variation B, but the labels use `display: inline-flex`
+     Variation D - Variation B, but the labels use `display: inline-flex`
      + min-width/min-height (matches apps.html). Tests whether the
      hit-test box of an inline-flex element matches its visible bounds.
      If D's tap area is smaller than the visible pill (like apps.html),

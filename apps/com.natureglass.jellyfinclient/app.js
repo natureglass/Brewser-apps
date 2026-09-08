@@ -1,5 +1,5 @@
 /**
- * Jellyfin client app — plain JavaScript, no build step.
+ * Jellyfin client app - plain JavaScript, no build step.
  * Screens: connect -> auth -> library (shared folders) -> browse (folder
  * navigation with thumbnails) -> detail (pre-launch view) -> player.
  * Settings holds the app log, quality policy, bitrate test and sign-out.
@@ -9,10 +9,10 @@
   const JF = globalThis.JF;
 
   // Detect the brewser runtime. `globalThis.Switch` is NOT exposed to
-  // sandboxed pages (it read false in brewser all along — the source of the
+  // sandboxed pages (it read false in brewser all along - the source of the
   // 4K-Auto saga), so key off the `Brewser/<ver>` product token the engine
   // appends to the page User-Agent. Keep the Switch check as a harmless
-  // secondary signal. False on a real browser → the web target.
+  // secondary signal. False on a real browser -> the web target.
   const _ua = (typeof navigator !== 'undefined' && navigator.userAgent) || '';
   const isBrewser = _ua.indexOf('Brewser/') >= 0 || typeof globalThis.Switch !== 'undefined';
   const storage = JF.localStorageAdapter();
@@ -237,7 +237,7 @@
   }
 
   // ---- browse (folder navigation) -----------------------------------------
-  // Stack of { id, name, sortBy, startIndex } — back pops one level.
+  // Stack of { id, name, sortBy, startIndex } - back pops one level.
   let browseStack = [];
 
   function openFolder(item, resetStack) {
@@ -409,7 +409,7 @@
   function wakeOverlay() {
     setChromeFaded(false);
     if (overlayTimer) { clearTimeout(overlayTimer); overlayTimer = null; }
-    // Keep the chrome (Back) visible while the loading veil is up — a long
+    // Keep the chrome (Back) visible while the loading veil is up - a long
     // transcode start can exceed the fade timeout, and faded chrome is
     // pointer-events:none, which would trap the user with no way to exit.
     if (!video.paused && !video.ended && !loadingVisible()) {
@@ -420,7 +420,7 @@
   video.addEventListener('pause', wakeOverlay);
   // Pointer MOVE reveals the chrome (web mouse hover); brewser touch has no
   // hover, so there the frame hit-catcher (#ctrl-hit, below) drives reveal on
-  // tap. We deliberately do NOT wake on pointerdown here — that would un-fade
+  // tap. We deliberately do NOT wake on pointerdown here - that would un-fade
   // the chrome before the frame-tap handler could tell a reveal-tap from a
   // pause-tap.
   $('screen-player').addEventListener('pointermove', wakeOverlay);
@@ -429,7 +429,7 @@
   // One control UI for both targets: on brewser the frame is engine-blitted and
   // this bar paints over it (above-composite pass, z:3); on the web it's a
   // normal overlay on the native <video>. No engine `controls`, no
-  // `brewservideosettings` event — the bar reads/writes currentTime, paused,
+  // `brewservideosettings` event - the bar reads/writes currentTime, paused,
   // play()/pause(), duration, muted directly.
   const ctrlPlay = $('ctrl-play');
   const iPlay = $('i-play');
@@ -468,7 +468,7 @@
   // value actually changed, so brewser doesn't re-dirty/repaint every tick.
   function updateControls() {
     const playState = !!(video.paused || video.ended);
-    if (playState !== uiLast.play) { setIconPair(playState, iPlay, iPause); uiLast.play = playState; } // paused → ▶
+    if (playState !== uiLast.play) { setIconPair(playState, iPlay, iPause); uiLast.play = playState; } // paused -> ▶
     const muteState = !video.muted;
     if (muteState !== uiLast.mute) { setIconPair(muteState, iVol, iMute); uiLast.mute = muteState; }
     const dur = effectiveDuration();
@@ -506,7 +506,7 @@
   if (ctrlMute) ctrlMute.onclick = () => { video.muted = !video.muted; updateControls(); wakeOverlay(); };
   if ($('ctrl-gear')) $('ctrl-gear').onclick = () => { openSettingsModal(); wakeOverlay(); };
 
-  // Fullscreen — web only. A real browser has chrome to escape, so we offer the
+  // Fullscreen - web only. A real browser has chrome to escape, so we offer the
   // Fullscreen API on the player container; brewser's player already fills the
   // screen, so the button stays hidden there. Vendor-prefixed for older Safari.
   const ctrlFs = $('ctrl-fs');
@@ -540,10 +540,10 @@
     updateFsIcon();
   }
 
-  // Progress seek. brewser's touch→DOM delivery during a drag is unreliable
+  // Progress seek. brewser's touch->DOM delivery during a drag is unreliable
   // (the engine has a native scrub path for its OWN drawn bar, which we don't
-  // use), so we seek on every signal we might get — pointerdown, pointermove-
-  // while-pressed, and click — throttled so a web drag / transcode re-request
+  // use), so we seek on every signal we might get - pointerdown, pointermove-
+  // while-pressed, and click - throttled so a web drag / transcode re-request
   // doesn't thrash. getBoundingClientRect + clientX is correct for the fixed
   // player (its layout box == screen coords: viewport 0, no scroll).
   let seekPressed = false;
@@ -584,10 +584,10 @@
     ctrlTrack.onclick = (ev) => { seekToRatio(ratioFromEvent(ev), true); ev.stopPropagation(); };
   }
 
-  // Frame tap (the transparent hit-catcher over the video, NOT the <video> —
-  // see #ctrl-hit): chrome hidden → reveal it; chrome shown → toggle play/
+  // Frame tap (the transparent hit-catcher over the video, NOT the <video> -
+  // see #ctrl-hit): chrome hidden -> reveal it; chrome shown -> toggle play/
   // pause. `click` is reliably dispatched on a tap; the chrome only un-fades on
-  // pointer MOVE (web hover) — never on this tap — so a first tap reveals
+  // pointer MOVE (web hover) - never on this tap - so a first tap reveals
   // without also pausing. Paused always resumes.
   const ctrlHit = $('ctrl-hit');
   if (ctrlHit) ctrlHit.onclick = () => {
@@ -598,7 +598,7 @@
 
   // --- Video stats overlay ("Show video stats" setting) --------------------
   // Top-right HUD: negotiated play method + source stream info + the ACTUAL
-  // decoded resolution (video.videoWidth/Height — reveals whether a source is
+  // decoded resolution (video.videoWidth/Height - reveals whether a source is
   // being downscaled by the server or direct-played at full res) + a live
   // render fps (rAF-counted = the shell's present rate, i.e. 60 vs 30). Paints
   // over the blitted frame via the same above-composite pass as the top bar
@@ -631,7 +631,7 @@
     const dw = video.videoWidth || 0, dh = video.videoHeight || 0;
     lines.push('Decoded: ' + (dw && dh ? dw + '×' + dh : '—'));
     lines.push('Render : ' + (statsFps || '—') + ' fps');
-    // Requested resolution cap — the resolution the app asked the server for.
+    // Requested resolution cap - the resolution the app asked the server for.
     if (currentPlayCaps) {
       lines.push('Cap    : ' + (currentPlayCaps.maxWidth || 0) + '×'
         + (currentPlayCaps.maxHeight || 0));
@@ -665,7 +665,7 @@
 
   // Loading veil: shown from the moment we start opening a stream (before the
   // PlaybackInfo round-trip has even resolved a URL) until the first frame is
-  // on screen — so the user sees "Loading stream, please wait…" instead of the
+  // on screen - so the user sees "Loading stream, please wait..." instead of the
   // engine's big play-triangle (which reads as a "tap me" button during the
   // several-second transcode ramp-up). The dots animate via setInterval, which
   // both signals progress and keeps the shell repainting while nothing else on
@@ -692,10 +692,10 @@
     if (loadingDotsTimer) { clearInterval(loadingDotsTimer); loadingDotsTimer = null; }
     if (loadingGiveUp) { clearTimeout(loadingGiveUp); loadingGiveUp = null; }
     if (loadingEl) loadingEl.classList.add('hidden');
-    // Veil is down now → (re)start the top-bar fade cycle it was suppressing.
+    // Veil is down now -> (re)start the top-bar fade cycle it was suppressing.
     wakeOverlay();
   }
-  // First visible frame → drop the veil (engine dispatches `playing` then).
+  // First visible frame -> drop the veil (engine dispatches `playing` then).
   // `ended`/`error` are safety nets so the veil never sticks.
   video.addEventListener('playing', hideLoading);
   video.addEventListener('ended', hideLoading);
@@ -705,7 +705,7 @@
     // In brewser the <select>.value can come back '' / the label / undefined when
     // the active choice is the default `selected` option (the live-DOM doesn't
     // reflect the selected attribute into .value). That used to fall through to
-    // { maxHeight: Number(v) } → Number('')=0 / Number('Auto')=NaN → a 0×0
+    // { maxHeight: Number(v) } -> Number('')=0 / Number('Auto')=NaN -> a 0×0
     // resolution cap on Auto (the whole 4K-Auto bug). So: recognise the explicit
     // qualities and DEFAULT everything else (incl. 'auto', '', unknown) to Auto.
     const v = ($('quality') && $('quality').value) || '';
@@ -742,8 +742,8 @@
     // Screen size drives the 'auto' resolution cap. innerWidth/innerHeight report
     // brewser's fixed 1280×720 canvas fine; floor the result defensively so a bad
     // reading can never collapse the cap to 0 (which would stop the server
-    // downscaling and leave the A57 decoding 4K → slow motion). Explicit
-    // qualities (720p/480p/…) ignore the screen size entirely.
+    // downscaling and leave the A57 decoding 4K -> slow motion). Explicit
+    // qualities (720p/480p/...) ignore the screen size entirely.
     const _dpr = (typeof devicePixelRatio === 'number' && devicePixelRatio > 0) ? devicePixelRatio : 1;
     const _iw = (typeof innerWidth === 'number' && innerWidth > 0) ? innerWidth : 1280;
     const _ih = (typeof innerHeight === 'number' && innerHeight > 0) ? innerHeight : 720;
@@ -1003,7 +1003,7 @@
   ];
   let settingsSnapshot = null; // { aspect, zoom, crop, audioIndex, subtitleIndex } at open
   // Current picture transform, tracked explicitly (not read back from data-*)
-  // so it's target-agnostic — the web path applies CSS, not data-* attrs.
+  // so it's target-agnostic - the web path applies CSS, not data-* attrs.
   let displayTransform = { aspect: '', zoom: '1', crop: '' };
 
   function fillSelect(sel, opts, selectedValue) {
@@ -1173,7 +1173,7 @@
       });
     }
   };
-  // (The control-bar gear button — wired in the control-bar block above —
+  // (The control-bar gear button - wired in the control-bar block above -
   // calls openSettingsModal() directly; no engine `brewservideosettings`
   // event is used any more.)
 
@@ -1216,7 +1216,7 @@
     stopPlayback();
     try {
       const S = globalThis.Switch;
-      // Brewser/nx.js exit hook — if the runtime names it differently,
+      // Brewser/nx.js exit hook - if the runtime names it differently,
       // this is the one line to change.
       if (S && typeof S.exit === 'function') { S.exit(); return; }
     } catch (e) { /* fall through */ }

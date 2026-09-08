@@ -104,7 +104,7 @@
 
   function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
 
-  // Test 0 — surface
+  // Test 0 - surface
   (function () {
     const present = ['AudioContext', 'webkitAudioContext', 'OscillatorNode',
       'GainNode', 'AudioBuffer', 'AudioBufferSourceNode', 'AudioParam',
@@ -233,7 +233,7 @@
     if (!ctx) { setStatus('decode', 'SKIP', 'no ctx'); return; }
     try {
       // Page-script fetch() is gated and 403s for both sdmc:/ and
-      // romfs:/ — read the file via Switch.readFileSync instead (page
+      // romfs:/ - read the file via Switch.readFileSync instead (page
       // scripts have direct Switch.* access). The bytes go straight
       // into decodeAudioData, same final test of the audio path.
       // Switch.readFileSync returns ArrayBuffer | null per $.ts:298.

@@ -6,7 +6,7 @@
 <title>FSR Lab</title>
 <style>
   /* ------------------------------------------------------------------
-     FSR Lab — instrumentation overlay on a fullscreen WebGL2 scene.
+     FSR Lab - instrumentation overlay on a fullscreen WebGL2 scene.
      One family (monospace, like test equipment), two side colours:
      magenta = raw bilinear (left of the wipe), cyan = upscaled (right).
      ------------------------------------------------------------------ */
@@ -163,8 +163,8 @@ void main(){ gl_Position = vec4(aPos, 0.0, 1.0); }`;
 
 // Synthwave test scene. Every detail width is calibrated in NATIVE
 // output pixels via uResRatio (renderH / outputH), so a low-res render
-// draws the SAME world content under-sampled — like real game geometry
-// at reduced resolution — instead of redrawing everything thicker.
+// draws the SAME world content under-sampled - like real game geometry
+// at reduced resolution - instead of redrawing everything thicker.
 // Grid lines, 1px lit city windows, rim lights and striped sun edges
 // are the content a spatial upscaler visibly wins or loses on.
 const SCENE_FS = `#version 300 es
@@ -405,10 +405,10 @@ void main(){
 // full-res image by folding the jittered samples into a reprojected
 // history. Design notes (all constants tuned against a CPU reference):
 // - Confidence-weighted accumulation with the running weight stored in
-//   the history alpha channel — not a fixed-rate EMA, which converges
+//   the history alpha channel - not a fixed-rate EMA, which converges
 //   to a blur of all jitter phases instead of the sharp ones.
 // - EXACT reprojection: the grid scroll is inverted analytically
-//   (zPrev = zNow + 1.2 dt), valid at any speed — a luxury of a
+//   (zPrev = zNow + 1.2 dt), valid at any speed - a luxury of a
 //   procedural scene; real engines render a motion buffer.
 // - The weight decays with speed (quadratic), with flow divergence
 //   (the floor stretches as it approaches, blurring history), and with

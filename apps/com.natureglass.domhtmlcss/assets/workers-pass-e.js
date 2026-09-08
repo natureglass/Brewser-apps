@@ -1,7 +1,7 @@
 // Worker source for the Pass E (fetch proxy) fixture. Responds to a
 // few commands from the main fixture. The fetch call runs inside the
 // worker but the actual HTTPS work happens on the main thread via the
-// __nxInternal envelope — see worker-bootstrap.ts.
+// __nxInternal envelope - see worker-bootstrap.ts.
 self.onmessage = async function (e) {
   var c = e.data;
   if (!c || !c.cmd) return;
@@ -62,7 +62,7 @@ self.onmessage = async function (e) {
     self.postMessage({ kind: 'mixedAck', stage: 'pre-await' });
     await p;
   } else if (c.cmd === 'echo') {
-    // Plain round-trip — used during mixed isolation test to confirm
+    // Plain round-trip - used during mixed isolation test to confirm
     // the user-message path still works while a fetch is inflight.
     self.postMessage({ kind: 'echo', payload: c.payload });
   }

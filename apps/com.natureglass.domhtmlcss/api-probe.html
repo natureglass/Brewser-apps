@@ -307,11 +307,11 @@
       if (typeof WebSocket === 'undefined') {
         setStatus('websocket', 'MISSING', 'WebSocket constructor not present'); return;
       }
-      // Run a parallel HTTPS fetch to the SAME host first — this is the
+      // Run a parallel HTTPS fetch to the SAME host first - this is the
       // control signal. If both fail the same way, DNS is the issue; if
       // fetch succeeds but WS fails, the gap is in the WS code path.
       // Switching from echo.websocket.events to ws.postman-echo.com:
-      // the .events TLD has been flaky on Switch DNS — postman-echo is
+      // the .events TLD has been flaky on Switch DNS - postman-echo is
       // a long-established hostname on a major CDN.
       const wsHost = 'ws.postman-echo.com';
       setStatus('websocket', 'RUNNING', 'probing DNS via https://' + wsHost + '/ …');
@@ -513,7 +513,7 @@
     }
   })();
 
-  // Refresh button — its click handler is the trigger that flushes any
+  // Refresh button - its click handler is the trigger that flushes any
   // queued async result text into the painted screen. The button itself
   // does no work; tapping it is the input event the engine needs (see
   // memory feedback-swb-idle-paint-needs-touch).

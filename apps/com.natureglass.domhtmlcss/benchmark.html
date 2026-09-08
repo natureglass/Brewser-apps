@@ -37,13 +37,13 @@ previous scroll session.</p>
   ctx.font = '20px system-ui';
   ctx.fillText('Scroll-tick statistics', 16, 12);
 
-  // Present-call counter — distinguishes "no scroll yet" (count==0)
+  // Present-call counter - distinguishes "no scroll yet" (count==0)
   // from "scrolled but each present <1 ms" (count>0, durations all 0).
   const presentCalls = (stats && stats.presentCallCount) | 0;
   ctx.font = '14px system-ui';
   ctx.fillStyle = '#7eda9f';
   ctx.fillText('present() calls: ' + presentCalls, 340, 16);
-  // Launch mode — `Switch.appletType()` numeric value at boot.
+  // Launch mode - `Switch.appletType()` numeric value at boot.
   // Different launchers report different values; print so we can
   // confirm what to gate against.
   const appletType = globalThis.__appletType;
@@ -84,7 +84,7 @@ previous scroll session.</p>
     const d50 = quantile(durations, 0.5);
     const d95 = quantile(durations, 0.95);
 
-    // Per-tick interval — derived from consecutive timestamps.
+    // Per-tick interval - derived from consecutive timestamps.
     // Captures the actual cadence (poll interval + work time),
     // which is what the eye perceives as smoothness.
     const intervals = [];
@@ -101,7 +101,7 @@ previous scroll session.</p>
     const iMax = intervals[intervals.length - 1];
     // Cadence is computed from the *median* interval, not the mean.
     // The mean is heavily skewed by long gaps when the user stops
-    // scrolling between bursts — a single 10 s pause makes the
+    // scrolling between bursts - a single 10 s pause makes the
     // headline number look 10× worse than the actual experience.
     // The median reflects what active scrolling feels like.
     const fps = i50 > 0 ? 1000 / i50 : NaN;
@@ -123,7 +123,7 @@ previous scroll session.</p>
       '  mean=' + fmt(mean) + '  min=' + fmt(dMin) + '  p50=' + fmt(d50) +
         '  p95=' + fmt(d95) + '  max=' + fmt(dMax),
     ];
-    // Per-present timing — content paint wall-clock per scroll tick.
+    // Per-present timing - content paint wall-clock per scroll tick.
     const presents = (stats.presentDurationsMs || []).slice().sort((a, b) => a - b);
     if (presents.length > 0) {
       const pMean = presents.reduce((s, v) => s + v, 0) / presents.length;
@@ -142,7 +142,7 @@ previous scroll session.</p>
       y += 20;
     }
 
-    // Histogram of tick intervals — 10 bins from 0 to 2× the configured
+    // Histogram of tick intervals - 10 bins from 0 to 2× the configured
     // poll interval (16 ms). Bars are normalized to the tallest bar.
     const BIN_COUNT = 20;
     const BIN_MAX_MS = 40;
@@ -173,7 +173,7 @@ previous scroll session.</p>
   }
 
   // D-pad hold-repeat diagnostics. Hold up or down for >2s, then
-  // release, then press Y to reload — `upRepeatFires` / `downRepeatFires`
+  // release, then press Y to reload - `upRepeatFires` / `downRepeatFires`
   // should be non-zero if the auto-repeat engaged.
   const dpad = globalThis.__dpadDebug;
   if (dpad) {

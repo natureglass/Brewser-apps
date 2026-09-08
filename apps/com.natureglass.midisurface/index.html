@@ -405,11 +405,11 @@ function hexToRgb(hex){
 
 /* ════════════════════════════════════════════════════════════════
    Audio engine: looping sample voices + per-pad effect chains
-   pad chain: voice → input → [dry | chorus] → volume → master
-                                        volume → reverb send → shared convolver
+   pad chain: voice -> input -> [dry | chorus] -> volume -> master
+                                        volume -> reverb send -> shared convolver
    ════════════════════════════════════════════════════════════════ */
 let actx = null, master = null, reverbBus = null;
-const sampleCache   = new Map();   // name → AudioBuffer | pending Promise
+const sampleCache   = new Map();   // name -> AudioBuffer | pending Promise
 const warnedOnce    = new Set();
 
 function showWarnOnce(msg){
@@ -475,7 +475,7 @@ function nudgeAudioBadge(){
   g.classList.remove("nudge"); void g.offsetWidth; g.classList.add("nudge");
 }
 
-function pitchRate(v){ return Math.pow(2, (v - 0.5) * 2); }   // 0.5 → 1.0×
+function pitchRate(v){ return Math.pow(2, (v - 0.5) * 2); }   // 0.5 -> 1.0×
 function fxDefault(name){ return (name === "volume" || name === "pitch") ? 0.5 : 0; }
 
 function padChain(t){
@@ -601,7 +601,7 @@ function stopAllVoices(){
   }));
 }
 
-/* knob → pad effect routing (effect.pad references trigger id) */
+/* knob -> pad effect routing (effect.pad references trigger id) */
 function padById(id, list){
   list = list || triggers;
   for(let i = 0; i < list.length; i++)
@@ -626,7 +626,7 @@ function applyKnobEffect(t, list){
   const pad  = padById(e.pad, list);
   if(!name || !pad) return;
   pad.fx[name] = t.value;
-  applyFxParam(pad, name);      // only this effect's nodes — not the whole chain
+  applyFxParam(pad, name);      // only this effect's nodes - not the whole chain
 }
 
 window.addEventListener("pointerdown", () => { ensureCtx(); }, true);
@@ -706,7 +706,7 @@ function frame(now){
     stopBtn.style.borderColor = "rgb(" +
       Math.round(58 + 197 * beatPulse) + "," +
       Math.round(36 + 219 * beatPulse) + "," +
-      Math.round(39 + 216 * beatPulse) + ")";                              // base ↔ white
+      Math.round(39 + 216 * beatPulse) + ")";                              // base <-> white
   }
 
   gl.clear(gl.COLOR_BUFFER_BIT);
@@ -717,7 +717,7 @@ function frame(now){
     if(t.glow < 0.004) t.glow = 0;
     if(t.flash > 0){ t.flash *= decay; if(t.flash < 0.004) t.flash = 0; }
 
-    const half = t.cell * 0.72;               // quad bigger than cell → glow halo room
+    const half = t.cell * 0.72;               // quad bigger than cell -> glow halo room
     gl.uniform2f(U.u_center, t.cx, t.cy);
     gl.uniform2f(U.u_half, half, half);
 
@@ -889,7 +889,7 @@ function stopEverything(){
   banks.forEach((list) => list.forEach((t) => {
     if(t.latched) midiSend(padMsg(t, false));
   }));
-  stopAllVoices();      // stops voices, tears down chains, clears held/latched — all banks
+  stopAllVoices();      // stops voices, tears down chains, clears held/latched - all banks
 }
 function startClock(){
   clockOn = true;
@@ -911,7 +911,7 @@ stopBtn.addEventListener("click", () => {
 });
 
 function selectChannel(i){
-  chIndex = i;                       // view switch only — every bank keeps playing
+  chIndex = i;                       // view switch only - every bank keeps playing
   recArm = -1;
   document.querySelectorAll(".chbtn").forEach((b, k) =>
     b.classList.toggle("active", k === i));
@@ -924,9 +924,9 @@ function selectChannel(i){
 }
 
 /* ════════════════════════════════════════════════════════════════
-   Pointer interaction (touch + mouse), screen → MIDI out
+   Pointer interaction (touch + mouse), screen -> MIDI out
    ════════════════════════════════════════════════════════════════ */
-const active = new Map();   // pointerId → {i, mode, startY, startVal}
+const active = new Map();   // pointerId -> {i, mode, startY, startVal}
 
 function hitTest(x, y){
   for(let i = 0; i < triggers.length; i++){
@@ -1001,7 +1001,7 @@ function outChannelBits(){
 }
 
 /* ════════════════════════════════════════════════════════════════
-   Web MIDI: controller → screen, screen → controller
+   Web MIDI: controller -> screen, screen -> controller
    ════════════════════════════════════════════════════════════════ */
 let midi = null;
 
@@ -1097,7 +1097,7 @@ function handleIn(ch, kind, num, val, on){
   const isRelease = (kind === "note" && !on) || (kind === "cc" && val === 0);
 
   // presses and knob moves target the SELECTED bank only
-  // (banks may share numbers — e.g. PAD 1-4 all on notes 100-107)
+  // (banks may share numbers - e.g. PAD 1-4 all on notes 100-107)
   if(!isRelease){
     for(let i = 0; i < triggers.length; i++){
       const t = triggers[i], isPad = t.cfg.type === typeIds.pad;
@@ -1143,7 +1143,7 @@ function handleIn(ch, kind, num, val, on){
   }
 
   if(!matched && on){
-    // nothing here answered — hint at a bank that declares this channel
+    // nothing here answered - hint at a bank that declares this channel
     const cur = layout.mappings[chIndex];
     if(!cur || cur.channel !== ch){
       const btn = document.querySelector('.chbtn[data-ch="' + ch + '"]');
@@ -1319,7 +1319,7 @@ function buildRows(){
   syncRecLabels();
 }
 
-/* sample re-assign: local file → decoded buffer under its filename */
+/* sample re-assign: local file -> decoded buffer under its filename */
 let samplePickTarget = null;
 $("#samplePick").addEventListener("change", (e) => {
   const f = e.target.files && e.target.files[0];

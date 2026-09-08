@@ -174,7 +174,7 @@ function shapeToCHW(s){
 const CPUContext={deviceType:'cpu',async compute(graph,inputs,outputs){
   const r=graph._eval(graph.output,inputs);outputs.output.set(r.data);return{outputs};}};
 
-/* ---- backend selection (tier1 native → tier3 cpu shim) ---- */
+/* ---- backend selection (tier1 native -> tier3 cpu shim) ---- */
 async function selectBackend(){
   if(typeof navigator!=='undefined'&&navigator.ml&&navigator.ml.createContext){
     try{const ctx=await navigator.ml.createContext();

@@ -136,13 +136,13 @@ if (typeof THREE==='undefined'){
   return;
 }
 /* =====================================================================
-   DUSK · sky atlas — a pocket planetarium for the Brewser runtime
+   DUSK · sky atlas - a pocket planetarium for the Brewser runtime
    Three.js r128 · WebGL1-safe shaders · d3-celestial data
    ---------------------------------------------------------------------
    Bundling later: either
      a) set DATA_BASE to a local/bundled path, or
      b) define window.SKY_DATA = { stars, starnames, constellations, mw, dsos }
-        before this script — remote fetch is then skipped entirely.
+        before this script - remote fetch is then skipped entirely.
    ===================================================================== */
 
 var DATA_BASE = 'assets/';
@@ -201,7 +201,7 @@ function skyQuat(latDeg, lstDeg, out){
   return out.copy(_qT).multiply(_qS);
 }
 
-/* Keplerian elements (Standish, valid 1800–2050): a e I L varpi Omega + rates/cy */
+/* Keplerian elements (Standish, valid 1800-2050): a e I L varpi Omega + rates/cy */
 var EL = {
   mercury:[0.38709927,0.20563593,7.00497902,252.25032350,77.45779628,48.33076593, 0.00000037,0.00001906,-0.00594749,149472.67411175,0.16047689,-0.12534081],
   venus:[0.72333566,0.00677672,3.39467605,181.97909950,131.60246718,76.67984255, 0.00000390,-0.00004107,-0.00078890,58517.81538729,0.00268329,-0.27769418],
@@ -225,14 +225,14 @@ function helio(name, T){
            (cw*sO+sw*cO*ci)*xp + (-sw*sO+cw*cO*ci)*yp,
            (sw*si)*xp + (cw*si)*yp ];
 }
-/* ecliptic cartesian → celestial-group direction */
+/* ecliptic cartesian -> celestial-group direction */
 function eclVecToDir(x,y,z,T,out){
   var eps=(23.43928-0.013*T)*D2R, ce=Math.cos(eps), se=Math.sin(eps);
   var xe=x, ye=y*ce-z*se, ze=y*se+z*ce;
   var r=Math.sqrt(xe*xe+ye*ye+ze*ze)||1;
   return out.set(-xe/r, ze/r, ye/r);   // (−x_eq, z_eq, y_eq) ≡ dirFromRaDec
 }
-/* low-precision Moon (Astronomical Almanac, ~0.3° — plenty for a planetarium) */
+/* low-precision Moon (Astronomical Almanac, ~0.3° - plenty for a planetarium) */
 function moonDir(T,out){
   function s(d){return Math.sin(d*D2R);}
   var lam = 218.32 + 481267.881*T
@@ -245,7 +245,7 @@ function moonDir(T,out){
   return eclVecToDir(cb*Math.cos(lam*D2R), cb*Math.sin(lam*D2R), Math.sin(bet*D2R), T, out);
 }
 
-/* B−V colour index → RGB (classic approximation) */
+/* B−V colour index -> RGB (classic approximation) */
 function bvRGB(bv){
   bv = Math.max(-0.4, Math.min(2.0, bv));
   var t,r,g,b;
@@ -276,7 +276,7 @@ var PLANETS = [
   {key:'neptune',name:'Neptune',color:0xa8c8ff,size:3.6}
 ];
 
-/* ---------------- milky way → equirect canvas (fill logic verified) ---------------- */
+/* ---------------- milky way -> equirect canvas (fill logic verified) ---------------- */
 function unwrapRing(ring){
   var out=[], prev=null, i, lon;
   for (i=0;i<ring.length;i++){
@@ -922,7 +922,7 @@ function screenAngle(){
         : (typeof window.orientation==='number' ? window.orientation : 0);
   return a*D2R;
 }
-/* classic W3C deviceorientation → camera quaternion (world: X=E, Y=up, −Z=N) */
+/* classic W3C deviceorientation -> camera quaternion (world: X=E, Y=up, −Z=N) */
 var _e=new THREE.Euler(), _q0=new THREE.Quaternion(), _qDev=new THREE.Quaternion(),
     _qOff=new THREE.Quaternion(), _qView=new THREE.Quaternion(),
     _q1=new THREE.Quaternion(-Math.sqrt(0.5),0,0,Math.sqrt(0.5)),

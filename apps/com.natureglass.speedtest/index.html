@@ -60,7 +60,7 @@
     /* `.hero` uses flex column instead of the original `display: grid;
      * grid-template-rows: auto 1fr auto`. The grid path treats `auto`
      * tracks as `1fr` when distributing a positive contentH, which would
-     * split the .hero's 692-px column into three equal 230-px rows —
+     * split the .hero's 692-px column into three equal 230-px rows -
      * crushing the dial. Flex column handles header/canvas/controls
      * cleanly: outer items take their natural height, the canvas grows
      * to fill the rest. */
@@ -92,7 +92,7 @@
 
     /* `flex: 1 1 0` so the canvas takes all the column space left after
      * header + controls, instead of locking to 390 px. `min-height: 0`
-     * is the flex-item "may shrink below content size" escape hatch —
+     * is the flex-item "may shrink below content size" escape hatch -
      * without it the canvas would refuse to shrink under tight viewports. */
     #glCanvas {
       flex: 1 1 0;
@@ -441,7 +441,7 @@
       // sequence of smaller POSTs. Each POST that resolves means that chunk
       // was actually pushed over the network, so cumulative bytes-sent /
       // cumulative-elapsed is a genuine throughput sample we can report per
-      // chunk — and the needle tracks the real transfer rather than jumping
+      // chunk - and the needle tracks the real transfer rather than jumping
       // once at the end.
       //
       // ~1 MB chunks: enough updates (~16 on the large profile) for a smooth
@@ -478,8 +478,8 @@
 
       // Warm-up (discarded): the OS socket send buffer absorbs the first
       // chunk almost instantly, so its apparent throughput is wildly
-      // inflated — that transient is what spiked the needle into the red on
-      // the down→up switch. Prime the connection with one untimed,
+      // inflated - that transient is what spiked the needle into the red on
+      // the down->up switch. Prime the connection with one untimed,
       // unreported chunk, then measure the rest once the pipe is saturated.
       if (sizes.length > 1) {
         await sendChunk(sizes.shift());
@@ -556,7 +556,7 @@
         setStatus('Testing upstream', 'accent');
         // Reset the auto-scaling gauge range so the upstream needle scales
         // against the upstream speed, not the (usually higher, spikier)
-        // downstream peak inherited from the previous phase — otherwise an
+        // downstream peak inherited from the previous phase - otherwise an
         // upstream of similar Mbps reads as near-zero on the dial.
         state.maxGauge = 100;
         const up = await measureUpload({
@@ -739,7 +739,7 @@
 
       // Skip the entire WebGL render pass when the dial geometry would
       // be byte-identical to the last frame. The brewser engine's bridge
-      // readback is a 1.2 MB GPU→CPU transfer + per-pixel CPU swizzle
+      // readback is a 1.2 MB GPU->CPU transfer + per-pixel CPU swizzle
       // (~10-15 ms on Switch for a 711×415 surface); skipping the draw
       // commands here means `bridge_pending_readback` stays false in C
       // and the per-frame bridge sync becomes a no-op. The page's
@@ -843,7 +843,7 @@
       // WebGL canvas. The brewser engine refuses `getContext('2d')` on
       // a canvas that already pinned WebGL (per WebGL spec), so the
       // previous same-canvas-2D fallback ran ~5 fillText calls into a
-      // throwaway offscreen every frame — dead pixels that never hit
+      // throwaway offscreen every frame - dead pixels that never hit
       // the screen, but cost ~10 ms/frame. Removed.
 
       requestAnimationFrame(render);

@@ -82,7 +82,7 @@ setTimeout — drawing is one-shot.</p>
 <h2>Script error doesn't break the page</h2>
 <canvas id="broken" width="400" height="80"></canvas>
 <script>
-  // This canvas stays empty — the script throws partway. The page
+  // This canvas stays empty - the script throws partway. The page
   // should still render normally below; the error is swallowed +
   // logged via console.debug.
   const ctx = document.getElementById('broken').getContext('2d');

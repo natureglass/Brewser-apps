@@ -8,11 +8,11 @@ _v1.0.0_
 
  **How you interact:**
 
- - **Browse live** — the sidebar shows channels that are live now; tap one to watch, and reveal more with a click.
-- **Channel lookup** — type any channel name and hit Watch to jump straight to its stream.
-- **Quality selection** — choose *source*, *auto*, or a specific resolution to suit your connection.
-- **Recents** — recently watched channels are saved as quick pills for next time.
-- **Back** — the B button or Escape returns you from a stream to the search screen.
+ - **Browse live** - the sidebar shows channels that are live now; tap one to watch, and reveal more with a click.
+- **Channel lookup** - type any channel name and hit Watch to jump straight to its stream.
+- **Quality selection** - choose *source*, *auto*, or a specific resolution to suit your connection.
+- **Recents** - recently watched channels are saved as quick pills for next time.
+- **Back** - the B button or Escape returns you from a stream to the search screen.
 
  Requires an internet connection. Built for the Switch platform.
 

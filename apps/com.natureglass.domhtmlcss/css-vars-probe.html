@@ -21,7 +21,7 @@
     max-height: 480px; overflow: auto;
     font-size: 12px; color: #c2e0ff;
   }
-  /* Visual playground — each slice adds a labelled box here. Plain
+  /* Visual playground - each slice adds a labelled box here. Plain
    * inline-block wrap; avoids the [[feedback-swb-flex-column-min-content]]
    * trap (flex-column align-center sizes children to min-content = 0). */
   #playground { padding: 8px; border: 1px dashed #2a4060; }
@@ -130,7 +130,7 @@
     log((ok ? 'PASS' : 'FAIL') + ' :: var(--missing, rgb(80,140,220)) → fallback applied (bg=' + bg + ')');
   }
 
-  // === Slice 4: inheritance — child reads parent's custom prop ===
+  // === Slice 4: inheritance - child reads parent's custom prop ===
   async function sliceInherit() {
     log('--- Slice 4: parent --slice3-color → child var() ---');
     var p = document.createElement('div');
@@ -147,7 +147,7 @@
 
   // === Slice 5: calc() arithmetic ===
   // Read via getComputedStyle('width') rather than getBoundingClientRect
-  // so the test verifies the CASCADE resolution (calc → '150px' → 150)
+  // so the test verifies the CASCADE resolution (calc -> '150px' -> 150)
   // independently of whether layout has run for the dynamically-added
   // element. Layout-time behaviour is a separate concern.
   async function sliceCalc() {
@@ -162,7 +162,7 @@
     log((ok ? 'PASS' : 'FAIL') + ' :: calc(100px + 50px) width=' + wStr + ' (expected 150px)');
   }
 
-  // === Slice 6: calc(var(--w) * 2) — calc with var ===
+  // === Slice 6: calc(var(--w) * 2) - calc with var ===
   async function sliceCalcVar() {
     log('--- Slice 6: calc(var(--probe-w) * 2) where --probe-w=80px ---');
     var box = document.createElement('div');
@@ -191,7 +191,7 @@
   async function sliceSetProperty() {
     log('--- Slice 8: el.style.setProperty(\'--probe-set\', \'rgb(240, 200, 80)\') ---');
     var box = document.createElement('div');
-    // Use setProperty for ALL declarations — setting the style attribute
+    // Use setProperty for ALL declarations - setting the style attribute
     // via setAttribute would replace the whole cssText and wipe any
     // previously setProperty\'d custom props on the same element.
     box.style.setProperty('--probe-set', 'rgb(240, 200, 80)');
