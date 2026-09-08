@@ -171,8 +171,8 @@
         "storage"
       ],
       "publishedAt": "2026-08-16T11:46:35Z",
-      "sizeBytes": 5933923,
-      "summary": "A pocket planetarium that charts the real night sky - stars, planets, constellations and the Milky W",
+      "sizeBytes": 5933961,
+      "summary": "A pocket planetarium that charts the real night sky — stars, planets, constellations and the Milky W",
       "tags": [
         "ThreeJS",
         "WebGL2"
@@ -955,6 +955,6 @@
       "version": "1.0.2"
     }
   ],
-  "generated": "2026-09-08T14:07:35Z",
+  "generated": "2026-09-08T14:08:05Z",
   "source": "base"
 }
