@@ -17,7 +17,7 @@ _v1.0.3_
 
 ---
 
-- **Developer:** @natureglass
+- **Live app:** [Neural Networks](https://brewser.io/neural-networks/)
 - **Brewser profile:** [natureglass](https://brewser.io/profile?publisher=natureglass)
 - **License:** [MIT](https://choosealicense.com/licenses/mit)
 - **Website:** [https://github.com/natureglass](https://github.com/natureglass)
