@@ -4,7 +4,7 @@ _v1.0.3_
 
 **Dusk** is a pocket planetarium that draws the real night sky in WebGL. For any moment and place it renders the stars, constellations, Milky Way, deep-sky objects and planets exactly where they sit in the sky above you - wrapped in a warm dusk glow that fades from the horizon up to the zenith.
 
- **How it works.** Everything you see is placed by genuine astronomy rather than a static picture. The whole celestial sphere is rotated for your latitude, longitude and the current clock using sidereal time, so the sky turns through the night just as the real one does. Thousands of stars are coloured from true blue-white to orange-red using each star's colour index and sized by brightness, and they twinkle gently. The seven naked-eye planets are computed live from Keplerian orbital elements, and the Sun and Moon from their own series, so their positions - and the glow the Sun casts along the horizon - match reality. Constellation figures, the softly-painted band of the Milky Way, and a catalogue of galaxies, nebulae and star clusters complete the scene, all fading away as they sink below a horizon ring marked N, E, S and W.
+ **How it works.** Everything you see is placed by genuine astronomy rather than a static picture. The whole celestial sphere is rotated for your latitude, longitude and the current clock using sidereal time, so the sky turns through the night just as the real one does. Thousands of stars are coloured from true blue–white to orange–red using each star's colour index and sized by brightness, and they twinkle gently. The seven naked-eye planets are computed live from Keplerian orbital elements, and the Sun and Moon from their own series, so their positions - and the glow the Sun casts along the horizon - match reality. Constellation figures, the softly-painted band of the Milky Way, and a catalogue of galaxies, nebulae and star clusters complete the scene, all fading away as they sink below a horizon ring marked N, E, S and W.
 
  **How you interact:**
 
@@ -19,7 +19,7 @@ _v1.0.3_
 
 ---
 
-- **Developer:** natureglass
+- **Live app:** [Dusk - Sky Atlas](https://brewser.io/dusk/)
 - **Brewser profile:** [natureglass](https://brewser.io/profile?publisher=natureglass)
 - **License:** [MIT](https://choosealicense.com/licenses/mit)
 - **Website:** [https://github.com/natureglass](https://github.com/natureglass)
