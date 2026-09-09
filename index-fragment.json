@@ -368,7 +368,7 @@
         "usb"
       ],
       "publishedAt": "2026-08-15T15:44:03Z",
-      "sizeBytes": 1717786,
+      "sizeBytes": 1717868,
       "summary": "Design LED-matrix art and stream it live to a real ESP32 panel over USB",
       "version": "1.0.13"
     },
@@ -958,6 +958,6 @@
       "version": "1.0.2"
     }
   ],
-  "generated": "2026-09-09T10:48:02Z",
+  "generated": "2026-09-09T10:54:31Z",
   "source": "base"
 }
