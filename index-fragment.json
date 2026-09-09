@@ -424,7 +424,7 @@
         "usb"
       ],
       "publishedAt": "2026-08-10T21:22:28Z",
-      "sizeBytes": 4131986,
+      "sizeBytes": 4132068,
       "summary": "A touch MIDI control surface that mirrors your hardware and triggers looping samples with live effec",
       "tags": [
         "MIDI"
@@ -958,6 +958,6 @@
       "version": "1.0.2"
     }
   ],
-  "generated": "2026-09-09T10:54:31Z",
+  "generated": "2026-09-09T11:00:21Z",
   "source": "base"
 }
