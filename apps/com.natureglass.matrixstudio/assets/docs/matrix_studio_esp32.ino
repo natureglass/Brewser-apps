@@ -1,12 +1,5 @@
 /*
- * MATRIX STUDIO - ESP32 firmware v2.2  (one binary for ESP32-C6 and classic ESP32-WROOM-32)
- * Pair with Matrix_Studio.html (protocol v2) or simple_serial_panel.html v17 (diagnostic page).
- *
- * BASE: simple_serial_panel.ino v15 - the streaming transport that was debugged on
- * hardware. Matrix Studio's app features are ported ONTO that base. The transport + LED
- * driver are unchanged except for two things:
- *   (1) a type byte in the packet header so CONFIG and FRAME coexist on the wire;
- *   (2) pin / LED count / brightness are runtime values (NVS-backed) instead of #defines.
+ * MIT License - part of Matrix Studio, https://brewser.io/matrix-studio/
  *
  * Transport is USB/serial only (native USB CDC, or a UART bridge).
  *
@@ -30,10 +23,6 @@
  * the USB bytes/frame, which is what lets the C6's USB-Serial/JTAG sustain 60 fps for sparse
  * content. The sender emits periodic full FRAMEs (keyframes) so a dropped DELTA self-heals.
  *
- * Things deliberately NOT in this file - do not re-add them:
- *   - Adafruit_NeoPixel for the strip: blocking show() starves IDLE -> task WDT.
- *   - Manual resync/rescan passes in the parser.
- *
  * Transport design:
  *   - USB/serial: bytes are read in loop() and fed to parser rxUsb.
  *     ledShow() is ONLY ever called from loop().
@@ -41,18 +30,6 @@
  *     PREVIOUS frame's transfer at entry, starts this one and returns, so the loop task
  *     keeps yielding.
  *   - loop() feeds the task WDT and delay(1)s so the IDLE task runs.
- *
- * One binary, no board #define:
- *   - RMT memory: the WS2812 channel auto-sizes its RMT block via a fallback ladder -
- *     96 symbols on the C6 (2x48), 64 on the classic ESP32 (1x64) - because the driver
- *     requires a multiple of the per-chip block size and no single value fits both.
- *   - No onboard status LED: the classic ESP32-WROOM devkit has no addressable LED, and
- *     its GPIO 8 is a SPI-flash pin, so the status indicator was dropped for portability.
- *
- * Runtime pin rules (portable): the strip data pin must be 0-5 or 14-23. GPIO 6-11 are
- * SPI flash on the classic ESP32; 12/13 are USB D-/D+ on the C6 and flash-voltage
- * strapping on the ESP32; 24+ are flash / not bonded out. A CONFIG with an unusable pin
- * keeps the current pin and says so in the CFG line.
  */
 #define FW_VERSION            "2.4"
 #define LED_PIN_DEFAULT       4       // shared-safe on C6 + classic ESP32 (app CONFIG overrides it)
