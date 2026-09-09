@@ -29,5 +29,8 @@
     "summary": "Design LED-matrix art and stream it live to a real ESP32 panel over USB",
     "features": [
         "Web Serial"
+    ],
+    "video_links": [
+        "https://www.youtube.com/watch?v=uv1k6YxvTyA"
     ]
 }
