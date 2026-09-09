@@ -113,7 +113,7 @@
       "name": "Cracktro Forever",
       "permissions": [],
       "publishedAt": "2026-09-04T13:52:43Z",
-      "sizeBytes": 1948527,
+      "sizeBytes": 1974771,
       "summary": "A love letter to the scene that raised us!",
       "tags": [
         "Demoscene",
@@ -958,6 +958,6 @@
       "version": "1.0.2"
     }
   ],
-  "generated": "2026-09-08T14:11:13Z",
+  "generated": "2026-09-09T09:28:24Z",
   "source": "base"
 }
