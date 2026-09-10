@@ -475,6 +475,9 @@ function startMusic(){
   songStart = ac.currentTime + 0.15;
   nextRow = 0;
   setInterval(schedTick, 60);
+
+  /* start playing immediately - no key press, no gesture required */
+  if (ac.state === "suspended" && ac.resume) ac.resume();
 }
 
 /* ---------------------------------------------------------------------
@@ -657,14 +660,9 @@ function frame(now){
     gl.uniform1f(U(pr,"uT"), t);
   });
 
-  /* if the browser suspended audio until a user gesture, any gamepad button frees it */
-  if (ac && ac.state === "suspended" && navigator.getGamepads){
-    const pads = navigator.getGamepads();
-    for (let i = 0; i < pads.length; i++){
-      const g = pads[i];
-      if (g && g.buttons && g.buttons.some(b => b && b.pressed)){ ac.resume(); break; }
-    }
-  }
+  /* keep nudging a suspended context awake every frame so music starts on its
+     own the instant the platform allows it - no key, click, or gamepad needed */
+  if (ac && ac.state === "suspended" && ac.resume) ac.resume();
 }
 requestAnimationFrame(frame);
 
