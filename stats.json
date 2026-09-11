@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-10T12:42:36Z",
+  "generated": "2026-09-11T12:41:46Z",
   "stats": {
     "com.natureglass.2dplatformermicrogame": {
       "downloads": 0,
@@ -37,7 +37,7 @@
       "ratingScore": 4.9123
     },
     "com.natureglass.fluiddynamics": {
-      "downloads": 9,
+      "downloads": 10,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.9123
@@ -66,7 +66,7 @@
       "ratingCount": 0
     },
     "com.natureglass.jellyfinclient": {
-      "downloads": 7,
+      "downloads": 9,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.9123
@@ -111,13 +111,13 @@
       "ratingScore": 4.9123
     },
     "com.natureglass.spectraplay": {
-      "downloads": 3,
+      "downloads": 4,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.9123
     },
     "com.natureglass.speedtest": {
-      "downloads": 3,
+      "downloads": 4,
       "ratingAvg": 0,
       "ratingCount": 0
     },
