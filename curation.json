@@ -1,6 +1,7 @@
 {
   "featured": [
     "com.natureglass.aether",
+    "com.natureglass.cracktroforever",
     "com.natureglass.fluiddynamics",
     "com.natureglass.fsrlab",
     "com.natureglass.gravityballs",
@@ -9,6 +10,6 @@
     "com.natureglass.spectraplay",
     "com.natureglass.streamcast"
   ],
-  "generated": "2026-09-11T07:31:29Z",
+  "generated": "2026-09-11T07:31:31Z",
   "revoked": []
 }
