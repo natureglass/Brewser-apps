@@ -2,12 +2,13 @@
   "featured": [
     "com.natureglass.aether",
     "com.natureglass.fluiddynamics",
+    "com.natureglass.fsrlab",
     "com.natureglass.gravityballs",
     "com.natureglass.neuralnetworks",
     "com.natureglass.sensorsplayground",
     "com.natureglass.spectraplay",
     "com.natureglass.streamcast"
   ],
-  "generated": "2026-08-31T19:14:45Z",
+  "generated": "2026-09-11T07:31:29Z",
   "revoked": []
 }
