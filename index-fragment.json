@@ -679,7 +679,7 @@
         "network"
       ],
       "publishedAt": "2026-08-06T10:33:57Z",
-      "sizeBytes": 4413385,
+      "sizeBytes": 4396981,
       "summary": "Watch live Twitch streams on Switch.",
       "tags": [
         "Twitch",
@@ -958,6 +958,6 @@
       "version": "1.0.2"
     }
   ],
-  "generated": "2026-09-10T07:35:39Z",
+  "generated": "2026-09-12T10:01:41Z",
   "source": "base"
 }
