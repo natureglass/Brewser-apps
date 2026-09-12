@@ -17,8 +17,8 @@
     "allowed_origins": [
         "https://gql.twitch.tv",
         "https://usher.ttvnw.net",
-        "https://*.ttvnw.net",
-        "https://player.twitch.tv"
+        "https://player.twitch.tv",
+        "https://*.ttvnw.net"
     ],
     "developer": "Alex Daskalakis",
     "license": "MIT",
