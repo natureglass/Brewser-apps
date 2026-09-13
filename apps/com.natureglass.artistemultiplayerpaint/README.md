@@ -1,6 +1,6 @@
 # ARTISTE - Multiplayer Paint
 
-_v1.0.0_
+_v1.0.1_
 
 **Multi Paint** is a collaborative drawing board. Everyone in the same room paints on one shared canvas at the same time - you see each person's cursor move and their strokes appear as they draw them, not after they finish.
 
