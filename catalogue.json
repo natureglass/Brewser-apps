@@ -80,7 +80,7 @@
       "name": "ARTISTE - Multiplayer Paint",
       "permissions": [],
       "publishedAt": "2026-09-13T07:33:22Z",
-      "sizeBytes": 57896,
+      "sizeBytes": 57989,
       "summary": "A shared canvas you paint on together in real time, with live cursors, three tools and synced undo.",
       "version": "1.0.0"
     },
@@ -957,7 +957,7 @@
     }
   ],
   "defaultSource": "base",
-  "generated": "2026-09-13T07:34:30Z",
+  "generated": "2026-09-13T07:35:36Z",
   "revoked": [],
   "sources": {
     "base": "https://play.brewser.io",
