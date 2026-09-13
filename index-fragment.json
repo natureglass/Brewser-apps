@@ -77,16 +77,16 @@
       "id": "com.natureglass.artistemultiplayerpaint",
       "license": "MIT",
       "logo": "assets/appbanner.jpg",
-      "maxFileBytes": 28410,
-      "minBrewserVersion": "0.1.122",
+      "maxFileBytes": 28747,
+      "minBrewserVersion": "0.1.125",
       "name": "ARTISTE - Multiplayer Paint",
       "permissions": [
         "network"
       ],
       "publishedAt": "2026-09-13T07:33:22Z",
-      "sizeBytes": 45357,
+      "sizeBytes": 64043,
       "summary": "A shared canvas you paint on together in real time, with live cursors, three tools and synced undo.",
-      "version": "1.0.1"
+      "version": "1.0.2"
     },
     {
       "categories": [
@@ -983,6 +983,6 @@
       "version": "1.0.2"
     }
   ],
-  "generated": "2026-09-13T08:31:05Z",
+  "generated": "2026-09-13T08:36:35Z",
   "source": "base"
 }
