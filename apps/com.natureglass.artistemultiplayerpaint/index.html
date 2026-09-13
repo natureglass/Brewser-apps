@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Artiste</title>
+<style>
+  :root {
+    --bg: #131315;
+    --header: #0e0e10;
+    --panel: #2b2b2e;
+    --panel-edge: #3a3a3e;
+    --rule: #3c3c40;
+    --ink: #f2f2f4;
+    --dim: #8b8b92;
+    --dimmer: #5c5c63;
+    --accent: #1e88e5;
+    --ok: #34c759;
+    --warn: #f5a623;
+    --bad: #e0453c;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font: 15px/1.35 "Segoe UI", system-ui, sans-serif;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    touch-action: none;
+    user-select: none;
+  }
+
+  /* ---------- header ---------- */
+  header {
+    height: 54px;
+    background: var(--header);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 0 10px 0 16px;
+  }
+  .brand {
+    flex: 0 0 auto;
+    margin-right: auto;   /* all the slack lands here, so the toolbar is flush right */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+  }
+  .brand b {
+    font-size: 21px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    color: #ffffff;
+  }
+  .brand .pipe { color: var(--dimmer); font-size: 18px; }
+  .brand .doc { font-size: 17px; color: var(--dim); }
+
+  /* ---------- layout ---------- */
+  main {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    gap: 6px;
+    padding: 6px 8px 8px 8px;
+  }
+
+  aside {
+    width: 347px;
+    flex: 0 0 347px;
+    background: var(--panel);
+    border: 1px solid var(--panel-edge);
+    border-radius: 12px;
+    padding: 16px 32px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .board {
+    flex: 1;
+    min-width: 0;
+    position: relative;
+    background: #ffffff;
+    border: 1px solid #d8d8dc;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .board canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  #paint { cursor: crosshair; }
+  #overlay { pointer-events: none; }
+
+  /* ---------- status ---------- */
+  .status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 24px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1.4px;
+    color: var(--ok);
+  }
+  .status .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--ok);
+  }
+  .status.off { color: var(--bad); }
+  .status.off .dot { background: var(--bad); }
+  .status.wait { color: var(--warn); }
+  .status.wait .dot { background: var(--warn); }
+
+  /* ---------- swatches ---------- */
+  .swatches {
+    display: grid;
+    grid-template-columns: repeat(4, 62px);
+    grid-auto-rows: 62px;
+    gap: 7px 11px;
+    justify-content: center;
+    margin-top: 12px;
+  }
+  .sw {
+    width: 62px; height: 62px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    background: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .sw i {
+    display: block;
+    width: 52px; height: 52px;
+    border-radius: 50%;
+  }
+
+  hr {
+    border: 0;
+    height: 1px;
+    background: var(--rule);
+    margin: 18px 0;
+    color: var(--dimmer);
+  }
+
+  /* ---------- pen size (header, left of the tools) ---------- */
+  .pen {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  /* Dimmed when the tool it governs is not selected, but still usable. */
+  .pen.dim { opacity: 0.45; }
+  .label {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1.3px;
+    color: #d2d2d8;
+  }
+  /* Fixed width so the slider does not shuffle as the digits change. */
+  .value { font-size: 14px; color: var(--dim); width: 42px; }
+
+  .track {
+    position: relative;
+    width: 140px;
+    height: 18px;
+    cursor: pointer;
+  }
+  .track.narrow { width: 116px; }
+  .track .rail {
+    position: absolute;
+    left: 0; right: 0; top: 7px;
+    height: 4px;
+    border-radius: 2px;
+    background: #4d4d53;
+  }
+  .track .fill {
+    position: absolute;
+    left: 0; top: 7px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--accent);
+  }
+  .track .knob {
+    position: absolute;
+    top: 1px;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .preview {
+    width: 40px; height: 40px;
+    flex: 0 0 40px;
+    border-radius: 50%;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  /* ---------- clear button ---------- */
+  .clear {
+    width: 100%;
+    height: 46px;
+    background: none;
+    border: 1px solid #4e4e54;
+    border-radius: 8px;
+    color: #d2d2d8;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1.3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+  .clear:active { background: #35353a; }
+  .clear .ico { font-size: 17px; line-height: 1; }
+
+  /* ---------- tools (top right of the header) ---------- */
+  .tools {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .tool {
+    width: 44px; height: 44px;
+    border: 0;
+    border-radius: 9px;
+    background: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .tool .ico { font-size: 22px; line-height: 1; }
+  .tool:active { background: #2b2b31; }
+  .tool.on { background: var(--ink); }
+  .tool.off { cursor: default; opacity: 0.32; }
+  .tool.off:active { background: none; }
+  .tool-sep {
+    width: 1px;
+    height: 24px;
+    background: #303036;
+    margin: 0 7px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <b>ARTISTE</b>
+    <span class="pipe">|</span>
+    <span class="doc" id="docName">Multiplayer</span>
+  </div>
+  <div class="pen">
+    <span class="label">PEN SIZE</span>
+    <div class="track" id="sizeTrack">
+      <div class="rail"></div>
+      <div class="fill"></div>
+      <div class="knob"></div>
+    </div>
+    <span class="value" id="sizeValue">20px</span>
+  </div>
+
+  <!-- Only the brush is feathered, so this dims when another tool is active.
+       It stays usable either way - set it, then pick up the brush. -->
+  <div class="pen" id="hardnessGroup">
+    <span class="label">BRUSH HARDNESS</span>
+    <div class="track narrow" id="hardTrack">
+      <div class="rail"></div>
+      <div class="fill"></div>
+      <div class="knob"></div>
+    </div>
+    <span class="value" id="hardValue">30%</span>
+  </div>
+
+  <div class="preview">
+      <!-- One path per brush layer, so the nib preview feathers the same
+           way the canvas does. The pen and eraser use only the last one. -->
+      <svg width="40" height="40" viewBox="0 0 62 62" id="previewSvg">
+        <path class="nib" d="M12 38 C 20 20, 26 44, 33 32 C 38 23, 45 26, 50 24" fill="none" stroke="#2b2b2e" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path class="nib" d="M12 38 C 20 20, 26 44, 33 32 C 38 23, 45 26, 50 24" fill="none" stroke="#2b2b2e" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path class="nib" d="M12 38 C 20 20, 26 44, 33 32 C 38 23, 45 26, 50 24" fill="none" stroke="#2b2b2e" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path class="nib" d="M12 38 C 20 20, 26 44, 33 32 C 38 23, 45 26, 50 24" fill="none" stroke="#2b2b2e" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path class="nib" d="M12 38 C 20 20, 26 44, 33 32 C 38 23, 45 26, 50 24" fill="none" stroke="#2b2b2e" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+  </div>
+
+  <span class="tool-sep"></span>
+
+  <div class="tools">
+    <button class="tool on" id="toolPen" title="Pen">
+      <span class="ico">🖊️</span>
+    </button>
+    <button class="tool" id="toolBrush" title="Brush">
+      <span class="ico">🖌️</span>
+    </button>
+    <button class="tool" id="toolEraser" title="Eraser">
+      <span class="ico">🧽</span>
+    </button>
+    <span class="tool-sep"></span>
+    <button class="tool off" id="undoBtn" title="Undo">
+      <span class="ico">↩️</span>
+    </button>
+    <button class="tool off" id="redoBtn" title="Redo">
+      <span class="ico">↪️</span>
+    </button>
+  </div>
+</header>
+
+<main>
+  <aside>
+    <div class="status wait" id="status">
+      <span class="dot"></span><span id="statusText">CONNECTING</span>
+    </div>
+
+    <div class="swatches" id="swatches"></div>
+
+    <hr>
+
+    <button class="clear" id="clearBtn"><span class="ico">🗑️</span><span>CLEAR CANVAS</span></button>
+  </aside>
+
+  <div class="board">
+    <canvas id="paint" width="1280" height="720"></canvas>
+    <canvas id="overlay" width="1280" height="720"></canvas>
+  </div>
+</main>
+
+<script>
+/*
+  Artiste (multipaint) - Brewser WebSocket Protocol v1.1
+
+  App-level protocol, carried inside the v1.1 "data" field:
+  {t:"s",     sid, c, w, p:[[x,y],...], f, h, end}   stroke batch, 1280x720
+  {t:"cur",   id, c, x, y}                cursor position
+  {t:"clear"}                             wipe canvas and history
+  {t:"u",     sid}                        hide stroke sid   (undo)
+  {t:"r",     sid}                        show stroke sid   (redo)
+
+  A single pen-down..pen-up gesture is one "stroke", identified by `sid` and
+  delivered as several `s` batches while the pointer moves. Every client keeps
+  the same ordered stroke log, so undo/redo is just flipping a stroke's hidden
+  flag and replaying the log - which keeps the three paint tools (pen, brush,
+  eraser) undoable in the right order, since the eraser is itself a stroke.
+
+  `f` marks a feathered (brush) stroke, `h` its hardness as a percentage, and
+  `end` marks its last batch. A soft
+  stroke is built from several translucent passes, so it can only be painted as
+  one whole polyline - drawing it segment by segment would re-blend every joint
+  into a dark blob. In-progress soft strokes therefore live on the overlay
+  canvas, which is cleared and redrawn each frame anyway, and are committed to
+  the paint canvas once, when the stroke ends. Hard strokes (pen, eraser) are
+  opaque, so they keep the cheap incremental segment path.
+
+  Wire format:
+    Outbound app event:  {v:1, channel:"app", op:<t>, data:{...}}
+    Inbound relayed app: {v:1, channel:"app", op:"message", event:<t>, data:{...}, clientId, seq}
+    System-channel frames (joined, presence, error, shutdown, ...) are ignored.
+    app + room are required query params.
+*/
+
+const PROTOCOL_VERSION = 1;
+
+const ROOM = new URLSearchParams(location.search).get("room") || "paint";
+const APPNAME = "com.natureglass.multipaint";
+const WS_URL = "wss://ws.brewser.io/?app=" + encodeURIComponent(APPNAME) + "&room=" + encodeURIComponent(ROOM);
+
+const ME = {
+  id: Math.random().toString(36).slice(2, 6),
+  cursorColor: "hsl(" + Math.floor(Math.random() * 360) + " 70% 45%)"
+};
+
+const PALETTE = [
+  "#1c1c1e", "#ffffff", "#c8c8cc", "#8a8a8f",
+  "#dc3c34", "#f37021", "#f5a623", "#f2d03a",
+  "#4caf50", "#12a894", "#1e88e5", "#6b2fc9",
+  "#a93fc8", "#e4189c", "#a4645b", "#8a5a3a"
+];
+const DEFAULT_SWATCH = 10;      // blue
+const PAPER = "#ffffff";        // the eraser paints the board colour
+
+const SIZE_MIN = 2;
+const SIZE_MAX = 64;
+const BRUSH_FACTOR = 2;         // the brush lays down a wider mark than the pen
+
+// The brush is a stack of translucent passes, widest and faintest first, so
+// the edge fades out instead of ending on a hard rim.
+const BRUSH_PASSES = 5;
+const DEFAULT_HARDNESS = 0.30;
+
+// Hardness says how much of the radius stays solid: 0 feathers across the
+// whole width, 1 collapses to a hard edge. The passes are spread over the
+// remaining band and their alphas are solved so the COMPOSITE follows a
+// smoothstep ramp up to the core - compositing is 1 - product of (1 - a), so
+// each pass must account for what the passes outside it already laid down.
+const layerCache = new Map();
+function brushLayers(h) {
+  const key = Math.round(Math.max(0, Math.min(1, h)) * 100);
+  const hit = layerCache.get(key);
+  if (hit) return hit;
+
+  const hard = key / 100;
+  let out;
+  if (hard >= 0.99) {
+    out = [{ s: 1, a: 1 }];               // no feather left to draw
+  } else {
+    const core = 0.85 + 0.15 * hard;      // hard brushes end up solid
+    const band = 1 - hard;                // share of the radius spent feathering
+    out = [];
+    let laid = 0;
+    for (let i = 0; i < BRUSH_PASSES; i++) {
+      const f = (i + 1) / BRUSH_PASSES;
+      const target = core * f * f * (3 - 2 * f);
+      const a = laid >= 1 ? 0 : (target - laid) / (1 - laid);
+      out.push({ s: 1 - band * (i / BRUSH_PASSES), a: Math.max(0, Math.min(1, a)) });
+      laid = target;
+    }
+  }
+  layerCache.set(key, out);
+  return out;
+}
+const LIVE_STROKE_TIMEOUT = 2500;   // commit a remote stroke whose end never arrived
+
+const paint = document.getElementById("paint");
+const overlay = document.getElementById("overlay");
+const pctx = paint.getContext("2d");
+const octx = overlay.getContext("2d");
+pctx.lineCap = pctx.lineJoin = "round";
+octx.lineCap = octx.lineJoin = "round";
+
+let color = PALETTE[DEFAULT_SWATCH];
+let width = 20;
+let hardness = DEFAULT_HARDNESS;
+let tool = "pen";
+
+if (ROOM !== "paint") document.getElementById("docName").textContent = ROOM;
+
+// ---------- swatches ----------
+const swatchWrap = document.getElementById("swatches");
+PALETTE.forEach((c, i) => {
+  const b = document.createElement("button");
+  b.className = "sw";
+  b.title = c;
+  const dot = document.createElement("i");
+  dot.style.background = c;
+  b.appendChild(dot);
+  if (i === DEFAULT_SWATCH) b.style.borderColor = c;
+  b.onclick = () => setColor(c, b);
+  swatchWrap.appendChild(b);
+});
+function setColor(c, el) {
+  color = c;
+  document.querySelectorAll(".sw").forEach(s => { s.style.borderColor = "transparent"; });
+  if (el) el.style.borderColor = c;
+  // Picking a colour means you want to paint with it, not erase.
+  if (tool === "eraser") setTool("pen");
+}
+
+// ---------- sliders ----------
+const sizeValue = document.getElementById("sizeValue");
+const hardValue = document.getElementById("hardValue");
+const hardnessGroup = document.getElementById("hardnessGroup");
+const nibPaths = document.querySelectorAll("#previewSvg .nib");
+
+// Hand-rolled rather than <input type=range>: the native control cannot be
+// restyled reliably here, and two of them now share the same behaviour.
+const KNOB = 16;                  // keep in step with .track .knob in the CSS
+
+function makeSlider(el, min, max, onChange) {
+  const fill = el.querySelector(".fill");
+  const knob = el.querySelector(".knob");
+  let dragging = false;
+  let current = min;
+
+  // A negative margin does not centre an absolutely positioned knob here, so
+  // the half-knob offset is folded into `left` and resolved in pixels. That
+  // needs the track's measured width, which is zero until the first layout,
+  // hence relayout() below.
+  function place() {
+    const f = (current - min) / (max - min);
+    const w = el.getBoundingClientRect().width;
+    fill.style.width = (f * 100) + "%";
+    knob.style.left = (w > 0 ? f * w - KNOB / 2 : 0) + "px";
+  }
+  function apply(raw) {
+    current = Math.max(min, Math.min(max, Math.round(raw)));
+    place();
+    onChange(current);
+  }
+  apply.relayout = place;
+  function fromEvent(e) {
+    const r = el.getBoundingClientRect();
+    const t = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+    apply(min + t * (max - min));
+  }
+
+  el.addEventListener("pointerdown", e => {
+    dragging = true;
+    el.setPointerCapture(e.pointerId);
+    fromEvent(e);
+  });
+  el.addEventListener("pointermove", e => { if (dragging) fromEvent(e); });
+  ["pointerup", "pointercancel"].forEach(ev =>
+    el.addEventListener(ev, () => { dragging = false; })
+  );
+  return apply;
+}
+
+const sizeTrack = document.getElementById("sizeTrack");
+const hardTrack = document.getElementById("hardTrack");
+
+const setSize = makeSlider(sizeTrack, SIZE_MIN, SIZE_MAX, v => {
+  width = v;
+  sizeValue.textContent = v + "px";
+  updatePreview();
+});
+const setHardness = makeSlider(hardTrack, 0, 100, v => {
+  hardness = v / 100;
+  hardValue.textContent = v + "%";
+  updatePreview();
+});
+
+function updatePreview() {
+  // Show the nib the active tool will actually lay down, feathering included.
+  const base = Math.max(3, Math.min(24, strokeWidth() * 0.6));
+  const ink = tool === "eraser" ? "#c8c8cc" : "#2b2b2e";
+  const layers = strokeIsSoft() ? brushLayers(hardness) : [{ s: 1, a: 1 }];
+  for (let i = 0; i < nibPaths.length; i++) {
+    // Layers are widest first, so pin them to the end of the list and leave
+    // the unused leading slots invisible.
+    const L = layers[i - (nibPaths.length - layers.length)];
+    nibPaths[i].setAttribute("stroke", ink);
+    nibPaths[i].setAttribute("stroke-width", L ? base * L.s : 0);
+    nibPaths[i].setAttribute("stroke-opacity", L ? L.a : 0);
+  }
+  // Hardness only governs the brush, so say so when another tool is up.
+  hardnessGroup.classList.toggle("dim", tool !== "brush");
+}
+
+// ---------- tools ----------
+const TOOL_BTN = {
+  pen: document.getElementById("toolPen"),
+  brush: document.getElementById("toolBrush"),
+  eraser: document.getElementById("toolEraser")
+};
+function setTool(name) {
+  tool = name;
+  for (const k in TOOL_BTN) TOOL_BTN[k].classList.toggle("on", k === name);
+  updatePreview();
+}
+for (const k in TOOL_BTN) TOOL_BTN[k].onclick = () => setTool(k);
+
+// A tool resolves the colour, width and softness of an ordinary stroke, so the
+// wire protocol and the remote rendering path are identical for all three.
+function strokeColor() { return tool === "eraser" ? PAPER : color; }
+function strokeWidth() { return tool === "brush" ? width * BRUSH_FACTOR : width; }
+function strokeIsSoft() { return tool === "brush"; }
+
+// rgba() rather than globalAlpha: one less piece of canvas state to leave dirty
+// between the two contexts, and the alpha travels with the colour.
+function withAlpha(hex, a) {
+  if (typeof hex !== "string" || hex.length !== 7 || hex.charAt(0) !== "#") return hex;
+  const n = parseInt(hex.slice(1), 16);
+  if (isNaN(n)) return hex;
+  return "rgba(" + ((n >> 16) & 255) + "," + ((n >> 8) & 255) + "," + (n & 255) + "," + a + ")";
+}
+
+setSize(width);
+setHardness(Math.round(hardness * 100));
+// The knob is placed from the track's measured width, which is still zero
+// while this script runs, so re-place both once the first layout has landed.
+requestAnimationFrame(() => { setSize.relayout(); setHardness.relayout(); });
+
+// ---------- stroke log ----------
+// Every client builds the same ordered log from the same `s` batches, so a
+// repaint from the log is identical everywhere and undo/redo stays in sync.
+const strokes = [];             // [{sid, c, w, pts, hidden}] in paint order
+const byId = new Map();         // sid -> stroke
+const undoStack = [];           // my sids, oldest first
+const redoStack = [];           // my sids I have undone
+let strokeSeq = 0;
+
+const undoBtn = document.getElementById("undoBtn");
+const redoBtn = document.getElementById("redoBtn");
+
+function logPoints(sid, c, w, pts, soft, hard) {
+  if (!sid || !pts || !pts.length) return null;
+  let st = byId.get(sid);
+  if (!st) {
+    st = { sid: sid, c: c, w: w, pts: [], hidden: false, soft: !!soft,
+           hard: typeof hard === "number" ? hard : DEFAULT_HARDNESS };
+    byId.set(sid, st);
+    strokes.push(st);
+  }
+  // Consecutive batches repeat the joining point to keep the line continuous.
+  for (let i = 0; i < pts.length; i++) {
+    const p = pts[i];
+    const last = st.pts[st.pts.length - 1];
+    if (last && last[0] === p[0] && last[1] === p[1]) continue;
+    st.pts.push(p);
+  }
+  return st;
+}
+
+function repaintAll() {
+  pctx.clearRect(0, 0, 1280, 720);
+  for (let i = 0; i < strokes.length; i++) {
+    const st = strokes[i];
+    // Strokes still in flight are drawn on the overlay; painting them here too
+    // would double-darken them for as long as they stay live.
+    if (!st.hidden && st.pts.length && !live.has(st.sid)) paintStroke(pctx, st);
+  }
+}
+
+function setHidden(sid, hidden) {
+  const st = byId.get(sid);
+  if (!st || st.hidden === hidden) return false;
+  st.hidden = hidden;
+  return true;
+}
+
+function resetHistory() {
+  strokes.length = 0;
+  byId.clear();
+  live.clear();
+  undoStack.length = 0;
+  redoStack.length = 0;
+  updateHistoryButtons();
+}
+
+function updateHistoryButtons() {
+  undoBtn.classList.toggle("off", undoStack.length === 0);
+  redoBtn.classList.toggle("off", redoStack.length === 0);
+}
+
+// You undo your own strokes only - undoing someone else's work under them
+// would be a surprise, and each client owns its own stack.
+function undo() {
+  const sid = undoStack.pop();
+  if (!sid) return;
+  redoStack.push(sid);
+  setHidden(sid, true);
+  sendApp("u", { sid: sid });
+  repaintAll();
+  updateHistoryButtons();
+}
+function redo() {
+  const sid = redoStack.pop();
+  if (!sid) return;
+  undoStack.push(sid);
+  setHidden(sid, false);
+  sendApp("r", { sid: sid });
+  repaintAll();
+  updateHistoryButtons();
+}
+undoBtn.onclick = undo;
+redoBtn.onclick = redo;
+updateHistoryButtons();
+
+// ---------- drawing ----------
+// One flat pass. A lone point becomes a dot: a full-circle arc cannot be
+// stroked reliably here, so it is filled.
+function strokePath(ctx, c, w, pts) {
+  if (pts.length < 2) {
+    ctx.fillStyle = c;
+    ctx.beginPath();
+    ctx.arc(pts[0][0], pts[0][1], w / 2, 0, 7);
+    ctx.fill();
+    return;
+  }
+  ctx.strokeStyle = c;
+  ctx.lineWidth = w;
+  ctx.beginPath();
+  ctx.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+  ctx.stroke();
+}
+
+// A hard stroke is one pass; a soft one is the layer stack. Either way the
+// whole polyline goes down in a single sweep per layer, which is what keeps
+// the translucent passes from compounding at the joints.
+function paintStroke(ctx, st) {
+  if (!st.soft) { strokePath(ctx, st.c, st.w, st.pts); return; }
+  const layers = brushLayers(st.hard);
+  for (let i = 0; i < layers.length; i++) {
+    const L = layers[i];
+    strokePath(ctx, withAlpha(st.c, L.a), Math.max(1, st.w * L.s), st.pts);
+  }
+}
+
+// Soft strokes in flight, by sid. They render on the overlay until they end.
+const live = new Map();
+
+function goLive(st) {
+  live.set(st.sid, st);
+  st.touched = performance.now();
+}
+
+function commitLive(sid) {
+  const st = live.get(sid);
+  if (!st) return;
+  live.delete(sid);
+  if (!st.hidden) paintStroke(pctx, st);
+  renderOverlay();   // drop it from the overlay in the same tick, no double-draw
+}
+
+function toLogical(e) {
+  const r = paint.getBoundingClientRect();
+  return [
+    Math.round((e.clientX - r.left) / r.width * 1280),
+    Math.round((e.clientY - r.top) / r.height * 720)
+  ];
+}
+
+let drawing = false;
+let pending = [];   // points not yet sent
+let lastPoint = null;
+let strokeSid = null;
+let strokeC = color;
+let strokeW = width;
+let strokeSoft = false;
+let strokeH = DEFAULT_HARDNESS;
+
+paint.addEventListener("pointerdown", e => {
+  paint.setPointerCapture(e.pointerId);
+  drawing = true;
+  strokeSid = ME.id + "-" + (strokeSeq++);
+  strokeC = strokeColor();
+  strokeW = strokeWidth();
+  strokeSoft = strokeIsSoft();
+  strokeH = hardness;
+  lastPoint = toLogical(e);
+  pending = [lastPoint];
+
+  const st = logPoints(strokeSid, strokeC, strokeW, [lastPoint], strokeSoft, strokeH);
+  if (strokeSoft) goLive(st);
+  else strokePath(pctx, strokeC, strokeW, [lastPoint]);
+
+  // A fresh stroke is the new tip of history.
+  redoStack.length = 0;
+  undoStack.push(strokeSid);
+  updateHistoryButtons();
+});
+paint.addEventListener("pointermove", e => {
+  const pt = toLogical(e);
+  sendCursor(pt);
+  if (!drawing) return;
+  const st = logPoints(strokeSid, strokeC, strokeW, [pt], strokeSoft, strokeH);
+  // A soft stroke redraws itself whole on the overlay each frame; a hard one
+  // only needs the new segment.
+  if (strokeSoft) st.touched = performance.now();
+  else strokePath(pctx, strokeC, strokeW, [lastPoint, pt]);
+  pending.push(pt);
+  lastPoint = pt;
+});
+["pointerup", "pointercancel"].forEach(ev =>
+  paint.addEventListener(ev, () => {
+    if (!drawing) return;
+    drawing = false;
+    flushStroke(true);
+    if (strokeSoft) commitLive(strokeSid);
+  })
+);
+
+// Flush stroke batches every 40 ms while drawing
+setInterval(() => { if (drawing) flushStroke(false); }, 40);
+function flushStroke(end) {
+  if (pending.length === 0 && !end) return;
+  sendApp("s", {
+    sid: strokeSid, c: strokeC, w: strokeW, p: pending,
+    f: strokeSoft ? 1 : 0, h: Math.round(strokeH * 100), end: end ? 1 : 0
+  });
+  pending = [lastPoint]; // keep continuity into next batch
+}
+
+document.getElementById("clearBtn").onclick = () => {
+  pctx.clearRect(0, 0, 1280, 720);
+  resetHistory();
+  sendApp("clear", {});
+};
+
+// ---------- remote cursors ----------
+const cursors = new Map(); // id -> {x, y, c, seen}
+function sendCursor(pt) {
+  const now = performance.now();
+  if (now - (sendCursor.last || 0) < 50) return;
+  sendCursor.last = now;
+  sendApp("cur", { id: ME.id, c: ME.cursorColor, x: pt[0], y: pt[1] });
+}
+function renderOverlay() {
+  octx.clearRect(0, 0, 1280, 720);
+  const now = performance.now();
+
+  // Soft strokes still being drawn, here and by everyone else.
+  for (const [sid, st] of live) {
+    if (!st.hidden && st.pts.length) paintStroke(octx, st);
+  }
+
+  for (const [id, cur] of cursors) {
+    if (now - cur.seen > 3000) { cursors.delete(id); continue; }
+    octx.fillStyle = cur.c;
+    octx.beginPath();
+    octx.arc(cur.x, cur.y, 6, 0, 7);
+    octx.fill();
+    octx.font = "14px sans-serif";
+    octx.fillText(id, cur.x + 10, cur.y + 4);
+  }
+}
+
+function overlayFrame() {
+  // A peer that drops mid-stroke never sends its `end`, so a stroke that has
+  // gone quiet is committed rather than left hovering on the overlay forever.
+  const now = performance.now();
+  for (const [sid, st] of live) {
+    if (sid === strokeSid && drawing) continue;
+    if (now - (st.touched || 0) > LIVE_STROKE_TIMEOUT) commitLive(sid);
+  }
+  renderOverlay();
+  requestAnimationFrame(overlayFrame);
+}
+overlayFrame();
+
+// ---------- WebSocket with auto-reconnect ----------
+let ws = null;
+let reconnectDelay = 2000;
+const statusEl = document.getElementById("status");
+const statusText = document.getElementById("statusText");
+
+function setStatus(state, text) {
+  statusEl.className = "status" + (state ? " " + state : "");
+  statusText.textContent = text;
+}
+
+function connect() {
+  ws = new WebSocket(WS_URL);
+
+  ws.onopen = () => {
+    // Optional v1.1 handshake: advertise ourselves. Any valid message
+    // completes the handshake; hello also lets the server label this client.
+    sendRaw({
+      v: PROTOCOL_VERSION,
+      channel: "system",
+      op: "hello",
+      data: { client: "multipaint/1.1" }
+    });
+    setStatus("", "CONNECTED");
+  };
+
+  ws.onclose = () => {
+    setStatus("off", "RECONNECTING");
+    // The server may send a reconnectAfterMs hint on some closes; a fixed
+    // backoff is fine for a drawing toy.
+    setTimeout(connect, reconnectDelay);
+  };
+
+  ws.onmessage = e => {
+    let m;
+    try { m = JSON.parse(e.data); } catch { return; }
+
+    // v1.1: only app-channel relays carry drawing data. Everything else
+    // (joined / presence / welcome / error / shutdown) is ignored here.
+    if (m.channel !== "app" || m.op !== "message") return;
+
+    const d = m.data || {};
+    switch (m.event) {
+      case "s": {
+        // Fall back to the indexed stroke so a final batch that carries no new
+        // points still delivers its `end`.
+        const st = logPoints(d.sid, d.c, d.w, d.p, d.f,
+                             typeof d.h === "number" ? d.h / 100 : DEFAULT_HARDNESS)
+                   || byId.get(d.sid);
+        if (!st) break;
+        if (st.soft) {
+          // Held on the overlay until its last batch arrives.
+          if (!live.has(st.sid)) goLive(st); else st.touched = performance.now();
+          if (d.end) commitLive(st.sid);
+        } else {
+          strokePath(pctx, d.c, d.w, d.p);
+        }
+        break;
+      }
+      case "cur":
+        cursors.set(d.id, { x: d.x, y: d.y, c: d.c, seen: performance.now() });
+        break;
+      case "u":
+        if (setHidden(d.sid, true)) { live.delete(d.sid); repaintAll(); }
+        break;
+      case "r":
+        if (setHidden(d.sid, false)) { live.delete(d.sid); repaintAll(); }
+        break;
+      case "clear":
+        pctx.clearRect(0, 0, 1280, 720);
+        resetHistory();
+        break;
+    }
+  };
+}
+
+// Send a v1.1 app event: op is the old "t", payload goes in data.
+function sendApp(op, data) {
+  sendRaw({ v: PROTOCOL_VERSION, channel: "app", op: op, data: data });
+}
+
+function sendRaw(obj) {
+  if (ws && ws.readyState === 1) ws.send(JSON.stringify(obj));
+}
+
+connect();
+</script>
+</body>
+</html>
