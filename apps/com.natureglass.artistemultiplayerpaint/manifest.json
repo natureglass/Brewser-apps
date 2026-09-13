@@ -8,7 +8,9 @@
     "categories": [
         "Apps"
     ],
-    "permissions": [],
+    "permissions": [
+        "network"
+    ],
     "compatibility": [
         "switch",
         "web"
