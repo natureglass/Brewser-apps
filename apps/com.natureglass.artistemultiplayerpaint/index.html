@@ -382,7 +382,7 @@
 const PROTOCOL_VERSION = 1;
 
 const ROOM = new URLSearchParams(location.search).get("room") || "paint";
-const APPNAME = "com.natureglass.multipaint";
+const APPNAME = "com.natureglass.artistemultiplayerpaint";
 const WS_URL = "wss://ws.brewser.io/?app=" + encodeURIComponent(APPNAME) + "&room=" + encodeURIComponent(ROOM);
 
 const ME = {
@@ -861,7 +861,7 @@ function connect() {
       v: PROTOCOL_VERSION,
       channel: "system",
       op: "hello",
-      data: { client: "multipaint/1.1" }
+      data: { client: "artistemultiplayerpaint/1.1" }
     });
     setStatus("", "CONNECTED");
   };
