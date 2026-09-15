@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-14T12:41:20Z",
+  "generated": "2026-09-15T12:39:42Z",
   "stats": {
     "com.natureglass.2dplatformermicrogame": {
       "downloads": 0,
@@ -37,7 +37,7 @@
       "ratingScore": 4.9167
     },
     "com.natureglass.dusk": {
-      "downloads": 6,
+      "downloads": 7,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.9167
@@ -55,7 +55,7 @@
       "ratingScore": 4.75
     },
     "com.natureglass.fsrlab": {
-      "downloads": 3,
+      "downloads": 4,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.9167
@@ -72,7 +72,7 @@
       "ratingCount": 0
     },
     "com.natureglass.jellyfinclient": {
-      "downloads": 12,
+      "downloads": 13,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.9167
@@ -89,7 +89,7 @@
       "ratingCount": 0
     },
     "com.natureglass.midisurface": {
-      "downloads": 7,
+      "downloads": 8,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.9167
@@ -128,12 +128,12 @@
       "ratingCount": 0
     },
     "com.natureglass.speedwatch": {
-      "downloads": 3,
+      "downloads": 4,
       "ratingAvg": 0,
       "ratingCount": 0
     },
     "com.natureglass.streamcast": {
-      "downloads": 8,
+      "downloads": 9,
       "ratingAvg": 4,
       "ratingCount": 1,
       "ratingScore": 4.75
