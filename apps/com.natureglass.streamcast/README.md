@@ -1,6 +1,6 @@
 # Stream Cast
 
-_v1.0.0_
+_v1.0.1_
 
 **Stream Cast** brings live Twitch streaming to the Switch. A "Live now" sidebar lists popular channels while the main stage swaps between a search screen and full-screen video.
 

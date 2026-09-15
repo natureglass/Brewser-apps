@@ -497,7 +497,13 @@
     quality: '480p30',
   };
   const CLIENT_ID = 'kimne78kx3ncx6brgo4mv6wki5h1ko';
-  const PAT_HASH = '0828119ded1c13477966434e15800ff57ddacf13ba1911c129dc2200705b0712';
+  // PlaybackAccessToken persisted-query hash. Twitch rotates these and
+  // retires the old ones: a stale hash still answers HTTP 200 but with no
+  // `streamPlaybackAccessToken`, which reads here as 'Channel offline or
+  // unknown' even for a channel that is plainly live. The previous value
+  // (0828119d...) stopped working. Tracked against streamlink's twitch
+  // plugin, which follows Twitch's own web player.
+  const PAT_HASH = 'ed230aa1e33e07eebb8928504583da78a5173989fadfb1ac94be06a04f3cdbe9';
   const DESKTOP_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) ' +
     'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
   const LOG_PATH = 'sdmc:/switch/brewser/logs/twitch-app.log';
@@ -683,7 +689,15 @@
     const body = {
       operationName: 'PlaybackAccessToken',
       extensions: { persistedQuery: { version: 1, sha256Hash: PAT_HASH } },
-      variables: { isLive: true, login: channel, isVod: false, vodID: '', playerType: 'site' },
+      // Variable set for the hash above. `platform` is required by the
+      // current query; omitting it fails the same silent way a stale hash
+      // does. playerType 'embed' is what streamlink sends and is verified
+      // working — 'site' is also accepted if you want the site player's
+      // variant set.
+      variables: {
+        isLive: true, login: channel, isVod: false, vodID: '',
+        playerType: 'embed', platform: 'site',
+      },
     };
     log('POST gql.twitch.tv/gql (PlaybackAccessToken ' + channel + ')');
     const resp = await fetch('https://gql.twitch.tv/gql', {
@@ -698,8 +712,21 @@
     log('  gql status ' + resp.status);
     if (!resp.ok) throw new Error('GQL HTTP ' + resp.status);
     const json = await resp.json();
+    // A retired persisted-query hash answers 200 with `errors` set and no
+    // data, which is indistinguishable from a genuinely offline channel at
+    // the `tok` check below. Log it, and say so in the thrown message —
+    // the last rotation cost an afternoon of chasing the wrong cause.
+    const gqlErrors = json && json.errors;
+    if (gqlErrors) {
+      log('  gql errors: ' + JSON.stringify(gqlErrors).slice(0, 400));
+    }
     const tok = json && json.data && json.data.streamPlaybackAccessToken;
     if (!tok || !tok.value || !tok.signature) {
+      if (gqlErrors) {
+        throw new Error(
+          'Twitch rejected the playback-token query (PAT_HASH may be stale) - see log',
+        );
+      }
       throw new Error('Channel offline or unknown: ' + channel);
     }
     log('  token ok sig=' + tok.signature.slice(0, 8) + '... value chars=' + tok.value.length);
