@@ -699,18 +699,19 @@
       "license": "MIT",
       "logo": "assets/appbanner.jpg",
       "maxFileBytes": 1952066,
+      "minBrewserVersion": "0.1.127",
       "name": "Stream Cast",
       "permissions": [
         "network"
       ],
       "publishedAt": "2026-08-06T10:33:57Z",
-      "sizeBytes": 4396940,
+      "sizeBytes": 4398319,
       "summary": "Watch live Twitch streams on Switch.",
       "tags": [
         "Twitch",
         "Streaming"
       ],
-      "version": "1.0.0"
+      "version": "1.0.1"
     },
     {
       "categories": [
@@ -983,6 +984,6 @@
       "version": "1.0.2"
     }
   ],
-  "generated": "2026-09-13T09:03:44Z",
+  "generated": "2026-09-15T10:00:10Z",
   "source": "base"
 }
