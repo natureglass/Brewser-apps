@@ -1,6 +1,6 @@
 # Jellyfin Client
 
-_v1.0.8_
+_v1.0.9_
 
 **Jellyfin Client** connects to your own Jellyfin media server and streams your movies, shows and music. Sign in, browse your libraries with cover art, and pick up right where you left off - the same app runs on the Nintendo Switch and in an ordinary web browser.
 
