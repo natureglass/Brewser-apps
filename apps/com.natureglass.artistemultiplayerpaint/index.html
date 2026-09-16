@@ -67,6 +67,7 @@
     display: flex;
     gap: 6px;
     padding: 6px 8px 8px 8px;
+    position: relative;
   }
 
   aside {
@@ -233,6 +234,42 @@
   .clear:active { background: #35353a; }
   .clear .ico { font-size: 17px; line-height: 1; }
 
+  /* ---------- mobile drawer furniture (portrait only) ---------- */
+  /* Hidden outright on a wide screen - the sidebar is always up there. */
+  .burger {
+    display: none;
+    flex: 0 0 auto;
+    width: 38px; height: 38px;
+    border: 0;
+    border-radius: 9px;
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .burger .ico { font-size: 22px; line-height: 1; }
+  .burger:active { background: #2b2b31; }
+
+  /* Zero-height full-width flex item: the only reliable way to force a wrap
+     at a fixed point in a flex row. Inert until the portrait query. */
+  .rowbreak { display: none; }
+
+  /* Sits inside <main>, so it dims the board but leaves the header - and the
+     burger that closes the drawer again - live. */
+  .scrim {
+    display: none;
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.22s ease;
+  }
+  .scrim.on { opacity: 1; pointer-events: auto; }
+
   /* ---------- tools (top right of the header) ---------- */
   .tools {
     flex: 0 0 auto;
@@ -261,11 +298,91 @@
     background: #303036;
     margin: 0 7px;
   }
+
+  /* ---------- portrait phone ----------
+     A phone held upright cannot seat a 347px sidebar beside the board, nor the
+     whole header on one 54px row. Under this query only, the sidebar becomes a
+     drawer behind a burger and the header wraps into three rows. The Switch is
+     1280x720 landscape, so none of this reaches it. */
+  @media (orientation: portrait) and (max-width: 820px) {
+    header {
+      height: auto;
+      flex-wrap: wrap;
+      row-gap: 8px;
+      column-gap: 10px;
+      padding: 8px 10px;
+    }
+
+    /* Row 1: burger, brand, tools. The sliders carry explicit orders so they
+       fall onto rows 2 and 3 regardless of where they sit in the markup. */
+    .burger { display: flex; order: 0; }
+    .brand {
+      order: 1;
+      /* basis 0 keeps the brand from pushing the tools onto a row of their
+         own; it grows into whatever slack is left. */
+      flex: 1 1 0;
+      min-width: 0;
+      margin-right: 0;
+      overflow: hidden;
+    }
+    .brand b { font-size: 17px; letter-spacing: 1px; }
+    .brand .doc { overflow: hidden; text-overflow: ellipsis; }
+    .tools { order: 2; margin-left: auto; gap: 2px; }
+    header > .tool-sep { display: none; }
+    .tools .tool-sep { margin: 0 4px; height: 20px; }
+    header .tool { width: 36px; height: 36px; }
+    header .tool .ico { font-size: 19px; }
+
+    /* Row 2: pen size + nib preview.  Row 3: brush hardness, which claims a
+       full-width basis and so always breaks onto its own line. */
+    .rowbreak { display: block; order: 3; flex: 0 0 100%; height: 0; }
+    .pen { order: 4; flex: 1 1 60%; min-width: 0; gap: 8px; }
+    .preview { order: 5; }
+    #hardnessGroup { order: 6; flex: 1 1 100%; }
+    header .pen .track { flex: 1 1 auto; width: auto; min-width: 60px; }
+    header .pen .label { letter-spacing: 1px; }
+
+    /* The board keeps the canvas 16:9 so a circle stays a circle, and rides in
+       the middle of the space the header leaves. */
+    main { align-items: center; }
+    .board {
+      flex: 0 0 auto;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+    }
+
+    /* The sidebar leaves the flow and becomes a drawer over the board. */
+    aside {
+      position: absolute;
+      z-index: 3;
+      top: 0; bottom: 0; left: 0;
+      width: 330px;
+      max-width: 92vw;
+      flex: none;
+      padding: 16px 18px;
+      transform: translateX(-104%);
+      transition: transform 0.22s ease;
+      box-shadow: 4px 0 18px rgba(0, 0, 0, 0.45);
+    }
+    aside.open { transform: translateX(0); }
+    .scrim { display: block; }
+  }
+
+  /* A phone, as opposed to a tablet held upright: row 1 has no room for the
+     document label beside the burger and five tool buttons, and half a word
+     clipped reads worse than none. The room is still in the URL. */
+  @media (orientation: portrait) and (max-width: 520px) {
+    .brand .pipe, .brand .doc { display: none; }
+    .brand { flex: 0 1 auto; }
+  }
 </style>
 </head>
 <body>
 
 <header>
+  <button class="burger" id="burgerBtn" title="Menu" aria-expanded="false">
+    <span class="ico">&#9776;</span>
+  </button>
   <div class="brand">
     <b>ARTISTE</b>
     <span class="pipe">|</span>
@@ -325,6 +442,10 @@
       <span class="ico">↪️</span>
     </button>
   </div>
+
+  <!-- Portrait only: wraps the two sliders onto their own rows. `order` puts
+       it after the tools regardless of where it sits here. -->
+  <span class="rowbreak"></span>
 </header>
 
 <main>
@@ -344,6 +465,9 @@
     <canvas id="paint" width="1280" height="720"></canvas>
     <canvas id="overlay" width="1280" height="720"></canvas>
   </div>
+
+  <!-- Portrait only: dims the board while the drawer is out, and closes it. -->
+  <div class="scrim" id="scrim"></div>
 </main>
 
 <script>
@@ -455,6 +579,21 @@ let tool = "pen";
 
 if (ROOM !== "paint") document.getElementById("docName").textContent = ROOM;
 
+// ---------- sidebar drawer (portrait phones) ----------
+// The burger and the scrim are display:none outside the portrait media query,
+// so these handlers are unreachable on a wide screen and the sidebar stays put.
+const sidebar = document.querySelector("aside");
+const scrim = document.getElementById("scrim");
+const burgerBtn = document.getElementById("burgerBtn");
+
+function setDrawer(open) {
+  sidebar.classList.toggle("open", open);
+  scrim.classList.toggle("on", open);
+  burgerBtn.setAttribute("aria-expanded", open ? "true" : "false");
+}
+burgerBtn.onclick = () => setDrawer(!sidebar.classList.contains("open"));
+scrim.onclick = () => setDrawer(false);
+
 // ---------- swatches ----------
 const swatchWrap = document.getElementById("swatches");
 PALETTE.forEach((c, i) => {
@@ -474,6 +613,7 @@ function setColor(c, el) {
   if (el) el.style.borderColor = c;
   // Picking a colour means you want to paint with it, not erase.
   if (tool === "eraser") setTool("pen");
+  setDrawer(false);
 }
 
 // ---------- sliders ----------
@@ -590,6 +730,11 @@ setHardness(Math.round(hardness * 100));
 // The knob is placed from the track's measured width, which is still zero
 // while this script runs, so re-place both once the first layout has landed.
 requestAnimationFrame(() => { setSize.relayout(); setHardness.relayout(); });
+["resize", "orientationchange"].forEach(ev =>
+  window.addEventListener(ev, () => {
+    requestAnimationFrame(() => { setSize.relayout(); setHardness.relayout(); });
+  })
+);
 
 // ---------- stroke log ----------
 // Every client builds the same ordered log from the same `s` batches, so a
@@ -797,6 +942,7 @@ document.getElementById("clearBtn").onclick = () => {
   pctx.clearRect(0, 0, 1280, 720);
   resetHistory();
   sendApp("clear", {});
+  setDrawer(false);
 };
 
 // ---------- remote cursors ----------
