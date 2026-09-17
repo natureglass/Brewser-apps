@@ -223,6 +223,7 @@
     color: #d2d2d8;
     font: inherit;
     font-size: 14px;
+    padding: 10px;
     font-weight: 600;
     letter-spacing: 1.3px;
     display: flex;
@@ -297,6 +298,30 @@
     height: 24px;
     background: #303036;
     margin: 0 7px;
+  }
+
+
+
+  /* ---------- landscape phone ---------- */
+  @media (orientation: landscape) and (max-width: 500px) {
+    aside {
+      overflow-y: scroll;
+    }
+  
+    track,
+    track.narrow {
+      width: 80px;
+    }
+
+    header {
+      gap: 0px;
+      padding: 0 6px 0 8px;
+    }
+
+    .brand .doc {
+      display: none;
+    }
+
   }
 
   /* ---------- portrait phone ----------
@@ -389,7 +414,7 @@
     <span class="doc" id="docName">Multiplayer</span>
   </div>
   <div class="pen">
-    <span class="label">PEN SIZE</span>
+    <span class="label">PEN</span>
     <div class="track" id="sizeTrack">
       <div class="rail"></div>
       <div class="fill"></div>
@@ -401,7 +426,7 @@
   <!-- Only the brush is feathered, so this dims when another tool is active.
        It stays usable either way - set it, then pick up the brush. -->
   <div class="pen" id="hardnessGroup">
-    <span class="label">BRUSH HARDNESS</span>
+    <span class="label">BRUSH</span>
     <div class="track narrow" id="hardTrack">
       <div class="rail"></div>
       <div class="fill"></div>
