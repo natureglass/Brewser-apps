@@ -277,20 +277,20 @@
       "id": "com.natureglass.freetv",
       "license": "MIT",
       "logo": "assets/appbanner.jpg",
-      "maxFileBytes": 48539,
+      "maxFileBytes": 48560,
       "minBrewserVersion": "0.1.130",
       "name": "Free TV",
       "permissions": [
         "network"
       ],
       "publishedAt": "2026-09-17T12:52:14Z",
-      "sizeBytes": 96475,
+      "sizeBytes": 96496,
       "summary": "Live public TV from iptv-org: broadcaster feeds plus Pluto, Samsung, Rakuten and Plex",
       "tags": [
         "Streaming",
         "TV"
       ],
-      "version": "1.0.7"
+      "version": "1.0.8"
     },
     {
       "categories": [
@@ -1018,6 +1018,6 @@
       "version": "1.0.2"
     }
   ],
-  "generated": "2026-09-17T14:10:22Z",
+  "generated": "2026-09-17T14:39:55Z",
   "source": "base"
 }
