@@ -285,7 +285,7 @@
         "network"
       ],
       "publishedAt": "2026-09-17T20:31:45Z",
-      "sizeBytes": 111369,
+      "sizeBytes": 111424,
       "summary": "Live public TV from iptv-org: broadcaster feeds plus Pluto, Samsung, Rakuten and Plex",
       "version": "1.0.0"
     },
@@ -1015,6 +1015,6 @@
       "version": "1.0.2"
     }
   ],
-  "generated": "2026-09-17T20:32:39Z",
+  "generated": "2026-09-17T20:34:47Z",
   "source": "base"
 }
