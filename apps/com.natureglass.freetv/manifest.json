@@ -1,0 +1,41 @@
+{
+    "id": "com.natureglass.freetv",
+    "name": "Free TV",
+    "version": "1.0.4",
+    "description": "<p>Free TV plays the live channels that broadcasters and free ad-supported streaming services publish openly. Pick a source, pick a country, pick a channel. Nothing to sign up for, no account, no key.</p>\r\n<p>Sources</p>\r\n<ul>\r\n<li><b>Broadcasters</b> - channels the broadcasters stream themselves, from over 200 countries and territories.</li>\r\n<li><b>Pluto</b>, <b>Samsung TV Plus</b>, <b>Rakuten TV</b>, <b>Plex</b> - the free ad-supported line-ups, per country.</li>\r\n<li><b>Favorites</b> - everything you starred, gathered from every source.</li>\r\n</ul>\r\n<p>Channel lists come from the community-maintained <code>iptv-org/iptv</code> index, are fetched on demand and cached on the device for 24 hours; <b>Refresh</b> pulls them again. The streams themselves are served by the broadcasters and providers, so which channels work varies by region and by hour - Free TV hosts nothing and proxies nothing.</p>\r\n<p>In the channel list</p>\r\n<ul>\r\n<li>Type to filter by name; chips narrow a list to a single country of origin when one list mixes several.</li>\r\n<li><b>Favorites only</b>, <b>720p or lower</b> (kinder to the console decoder) and <b>Hide unavailable</b> toggles.</li>\r\n<li>A channel that fails to start is remembered as unavailable and hidden until it plays again.</li>\r\n</ul>\r\n<p>Playback is HLS. The console's built-in player handles it natively; in a desktop browser hls.js is loaded from a CDN as a fallback.</p>\r\n<p>Controls: D-pad or stick to move, <b>A</b> select, <b>B</b> back, <b>Y</b> favourite, <b>X</b> fullscreen. Keyboard and mouse work throughout - arrows, Enter, Esc, <code>F</code> to favourite, <code>X</code> for fullscreen.</p>\r\n<p>Favourites and the unavailable list are kept on the device. Nothing is sent anywhere.</p>",
+    "logo": "assets/appbanner.jpg",
+    "entry": "index.html",
+    "categories": [
+        "Apps"
+    ],
+    "permissions": [
+        "network"
+    ],
+    "compatibility": [
+        "mobile",
+        "switch",
+        "web"
+    ],
+    "allowed_origins": [
+        "https://raw.githubusercontent.com"
+    ],
+    "developer": "Alex Daskalakis",
+    "license": "MIT",
+    "exitGame": "PLUS",
+    "fullscreen": true,
+    "orientation": "landscape",
+    "hideMouseDocked": false,
+    "hideMouseUndocked": true,
+    "freshProcessOnExit": false,
+    "minBrewserVersion": "0.1.130",
+    "publishedAt": "2026-09-17T12:52:14Z",
+    "updatedAt": "2026-09-17T12:52:14Z",
+    "summary": "Live public TV from iptv-org: broadcaster feeds plus Pluto, Samsung, Rakuten and Plex",
+    "features": [
+        "Gamepad"
+    ],
+    "tags": [
+        "Streaming",
+        "TV"
+    ]
+}
