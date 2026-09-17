@@ -83,7 +83,7 @@
   #home .lead { max-width: 60ch; color: var(--muted); font-size: 15px; margin: 0; }
   .tiles {
     display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px;
-    max-width: 1100px;
+    max-width: 1100px; padding: 4px;
   }
   .tile {
     text-align: left; position: relative;
@@ -247,7 +247,7 @@
     /* --- home --- */
     #home { padding: 14px 16px; gap: 12px; }
     #home .lead { font-size: 13px; max-width: none; }
-    .tiles { grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: none; }
+    .tiles { grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: none; padding: 4px; }
     .tile { height: auto; min-height: 92px; padding: 10px 12px; border-radius: 10px; }
     .tile .mark { font-size: 20px; }
     .tile .title { font-size: 15px; }
@@ -350,8 +350,8 @@
           </div>
           <div class="side-row">
             <button class="btn small" id="fFav" aria-pressed="false">Only Favorites</button>
-            <button class="btn small" id="fHide" aria-pressed="true">Hide Unavailable</button>
-            <button class="btn small" id="f720" aria-pressed="false">720p or lower</button>
+            <button class="btn small" id="fHide" aria-pressed="true">Only Available</button>
+            <button class="btn small" id="f720" aria-pressed="false">720p max</button>
           </div>
           <div class="chips" id="chips"></div>
         </div>

@@ -1,6 +1,6 @@
 # Free TV
 
-_v1.0.7_
+_v1.0.8_
 
 Free TV plays the live channels that broadcasters and free ad-supported streaming services publish openly. Pick a source, pick a country, pick a channel. Nothing to sign up for, no account, no key.
 
@@ -26,7 +26,6 @@ Free TV plays the live channels that broadcasters and free ad-supported streamin
 
 ---
 
-- **Live app:** [Free TV](https://brewser.io/free-tv/)
 - **Brewser profile:** [natureglass](https://brewser.io/profile?publisher=natureglass)
 - **License:** [MIT](https://choosealicense.com/licenses/mit)
 - **Website:** [https://github.com/natureglass](https://github.com/natureglass)
