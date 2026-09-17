@@ -82,9 +82,9 @@
         "network"
       ],
       "publishedAt": "2026-09-13T07:33:22Z",
-      "sizeBytes": 71856,
+      "sizeBytes": 71892,
       "summary": "A shared canvas you paint on together in real time, with live cursors, three tools and synced undo.",
-      "version": "1.0.6"
+      "version": "1.0.7"
     },
     {
       "categories": [
@@ -961,7 +961,7 @@
     }
   ],
   "defaultSource": "base",
-  "generated": "2026-09-17T11:53:05Z",
+  "generated": "2026-09-17T12:07:36Z",
   "revoked": [],
   "sources": {
     "base": "https://play.brewser.io",
