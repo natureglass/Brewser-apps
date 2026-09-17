@@ -225,6 +225,16 @@
 
   /* ---------- fullscreen ---------- */
   body.fs header, body.fs aside, body.fs .stage-head, body.fs .side-scrim { display: none; }
+  /* Floating exit, mobile web only. Hidden everywhere else: the console has X
+     and B, and desktop keeps the stage-head button. Gated on a body class
+     rather than a media query so the console can never match it. */
+  .fsexit { display: none; }
+  body.is-mobile.fs .fsexit {
+    display: inline-flex; position: absolute; top: 12px; right: 12px; z-index: 30;
+    background: rgba(0, 0, 0, .66); border-color: rgba(255, 255, 255, .28);
+    opacity: 0; pointer-events: none; transition: opacity .18s;
+  }
+  body.is-mobile.fs .fsexit.show { opacity: 1; pointer-events: auto; }
   body.fs main { position: fixed; inset: 0; }
   body.fs .stage { border: 0; }
 
@@ -399,6 +409,7 @@
           <video id="video" playsinline autoplay></video>
           <div class="osd" id="osd"></div>
           <div class="status" id="status"></div>
+          <button class="btn small fsexit" id="fsExit">Exit fullscreen</button>
         </div>
       </div>
     </section>
@@ -1042,18 +1053,74 @@ function step(dir) {
 }
 
 /* ===================== FULLSCREEN ===================== */
+// Is this the phone/tablet web build? Deliberately NOT a bare
+// "(pointer: coarse)" test: the Switch has a touchscreen too and would match
+// it. The console is excluded by its UA token first (the engine appends
+// "Brewser/1.0"), so the console keeps X / B and gains no floating chrome.
+// The remaining test mirrors the WordPress mobile player's own gate
+// (brewser-mobile-fullscreen.js), so the two agree on what "mobile" means.
+const IS_SWITCH = /Brewser\//i.test((navigator && navigator.userAgent) || '');
+const IS_MOBILE = (function () {
+  if (IS_SWITCH) return false;
+  try {
+    if (window.matchMedia) {
+      return window.matchMedia('(pointer: coarse)').matches
+          || window.matchMedia('(hover: none)').matches;
+    }
+  } catch (e) {}
+  return 'ontouchstart' in window;
+})();
+if (IS_MOBILE) document.body.classList.add('is-mobile');
+
+// Reveal the floating exit control for a few seconds. On mobile the app is
+// already running inside a fullscreened iframe (the WP player fullscreens the
+// whole frame), so our own `fs` adds no screen area - it only hides the
+// header and stage-head, which is where BOTH ways back used to live
+// (btnMenu and btnFs). With no gamepad and no keyboard that sealed the user
+// in. This is the way out.
+let fsHintT = null;
+function revealFsExit(show) {
+  const b = $('fsExit');
+  if (!b) return;
+  clearTimeout(fsHintT);
+  const on = show !== false;
+  b.classList.toggle('show', on);
+  if (on) fsHintT = setTimeout(() => b.classList.remove('show'), 3500);
+}
 function setFullscreen(on) {
   if (on) document.body.classList.remove('nav-open'), $('btnMenu').setAttribute('aria-expanded', 'false');
   document.body.classList.toggle('fs', on);
   $('btnFs').textContent = on ? 'Exit fullscreen' : 'Fullscreen';
-  try {
-    if (on && document.documentElement.requestFullscreen && !document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
-    if (!on && document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(() => {});
-  } catch (e) {}
+  // Native fullscreen is for desktop/console only. On mobile the player has
+  // ALREADY put our iframe in native fullscreen, so asking again from inside
+  // is redundant - and risky: the wrapper closes the whole player whenever it
+  // sees a fullscreenchange with no fullscreen element, so perturbing that
+  // state can tear the app down instead of just leaving our own fullscreen.
+  if (!IS_MOBILE) {
+    try {
+      if (on && document.documentElement.requestFullscreen && !document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+      if (!on && document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(() => {});
+    } catch (e) {}
+  }
   if (on && S.current) showOsd(S.current);
+  // Show the way out immediately on entering, so it is never a surprise.
+  if (IS_MOBILE) revealFsExit(on);
   if (!on) setTimeout(() => focusFirst('watch'), 0);
 }
-document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement && document.body.classList.contains('fs')) setFullscreen(false); });
+document.addEventListener('fullscreenchange', () => {
+  // Mobile never enters native fullscreen itself (see setFullscreen), and the
+  // element that IS fullscreen there belongs to the wrapper page - so reacting
+  // to this would drop our own fullscreen on an event we did not cause.
+  if (IS_MOBILE) return;
+  if (!document.fullscreenElement && document.body.classList.contains('fs')) setFullscreen(false);
+});
+// Tap the picture to toggle the exit control; tap the control to leave
+// fullscreen and land back on the normal split view with the channel list.
+$('fsExit').addEventListener('click', e => { e.stopPropagation(); setFullscreen(false); });
+document.querySelector('.tv').addEventListener('click', () => {
+  if (!IS_MOBILE || !document.body.classList.contains('fs')) return;
+  revealFsExit(!$('fsExit').classList.contains('show'));
+});
 
 /* ===================== INPUT: keyboard + gamepad, spatial focus ===================== */
 let focused = null;
