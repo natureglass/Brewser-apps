@@ -299,31 +299,6 @@
     background: #303036;
     margin: 0 7px;
   }
-
-
-
-  /* ---------- landscape phone ---------- */
-  @media (orientation: landscape) and (max-width: 500px) {
-    aside {
-      overflow-y: scroll;
-    }
-  
-    track,
-    track.narrow {
-      width: 80px;
-    }
-
-    header {
-      gap: 0px;
-      padding: 0 6px 0 8px;
-    }
-
-    .brand .doc {
-      display: none;
-    }
-
-  }
-
   /* ---------- portrait phone ----------
      A phone held upright cannot seat a 347px sidebar beside the board, nor the
      whole header on one 54px row. Under this query only, the sidebar becomes a
@@ -400,6 +375,29 @@
     .brand .pipe, .brand .doc { display: none; }
     .brand { flex: 0 1 auto; }
   }
+
+  
+  /* ---------- landscape phone ---------- */
+  @media (orientation: landscape) and (max-width: 800px) {
+    aside {
+      overflow-y: scroll;
+    }
+  
+    .track,
+    .track.narrow {
+      width: 80px;
+    }
+
+    header {
+      gap: 0px;
+      padding: 0 6px 0 8px;
+    }
+
+    .brand .pipe, .brand .doc { display: none; }
+    .brand { flex: 0 1 auto; }
+
+  }
+
 </style>
 </head>
 <body>
