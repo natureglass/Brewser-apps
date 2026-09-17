@@ -68,6 +68,7 @@
         "Apps"
       ],
       "compatibility": [
+        "mobile",
         "switch",
         "web"
       ],
@@ -84,9 +85,9 @@
         "network"
       ],
       "publishedAt": "2026-09-13T07:33:22Z",
-      "sizeBytes": 71893,
+      "sizeBytes": 71908,
       "summary": "A shared canvas you paint on together in real time, with live cursors, three tools and synced undo.",
-      "version": "1.0.8"
+      "version": "1.0.9"
     },
     {
       "categories": [
@@ -1018,6 +1019,6 @@
       "version": "1.0.2"
     }
   ],
-  "generated": "2026-09-17T14:39:55Z",
+  "generated": "2026-09-17T14:48:55Z",
   "source": "base"
 }
