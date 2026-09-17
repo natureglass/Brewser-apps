@@ -26,6 +26,7 @@ Free TV plays the live channels that broadcasters and free ad-supported streamin
 
 ---
 
+- **Live app:** [Free TV](https://brewser.io/free-tv/)
 - **Brewser profile:** [natureglass](https://brewser.io/profile?publisher=natureglass)
 - **License:** [MIT](https://choosealicense.com/licenses/mit)
 - **Website:** [https://github.com/natureglass](https://github.com/natureglass)
