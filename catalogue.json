@@ -280,7 +280,7 @@
         "network"
       ],
       "publishedAt": "2026-09-17T20:31:45Z",
-      "sizeBytes": 1493843,
+      "sizeBytes": 2411143,
       "summary": "Streaming channels from Pluto, Samsung TV Plus, Rakuten and Plex, plus broadcasters",
       "version": "1.0.2"
     },
@@ -992,7 +992,7 @@
     }
   ],
   "defaultSource": "base",
-  "generated": "2026-09-18T09:50:56Z",
+  "generated": "2026-09-18T10:02:00Z",
   "revoked": [],
   "sources": {
     "base": "https://play.brewser.io",
