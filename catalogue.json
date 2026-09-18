@@ -275,12 +275,12 @@
       "license": "MIT",
       "logo": "assets/appbanner.jpg",
       "minBrewserVersion": "0.1.131",
-      "name": "Free TV",
+      "name": "Stream TV",
       "permissions": [
         "network"
       ],
       "publishedAt": "2026-09-17T20:31:45Z",
-      "sizeBytes": 96211,
+      "sizeBytes": 96217,
       "summary": "Streaming channels from Pluto, Samsung TV Plus, Rakuten and Plex, plus broadcasters",
       "version": "1.0.2"
     },
@@ -992,7 +992,7 @@
     }
   ],
   "defaultSource": "base",
-  "generated": "2026-09-18T09:44:27Z",
+  "generated": "2026-09-18T09:45:23Z",
   "revoked": [],
   "sources": {
     "base": "https://play.brewser.io",
