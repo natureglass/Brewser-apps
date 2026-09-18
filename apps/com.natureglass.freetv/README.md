@@ -1,4 +1,4 @@
-# Free TV
+# Stream TV
 
 _v1.0.2_
 
@@ -26,7 +26,7 @@ Switch Controls: D-pad or stick to move, **A** select, **B** back, **Y** favouri
 
 ---
 
-- **Live app:** [Free TV](https://brewser.io/free-tv/)
+- **Live app:** [Stream TV](https://brewser.io/free-tv/)
 - **Brewser profile:** [natureglass](https://brewser.io/profile?publisher=natureglass)
 - **License:** [MIT](https://choosealicense.com/licenses/mit)
 - **Website:** [https://github.com/natureglass](https://github.com/natureglass)
