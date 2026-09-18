@@ -36,7 +36,25 @@
   button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
   input { font: inherit; }
   button:focus, input:focus, [tabindex]:focus { outline: none; }
-  .focus-ring { outline: 2px solid var(--amber) !important; }
+  /* Ring drawn INSIDE the element, not around it.
+     An `outline` normally paints outside the border box, and the Brewser
+     engine gives each scrolling container an offscreen surface sized to its
+     CONTENT box, with children painted from content-origin 0 - so a ring
+     2px to the left of the first button lands at x=-2, off the surface, and
+     is sliced off. Container padding cannot fix that (it shrinks contentW
+     instead of moving the children), which is why the desktop-correct
+     padding fix changed nothing on hardware.
+     `outline-offset` centres the stroke inside the border box, so the ring is
+     always within the element's own box and can never leave the surface.
+     Applies to every ring - list rows clip the same way.
+     -3px, NOT -2px: paintOutline uses `grow = offset + width/2`, so -2 puts
+     the ring's outermost pixel EXACTLY on the element's edge - which is
+     exactly the surface boundary for anything touching it (valid columns are
+     0..w-1), and that last column got shaved. Most visible on the channel
+     rows, which are width:100% and so always touch the right edge. -3 leaves
+     a 1px margin on every side. Container padding cannot substitute: the rows
+     are 100% wide, so padding shrinks the row along with the content box. */
+  .focus-ring { outline: 2px solid var(--amber) !important; outline-offset: -3px !important; }
 
   /* ---------- shell ---------- */
   #app { height: 100%; display: flex; flex-direction: column; }
@@ -627,8 +645,23 @@ function focusFirst(screen) {
     if (pref) setFocus(pref);
     return;
   }
-  const pref = root.querySelector('.ch.playing') || (S.cc && root.querySelector('.country[data-cc="' + S.cc + '"]')) || root.querySelector('.tile, .country, .ch, .btn');
+  // First VISIBLE candidate, in preference order. Taking the first MATCH was
+  // the bug on "Choose a country": #btnPickBack carries .btn and sits before
+  // the country grid in the markup, so arriving from Home - where it is
+  // display:none - focused an invisible button and the screen looked dead.
+  const pref = firstVisible([
+    root.querySelector('.ch.playing'),
+    S.cc ? root.querySelector('.country[data-cc="' + S.cc + '"]') : null,
+    root.querySelector('.tile'),
+    root.querySelector('.country'),
+    root.querySelector('.ch'),
+    root.querySelector('.btn'),
+  ]) || focusables()[0];
   if (pref) setFocus(pref);
+}
+function firstVisible(list) {
+  for (const el of list) if (el && isVisible(el)) return el;
+  return null;
 }
 
 /* ---------- home ---------- */
@@ -641,6 +674,7 @@ function renderHome() {
       '<div><div class="title">' + esc(s.title) + '</div><div class="meta">' + esc(s.desc) + ' \u00b7 ' + meta + '</div></div></button>';
   }).join('');
   $('tiles').querySelectorAll('.tile').forEach(b => b.addEventListener('click', () => openSource(b.dataset.src)));
+  repaintUI(); // in-place innerHTML swap - see renderCountries
   const n = Object.keys(localStorage).filter(k => k.startsWith('freetv.cache.')).length;
   $('cacheNote').textContent = n ? n + ' channel list' + (n === 1 ? '' : 's') + ' cached on this device. Refresh clears them.' : 'Nothing cached yet. Lists download when you open a country.';
 }
@@ -673,6 +707,12 @@ function renderCountries(q) {
     || '<div class="empty">No country matches that.</div>';
   $('countries').querySelectorAll('.country').forEach(b => b.addEventListener('click', () => openCountry(b.dataset.cc)));
   $('pickNote').textContent = list.length + (list.length === 1 ? ' country' : ' countries');
+  // Same in-place innerHTML rule as the channel list: without this the engine
+  // keeps the PREVIOUS grid's baked cache and hit boxes, so taps land on
+  // wherever the old buttons were. Most visible switching from Broadcasters
+  // (~190 countries) to Pluto/Samsung (a dozen): the grid you see is short,
+  // the boxes being hit are the long one's.
+  repaintUI();
 }
 $('btnPickBack').addEventListener('click', () => show('watch'));
 
@@ -745,6 +785,8 @@ function visibleChannels() {
 let lastListHtml = null;
 // Identity of the current filter/page view, to know when to reset scroll.
 let lastViewKey = null;
+// Last rendered chip row, same no-op-swap guard as the list.
+let lastChipsHtml = null;
 // Swapping a container's innerHTML in place leaves the Brewser engine's
 // baked overlay cache stale: the rows are in the DOM and the container still
 // scrolls, but nothing repaints them and hit-testing keeps the OLD boxes, so
@@ -783,10 +825,14 @@ function renderWatch(keepFocus) {
   const origins = {};
   S.channels.forEach(ch => { origins[ch.origin] = (origins[ch.origin] || 0) + 1; });
   const keys = Object.keys(origins).sort((a, b) => origins[b] - origins[a]);
-  $('chips').innerHTML = keys.length > 1
+  const chipsHtml = keys.length > 1
     ? '<button class="chip" data-chip="" aria-pressed="' + (!S.filters.chip) + '">All</button>' +
       keys.map(k => '<button class="chip" data-chip="' + k + '" aria-pressed="' + (S.filters.chip === k) + '">' + esc(countryName(k)) + ' <span style="color:var(--faint)">' + origins[k] + '</span></button>').join('')
     : '';
+  // Chips are tappable too, so a changed chip row needs the same repaint the
+  // list gets - tracked separately because chips and rows change independently.
+  const chipsChanged = chipsHtml !== lastChipsHtml;
+  if (chipsChanged) { lastChipsHtml = chipsHtml; $('chips').innerHTML = chipsHtml; }
   $('chips').querySelectorAll('.chip').forEach(b => b.addEventListener('click', () => { S.filters.chip = b.dataset.chip || null; S.page = 0; renderWatch(); }));
 
   const vis = visibleChannels();
@@ -846,7 +892,7 @@ function renderWatch(keepFocus) {
   if (focusedKey) { const el = $('list').querySelector('.ch[data-key="' + CSS.escape(focusedKey) + '"]'); if (el) setFocus(el); }
   // Rows changed in place -> the engine's baked cache and hit-test boxes are
   // stale until told otherwise.
-  if (listChanged) repaintUI();
+  if (listChanged || chipsChanged) repaintUI();
 }
 function emptyText() {
   if (!S.channels.length) return S.source && S.source.id === 'fav' ? 'No favorites yet. Star a channel with Y or the star button.' : 'Loading\u2026';
@@ -1124,6 +1170,53 @@ document.querySelector('.tv').addEventListener('click', () => {
 
 /* ===================== INPUT: keyboard + gamepad, spatial focus ===================== */
 let focused = null;
+// Is this element actually on screen and focusable?
+//
+// The usual `offsetParent !== null` test is USELESS on the console: the
+// Brewser engine does not implement offsetParent, so it reads `undefined`,
+// and `undefined !== null` is true - every hidden button passed the filter.
+// That is how D-pad focus could land on things nobody can see (a
+// display:none Back button, the mobile-only exit control) and appear to
+// vanish. Test the layout box and the computed display instead, both of
+// which the engine does implement.
+function isVisible(el) {
+  if (!el) return false;
+  try {
+    const r = el.getBoundingClientRect();
+    if (!r || r.width <= 0 || r.height <= 0) return false;
+  } catch (e) { return false; }
+  try {
+    const cs = window.getComputedStyle ? getComputedStyle(el) : null;
+    if (cs && (cs.display === 'none' || cs.visibility === 'hidden')) return false;
+  } catch (e) {}
+  return true;
+}
+// Nearest ancestor that actually scrolls. All scrolling here is inner
+// container scrolling (#home, .countries, .list) - body is overflow:hidden.
+function scrollableAncestor(el) {
+  let n = el && el.parentElement;
+  while (n && n !== document.body) {
+    try { if (n.scrollHeight - n.clientHeight > 1) return n; } catch (e) {}
+    n = n.parentElement;
+  }
+  return null;
+}
+// Scroll the focused element into view explicitly, rather than trusting
+// scrollIntoView's options to be honoured. Without this, focus walks off the
+// bottom of a long list while the list stays put, so the focus ring is
+// somewhere the user cannot see and every further press makes it worse.
+function ensureInView(el) {
+  const box = scrollableAncestor(el);
+  if (!box) return;
+  let er, br;
+  try { er = el.getBoundingClientRect(); br = box.getBoundingClientRect(); } catch (e) { return; }
+  if (!er || !br || !br.height) return;
+  const pad = 6;
+  try {
+    if (er.top < br.top + pad) box.scrollTop -= (br.top + pad - er.top);
+    else if (er.bottom > br.bottom - pad) box.scrollTop += (er.bottom - (br.bottom - pad));
+  } catch (e) {}
+}
 function setFocus(el) {
   if (focused && focused !== el) focused.classList.remove('focus-ring');
   focused = el;
@@ -1131,6 +1224,7 @@ function setFocus(el) {
   el.classList.add('focus-ring');
   try { el.focus({ preventScroll: true }); } catch (e) { try { el.focus(); } catch (e2) {} }
   try { el.scrollIntoView({ block: 'nearest', inline: 'nearest' }); } catch (e) {}
+  ensureInView(el);
 }
 document.addEventListener('focusin', e => { const el = e.target; if (el && el !== focused && el.matches && el.matches('button, input')) setFocus(el); });
 function focusables() {
@@ -1138,9 +1232,10 @@ function focusables() {
   if (!root) return [];
   const drawer = isDrawer() && S.screen === 'watch';
   const open = document.body.classList.contains('nav-open');
-  const nodes = (drawer && open) ? [] : [...document.querySelectorAll('header button, header input')].filter(n => n.offsetParent !== null);
+  const nodes = (drawer && open) ? [] : [...document.querySelectorAll('header button, header input')].filter(isVisible);
   root.querySelectorAll('button, input').forEach(n => {
-    if (n.offsetParent === null) return;
+    if (!isVisible(n)) return;
+    if (n.disabled) return;                     // a greyed-out pager arrow is not a destination
     if (drawer && inAside(n) !== open) return;  // a translated-off drawer still reports a layout box
     nodes.push(n);
   });

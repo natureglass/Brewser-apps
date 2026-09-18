@@ -1,6 +1,6 @@
 # Free TV
 
-_v1.0.1_
+_v1.0.2_
 
 Free TV plays the live channels that broadcasters and free ad-supported streaming services publish openly. Pick a source, pick a country, pick a channel. Nothing to sign up for, no account, no key.
 
