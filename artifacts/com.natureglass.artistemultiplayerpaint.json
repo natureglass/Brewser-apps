@@ -1,10 +1,11 @@
 {
   "files": [
     "README.md",
+    "assets/appbanner.gif",
     "assets/appbanner.jpg",
     "index.html",
     "manifest.json"
   ],
   "id": "com.natureglass.artistemultiplayerpaint",
-  "sizeBytes": 71908
+  "sizeBytes": 731457
 }
