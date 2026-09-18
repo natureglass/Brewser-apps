@@ -278,14 +278,14 @@
       "id": "com.natureglass.freetv",
       "license": "MIT",
       "logo": "assets/appbanner.jpg",
-      "maxFileBytes": 71924,
+      "maxFileBytes": 1397622,
       "minBrewserVersion": "0.1.131",
       "name": "Stream TV",
       "permissions": [
         "network"
       ],
       "publishedAt": "2026-09-17T20:31:45Z",
-      "sizeBytes": 96217,
+      "sizeBytes": 1493839,
       "summary": "Streaming channels from Pluto, Samsung TV Plus, Rakuten and Plex, plus broadcasters",
       "version": "1.0.2"
     },
@@ -1015,6 +1015,6 @@
       "version": "1.0.2"
     }
   ],
-  "generated": "2026-09-18T09:45:23Z",
+  "generated": "2026-09-18T09:49:58Z",
   "source": "base"
 }
