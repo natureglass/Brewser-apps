@@ -30,7 +30,7 @@
     "minBrewserVersion": "0.1.131",
     "publishedAt": "2026-09-17T20:31:45Z",
     "updatedAt": "2026-09-18T06:43:48Z",
-    "summary": "Live public TV from iptv-org: broadcaster feeds plus Pluto, Samsung, Rakuten and Plex",
+    "summary": "Streaming channels from Pluto, Samsung TV Plus, Rakuten and Plex, plus broadcasters",
     "features": [
         "Gamepad"
     ]
