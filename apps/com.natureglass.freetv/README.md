@@ -18,9 +18,9 @@ Free TV plays the live channels that broadcasters and free ad-supported streamin
 - **Favorites only**, **720p or lower** (kinder to the console decoder) and **Hide unavailable** toggles.
 - A channel that fails to start is remembered as unavailable and hidden until it plays again.
 
- Playback is HLS. The console's built-in player handles it natively; in a desktop browser hls.js is loaded from a CDN as a fallback.
-
- Controls: D-pad or stick to move, **A** select, **B** back, **Y** favourite, **X** fullscreen. Keyboard and mouse work throughout - arrows, Enter, Esc, `F` to favourite, `X` for fullscreen.
+ Playback is HLS. The console's built-in player handles it natively; in a desktop browser hls.js is loaded from a CDN as a fallback.  
+  
+Switch Controls: D-pad or stick to move, **A** select, **B** back, **Y** favourite, **X** fullscreen. Keyboard and mouse work throughout - arrows, Enter, Esc, `F` to favourite, `X` for fullscreen. Use touch gestures of D-pad is not comfortable.
 
  Favourites and the unavailable list are kept on the device. Nothing is sent anywhere.
 
