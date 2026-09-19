@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-18T12:41:15Z",
+  "generated": "2026-09-19T12:40:37Z",
   "stats": {
     "com.natureglass.2dplatformermicrogame": {
       "downloads": 0,
@@ -49,13 +49,13 @@
       "ratingScore": 4.9206
     },
     "com.natureglass.fractalzoom": {
-      "downloads": 3,
+      "downloads": 4,
       "ratingAvg": 4,
       "ratingCount": 1,
       "ratingScore": 4.754
     },
     "com.natureglass.freetv": {
-      "downloads": 7,
+      "downloads": 9,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.9206
@@ -78,7 +78,7 @@
       "ratingCount": 0
     },
     "com.natureglass.jellyfinclient": {
-      "downloads": 14,
+      "downloads": 15,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.9206
@@ -123,13 +123,13 @@
       "ratingScore": 4.9206
     },
     "com.natureglass.spectraplay": {
-      "downloads": 4,
+      "downloads": 5,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.9206
     },
     "com.natureglass.speedtest": {
-      "downloads": 4,
+      "downloads": 5,
       "ratingAvg": 0,
       "ratingCount": 0
     },
@@ -139,7 +139,7 @@
       "ratingCount": 0
     },
     "com.natureglass.streamcast": {
-      "downloads": 10,
+      "downloads": 11,
       "ratingAvg": 4,
       "ratingCount": 1,
       "ratingScore": 4.754
@@ -155,7 +155,7 @@
       "ratingCount": 0
     },
     "com.natureglass.threejsgpgpuwater": {
-      "downloads": 3,
+      "downloads": 4,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.9206
@@ -166,7 +166,7 @@
       "ratingCount": 0
     },
     "com.natureglass.threejsloadergltf": {
-      "downloads": 3,
+      "downloads": 4,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.9206
