@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-26T12:44:22Z",
+  "generated": "2026-09-27T12:39:50Z",
   "stats": {
     "com.natureglass.2dplatformermicrogame": {
       "downloads": 0,
@@ -13,13 +13,13 @@
       "ratingCount": 0
     },
     "com.natureglass.artistemultiplayerpaint": {
-      "downloads": 17,
+      "downloads": 18,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.9206
     },
     "com.natureglass.compass": {
-      "downloads": 6,
+      "downloads": 7,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.9206
@@ -37,25 +37,25 @@
       "ratingScore": 4.9206
     },
     "com.natureglass.dusk": {
-      "downloads": 10,
+      "downloads": 12,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.9206
     },
     "com.natureglass.fluiddynamics": {
-      "downloads": 21,
+      "downloads": 22,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.9206
     },
     "com.natureglass.fractalzoom": {
-      "downloads": 7,
+      "downloads": 8,
       "ratingAvg": 4,
       "ratingCount": 1,
       "ratingScore": 4.754
     },
     "com.natureglass.freetv": {
-      "downloads": 57,
+      "downloads": 64,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.9206
@@ -78,7 +78,7 @@
       "ratingCount": 0
     },
     "com.natureglass.jellyfinclient": {
-      "downloads": 22,
+      "downloads": 25,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.9206
@@ -95,7 +95,7 @@
       "ratingCount": 0
     },
     "com.natureglass.midisurface": {
-      "downloads": 14,
+      "downloads": 19,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.9206
@@ -117,24 +117,24 @@
       "ratingCount": 0
     },
     "com.natureglass.sensorsplayground": {
-      "downloads": 22,
+      "downloads": 23,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.9206
     },
     "com.natureglass.spectraplay": {
-      "downloads": 11,
+      "downloads": 13,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.9206
     },
     "com.natureglass.speedtest": {
-      "downloads": 13,
+      "downloads": 15,
       "ratingAvg": 0,
       "ratingCount": 0
     },
     "com.natureglass.speedwatch": {
-      "downloads": 7,
+      "downloads": 8,
       "ratingAvg": 0,
       "ratingCount": 0
     },
@@ -171,8 +171,13 @@
       "ratingCount": 1,
       "ratingScore": 4.9206
     },
+    "com.natureglass.threejspostprocessingpixelation": {
+      "downloads": 1,
+      "ratingAvg": 0,
+      "ratingCount": 0
+    },
     "com.natureglass.threejsrapier3dphysics": {
-      "downloads": 4,
+      "downloads": 5,
       "ratingAvg": 0,
       "ratingCount": 0
     },
