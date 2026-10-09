@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-08T12:41:27Z",
+  "generated": "2026-10-09T12:41:27Z",
   "stats": {
     "com.natureglass.2dplatformermicrogame": {
       "downloads": 0,
@@ -13,7 +13,7 @@
       "ratingCount": 0
     },
     "com.natureglass.artistemultiplayerpaint": {
-      "downloads": 33,
+      "downloads": 34,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.9206
@@ -43,7 +43,7 @@
       "ratingScore": 4.9206
     },
     "com.natureglass.fluiddynamics": {
-      "downloads": 37,
+      "downloads": 38,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.9206
@@ -55,7 +55,7 @@
       "ratingScore": 4.754
     },
     "com.natureglass.freetv": {
-      "downloads": 118,
+      "downloads": 119,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.9206
@@ -182,7 +182,7 @@
       "ratingCount": 0
     },
     "com.natureglass.threejsselectiveunrealbloom": {
-      "downloads": 5,
+      "downloads": 6,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.9206
