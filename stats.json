@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-20T12:41:07Z",
+  "generated": "2026-10-21T12:41:35Z",
   "stats": {
     "com.natureglass.2dplatformermicrogame": {
       "downloads": 0,
@@ -55,7 +55,7 @@
       "ratingScore": 4.754
     },
     "com.natureglass.freetv": {
-      "downloads": 165,
+      "downloads": 170,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.9206
@@ -78,7 +78,7 @@
       "ratingCount": 0
     },
     "com.natureglass.jellyfinclient": {
-      "downloads": 49,
+      "downloads": 51,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.9206
@@ -117,7 +117,7 @@
       "ratingCount": 0
     },
     "com.natureglass.sensorsplayground": {
-      "downloads": 36,
+      "downloads": 37,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.9206
