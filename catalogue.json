@@ -2,11 +2,10 @@
   "apps": [
     {
       "categories": [
-        "Other"
+        "Games"
       ],
       "compatibility": [
         "mobile",
-        "switch",
         "web"
       ],
       "description": "<p>Turbo Arena 4.0 — Nintendo Switch / Brewser Edition</p>\r\n<p>&nbsp;</p>\r\n<p>Turbo Arena 4.0 is a 3D arcade driving game built with HTML5 and WebGL. This version is designed for widescreen gameplay and supports touchscreen input and Nintendo Switch game controllers.</p>\r\n<p>&nbsp;</p>\r\n<p>Controls</p>\r\n<p>&nbsp;</p>\r\n<p>- Left stick: Drive and steer</p>\r\n<p>- Right stick: Camera</p>\r\n<p>- A: Jump</p>\r\n<p>- B: Brake</p>\r\n<p>- Y: Drift</p>\r\n<p>- R: Nitro</p>\r\n<p>&nbsp;</p>\r\n<p>Features: Fullscreen gameplay, responsive menus, adjustable touch controls, and controller support.</p>\r\n<p>&nbsp;</p>\r\n<p>Compatibility: Designed for Brewser Runtime. Performance and input compatibility require testing on the target device.</p>\r\n<p>&nbsp;</p>\r\n<p>Credits: Original Turbo Arena 4.0 project. Third-party libraries and assets remain subject to their respective licenses.</p>\r\n<p>&nbsp;</p>\r\n<p>Disclaimer: This is an independent community project and is not affiliated with or endorsed by Nintendo.</p>",
@@ -22,9 +21,9 @@
       "name": "Turbo arena",
       "permissions": [],
       "publishedAt": "2026-10-24T10:04:02Z",
-      "sizeBytes": 5702368,
+      "sizeBytes": 4589952,
       "summary": "Rocket league ye benzeyen bir oyun kontrolcü dokunmatik ve klavye ile oynanabiliyor",
-      "version": "1.0.3"
+      "version": "1.0.9"
     },
     {
       "categories": [
@@ -1018,7 +1017,7 @@
     }
   ],
   "defaultSource": "base",
-  "generated": "2026-10-24T12:34:01Z",
+  "generated": "2026-10-24T18:32:44Z",
   "revoked": [],
   "sources": {
     "base": "https://play.brewser.io",

@@ -1,9 +1,10 @@
 {
   "files": [
     "README.md",
-    "README_TR.txt",
+    "README.txt",
     "assets/appbanner.jpg",
     "assets/screenshots/1.png",
+    "assets/screenshots/2.png",
     "brewser-sw.js",
     "index.html",
     "manifest.json",
@@ -15,5 +16,5 @@
     "pwa/icon-maskable.png"
   ],
   "id": "com.civcivyt.turboarena",
-  "sizeBytes": 5702368
+  "sizeBytes": 4589952
 }
