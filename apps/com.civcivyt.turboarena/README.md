@@ -44,5 +44,6 @@ Turbo Arena 4.0 — Nintendo Switch / Brewser Edition
 
 ---
 
+- **Live app:** [Turbo arena](https://brewser.io/turbo-arena/)
 - **Brewser profile:** [civcivyt](https://brewser.io/profile?publisher=civcivyt)
 - **License:** [Apache-2.0](https://choosealicense.com/licenses/apache-2.0)
