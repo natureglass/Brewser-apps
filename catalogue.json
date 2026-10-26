@@ -21,9 +21,9 @@
       "name": "Turbo arena",
       "permissions": [],
       "publishedAt": "2026-10-24T10:04:02Z",
-      "sizeBytes": 4604882,
+      "sizeBytes": 4718545,
       "summary": "Rocket league ye benzeyen bir oyun kontrolcü dokunmatik ve klavye ile oynanabiliyor",
-      "version": "2.0.2"
+      "version": "2.0.3"
     },
     {
       "categories": [
@@ -1017,7 +1017,7 @@
     }
   ],
   "defaultSource": "base",
-  "generated": "2026-10-25T11:35:16Z",
+  "generated": "2026-10-26T17:45:29Z",
   "revoked": [],
   "sources": {
     "base": "https://play.brewser.io",
