@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-28T12:41:46Z",
+  "generated": "2026-10-29T12:46:40Z",
   "stats": {
     "com.civcivyt.turboarena": {
       "downloads": 0,
@@ -19,7 +19,7 @@
       "ratingCount": 0
     },
     "com.natureglass.artistemultiplayerpaint": {
-      "downloads": 55,
+      "downloads": 57,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.7727
@@ -31,7 +31,7 @@
       "ratingScore": 4.7727
     },
     "com.natureglass.cracktroforever": {
-      "downloads": 37,
+      "downloads": 38,
       "ratingAvg": 3,
       "ratingCount": 2,
       "ratingScore": 4.2338
@@ -61,13 +61,13 @@
       "ratingScore": 4.6061
     },
     "com.natureglass.freetv": {
-      "downloads": 196,
+      "downloads": 202,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.7727
     },
     "com.natureglass.fsrlab": {
-      "downloads": 29,
+      "downloads": 30,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.7727
@@ -84,13 +84,13 @@
       "ratingCount": 0
     },
     "com.natureglass.jellyfinclient": {
-      "downloads": 59,
+      "downloads": 60,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.7727
     },
     "com.natureglass.matrixstudio": {
-      "downloads": 25,
+      "downloads": 26,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.7727
@@ -107,7 +107,7 @@
       "ratingScore": 4.7727
     },
     "com.natureglass.neuralnetworks": {
-      "downloads": 17,
+      "downloads": 18,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.7727
@@ -129,13 +129,13 @@
       "ratingScore": 4.7727
     },
     "com.natureglass.spectraplay": {
-      "downloads": 20,
+      "downloads": 21,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.7727
     },
     "com.natureglass.speedtest": {
-      "downloads": 39,
+      "downloads": 40,
       "ratingAvg": 0,
       "ratingCount": 0
     },
@@ -145,7 +145,7 @@
       "ratingCount": 0
     },
     "com.natureglass.streamcast": {
-      "downloads": 42,
+      "downloads": 43,
       "ratingAvg": 4,
       "ratingCount": 1,
       "ratingScore": 4.6061
