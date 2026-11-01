@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-31T12:41:20Z",
+  "generated": "2026-11-01T12:39:45Z",
   "stats": {
     "com.civcivyt.turboarena": {
       "downloads": 0,
@@ -19,13 +19,13 @@
       "ratingCount": 0
     },
     "com.natureglass.artistemultiplayerpaint": {
-      "downloads": 58,
+      "downloads": 59,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.7727
     },
     "com.natureglass.compass": {
-      "downloads": 14,
+      "downloads": 15,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.7727
@@ -61,7 +61,7 @@
       "ratingScore": 4.6061
     },
     "com.natureglass.freetv": {
-      "downloads": 210,
+      "downloads": 216,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.7727
@@ -73,7 +73,7 @@
       "ratingScore": 4.7727
     },
     "com.natureglass.gravityballs": {
-      "downloads": 15,
+      "downloads": 16,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.7727
@@ -84,7 +84,7 @@
       "ratingCount": 0
     },
     "com.natureglass.jellyfinclient": {
-      "downloads": 63,
+      "downloads": 64,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.7727
@@ -113,7 +113,7 @@
       "ratingScore": 4.7727
     },
     "com.natureglass.nxjswebgl1test": {
-      "downloads": 6,
+      "downloads": 7,
       "ratingAvg": 0,
       "ratingCount": 0
     },
@@ -123,7 +123,7 @@
       "ratingCount": 0
     },
     "com.natureglass.sensorsplayground": {
-      "downloads": 42,
+      "downloads": 43,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.7727
@@ -135,7 +135,7 @@
       "ratingScore": 4.7727
     },
     "com.natureglass.speedtest": {
-      "downloads": 42,
+      "downloads": 44,
       "ratingAvg": 0,
       "ratingCount": 0
     },
@@ -145,7 +145,7 @@
       "ratingCount": 0
     },
     "com.natureglass.streamcast": {
-      "downloads": 44,
+      "downloads": 46,
       "ratingAvg": 4,
       "ratingCount": 1,
       "ratingScore": 4.6061
