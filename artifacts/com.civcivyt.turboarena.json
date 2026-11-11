@@ -1,6 +1,12 @@
 {
   "files": [
     "README.md",
+    "Turbo_Arena_4.2_Rank_Garage_VersionSwitch(1).html",
+    "Turbo_Arena_4.3_Smart_Arena.html",
+    "Turbo_Arena_4.5.6_Recommended_Settings.html",
+    "Turbo_Arena_4.5.7_Version_Menu_Fix.html",
+    "Turbo_Arena_4.5.8_Bilingual_Version_Menu.html",
+    "Turbo_Arena_4.6.0_Cosmic_Day_Night.html",
     "assets/appbanner.jpg",
     "assets/screenshots/1.png",
     "assets/screenshots/2.png",
@@ -16,5 +22,5 @@
     "pwa/icon-maskable.png"
   ],
   "id": "com.civcivyt.turboarena",
-  "sizeBytes": 4745670
+  "sizeBytes": 5490437
 }
