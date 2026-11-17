@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-16T12:39:45Z",
+  "generated": "2026-11-17T12:39:44Z",
   "stats": {
     "com.civcivyt.turboarena": {
       "downloads": 0,
@@ -37,7 +37,7 @@
       "ratingScore": 4.2338
     },
     "com.natureglass.domhtmlcss": {
-      "downloads": 11,
+      "downloads": 12,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.7727
@@ -49,7 +49,7 @@
       "ratingScore": 4.7727
     },
     "com.natureglass.fluiddynamics": {
-      "downloads": 56,
+      "downloads": 57,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.7727
@@ -61,7 +61,7 @@
       "ratingScore": 4.6061
     },
     "com.natureglass.freetv": {
-      "downloads": 263,
+      "downloads": 274,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.7727
@@ -73,7 +73,7 @@
       "ratingScore": 4.7727
     },
     "com.natureglass.gravityballs": {
-      "downloads": 18,
+      "downloads": 19,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.7727
@@ -140,7 +140,7 @@
       "ratingCount": 0
     },
     "com.natureglass.speedwatch": {
-      "downloads": 25,
+      "downloads": 26,
       "ratingAvg": 0,
       "ratingCount": 0
     },
