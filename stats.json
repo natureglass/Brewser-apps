@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-25T12:40:51Z",
+  "generated": "2026-11-26T12:39:42Z",
   "stats": {
     "com.civcivyt.turboarena": {
       "downloads": 0,
@@ -61,13 +61,13 @@
       "ratingScore": 4.6061
     },
     "com.natureglass.freetv": {
-      "downloads": 315,
+      "downloads": 319,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.7727
     },
     "com.natureglass.fsrlab": {
-      "downloads": 41,
+      "downloads": 44,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.7727
@@ -134,7 +134,7 @@
       "ratingScore": 4.7727
     },
     "com.natureglass.spectraplay": {
-      "downloads": 21,
+      "downloads": 23,
       "ratingAvg": 5,
       "ratingCount": 1,
       "ratingScore": 4.7727
@@ -172,7 +172,7 @@
       "ratingScore": 4.7727
     },
     "com.natureglass.threejsloadercollada": {
-      "downloads": 12,
+      "downloads": 13,
       "ratingAvg": 0,
       "ratingCount": 0
     },
